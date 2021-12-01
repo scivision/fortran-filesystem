@@ -1,0 +1,65 @@
+name: ci_cmake
+
+env:
+  CMAKE_GENERATOR: Ninja
+
+on:
+  push:
+    paths:
+      - "**/*.f90"
+      - "**/CMakeLists.txt"
+      - "**/*.cmake"
+      - ".github/workflows/ci_cmake.yml"
+
+
+jobs:
+
+  linux-win:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      # just for Ninja
+      with:
+        python-version: 3.x
+
+    - run: pip install ninja
+
+    - run: cmake --preset multi
+
+    - run: cmake --build --preset debug
+    - run: ctest --preset debug -V
+
+    - run: cmake --build --preset release
+    - run: ctest --preset release -V
+
+
+  mac:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
+
+    env:
+      FC: gfortran-11
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      # just for Ninja
+      with:
+        python-version: 3.x
+
+    - run: pip install ninja
+
+    - run: cmake --preset multi
+
+    - run: cmake --build --preset debug
+    - run: ctest --preset debug -V
+
+    - run: cmake --build --preset release
+    - run: ctest --preset release -V

@@ -1,0 +1,81 @@
+{
+  "version": 3,
+
+"configurePresets": [
+{
+  "name": "multi",
+  "binaryDir": "${sourceDir}/build",
+  "displayName": "Ninja Multi-Config",
+  "generator": "Ninja Multi-Config"
+},
+{
+  "name": "coverage",
+  "binaryDir": "${sourceDir}/build-coverage",
+  "displayName": "Code Coverage",
+  "description": "Build with code coverage enabled.",
+  "cacheVariables": {
+    "CMAKE_BUILD_TYPE": "Debug",
+    "ENABLE_COVERAGE": true,
+    "autobuild": false
+  }
+},
+{
+  "name": "phony"
+}
+],
+"buildPresets": [
+  {
+    "name": "release",
+    "configurePreset": "multi",
+    "configuration": "Release"
+  },
+  {
+    "name": "reldebug",
+    "configurePreset": "multi",
+    "configuration": "RelWithDebInfo"
+  },
+  {
+    "name": "debug",
+    "configurePreset": "multi",
+    "configuration": "Debug"
+  },
+  {
+    "name": "coverage",
+    "configurePreset": "coverage"
+  },
+  {
+    "name": "run-coverage",
+    "configurePreset": "coverage",
+    "targets": "coverage"
+  }
+],
+"testPresets": [
+{
+  "name": "default",
+  "configurePreset": "phony",
+  "output": {
+    "outputOnFailure": true,
+    "verbosity": "default"
+  },
+  "execution": {
+    "noTestsAction": "error",
+    "stopOnFailure": false
+  }
+},
+{
+  "name": "release", "inherits": "default",
+  "configurePreset": "multi",
+  "configuration": "Release"
+},
+{
+  "name": "reldebug", "inherits": "default",
+  "configurePreset": "multi",
+  "configuration": "RelWithDebInfo"
+},
+{
+  "name": "debug", "inherits": "default",
+  "configurePreset": "multi",
+  "configuration": "Debug"
+}
+]
+}
