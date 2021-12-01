@@ -4,25 +4,22 @@ Filesystem path manipulation utilities for standard Fortran
 
 Inspired by Python pathlib and C++17 filesystem.
 
+## Manipulate filesystem
 
-## API
+These procedures generally require access to the filesystem to manipulate paths.
+These procedures are by definition
+[impure](https://www.intel.com/content/www/us/en/develop/documentation/fortran-compiler-oneapi-dev-guide-and-reference/top/language-reference/a-to-z-reference/h-to-i/impure.html).
 
-Copy source to dest, overwriting existing files
+Resolve home directory as Fortran does not understand tilde
 
 ```fortran
-subroutine copyfile(source, dest)
+character(:), allocatable function expanduser(in)
 ```
 
-Make directory with parents
+Get home directory, or empty string if not found
 
 ```fortran
-subroutine mkdir(path)
-```
-
-Detect if path is absolute:
-
-```fortran
-logical function is_absolute(path)
+character(:), allocatable function home()
 ```
 
 Does directory exist:
@@ -35,6 +32,35 @@ Does file exist:
 
 ```fortran
 logical function is_file(path)
+```
+
+Copy source to dest, overwriting existing files
+
+```fortran
+subroutine copyfile(source, dest)
+```
+
+Make directory with parent directories
+
+```fortran
+subroutine mkdir(path)
+```
+
+if path is absolute, return expanded path. If path is relative, top_path / path
+
+```fortran
+character(:), allocatable make_absolute(path, top_path)
+```
+
+## Pure procedures
+
+These procedures do not access the filesystem and are therefore
+[pure](https://www.intel.com/content/www/us/en/develop/documentation/fortran-compiler-oneapi-dev-guide-and-reference/top/language-reference/a-to-z-reference/o-to-p/pure.html).
+
+Detect if path is absolute:
+
+```fortran
+logical function is_absolute(path)
 ```
 
 Get file suffix: extracts path suffix, including the final "." dot
@@ -61,13 +87,6 @@ Get file name without path and suffix:
 character(:), allocatable function stem(path)
 ```
 
-if path is absolute, return expanded path
-if path is relative, top_path / path
-
-```fortran
-character(:), allocatable make_absolute(path, top_path)
-```
-
 '/' => '\' for Windows paths
 
 ```fortran
@@ -78,18 +97,6 @@ character(:), allocatable function filesep_windows(path)
 
 ```fortran
 character(:), allocatable function filesep_unix(path)
-```
-
-Resolve home directory as Fortran does not understand tilde
-
-```fortran
-character(:), allocatable function expanduser(in)
-```
-
-Get home directory, or empty string if not found
-
-```fortran
-character(:), allocatable function home()
 ```
 
 ## assert

@@ -10,22 +10,22 @@ is_directory, is_file, assert_is_directory, assert_is_file, &
 make_absolute, is_absolute, parent, file_name, stem
 
 interface  ! pathlib_{unix,windows}.f90
-module subroutine copyfile(source, dest)
+module impure subroutine copyfile(source, dest)
 character(*), intent(in) :: source, dest
 end subroutine copyfile
 
-module subroutine mkdir(path)
+module impure subroutine mkdir(path)
 character(*), intent(in) :: path
 end subroutine mkdir
 
-module logical function is_absolute(path)
+module pure logical function is_absolute(path)
 character(*), intent(in) :: path
 end function is_absolute
 
 end interface
 
 interface !< pathlib_{intel,gcc}.f90
-module logical function is_directory(path)
+module impure logical function is_directory(path)
 character(*), intent(in) :: path
 end function is_directory
 end interface
@@ -34,7 +34,7 @@ end interface
 contains
 
 
-logical function is_file(path)
+impure logical function is_file(path)
 !! is a file and not a directory
 character(*), intent(in) :: path
 
@@ -116,7 +116,7 @@ endif
 end function stem
 
 
-function make_absolute(path, top_path) result(abspath)
+impure function make_absolute(path, top_path) result(abspath)
 !! if path is absolute, return expanded path
 !! if path is relative, top_path / path
 
@@ -137,7 +137,7 @@ endif
 end function make_absolute
 
 
-subroutine assert_is_directory(path)
+impure subroutine assert_is_directory(path)
 !! throw error if directory does not exist
 character(*), intent(in) :: path
 
@@ -146,7 +146,7 @@ if (.not. is_directory(path)) error stop 'directory does not exist ' // path
 end subroutine assert_is_directory
 
 
-subroutine assert_is_file(path)
+impure subroutine assert_is_file(path)
 !! throw error if file does not exist
 
 character(*), intent(in) :: path
@@ -190,7 +190,7 @@ end do
 end function filesep_unix
 
 
-function expanduser(in) result (out)
+impure function expanduser(in) result (out)
 !! resolve home directory as Fortran does not understand tilde
 !! works for Linux, Mac, Windows, etc.
 character(*), intent(in) :: in
@@ -215,7 +215,7 @@ endif
 end function expanduser
 
 
-function home()
+impure function home()
 !! returns home directory, or empty string if not found
 !!
 !! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
