@@ -22,7 +22,7 @@ is_absolute = path(2:2) == ":"
 end procedure is_absolute
 
 
-module procedure copyfile
+module procedure copy_file
 !! copy file from source to destination
 !! OVERWRITES existing destination files
 !!
@@ -36,7 +36,7 @@ cmd = 'copy /y ' // filesep_windows(expanduser(source)) // ' ' // filesep_window
 call execute_command_line(cmd, exitstat=i, cmdstat=j)
 if (i /= 0 .or. j /= 0) error stop "could not copy " // source // " => " // dest
 
-end procedure copyfile
+end procedure copy_file
 
 
 module procedure mkdir

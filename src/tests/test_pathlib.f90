@@ -1,7 +1,7 @@
 program pathlib_test
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use pathlib, only : copyfile, mkdir, expanduser, is_absolute, make_absolute, is_file, is_directory, &
+use pathlib, only : copy_file, mkdir, expanduser, is_absolute, make_absolute, is_file, is_directory, &
 file_name, parent, stem, suffix, filesep_unix, filesep_windows, assert_is_directory, assert_is_file
 
 implicit none (type, external)
@@ -83,7 +83,7 @@ open(newunit=i, file='test-pathlib.h5', status='replace')
 close(i)
 
 call assert_is_file('test-pathlib.h5')
-call copyfile('test-pathlib.h5', 'test-pathlib.h5.copy')
+call copy_file('test-pathlib.h5', 'test-pathlib.h5.copy')
 call assert_is_file('test-pathlib.h5.copy')
 
 if((is_directory('test-pathlib.h5'))) error stop "detected file as directory"

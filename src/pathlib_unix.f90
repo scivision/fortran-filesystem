@@ -18,7 +18,7 @@ if(len_trim(path) > 0) is_absolute = path(1:1) == "/"
 end procedure is_absolute
 
 
-module procedure copyfile
+module procedure copy_file
 !! copy file from src to dst
 !! OVERWRITES existing destination files
 !!
@@ -31,7 +31,7 @@ cmd = 'cp -rf ' // expanduser(source) // ' ' // expanduser(dest)
 call execute_command_line(cmd, exitstat=i, cmdstat=j)
 if (i /= 0 .or. j /= 0) error stop "could not copy " // source // " => " // dest
 
-end procedure copyfile
+end procedure copy_file
 
 
 module procedure mkdir

@@ -4,15 +4,15 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit
 
 implicit none (type, external)
 private
-public :: mkdir, copyfile, expanduser, home, suffix, &
+public :: mkdir, copy_file, expanduser, home, suffix, &
 filesep_windows, filesep_unix, &
 is_directory, is_file, assert_is_directory, assert_is_file, &
 make_absolute, is_absolute, parent, file_name, stem
 
 interface  ! pathlib_{unix,windows}.f90
-module impure subroutine copyfile(source, dest)
+module impure subroutine copy_file(source, dest)
 character(*), intent(in) :: source, dest
-end subroutine copyfile
+end subroutine copy_file
 
 module impure subroutine mkdir(path)
 character(*), intent(in) :: path

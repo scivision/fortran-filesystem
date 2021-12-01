@@ -40,7 +40,7 @@ logical function is_file(path)
 Copy source to dest, overwriting existing files
 
 ```fortran
-subroutine copyfile(source, dest)
+subroutine copy_file(source, dest)
 ```
 
 Make directory with parent directories
