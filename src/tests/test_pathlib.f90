@@ -1,8 +1,7 @@
 program pathlib_test
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use pathlib, only : copy_file, mkdir, expanduser, is_absolute, is_file, is_directory, &
-file_name, parent, stem, suffix, filesep_unix, filesep_windows, assert_is_directory, assert_is_file
+use pathlib, only : path
 
 implicit none (type, external)
 
@@ -14,7 +13,7 @@ call test_expanduser()
 
 call test_is_directory()
 
-call test_assert()
+call test_mkdir()
 
 call test_absolute()
 
@@ -24,14 +23,29 @@ contains
 
 subroutine test_filesep()
 
-if (filesep_unix("") /= "") error stop "filesep_unix empty"
-if (filesep_windows("") /= "") error stop "filesep_windows empty"
+type(path) :: p1, p2, p3
 
-if(filesep_unix("/") /= "/") error stop "filesep_unix '/' failed"
-if(filesep_unix(char(92)) /= "/") error stop "filesep_unix char(92) failed"
+p1%path = ""
 
-if(filesep_windows("/") /= char(92)) error stop "filesep_windows '\' failed"
-if(filesep_windows(char(92)) /= char(92)) error stop "filesep_windows char(92) failed"
+p2 = p1%as_posix()
+if (p2%path /= "") error stop "as_posix empty"
+
+p2 = p1%as_windows()
+if (p2%path /= "") error stop "as_windows empty"
+
+p1%path = "/"
+p3 = p1%as_posix()
+if(p3%path /= "/") error stop "as_posix '/' failed"
+
+p2%path = char(92)
+p3 = p2%as_posix()
+if(p3%path /= "/") error stop "as_posix char(92) failed"
+
+p3 = p1%as_windows()
+if(p3%path /= char(92)) error stop "as_windows '\' failed"
+
+p3 = p2%as_windows()
+if(p3%path /= char(92)) error stop "as_windows char(92) failed"
 
 print *, "OK: pathlib: filesep"
 
@@ -40,20 +54,49 @@ end subroutine test_filesep
 
 subroutine test_manip()
 
-if (stem("hi.a.b") /= "hi.a") error stop "stem failed"
-if (stem(stem("hi.a.b")) /= "hi") error stop "stem nest failed"
-if (stem("hi") /= "hi") error stop "stem idempotent failed"
+type(path) :: p1, p2
+logical :: is_unix
 
-if (parent("a/b/c") /= "a/b") error stop "parent failed"
-if (parent(parent("a/b/c")) /= "a") error stop "parent nest failed"
-if (parent("a") /= ".") error stop "parent idempotent failed"
+p1%path = "/"
+is_unix = p1%is_absolute()
 
-if (file_name("a/b/c") /= "c") error stop "file_name failed"
-if (file_name("c") /= "c") error stop "file_name idempotent failed"
+p1%path = "hi.a.b"
+if (p1%stem() /= "hi.a") error stop "stem failed"
+p2%path = p1%stem()
+if (p2%stem() /= "hi") error stop "stem nest failed"
+p2%path = "hi"
+if (p2%stem() /= "hi") error stop "stem idempotent failed"
 
-if (suffix("hi.a.b") /= ".b") error stop "suffix failed"
-if (suffix(suffix("hi.a.b")) /= "") error stop "suffix nest failed"
-if (suffix("hi") /= "") error stop "suffix idempotent failed"
+if (p1%suffix() /= ".b") error stop "suffix failed"
+p2%path = p1%suffix()
+if (p2%suffix() /= "") error stop "suffix nest failed on " // p2%path
+p2%path = p2%suffix()
+if (p2%suffix() /= "") error stop "suffix idempotent failed"
+
+p1%path = "a/b/c"
+if (p1%parent() /= "a/b") error stop "parent failed" // p1%path
+p2%path = p1%parent()
+if (p2%parent() /= "a") error stop "parent nest failed" // p1%path
+p2%path = "a"
+if (p2%parent() /= ".") error stop "parent idempotent failed" // p2%path
+
+if (p1%file_name() /= "c") error stop "file_name failed"
+if (p2%file_name() /= "a") error stop "file_name idempotent failed"
+
+p1%path = "/etc"
+p2%path = "c:/etc"
+if(is_unix) then
+  if(p1%root() /= "/") error stop "unix root failed"
+  if(p2%root() /= "") error stop "unix root failed"
+else
+  if(p1%root() == "/") error stop "windows root failed"
+  if(p2%root() /= "c:") error stop "windows root failed"
+endif
+
+p1%path = "my/file.h5"
+p2 = p1%with_suffix(".hdf5")
+
+if (p2%path /= "my/file.hdf5") error stop "with_suffix failed: " // p2%path
 
 end subroutine test_manip
 
@@ -63,9 +106,22 @@ subroutine test_expanduser()
 character(:), allocatable :: fn
 integer :: i
 
-if (expanduser(expanduser("~")) /= expanduser("~")) error stop "expanduser idempotent failed"
+type(path) :: p1, p2, p3
 
-fn = expanduser("~/")
+p1%path = ""
+p2%path = "~"
+
+p1 = p1%expanduser()
+p2 = p2%expanduser()
+
+if(p1%path /= "") error stop "expanduser blank failed"
+p3%path = p2%path
+p3 = p3%expanduser()
+if (p3%path /= p2%path) error stop "expanduser idempotent failed"
+
+p1%path = "~/"
+p1 = p1%expanduser()
+fn = p1%path
 i = len(fn)
 if (fn(i:i) /= "/") error stop "expanduser preserve separator failed"
 
@@ -76,55 +132,70 @@ subroutine test_is_directory()
 
 integer :: i
 
-if(.not.(is_directory('.'))) error stop "did not detect '.' as directory"
-if(is_file('.')) error stop "detected '.' as file"
+type(path) :: p1,p2,p3
 
-open(newunit=i, file='test-pathlib.h5', status='replace')
+p1%path = "."
+
+if(.not. p1%is_directory()) error stop "did not detect '.' as directory"
+if(p1%is_file()) error stop "detected '.' as file"
+
+p2%path = 'test-pathlib.h5'
+open(newunit=i, file=p2%path, status='replace')
 close(i)
 
-call assert_is_file('test-pathlib.h5')
-call copy_file('test-pathlib.h5', 'test-pathlib.h5.copy')
-call assert_is_file('test-pathlib.h5.copy')
+if(.not. p2%is_file()) error stop "did not detect " // p2%path // " as file"
+p3%path = 'test-pathlib.h5.copy'
+call p2%copy_file(p3%path)
+if(.not. p3%is_file()) error stop "did not detect " // p3%path // " as file"
 
-if((is_directory('test-pathlib.h5'))) error stop "detected file as directory"
+if (p2%is_directory()) error stop "detected file as directory"
 call unlink('test-pathlib.h5')
 call unlink('test-pathlib.h5.copy')
 
-if(is_directory('not-exist-dir')) error stop "not-exist-dir should not exist"
+p3%path = "not-exist-dir"
+if(p3%is_directory()) error stop "not-exist-dir should not exist"
 
 print *," OK: pathlib: is_directory"
 end subroutine test_is_directory
 
 
-subroutine test_assert()
+subroutine test_mkdir()
 
-call assert_is_directory('.')
+type(path) :: p
 
-call mkdir('test-pathlib')
-call assert_is_directory('test-pathlib')
+p%path = "test-pathlib-dir"
+
+call p%mkdir()
+
+if(.not.p%is_directory()) error stop "did not create directory" // p%path
 
 
-end subroutine test_assert
+end subroutine test_mkdir
 
 
 subroutine test_absolute()
 
-character(:), allocatable:: fn
-
+type(path) :: p1,p2
 logical :: is_unix
 
-fn = expanduser("~")
-is_unix = fn(1:1) == "/"
+p1%path = "/"
+is_unix = p1%is_absolute()
 
-if (is_absolute("")) error stop "blank is not absolute"
+p1%path = ""
+if (p1%is_absolute()) error stop "blank is not absolute"
 
 if (is_unix) then
-  if (.not.is_absolute("/")) error stop "is_absolute('/') on Unix should be true"
-  if (is_absolute("c:/")) error stop "is_absolute('c:/') on Unix should be false"
+  p2%path = "/"
+  if (.not. p2%is_absolute()) error stop p2%path // "on Unix should be absolute"
+  p2%path = "c:/"
+  if (p2%is_absolute()) error stop p2%path // "on Unix is not absolute"
 else
-  if (.not.is_absolute("J:/")) error stop "is_absolute('J:/') on Windows should be true"
-  if (.not.is_absolute("j:/")) error stop "is_absolute('j:/') on Windows should be true"
-  if (is_absolute("/")) error stop "is_absolute('/') on Windows should be false"
+  p2%path = "J:/"
+  if (.not. p2%is_absolute()) error stop p2%path // "on Windows should be absolute"
+  p2%path = "j:/"
+  if (.not. p2%is_absolute()) error stop p2%path // "on Windows should be absolute"
+  p2%path = "/"
+  if (p2%is_absolute()) error stop p2%path // "on Windows is not absolute"
 endif
 
 print *, "OK: pathlib: expanduser,is_absolute"

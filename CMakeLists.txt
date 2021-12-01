@@ -13,6 +13,17 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
 
+if(advanced)
+  include(CheckLanguage)
+  check_language(CXX)
+  if(CMAKE_CXX_COMPILER)
+    enable_language(CXX)
+  else()
+    message(STATUS "No C++ support")
+    set(advanced false)
+  endif()
+endif()
+
 add_subdirectory(src)
 
 install(TARGETS pathlib EXPORT ${PROJECT_NAME}-targets)

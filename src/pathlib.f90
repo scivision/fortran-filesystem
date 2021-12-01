@@ -4,29 +4,45 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit
 
 implicit none (type, external)
 private
-public :: mkdir, copy_file, expanduser, home, suffix, &
-filesep_windows, filesep_unix, &
-is_directory, is_file, assert_is_directory, assert_is_file, &
-is_absolute, parent, file_name, stem
+public :: path, home
+
+type :: path
+
+character(:), allocatable :: path
+
+contains
+
+procedure, public :: is_file, is_directory, is_absolute, &
+copy_file, mkdir, &
+parent, file_name, stem, root, suffix, &
+as_windows, as_posix, expanduser, with_suffix
+
+end type path
 
 interface  ! pathlib_{unix,windows}.f90
-module impure subroutine copy_file(source, dest)
-character(*), intent(in) :: source, dest
+module impure subroutine copy_file(self, dest)
+class(path), intent(in) :: self
+character(*), intent(in) :: dest
 end subroutine copy_file
 
-module impure subroutine mkdir(path)
-character(*), intent(in) :: path
+module impure subroutine mkdir(self)
+class(path), intent(in) :: self
 end subroutine mkdir
 
-module pure logical function is_absolute(path)
-character(*), intent(in) :: path
+module pure logical function is_absolute(self)
+class(path), intent(in) :: self
 end function is_absolute
+
+module pure logical function root(self)
+class(path), intent(in) :: self
+character(:), allocatable :: root
+end function root
 
 end interface
 
 interface !< pathlib_{intel,gcc}.f90
-module impure logical function is_directory(path)
-character(*), intent(in) :: path
+module impure logical function is_directory(self)
+class(path), intent(in) :: self
 end function is_directory
 end interface
 
@@ -34,27 +50,31 @@ end interface
 contains
 
 
-impure logical function is_file(path)
+impure logical function is_file(self)
 !! is a file and not a directory
-character(*), intent(in) :: path
+class(path), intent(in) :: self
 
-inquire(file=expanduser(path), exist=is_file)
-if(is_file .and. is_directory(path)) is_file = .false.
+type(path) :: p
+
+p = self%expanduser()
+
+inquire(file=p%path, exist=is_file)
+if(is_file .and. self%is_directory()) is_file = .false.
 
 end function is_file
 
 
-pure function suffix(filename)
+pure function suffix(self)
 !! extracts path suffix, including the final "." dot
-character(*), intent(in) :: filename
+class(path), intent(in) :: self
 character(:), allocatable :: suffix
 
 integer :: i
 
-i = index(filename, '.', back=.true.)
+i = index(self%path, '.', back=.true.)
 
 if (i > 1) then
-  suffix = trim(filename(i:))
+  suffix = trim(self%path(i:))
 else
   suffix = ''
 end if
@@ -62,19 +82,20 @@ end if
 end function suffix
 
 
-pure function parent(path)
+pure function parent(self)
 !! returns parent directory of path
-character(*), intent(in) :: path
+class(path), intent(in) :: self
+
 character(:), allocatable :: parent
 
-character(len_trim(path)) :: work
+type(path) :: w
 integer :: i
 
-work = filesep_unix(path)
+w = self%as_posix()
 
-i = index(work, "/", back=.true.)
+i = index(w%path, "/", back=.true.)
 if (i > 0) then
-  parent = work(:i-1)
+  parent = w%path(:i-1)
 else
   parent = "."
 end if
@@ -82,29 +103,30 @@ end if
 end function parent
 
 
-pure function file_name(path)
+pure function file_name(self)
 !! returns file name without path
-character(*), intent(in) :: path
+class(path), intent(in) :: self
+
 character(:), allocatable :: file_name
 
-character(len_trim(path)) :: work
+type(path) :: w
 
-work = filesep_unix(path)
+w = self%as_posix()
 
-file_name = trim(work(index(work, "/", back=.true.) + 1:))
+file_name = trim(w%path(index(w%path, "/", back=.true.) + 1:))
 
 end function file_name
 
 
-pure function stem(path)
+pure function stem(self)
+class(path), intent(in) :: self
 
-character(*), intent(in) :: path
 character(:), allocatable :: stem
 
-character(len_trim(path)) :: work
+character(len_trim(self%path)) :: work
 integer :: i
 
-work = file_name(path)
+work = self%file_name()
 
 i = index(work, '.', back=.true.)
 if (i > 0) then
@@ -116,79 +138,75 @@ endif
 end function stem
 
 
-impure subroutine assert_is_directory(path)
-!! throw error if directory does not exist
-character(*), intent(in) :: path
-
-if (.not. is_directory(path)) error stop 'directory does not exist ' // path
-
-end subroutine assert_is_directory
-
-
-impure subroutine assert_is_file(path)
-!! throw error if file does not exist
-
-character(*), intent(in) :: path
-
-if (.not. is_file(path)) error stop 'file does not exist ' // path
-
-end subroutine assert_is_file
-
-
-pure function filesep_windows(path) result(swapped)
+pure function as_windows(self) result(sw)
 !! '/' => '\' for Windows systems
 
-character(*), intent(in) :: path
-character(len_trim(path)) :: swapped
+class(path), intent(in) :: self
+type(path) :: sw
+
 integer :: i
 
-swapped = path
-i = index(swapped, '/')
+sw%path = self%path
+i = index(sw%path, '/')
 do while (i > 0)
-  swapped(i:i) = char(92)
-  i = index(swapped, '/')
+  sw%path(i:i) = char(92)
+  i = index(sw%path, '/')
 end do
 
-end function filesep_windows
+end function as_windows
 
 
-pure function filesep_unix(path) result(swapped)
+pure function as_posix(self) result(sw)
 !! '\' => '/'
 
-character(*), intent(in) :: path
-character(len_trim(path)) :: swapped
+class(path), intent(in) :: self
+type(path) :: sw
+
 integer :: i
 
-swapped = path
-i = index(swapped, char(92))
+sw%path = self%path
+i = index(sw%path, char(92))
 do while (i > 0)
-  swapped(i:i) = '/'
-  i = index(swapped, char(92))
+  sw%path(i:i) = '/'
+  i = index(sw%path, char(92))
 end do
 
-end function filesep_unix
+end function as_posix
 
 
-impure function expanduser(in) result (out)
+pure function with_suffix(self, new_suffix) result(sw)
+!! replace file suffix
+class(path), intent(in) :: self
+type(path) :: sw
+character(*), intent(in) :: new_suffix
+
+sw%path = self%path(1:len_trim(self%path) - len(self%suffix())) // new_suffix
+
+end function with_suffix
+
+
+impure function expanduser(self) result (ex)
 !! resolve home directory as Fortran does not understand tilde
 !! works for Linux, Mac, Windows, etc.
-character(*), intent(in) :: in
-character(:), allocatable :: out, homedir
+class(path), intent(in) :: self
+type(path) :: ex
 
-out = trim(adjustl(in))
+character(:), allocatable ::homedir
 
-if (len(out) < 1) return
-if(out(1:1) /= '~') return
+ex%path = trim(adjustl(self%path))
+
+if (len(ex%path) < 1) return
+if(ex%path(1:1) /= '~') return
 
 homedir = home()
 if (len_trim(homedir) == 0) return
 
-if (len_trim(out) < 2) then
+if (len_trim(ex%path) < 2) then
   !! ~ alone
-  out = homedir
+  ex%path = homedir
 else
   !! ~/...
-  out = homedir // trim(adjustl(out(2:)))
+  ex%path = homedir // trim(adjustl(ex%path(2:)))
 endif
 
 end function expanduser

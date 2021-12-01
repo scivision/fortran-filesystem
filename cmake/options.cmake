@@ -1,3 +1,5 @@
+option(advanced "full pathlib functionality using C++17 filesystem")
+
 option(ENABLE_COVERAGE "Code coverage tests")
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)

@@ -1,111 +1,152 @@
 # Fortran pathlib
 
-Filesystem path manipulation utilities for standard Fortran
-
+Object-oriented Fortran filesystem path manipulation library.
 Inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html)
 and
 [C++ filesystem](https://en.cppreference.com/w/cpp/filesystem).
 
-## Manipulate filesystem
-
-These procedures generally require access to the filesystem to manipulate paths.
-These procedures are by definition
-[impure](https://www.intel.com/content/www/us/en/develop/documentation/fortran-compiler-oneapi-dev-guide-and-reference/top/language-reference/a-to-z-reference/h-to-i/impure.html).
-
-Resolve home directory as Fortran does not understand tilde
+Fortran "pathlib" module contains one Fortran type "path" that contains properties and methods.
+The "path" type has one property "%path" that contains the path as a string.
 
 ```fortran
-character(:), allocatable function expanduser(in)
+use pathlib, only : path
+
+type(path) :: p
+
+p%path = "my/path"
 ```
 
-Get home directory, or empty string if not found
+In all the examples, we assume "p" is a pathlib path type.
+
+## subroutines
+
+These subroutines are available in the "pathlib" module.
+
+Copy path to dest, overwriting existing file
 
 ```fortran
-character(:), allocatable function home()
+character(*) :: dest = "new/file.ext"
+
+call p%copy_file(dest)
 ```
 
-Does directory exist:
+Make directory p%path with parent directories if specified
 
 ```fortran
-logical function is_directory(path)
+p%mkdir()
 ```
 
-Does file exist:
+## path => path
+
+These methods emit a new "path" object.
+It can be a new path object, or reassign to the existing path object.
+
+Expand home directory.
 
 ```fortran
-logical function is_file(path)
-```
+! Fortran does not understand tilde "~"
 
-Copy source to dest, overwriting existing files
-
-```fortran
-subroutine copy_file(source, dest)
-```
-
-Make directory with parent directories
-
-```fortran
-subroutine mkdir(path)
-```
-
-## Pure procedures
-
-These procedures do not access the filesystem and are therefore
-[pure](https://www.intel.com/content/www/us/en/develop/documentation/fortran-compiler-oneapi-dev-guide-and-reference/top/language-reference/a-to-z-reference/o-to-p/pure.html).
-
-Detect if path is absolute:
-
-```fortran
-logical function is_absolute(path)
-```
-
-Get file suffix: extracts path suffix, including the final "." dot
-
-```fortran
-character(:), allocatable function suffix(filename)
-```
-
-Get parent directory of path:
-
-```fortran
-character(:), allocatable function parent(path)
-```
-
-Get file name without path:
-
-```fortran
-character(:), allocatable function file_name(path)
-```
-
-Get file name without path and suffix:
-
-```fortran
-character(:), allocatable function stem(path)
+p = p%expanduser()
 ```
 
 '/' => '\\' for Windows paths
 
 ```fortran
-character(:), allocatable function filesep_windows(path)
+p = p%as_windows()
 ```
 
  '\\' => '/' for Unix paths
 
 ```fortran
-character(:), allocatable function filesep_unix(path)
+p = p%as_posix()
 ```
 
-## assert
-
-throw error if directory does not exist
+Swap file suffix
 
 ```fortran
-subroutine assert_is_directory(path)
+p%path = "my/file.h5"
+
+p = p%with_suffix(".hdf5")
+
+! p.path == "my/file.hdf5"
 ```
 
-throw error if file does not exist
+## path => logical
+
+These methods emit a logical value.
+
+Does directory exist:
 
 ```fortran
-subroutine assert_is_file(path)
+p%is_directory()
+```
+
+Does file exist:
+
+```fortran
+p%is_file()
+```
+
+Is path absolute:
+
+```fortran
+p%is_absolute()
+```
+
+## path => character(:), allocatable
+
+These methods emit a string.
+
+Get file suffix: extracts path suffix, including the final "." dot
+
+```fortran
+p%suffix()
+```
+
+Get parent directory of path:
+
+```fortran
+p%parent()
+```
+
+Get file name without path:
+
+```fortran
+p%file_name()
+```
+
+Get file name without path and suffix:
+
+```fortran
+p%stem()
+```
+
+Get drive root. E.g. Unix "/"  Windows "c:"
+Requires absolute path or will return empty string.
+
+```fortran
+p%root()
+```
+
+## System
+
+Get home directory, or empty string if not found
+
+```fortran
+character(:), allocatable :: homedir
+
+homedir = home()
+```
+
+## Future
+
+We'd like to add more advanced methods such as the following.
+These methods would be optional if they depend on C++ filesystem.
+
+```fortran
+p1%canonical()
+p1%resolve()
+p1%relative_to(p2)
+p1%same_file(p2)
 ```

@@ -13,9 +13,20 @@ module procedure is_absolute
 
 is_absolute = .false.
 
-if(len_trim(path) > 0) is_absolute = path(1:1) == "/"
+if(len_trim(self%path) > 0) is_absolute = self%path(1:1) == "/"
 
 end procedure is_absolute
+
+
+module procedure root
+
+if(self%is_absolute()) then
+  root = self%path(1:1)
+else
+  root = ""
+end if
+
+end procedure root
 
 
 module procedure copy_file
@@ -26,10 +37,16 @@ module procedure copy_file
 integer :: i, j
 character(:), allocatable  :: cmd
 
-cmd = 'cp -rf ' // expanduser(source) // ' ' // expanduser(dest)
+type(path) :: d, s
+
+d%path = dest
+d = d%expanduser()
+s = self%expanduser()
+
+cmd = 'cp -rf ' // s%path // ' ' // d%path
 
 call execute_command_line(cmd, exitstat=i, cmdstat=j)
-if (i /= 0 .or. j /= 0) error stop "could not copy " // source // " => " // dest
+if (i /= 0 .or. j /= 0) error stop "could not copy " // self%path // " => " // dest
 
 end procedure copy_file
 
@@ -37,14 +54,14 @@ end procedure copy_file
 module procedure mkdir
 !! create a directory, with parents if needed
 integer :: i, j
-character(:), allocatable  :: buf
+type(path) :: p
 
-buf = expanduser(path)
+p = self%expanduser()
 
-if(is_directory(buf)) return
+if(p%is_directory()) return
 
-call execute_command_line('mkdir -p ' // buf, exitstat=i, cmdstat=j)
-if (i /= 0 .or. j /= 0) error stop "could not create directory " // path
+call execute_command_line('mkdir -p ' // p%path, exitstat=i, cmdstat=j)
+if (i /= 0 .or. j /= 0) error stop "could not create directory " // p%path
 
 end procedure mkdir
 

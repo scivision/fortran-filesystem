@@ -8,8 +8,10 @@ module procedure is_directory
 !! For GCC Gfortran, similar for other compilers
 integer :: i, statb(13)
 character(:), allocatable :: wk
+type(path) :: w
 
-wk = expanduser(path)
+w = self%expanduser()
+wk = w%path
 
 !! must not have trailing slash on Windows
 i = len_trim(wk)

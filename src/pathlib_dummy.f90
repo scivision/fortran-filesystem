@@ -8,7 +8,11 @@ contains
 
 module procedure is_directory
 
-inquire(file=expanduser(path), exist=exists)
+type(path) :: p
+
+p = self%expanduser()
+
+inquire(file=p%path, exist=is_directory)
 
 end procedure is_directory
 
