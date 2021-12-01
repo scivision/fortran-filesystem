@@ -38,6 +38,30 @@ jobs:
     - run: ctest --preset release -V
 
 
+  linux-coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: install Gcovr
+      run: pip install gcovr ninja
+
+    - run: cmake --preset coverage
+    - run: cmake --build --preset coverage
+
+    - name: Code coverage
+      run: cmake --build --preset run-coverage
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: coverage-report-html
+        path: build-coverage/coverage/
+
   mac:
     runs-on: ${{ matrix.os }}
     strategy:
