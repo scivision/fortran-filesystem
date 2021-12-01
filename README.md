@@ -3,7 +3,7 @@
 [![DOI](https://zenodo.org/badge/433875623.svg)](https://zenodo.org/badge/latestdoi/433875623)
 [![ci_cmake](https://github.com/scivision/fortran-pathlib/actions/workflows/ci_cmake.yml/badge.svg)](https://github.com/scivision/fortran-pathlib/actions/workflows/ci_cmake.yml)
 
-Platform independent, object-oriented Fortran filesystem path manipulation library.
+Platform independent (Linux, macOS, Windows), object-oriented Fortran filesystem path manipulation library.
 Inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html)
 and
@@ -21,6 +21,17 @@ p%path = "my/path"
 ```
 
 In all the examples, we assume "p" is a pathlib path type.
+
+Build in CMake (can also use in your project via FetchContent or ExternalProject):
+
+```sh
+cmake -B build
+cmake --build build
+# optional
+ctest --test-dir build
+```
+
+This creates build/libpathlib.a or similar.
 
 ## subroutines
 
