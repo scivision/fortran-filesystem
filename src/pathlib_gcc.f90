@@ -16,20 +16,21 @@ i = len_trim(wk)
 if (wk(i:i) == char(92) .or. wk(i:i) == '/') wk = wk(1:i-1)
 
 
-inquire(file=wk, exist=exists)
-if(.not.exists) return
+inquire(file=wk, exist=is_directory)
+if(.not.is_directory) return
 
 i = stat(wk, statb)
 if(i /= 0) then
-  exists = .false.
+  is_directory = .false.
   return
 endif
 
 i = iand(statb(3), O'0040000')
-exists = i == 16384
+is_directory = i == 16384
 
 ! print '(O8)', statb(3)
 
 end procedure is_directory
+
 
 end submodule pathlib_gcc

@@ -24,3 +24,9 @@ Detect if path is absolute:
 ```fortran
 logical function is_absolute(path)
 ```
+
+Does directory exist:
+
+```fortran
+logical function is_directory(path)
+```

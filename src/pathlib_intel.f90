@@ -6,7 +6,7 @@ contains
 
 module procedure is_directory
 
-inquire(directory=expanduser(path), exist=exists)
+inquire(directory=expanduser(path), exist=is_directory)
 
 end procedure is_directory
 

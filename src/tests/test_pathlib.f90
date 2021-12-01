@@ -1,7 +1,7 @@
 program pathlib_test
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use pathlib, only : copyfile, mkdir, expanduser, is_absolute, make_absolute, is_directory, &
+use pathlib, only : copyfile, mkdir, expanduser, is_absolute, make_absolute, is_file, is_directory, &
 file_name, parent, stem, suffix, filesep_unix, filesep_windows, assert_is_directory, assert_is_file
 
 implicit none (type, external)
@@ -17,8 +17,6 @@ call test_is_directory()
 call test_assert()
 
 call test_absolute()
-
-call test_is_directory()
 
 
 contains
@@ -79,6 +77,7 @@ subroutine test_is_directory()
 integer :: i
 
 if(.not.(is_directory('.'))) error stop "did not detect '.' as directory"
+if(is_file('.')) error stop "detected '.' as file"
 
 open(newunit=i, file='test-pathlib.h5', status='replace')
 close(i)

@@ -6,7 +6,7 @@ implicit none (type, external)
 private
 public :: mkdir, copyfile, expanduser, home, suffix, &
 filesep_windows, filesep_unix, &
-is_directory, assert_is_directory, assert_is_file, &
+is_directory, is_file, assert_is_directory, assert_is_file, &
 make_absolute, is_absolute, parent, file_name, stem
 
 interface  ! pathlib_{unix,windows}.f90
@@ -25,13 +25,24 @@ end function is_absolute
 end interface
 
 interface !< pathlib_{intel,gcc}.f90
-module logical function is_directory(path) result(exists)
+module logical function is_directory(path)
 character(*), intent(in) :: path
 end function is_directory
 end interface
 
 
 contains
+
+
+logical function is_file(path)
+!! is a file and not a directory
+character(*), intent(in) :: path
+
+inquire(file=expanduser(path), exist=is_file)
+if(is_file .and. is_directory(path)) is_file = .false.
+
+end function is_file
+
 
 pure function suffix(filename)
 !! extracts path suffix, including the final "." dot
@@ -139,11 +150,8 @@ subroutine assert_is_file(path)
 !! throw error if file does not exist
 
 character(*), intent(in) :: path
-logical :: exists
 
-inquire(file=expanduser(path), exist=exists)
-
-if (.not. exists) error stop 'file does not exist ' // path
+if (.not. is_file(path)) error stop 'file does not exist ' // path
 
 end subroutine assert_is_file
 
