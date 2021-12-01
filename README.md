@@ -2,7 +2,10 @@
 
 Filesystem path manipulation utilities for standard Fortran
 
-Inspired by Python pathlib and C++17 filesystem.
+Inspired by
+[Python pathlib](https://docs.python.org/3/library/pathlib.html)
+and
+[C++ filesystem](https://en.cppreference.com/w/cpp/filesystem).
 
 ## Manipulate filesystem
 
