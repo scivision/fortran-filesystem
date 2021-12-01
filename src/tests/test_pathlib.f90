@@ -1,8 +1,8 @@
 program pathlib_test
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use pathlib, only : copyfile, mkdir, expanduser, is_absolute, make_absolute, directory_exists, &
-file_name, parent, stem, suffix, filesep_unix, filesep_windows, assert_directory_exists, assert_file_exists
+use pathlib, only : copyfile, mkdir, expanduser, is_absolute, make_absolute, is_directory, &
+file_name, parent, stem, suffix, filesep_unix, filesep_windows, assert_is_directory, assert_is_file
 
 implicit none (type, external)
 
@@ -12,13 +12,13 @@ call test_manip()
 
 call test_expanduser()
 
-call test_directory_exists()
+call test_is_directory()
 
 call test_assert()
 
 call test_absolute()
 
-call test_directory_exists()
+call test_is_directory()
 
 
 contains
@@ -74,35 +74,35 @@ if (fn(i:i) /= "/") error stop "expanduser preserve separator failed"
 end subroutine test_expanduser
 
 
-subroutine test_directory_exists()
+subroutine test_is_directory()
 
 integer :: i
 
-if(.not.(directory_exists('.'))) error stop "did not detect '.' as directory"
+if(.not.(is_directory('.'))) error stop "did not detect '.' as directory"
 
 open(newunit=i, file='test-pathlib.h5', status='replace')
 close(i)
 
-call assert_file_exists('test-pathlib.h5')
+call assert_is_file('test-pathlib.h5')
 call copyfile('test-pathlib.h5', 'test-pathlib.h5.copy')
-call assert_file_exists('test-pathlib.h5.copy')
+call assert_is_file('test-pathlib.h5.copy')
 
-if((directory_exists('test-pathlib.h5'))) error stop "detected file as directory"
+if((is_directory('test-pathlib.h5'))) error stop "detected file as directory"
 call unlink('test-pathlib.h5')
 call unlink('test-pathlib.h5.copy')
 
-if(directory_exists('not-exist-dir')) error stop "not-exist-dir should not exist"
+if(is_directory('not-exist-dir')) error stop "not-exist-dir should not exist"
 
-print *," OK: pathlib: directory_exists"
-end subroutine test_directory_exists
+print *," OK: pathlib: is_directory"
+end subroutine test_is_directory
 
 
 subroutine test_assert()
 
-call assert_directory_exists('.')
+call assert_is_directory('.')
 
 call mkdir('test-pathlib')
-call assert_directory_exists('test-pathlib')
+call assert_is_directory('test-pathlib')
 
 
 end subroutine test_assert

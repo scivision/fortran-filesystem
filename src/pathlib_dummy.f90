@@ -6,10 +6,10 @@ implicit none (type, external)
 
 contains
 
-module procedure directory_exists
+module procedure is_directory
 
 inquire(file=expanduser(path), exist=exists)
 
-end procedure directory_exists
+end procedure is_directory
 
 end submodule pathlib_dummy

@@ -4,7 +4,7 @@ implicit none (type, external)
 
 contains
 
-module procedure directory_exists
+module procedure is_directory
 !! For GCC Gfortran, similar for other compilers
 integer :: i, statb(13)
 character(:), allocatable :: wk
@@ -30,6 +30,6 @@ exists = i == 16384
 
 ! print '(O8)', statb(3)
 
-end procedure directory_exists
+end procedure is_directory
 
 end submodule pathlib_gcc

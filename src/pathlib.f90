@@ -6,7 +6,7 @@ implicit none (type, external)
 private
 public :: mkdir, copyfile, expanduser, home, suffix, &
 filesep_windows, filesep_unix, &
-directory_exists, assert_directory_exists, assert_file_exists, &
+is_directory, assert_is_directory, assert_is_file, &
 make_absolute, is_absolute, parent, file_name, stem
 
 interface  ! pathlib_{unix,windows}.f90
@@ -25,9 +25,9 @@ end function is_absolute
 end interface
 
 interface !< pathlib_{intel,gcc}.f90
-module logical function directory_exists(path) result(exists)
+module logical function is_directory(path) result(exists)
 character(*), intent(in) :: path
-end function directory_exists
+end function is_directory
 end interface
 
 
@@ -126,16 +126,16 @@ endif
 end function make_absolute
 
 
-subroutine assert_directory_exists(path)
+subroutine assert_is_directory(path)
 !! throw error if directory does not exist
 character(*), intent(in) :: path
 
-if (.not. directory_exists(path)) error stop 'directory does not exist ' // path
+if (.not. is_directory(path)) error stop 'directory does not exist ' // path
 
-end subroutine assert_directory_exists
+end subroutine assert_is_directory
 
 
-subroutine assert_file_exists(path)
+subroutine assert_is_file(path)
 !! throw error if file does not exist
 
 character(*), intent(in) :: path
@@ -145,7 +145,7 @@ inquire(file=expanduser(path), exist=exists)
 
 if (.not. exists) error stop 'file does not exist ' // path
 
-end subroutine assert_file_exists
+end subroutine assert_is_file
 
 
 pure function filesep_windows(path) result(swapped)
