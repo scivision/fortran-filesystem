@@ -1,6 +1,8 @@
 # Fortran pathlib
 
-Object-oriented Fortran filesystem path manipulation library.
+[![ci_cmake](https://github.com/scivision/fortran-pathlib/actions/workflows/ci_cmake.yml/badge.svg)](https://github.com/scivision/fortran-pathlib/actions/workflows/ci_cmake.yml)
+
+Platform independent, object-oriented Fortran filesystem path manipulation library.
 Inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html)
 and
@@ -34,10 +36,13 @@ call p%copy_file(dest)
 Make directory p%path with parent directories if specified
 
 ```fortran
-p%mkdir()
+p%path = "my/new/dir"
+! suppose only directory "my" exists
+call p%mkdir()
+! now directory my/new/dir exists
 ```
 
-## path => path
+## path
 
 These methods emit a new "path" object.
 It can be a new path object, or reassign to the existing path object.
@@ -72,7 +77,7 @@ p = p%with_suffix(".hdf5")
 ! p%path == "my/file.hdf5"
 ```
 
-## path => logical
+## logical
 
 These methods emit a logical value.
 
@@ -94,7 +99,7 @@ Is path absolute:
 p%is_absolute()
 ```
 
-## path => character(:), allocatable
+## character(:), allocatable
 
 These methods emit a string.
 
