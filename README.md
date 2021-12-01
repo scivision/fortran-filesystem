@@ -1,5 +1,6 @@
 # Fortran pathlib
 
+[![DOI](https://zenodo.org/badge/433875623.svg)](https://zenodo.org/badge/latestdoi/433875623)
 [![ci_cmake](https://github.com/scivision/fortran-pathlib/actions/workflows/ci_cmake.yml/badge.svg)](https://github.com/scivision/fortran-pathlib/actions/workflows/ci_cmake.yml)
 
 Platform independent, object-oriented Fortran filesystem path manipulation library.
