@@ -69,7 +69,7 @@ p%path = "my/file.h5"
 
 p = p%with_suffix(".hdf5")
 
-! p.path == "my/file.hdf5"
+! p%path == "my/file.hdf5"
 ```
 
 ## path => logical
