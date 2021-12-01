@@ -87,13 +87,13 @@ Get file name without path and suffix:
 character(:), allocatable function stem(path)
 ```
 
-'/' => '\' for Windows paths
+'/' => '\\' for Windows paths
 
 ```fortran
 character(:), allocatable function filesep_windows(path)
 ```
 
- '\' => '/' for Unix paths
+ '\\' => '/' for Unix paths
 
 ```fortran
 character(:), allocatable function filesep_unix(path)
