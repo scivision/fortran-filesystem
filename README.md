@@ -49,12 +49,6 @@ Make directory with parent directories
 subroutine mkdir(path)
 ```
 
-if path is absolute, return expanded path. If path is relative, top_path / path
-
-```fortran
-character(:), allocatable make_absolute(path, top_path)
-```
-
 ## Pure procedures
 
 These procedures do not access the filesystem and are therefore

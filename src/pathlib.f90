@@ -7,7 +7,7 @@ private
 public :: mkdir, copy_file, expanduser, home, suffix, &
 filesep_windows, filesep_unix, &
 is_directory, is_file, assert_is_directory, assert_is_file, &
-make_absolute, is_absolute, parent, file_name, stem
+is_absolute, parent, file_name, stem
 
 interface  ! pathlib_{unix,windows}.f90
 module impure subroutine copy_file(source, dest)
@@ -114,27 +114,6 @@ else
 endif
 
 end function stem
-
-
-impure function make_absolute(path, top_path) result(abspath)
-!! if path is absolute, return expanded path
-!! if path is relative, top_path / path
-
-!! NOTE: can only allocate once when it's a function, it will ignore later allocates
-!! NOTE: only idempotent if top_path is absolute
-
-character(:), allocatable :: abspath, p
-
-character(*), intent(in) :: path, top_path
-
-p = expanduser(path)
-if (is_absolute(p)) then
-  abspath = p
-else
-  abspath = expanduser(top_path) // '/' // p
-endif
-
-end function make_absolute
 
 
 impure subroutine assert_is_directory(path)

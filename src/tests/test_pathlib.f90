@@ -1,7 +1,7 @@
 program pathlib_test
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use pathlib, only : copy_file, mkdir, expanduser, is_absolute, make_absolute, is_file, is_directory, &
+use pathlib, only : copy_file, mkdir, expanduser, is_absolute, is_file, is_directory, &
 file_name, parent, stem, suffix, filesep_unix, filesep_windows, assert_is_directory, assert_is_file
 
 implicit none (type, external)
@@ -110,7 +110,6 @@ end subroutine test_assert
 subroutine test_absolute()
 
 character(:), allocatable:: fn
-character(16) :: fn2
 
 logical :: is_unix
 
@@ -122,16 +121,10 @@ if (is_absolute("")) error stop "blank is not absolute"
 if (is_unix) then
   if (.not.is_absolute("/")) error stop "is_absolute('/') on Unix should be true"
   if (is_absolute("c:/")) error stop "is_absolute('c:/') on Unix should be false"
-
-  fn2 = make_absolute("rel", "/foo")
-  if (fn2 /= "/foo/rel") error stop "did not make_absolute Unix /foo/rel, got: " // fn2
 else
   if (.not.is_absolute("J:/")) error stop "is_absolute('J:/') on Windows should be true"
   if (.not.is_absolute("j:/")) error stop "is_absolute('j:/') on Windows should be true"
   if (is_absolute("/")) error stop "is_absolute('/') on Windows should be false"
-
-  fn2 = make_absolute("rel", "j:/foo")
-  if (fn2 /= "j:/foo/rel") error stop "did not make_absolute Windows j:/foo/rel, got: " // fn2
 endif
 
 print *, "OK: pathlib: expanduser,is_absolute"
