@@ -11,13 +11,13 @@ module procedure is_absolute
 character :: f
 
 is_absolute = .false.
-if(len_trim(self%path) < 2) return
+if(len_trim(self%path_str) < 2) return
 
-f = self%path(1:1)
+f = self%path_str(1:1)
 
 if (.not. ((f >= "a" .and. f <= "z") .or. (f >= "A" .and. f <= "Z"))) return
 
-is_absolute = self%path(2:2) == ":"
+is_absolute = self%path_str(2:2) == ":"
 
 end procedure is_absolute
 
@@ -25,7 +25,7 @@ end procedure is_absolute
 module procedure root
 
 if (self%is_absolute()) then
-  root = self%path(1:2)
+  root = self%path_str(1:2)
 else
   root = ""
 end if
@@ -44,17 +44,17 @@ character(:), allocatable  :: cmd
 
 type(path_t) :: s, d
 
-d%path = dest
+d%path_str = dest
 d = d%expanduser()
 d = d%as_windows()
 
 s = self%expanduser()
 s = s%as_windows()
 
-cmd = 'copy /y ' // s%path // ' ' // d%path
+cmd = 'copy /y ' // s%path_str // ' ' // d%path_str
 
 call execute_command_line(cmd, exitstat=i, cmdstat=j)
-if (i /= 0 .or. j /= 0) error stop "could not copy " // self%path // " => " // dest
+if (i /= 0 .or. j /= 0) error stop "could not copy " // self%path_str // " => " // dest
 
 end procedure copy_file
 
@@ -71,8 +71,8 @@ p = p%as_windows()
 
 if(p%is_directory()) return
 
-call execute_command_line('mkdir ' // p%path, exitstat=i, cmdstat=j)
-if (i /= 0 .or. j /= 0) error stop "could not create directory " // p%path
+call execute_command_line('mkdir ' // p%path_str, exitstat=i, cmdstat=j)
+if (i /= 0 .or. j /= 0) error stop "could not create directory " // p%path_str
 
 end procedure mkdir
 

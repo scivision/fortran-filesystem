@@ -10,7 +10,7 @@ type(path_t) :: p
 
 p = self%expanduser()
 
-inquire(directory=p%path, exist=is_directory)
+inquire(directory=p%path_str, exist=is_directory)
 
 end procedure is_directory
 
@@ -24,7 +24,7 @@ executable = .false.
 
 if (.not. self%is_file()) return
 
-ierr = stat(self%path, s)
+ierr = stat(self%path_str, s)
 if(ierr /= 0) return
 
 iu = iand(s(3), O'0000100')

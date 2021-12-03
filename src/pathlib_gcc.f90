@@ -11,7 +11,7 @@ character(:), allocatable :: wk
 type(path_t) :: w
 
 w = self%expanduser()
-wk = w%path
+wk = w%path_str
 
 !! must not have trailing slash on Windows
 i = len_trim(wk)
@@ -44,7 +44,7 @@ executable = .false.
 
 if (.not. self%is_file()) return
 
-ierr = stat(self%path, s)
+ierr = stat(self%path_str, s)
 if(ierr /= 0) return
 
 iu = iand(s(3), O'0000100')

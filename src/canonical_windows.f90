@@ -35,11 +35,11 @@ character(N) :: buf
 integer :: i
 
 if(len_trim(path) == 0) error stop "cannot canonicalize empty path"
-p%path = path
+p = path_t(path)
 p = p%expanduser()
-if(len(p%path) > N) error stop "path too long"
+if(len(p%path_str) > N) error stop "path too long"
 
-call fullpath_c(c_buf, p%path // c_null_char, N)
+call fullpath_c(c_buf, p%path_str // c_null_char, N)
 
 do i = 1,N
   if (c_buf(i) == c_null_char) exit

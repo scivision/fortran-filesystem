@@ -12,7 +12,7 @@ type(path_t) :: p
 
 p = self%expanduser()
 
-inquire(file=p%path, exist=is_directory)
+inquire(file=p%path_str, exist=is_directory)
 
 end procedure is_directory
 

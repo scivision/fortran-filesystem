@@ -13,17 +13,27 @@ and
 [C++ filesystem](https://en.cppreference.com/w/cpp/filesystem).
 
 Fortran "pathlib" module contains one Fortran type "path_t" that contains properties and methods.
-The "path_t" type has one property "%path" that contains the path as a string.
+The "path_t" type uses getter and setter procedure to access the path as a string `character(:), allocatable`.
 
 ```fortran
 use pathlib, only : path_t
 
 type(path_t) :: p
 
-p%path = "my/path"
+p = path_t("my/path")  !< setter
+
+print *, "path: ", p%path() !< getter
 ```
 
-In all the examples, we assume "p" is a pathlib path type.
+The retrieved path string may be indexed like:
+
+```fortran
+p%path(2,4)  !< character index 2:4
+
+p%path(2) !< character index 2:end
+```
+
+In all the examples, we assume "p" is a pathlib path_t.
 
 Build in CMake (can also use in your project via FetchContent or ExternalProject):
 
@@ -48,10 +58,10 @@ character(*) :: dest = "new/file.ext"
 call p%copy_file(dest)
 ```
 
-Make directory p%path with parent directories if specified
+Make directory with parent directories if specified
 
 ```fortran
-p%path = "my/new/dir"
+p = path_t("my/new/dir")
 ! suppose only directory "my" exists
 call p%mkdir()
 ! now directory my/new/dir exists
@@ -67,17 +77,17 @@ Expand home directory.
 ```fortran
 ! Fortran does not understand tilde "~"
 
+p = path_t("~/my/path")
 p = p%expanduser()
 ```
 
 Resolve (canonicalize) path. This transparently uses C Runtime Library.
 
 ```fortran
-p%path = "../b"
-
+p = path_t("~/../b")
 p = p%resolve()
 
-p%path = "<absolute path to parent of current working directory>/b"
+p%path() == "<absolute path of user home directory>/b"
 ```
 
 '/' => '\\' for Windows paths
@@ -95,18 +105,18 @@ p = p%as_posix()
 Swap file suffix
 
 ```fortran
-p%path = "my/file.h5"
+p = path_t("my/file.h5")
 
 p = p%with_suffix(".hdf5")
 
-! p%path == "my/file.hdf5"
+! p%path() == "my/file.hdf5"
 ```
 
 ## integer
 
 These methods emit an integer value.
 
-len_trim() of %path
+len_trim() of %path()
 
 ```fortran
 p%length()
