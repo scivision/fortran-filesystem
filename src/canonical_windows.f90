@@ -1,4 +1,4 @@
-module canonical
+submodule (pathlib) path_canon
 !! For Windows systems.
 !! path need not exist.
 !!
@@ -8,9 +8,6 @@ module canonical
 use, intrinsic :: iso_c_binding, only: c_long, c_char, c_null_char
 
 implicit none (type, external)
-
-private
-public :: realpath
 
 
 interface !< Windows C runtime library
@@ -29,10 +26,7 @@ end interface
 contains
 
 
-impure function realpath(path)
-
-character(:), allocatable :: realpath
-character(*), intent(in) :: path
+module procedure canonical
 
 integer(c_long), parameter :: N = 4096
 character(kind=c_char):: c_buf(N)
@@ -49,9 +43,9 @@ do i = 1,N
   buf(i:i) = c_buf(i)
 enddo
 
-realpath = trim(buf(:i-1))
+canonical = trim(buf(:i-1))
 
-end function realpath
+end procedure canonical
 
 
-end module canonical
+end submodule path_canon

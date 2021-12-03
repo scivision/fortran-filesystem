@@ -4,7 +4,7 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit
 
 implicit none (type, external)
 private
-public :: path, home
+public :: path, home, canonical
 
 type :: path
 
@@ -46,6 +46,14 @@ class(path), intent(in) :: self
 end function is_directory
 end interface
 
+
+interface !< canonical_{windows,posix}.f90
+! C Runtime Library
+module impure function canonical(path)
+character(:), allocatable :: canonical
+character(*), intent(in) :: path
+end function canonical
+end interface
 
 contains
 

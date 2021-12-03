@@ -1,4 +1,4 @@
-module canonical
+submodule (pathlib) path_canon
 !! This is for POSIX systems (MacOS, Linux, etc)
 !! path need not exist.
 !!
@@ -8,10 +8,9 @@ module canonical
 
 use, intrinsic :: iso_c_binding, only: c_char, c_null_char
 implicit none (type, external)
-public :: realpath
 
 interface
-subroutine realpath_c(path, rpath) bind(c, name='realpath')
+subroutine realpath_c(path, rpath) bind(C, name="realpath")
 import c_char
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: rpath(*)
@@ -20,10 +19,7 @@ end interface
 
 contains
 
-impure function realpath(path)
-
-character(:), allocatable :: realpath
-character(*), intent(in) :: path
+module procedure canonical
 
 integer, parameter :: N = 4096
 character(kind=c_char):: c_buf(N)
@@ -40,8 +36,8 @@ do i = 1,N
   buf(i:i) = c_buf(i)
 enddo
 
-realpath = trim(buf(:i-1))
+canonical = trim(buf(:i-1))
 
-end function realpath
+end procedure canonical
 
-end module canonical
+end submodule path_canon

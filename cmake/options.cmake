@@ -1,5 +1,3 @@
-option(advanced "full pathlib functionality using C library")
-
 option(ENABLE_COVERAGE "Code coverage tests")
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
