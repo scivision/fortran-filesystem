@@ -12,3 +12,7 @@ target_include_directories(pathlib INTERFACE ${CMAKE_PROJECT_DIR}/include)
 if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
+
+if(advanced)
+  add_subdirectory(concepts)
+endif()

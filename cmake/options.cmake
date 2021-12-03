@@ -1,4 +1,4 @@
-option(advanced "full pathlib functionality using C++17 filesystem")
+option(advanced "full pathlib functionality using C library")
 
 option(ENABLE_COVERAGE "Code coverage tests")
 
