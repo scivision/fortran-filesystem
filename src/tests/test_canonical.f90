@@ -1,11 +1,11 @@
 program demo
 
 use, intrinsic :: iso_c_binding, only : c_null_char
-use pathlib, only : path
+use pathlib, only : path_t
 
 implicit none (type, external)
 
-type(path) :: parent, file, p1, p2
+type(path_t) :: parent, file, p1, p2
 character(*), parameter :: dummy = "nobody.txt"
 
 integer :: L2, L3

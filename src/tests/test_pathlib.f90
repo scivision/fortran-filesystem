@@ -1,7 +1,7 @@
 program pathlib_test
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use pathlib, only : path
+use pathlib, only : path_t
 
 implicit none (type, external)
 
@@ -25,7 +25,7 @@ contains
 
 subroutine test_filesep()
 
-type(path) :: p1, p2, p3
+type(path_t) :: p1, p2, p3
 
 p1%path = ""
 
@@ -56,7 +56,7 @@ end subroutine test_filesep
 
 subroutine test_manip()
 
-type(path) :: p1, p2
+type(path_t) :: p1, p2
 logical :: is_unix
 
 p1%path = "/"
@@ -110,7 +110,7 @@ subroutine test_expanduser()
 character(:), allocatable :: fn
 integer :: i
 
-type(path) :: p1, p2, p3
+type(path_t) :: p1, p2, p3
 
 p1%path = ""
 p2%path = "~"
@@ -138,7 +138,7 @@ subroutine test_is_directory()
 
 integer :: i
 
-type(path) :: p1,p2,p3
+type(path_t) :: p1,p2,p3
 
 p1%path = "."
 
@@ -168,7 +168,7 @@ end subroutine test_is_directory
 
 subroutine test_mkdir()
 
-type(path) :: p
+type(path_t) :: p
 
 p%path = "test-pathlib-dir"
 
@@ -183,7 +183,7 @@ end subroutine test_mkdir
 
 subroutine test_absolute()
 
-type(path) :: p1,p2
+type(path_t) :: p1,p2
 logical :: is_unix
 
 p1%path = "/"
@@ -213,7 +213,7 @@ end subroutine test_absolute
 
 subroutine test_executable()
 
-type(path) :: p1
+type(path_t) :: p1
 character(4096) :: buf
 integer :: i
 

@@ -4,9 +4,9 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit
 
 implicit none (type, external)
 private
-public :: path, home, canonical
+public :: path_t, home, canonical
 
-type :: path
+type :: path_t
 
 character(:), allocatable :: path
 
@@ -19,24 +19,24 @@ parent, file_name, stem, root, suffix, &
 as_windows, as_posix, expanduser, with_suffix, &
 resolve, same_file, executable
 
-end type path
+end type path_t
 
 interface  ! pathlib_{unix,windows}.f90
 module impure subroutine copy_file(self, dest)
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 character(*), intent(in) :: dest
 end subroutine copy_file
 
 module impure subroutine mkdir(self)
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 end subroutine mkdir
 
 module pure logical function is_absolute(self)
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 end function is_absolute
 
 module pure logical function root(self)
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 character(:), allocatable :: root
 end function root
 
@@ -44,11 +44,11 @@ end interface
 
 interface !< pathlib_{intel,gcc}.f90
 module impure logical function is_directory(self)
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 end function is_directory
 
 module impure logical function executable(self)
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 end function executable
 end interface
 
@@ -65,14 +65,14 @@ contains
 
 
 pure integer function length(self)
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 length = len_trim(self%path)
 end function length
 
 
 impure function resolve(self)
-class(path), intent(in) :: self
-type(path) :: resolve
+class(path_t), intent(in) :: self
+type(path_t) :: resolve
 
 resolve = self%expanduser()
 resolve%path = canonical(resolve%path)
@@ -80,8 +80,8 @@ end function resolve
 
 
 impure logical function same_file(self, other)
-class(path), intent(in) :: self, other
-type(path) :: r1, r2
+class(path_t), intent(in) :: self, other
+type(path_t) :: r1, r2
 
 r1 = self%resolve()
 r2 = other%resolve()
@@ -91,9 +91,9 @@ end function same_file
 
 impure logical function is_file(self)
 !! is a file and not a directory
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 
-type(path) :: p
+type(path_t) :: p
 
 p = self%expanduser()
 
@@ -105,7 +105,7 @@ end function is_file
 
 pure function suffix(self)
 !! extracts path suffix, including the final "." dot
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 character(:), allocatable :: suffix
 
 integer :: i
@@ -123,11 +123,11 @@ end function suffix
 
 pure function parent(self)
 !! returns parent directory of path
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 
 character(:), allocatable :: parent
 
-type(path) :: w
+type(path_t) :: w
 integer :: i
 
 w = self%as_posix()
@@ -144,11 +144,11 @@ end function parent
 
 pure function file_name(self)
 !! returns file name without path
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 
 character(:), allocatable :: file_name
 
-type(path) :: w
+type(path_t) :: w
 
 w = self%as_posix()
 
@@ -158,7 +158,7 @@ end function file_name
 
 
 pure function stem(self)
-class(path), intent(in) :: self
+class(path_t), intent(in) :: self
 
 character(:), allocatable :: stem
 
@@ -180,8 +180,8 @@ end function stem
 pure function as_windows(self) result(sw)
 !! '/' => '\' for Windows systems
 
-class(path), intent(in) :: self
-type(path) :: sw
+class(path_t), intent(in) :: self
+type(path_t) :: sw
 
 integer :: i
 
@@ -198,8 +198,8 @@ end function as_windows
 pure function as_posix(self) result(sw)
 !! '\' => '/'
 
-class(path), intent(in) :: self
-type(path) :: sw
+class(path_t), intent(in) :: self
+type(path_t) :: sw
 
 integer :: i
 
@@ -215,8 +215,8 @@ end function as_posix
 
 pure function with_suffix(self, new_suffix) result(sw)
 !! replace file suffix
-class(path), intent(in) :: self
-type(path) :: sw
+class(path_t), intent(in) :: self
+type(path_t) :: sw
 character(*), intent(in) :: new_suffix
 
 sw%path = self%path(1:len_trim(self%path) - len(self%suffix())) // new_suffix
@@ -227,8 +227,8 @@ end function with_suffix
 impure function expanduser(self) result (ex)
 !! resolve home directory as Fortran does not understand tilde
 !! works for Linux, Mac, Windows, etc.
-class(path), intent(in) :: self
-type(path) :: ex
+class(path_t), intent(in) :: self
+type(path_t) :: ex
 
 character(:), allocatable ::homedir
 

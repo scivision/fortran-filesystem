@@ -8,7 +8,7 @@ contains
 
 module procedure is_directory
 
-type(path) :: p
+type(path_t) :: p
 
 p = self%expanduser()
 

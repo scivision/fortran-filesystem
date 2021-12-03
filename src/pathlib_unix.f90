@@ -37,7 +37,7 @@ module procedure copy_file
 integer :: i, j
 character(:), allocatable  :: cmd
 
-type(path) :: d, s
+type(path_t) :: d, s
 
 d%path = dest
 d = d%expanduser()
@@ -54,7 +54,7 @@ end procedure copy_file
 module procedure mkdir
 !! create a directory, with parents if needed
 integer :: i, j
-type(path) :: p
+type(path_t) :: p
 
 p = self%expanduser()
 

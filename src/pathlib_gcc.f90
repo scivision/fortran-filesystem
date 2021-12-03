@@ -8,7 +8,7 @@ module procedure is_directory
 !! For GCC Gfortran, similar for other compilers
 integer :: i, statb(13)
 character(:), allocatable :: wk
-type(path) :: w
+type(path_t) :: w
 
 w = self%expanduser()
 wk = w%path

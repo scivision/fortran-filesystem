@@ -5,18 +5,20 @@
 [![intel-oneapi](https://github.com/scivision/fortran-pathlib/actions/workflows/intel-oneapi.yml/badge.svg)](https://github.com/scivision/fortran-pathlib/actions/workflows/intel-oneapi.yml)
 
 Platform independent (Linux, macOS, Windows), object-oriented Fortran filesystem path manipulation library.
+Currently tested with GCC Gfortran and Intel oneAPI compilers.
+Would be happy to support additional Fortran 2018 compilers as available for testing.
 Inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html)
 and
 [C++ filesystem](https://en.cppreference.com/w/cpp/filesystem).
 
-Fortran "pathlib" module contains one Fortran type "path" that contains properties and methods.
-The "path" type has one property "%path" that contains the path as a string.
+Fortran "pathlib" module contains one Fortran type "path_t" that contains properties and methods.
+The "path_t" type has one property "%path" that contains the path as a string.
 
 ```fortran
-use pathlib, only : path
+use pathlib, only : path_t
 
-type(path) :: p
+type(path_t) :: p
 
 p%path = "my/path"
 ```
@@ -55,10 +57,10 @@ call p%mkdir()
 ! now directory my/new/dir exists
 ```
 
-## path
+## path_t
 
-These methods emit a new "path" object.
-It can be a new path object, or reassign to the existing path object.
+These methods emit a new "path_t" object.
+It can be a new path_t object, or reassign to the existing path_t object.
 
 Expand home directory.
 

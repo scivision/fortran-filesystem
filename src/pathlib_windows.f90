@@ -42,7 +42,7 @@ integer :: i,j
 
 character(:), allocatable  :: cmd
 
-type(path) :: s, d
+type(path_t) :: s, d
 
 d%path = dest
 d = d%expanduser()
@@ -64,7 +64,7 @@ module procedure mkdir
 integer :: i,j
 !! https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/md
 
-type(path) :: p
+type(path_t) :: p
 
 p = self%expanduser()
 p = p%as_windows()
