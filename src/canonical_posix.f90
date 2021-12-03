@@ -21,15 +21,18 @@ contains
 
 module procedure canonical
 
+type(path_t) :: p
 integer, parameter :: N = 4096
 character(kind=c_char):: c_buf(N)
 character(N) :: buf
 integer :: i
 
 if(len_trim(path) == 0) error stop "cannot canonicalize empty path"
-if(len(path) > N) error stop "path too long"
+p%path = path
+p = p%expanduser()
+if(len(p%path) > N) error stop "path too long"
 
-call realpath_c(path // c_null_char, c_buf)
+call realpath_c(p%path // c_null_char, c_buf)
 
 do i = 1,N
   if (c_buf(i) == c_null_char) exit
