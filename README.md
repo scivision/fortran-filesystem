@@ -112,6 +112,18 @@ p = p%with_suffix(".hdf5")
 ! p%path() == "my/file.hdf5"
 ```
 
+Join path_t with other path string using posix separators.
+The paths are treated like strings.
+No path resolution is used, so non-sensical paths are possible for non-sensical input.
+
+```fortran
+p = path_t("a/b")
+
+p = p%join("c/d")
+
+! p%path == "a/b/c/d"
+```
+
 ## integer
 
 These methods emit an integer value.

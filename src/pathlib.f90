@@ -16,7 +16,7 @@ character(:), allocatable :: path_str
 contains
 
 procedure, public :: path=>get_path, &
-length, &
+length, join, &
 is_file, is_directory, is_absolute, &
 copy_file, mkdir, &
 parent, file_name, stem, root, suffix, &
@@ -101,6 +101,26 @@ pure integer function length(self)
 class(path_t), intent(in) :: self
 length = len_trim(self%path_str)
 end function length
+
+
+pure function join(self, other)
+!! returns path_t object with other appended to self using posix separator
+type(path_t) :: join
+class(path_t), intent(in) :: self
+character(*), intent(in) :: other
+
+integer :: i
+
+i = len_trim(self%path_str)
+join = self%as_posix()
+
+if(join%path_str(i:i) == '/') then
+  join%path_str = self%path_str // other
+else
+  join%path_str = self%path_str // "/" // other
+end if
+
+end function join
 
 
 impure function resolve(self)

@@ -8,6 +8,8 @@ implicit none (type, external)
 
 call test_setter_getter()
 
+call test_join()
+
 call test_filesep()
 
 call test_manip()
@@ -39,6 +41,25 @@ if (p1%path(2) /= "/b/c") error stop "getter start only"
 print *, "OK: getter setter"
 
 end subroutine test_setter_getter
+
+
+subroutine test_join()
+
+type(path_t) :: p1,p2
+
+
+p1 = path_t("a/b")
+
+p2 = p1%join("c/d")
+if (p2%path() /= "a/b/c/d") error stop "join"
+p2 = p1%join("c/d/")
+if (p2%path() /= "a/b/c/d/") error stop "join"
+p2 = p1%join("c/d")
+if (p2%path() /= "a/b/c/d") error stop "join"
+
+print *, "OK: test_join"
+
+end subroutine test_join
 
 
 subroutine test_filesep()
