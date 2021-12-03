@@ -88,6 +88,12 @@ p = path_t("~/../b")
 p = p%resolve()
 
 p%path() == "<absolute path of user home directory>/b"
+
+! --- relative path resolved to current working directory
+p = path_t("../b")
+p = p%resolve()
+
+p%path() == "<absolute path of current working directory>/b"
 ```
 
 '/' => '\\' for Windows paths
@@ -221,7 +227,19 @@ p%root()
 Get home directory, or empty string if not found
 
 ```fortran
+use pathlib, only : home
+
 character(:), allocatable :: homedir
 
 homedir = home()
+```
+
+Get current working directory
+
+```fortran
+use pathlib, only : cwd
+
+character(:), allocatable :: cur
+
+cur = cwd()
 ```

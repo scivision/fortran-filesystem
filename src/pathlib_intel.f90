@@ -1,8 +1,24 @@
+!! these functions could be implemented via C runtime library,
+!! but for speed/ease of implementation, for now we use
+!! compiler-specific intrinsic functions
 submodule (pathlib) pathlib_intel
 
 implicit none (type, external)
 
 contains
+
+module procedure cwd
+use ifport, only : getcwd
+
+integer :: i
+character(4096) :: work
+
+i = getcwd(work)
+if(i /= 0) error stop "could not get CWD"
+
+cwd = trim(work)
+
+end procedure cwd
 
 module procedure is_directory
 
@@ -32,5 +48,6 @@ ig = iand(s(3), O'0000010')
 executable = (iu == 64 .or. ig == 8)
 
 end procedure executable
+
 
 end submodule pathlib_intel

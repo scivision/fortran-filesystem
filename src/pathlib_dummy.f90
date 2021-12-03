@@ -23,4 +23,11 @@ error stop "%executable method not supported on this compiler yet. Please open G
 
 end procedure executable
 
+
+module procedure cwd
+
+error stop "cwd() not supported on this compiler yet. Please open GitHub Issue request."
+
+end procedure cwd
+
 end submodule pathlib_dummy

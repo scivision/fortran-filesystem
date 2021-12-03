@@ -5,7 +5,7 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit
 implicit none (type, external)
 private
 public :: path_t  !< base class
-public :: home, canonical  !< utility procedures
+public :: home, canonical, cwd  !< utility procedures
 
 
 type :: path_t
@@ -53,6 +53,7 @@ end function root
 end interface
 
 interface !< pathlib_{intel,gcc}.f90
+
 module impure logical function is_directory(self)
 class(path_t), intent(in) :: self
 end function is_directory
@@ -60,6 +61,11 @@ end function is_directory
 module impure logical function executable(self)
 class(path_t), intent(in) :: self
 end function executable
+
+module impure function cwd()
+character(:), allocatable :: cwd
+end function cwd
+
 end interface
 
 

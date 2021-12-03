@@ -1,22 +1,24 @@
 program demo
 
 use, intrinsic :: iso_c_binding, only : c_null_char
-use pathlib, only : path_t
+use pathlib, only : path_t, cwd
 
 implicit none (type, external)
 
-type(path_t) :: parent, file, p1, p2
+type(path_t) :: cur, parent, file, p1, p2
 character(*), parameter :: dummy = "nobody.txt"
 
-integer :: L2, L3
+integer :: L1, L2, L3
 
-! ! -- current directory  -- old MacOS doesn't handle "." or ".." alone
-! cwd = path_t(".")
-! cwd = cwd%resolve()
-! L1 = cwd%length()
-! if (L1 < 3) error stop "ERROR canonical '.' " // cwd%path()
+! -- current directory  -- old MacOS doesn't handle "." or ".." alone
+cur = path_t(".")
+cur = cur%resolve()
+L1 = cur%length()
+if (L1 < 1) error stop "ERROR canonical '.' " // cur%path()
 
-! print *, "OK: current dir = ", cwd%path()
+if (cur%path() /= cwd()) error stop "ERROR current directory " // cwd()
+
+print *, "OK: current dir = ", cur%path()
 ! -- home directory
 p1 = path_t("~")
 p1 = p1%resolve()

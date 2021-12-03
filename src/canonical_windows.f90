@@ -35,8 +35,15 @@ character(N) :: buf
 integer :: i
 
 if(len_trim(path) == 0) error stop "cannot canonicalize empty path"
+
 p = path_t(path)
 p = p%expanduser()
+
+!! some systems e.g. old MacOS can't handle leading "." or ".."
+!! so manually resolve this part with CWD, which is implicit.
+
+if (p%path_str(1:1) == ".") p%path_str = cwd() // "/" // p%path_str
+
 if(len(p%path_str) > N) error stop "path too long"
 
 call fullpath_c(c_buf, p%path_str // c_null_char, N)
