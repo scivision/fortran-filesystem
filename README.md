@@ -67,6 +67,16 @@ Expand home directory.
 p = p%expanduser()
 ```
 
+Resolve (canonicalize) path. This transparently uses C Runtime Library.
+
+```fortran
+p%path = "../b"
+
+p = p%resolve()
+
+p%path = "<absolute path to parent of current working directory>/b"
+```
+
 '/' => '\\' for Windows paths
 
 ```fortran
@@ -87,6 +97,16 @@ p%path = "my/file.h5"
 p = p%with_suffix(".hdf5")
 
 ! p%path == "my/file.hdf5"
+```
+
+## integer
+
+These methods emit an integer value.
+
+len_trim() of %path
+
+```fortran
+p%length()
 ```
 
 ## logical
@@ -154,16 +174,4 @@ Get home directory, or empty string if not found
 character(:), allocatable :: homedir
 
 homedir = home()
-```
-
-## Future
-
-We'd like to add more advanced methods such as the following.
-These methods would be optional if they depend on C++ filesystem.
-
-```fortran
-p1%canonical()
-p1%resolve()
-p1%relative_to(p2)
-p1%same_file(p2)
 ```

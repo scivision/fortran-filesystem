@@ -12,10 +12,12 @@ character(:), allocatable :: path
 
 contains
 
-procedure, public :: is_file, is_directory, is_absolute, &
+procedure, public :: length, &
+is_file, is_directory, is_absolute, &
 copy_file, mkdir, &
 parent, file_name, stem, root, suffix, &
-as_windows, as_posix, expanduser, with_suffix
+as_windows, as_posix, expanduser, with_suffix, &
+resolve
 
 end type path
 
@@ -56,6 +58,21 @@ end function canonical
 end interface
 
 contains
+
+
+pure integer function length(self)
+class(path), intent(in) :: self
+length = len_trim(self%path)
+end function length
+
+
+impure function resolve(self)
+class(path), intent(in) :: self
+type(path) :: resolve
+
+resolve = self%expanduser()
+resolve%path = canonical(resolve%path)
+end function resolve
 
 
 impure logical function is_file(self)
