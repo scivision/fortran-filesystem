@@ -16,4 +16,11 @@ inquire(file=p%path, exist=is_directory)
 
 end procedure is_directory
 
+
+module procedure executable
+
+error stop "%executable method not supported on this compiler yet. Please open GitHub Issue request."
+
+end procedure executable
+
 end submodule pathlib_dummy
