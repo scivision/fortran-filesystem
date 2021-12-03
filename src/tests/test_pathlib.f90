@@ -17,6 +17,8 @@ call test_mkdir()
 
 call test_absolute()
 
+call test_executable()
+
 
 contains
 
@@ -98,6 +100,8 @@ p2 = p1%with_suffix(".hdf5")
 
 if (p2%path /= "my/file.hdf5") error stop "with_suffix failed: " // p2%path
 
+print *, "OK: pathlib: manip"
+
 end subroutine test_manip
 
 
@@ -124,6 +128,8 @@ p1 = p1%expanduser()
 fn = p1%path
 i = len(fn)
 if (fn(i:i) /= "/") error stop "expanduser preserve separator failed"
+
+print *, "OK: pathlib: expanduser"
 
 end subroutine test_expanduser
 
@@ -156,6 +162,7 @@ p3%path = "not-exist-dir"
 if(p3%is_directory()) error stop "not-exist-dir should not exist"
 
 print *," OK: pathlib: is_directory"
+
 end subroutine test_is_directory
 
 
@@ -169,6 +176,7 @@ call p%mkdir()
 
 if(.not.p%is_directory()) error stop "did not create directory" // p%path
 
+print *, "OK: pathlib: mkdir"
 
 end subroutine test_mkdir
 
@@ -198,9 +206,35 @@ else
   if (p2%is_absolute()) error stop p2%path // "on Windows is not absolute"
 endif
 
-print *, "OK: pathlib: expanduser,is_absolute"
+print *, "OK: pathlib: is_absolute"
 
 end subroutine test_absolute
+
+
+subroutine test_executable()
+
+type(path) :: p1
+character(4096) :: buf
+integer :: i
+
+call get_command_argument(1, buf, status=i)
+if (i/=0) error stop "test_executable: input path to an executable file"
+
+p1%path = trim(buf)
+if (.not.p1%executable()) error stop "did not detect executable file " // p1%path
+
+call get_command_argument(2, buf, status=i)
+if (i/=0) error stop "test_executable: input path to an non-executable file"
+
+p1%path = trim(buf)
+if (p1%executable()) error stop "did not detect non-executable file " // p1%path
+
+
+p1%path = "not-exist-file"
+if (p1%executable()) error stop "non-existant file cannot be exectuable " // p1%path
+
+print *, "OK: pathlib: executable"
+end subroutine test_executable
 
 
 subroutine unlink(path)

@@ -35,4 +35,23 @@ is_directory = i == 16384
 end procedure is_directory
 
 
+
+module procedure executable
+
+integer :: s(13), iu, ig, ierr
+
+executable = .false.
+
+if (.not. self%is_file()) return
+
+ierr = stat(self%path, s)
+if(ierr /= 0) return
+
+iu = iand(s(3), O'0000100')
+ig = iand(s(3), O'0000010')
+executable = (iu == 64 .or. ig == 8)
+
+end procedure executable
+
+
 end submodule pathlib_gcc

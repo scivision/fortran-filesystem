@@ -17,7 +17,7 @@ is_file, is_directory, is_absolute, &
 copy_file, mkdir, &
 parent, file_name, stem, root, suffix, &
 as_windows, as_posix, expanduser, with_suffix, &
-resolve
+resolve, same_file, executable
 
 end type path
 
@@ -46,6 +46,10 @@ interface !< pathlib_{intel,gcc}.f90
 module impure logical function is_directory(self)
 class(path), intent(in) :: self
 end function is_directory
+
+module impure logical function executable(self)
+class(path), intent(in) :: self
+end function executable
 end interface
 
 
@@ -73,6 +77,16 @@ type(path) :: resolve
 resolve = self%expanduser()
 resolve%path = canonical(resolve%path)
 end function resolve
+
+
+impure logical function same_file(self, other)
+class(path), intent(in) :: self, other
+type(path) :: r1, r2
+
+r1 = self%resolve()
+r2 = other%resolve()
+same_file = r1%path == r2%path
+end function same_file
 
 
 impure logical function is_file(self)

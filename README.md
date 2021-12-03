@@ -131,6 +131,18 @@ Is path absolute:
 p%is_absolute()
 ```
 
+Does path "p" resolve to the same path as "other":
+
+```fortran
+p%same_file(other)
+```
+
+is path executable file:
+
+```fortran
+p%same_file(other)
+```
+
 ## character(:), allocatable
 
 These methods emit a string.

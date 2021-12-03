@@ -8,9 +8,9 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 add_compile_options(
 "$<$<COMPILE_LANGUAGE:Fortran>:-mtune=native;-Wall;-fimplicit-none>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug,RelWithDebInfo>>:-Wextra;-fcheck=all;-Werror=array-bounds>"
-"$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Release>>:-fno-backtrace;-Wno-maybe-uninitialized>"
-"$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:RelWithDebInfo>>:-Wno-maybe-uninitialized>"
+"$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Release>>:-fno-backtrace>"
 )
+add_compile_options(-Wno-maybe-uninitialized)  # spurious warning on character(:), allocatable
 endif()
 
 # --- code coverage
