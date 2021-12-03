@@ -124,6 +124,19 @@ p = p%join("c/d")
 ! p%path == "a/b/c/d"
 ```
 
+Split path_t into path components.
+Path separators are discarded.
+
+```fortran
+character(:), allocatable :: parts
+
+p = path_t("/a1/b23/c456/")
+
+parts = p%parts()
+
+! parts == [character(4) :: "a1", "b23", "c456"]
+```
+
 ## integer
 
 These methods emit an integer value.

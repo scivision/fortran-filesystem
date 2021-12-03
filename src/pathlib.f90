@@ -16,7 +16,7 @@ character(:), allocatable :: path_str
 contains
 
 procedure, public :: path=>get_path, &
-length, join, &
+length, join, parts, &
 is_file, is_directory, is_absolute, &
 copy_file, mkdir, &
 parent, file_name, stem, root, suffix, &
@@ -121,6 +121,41 @@ else
 end if
 
 end function join
+
+
+ function parts(self)
+!! split path into up to 1000 parts (arbitrary limit)
+class(path_t), intent(in) :: self
+character(:), allocatable :: parts(:)
+
+type(path_t) :: work
+
+integer :: i(0:1000), j, k, N, M
+
+work = self%as_posix()
+if(work%path_str(1:1) == "/") work%path_str = work%path_str(2:)
+j = len_trim(work%path_str)
+if(work%path_str(j:j) == "/") work%path_str = work%path_str(:j-1)
+
+i(0) = 0
+N = 1
+do j = 1, size(i)-1
+  k = i(j-1)
+  i(j) = k + index(work%path_str(k+1:), '/')
+  if(i(j) == k) exit
+  N = N + 1
+end do
+
+M = maxval(i(1:N) - eoshift(i(1:N), -1))
+!! allocate character(:) array to longest individual part
+allocate(character(M) :: parts(N))
+
+do j = 1,N-1
+  parts(j) = work%path_str(i(j-1)+1:i(j)-1)
+end do
+parts(N) = work%path_str(i(N)+1:)
+
+end function parts
 
 
 impure function resolve(self)

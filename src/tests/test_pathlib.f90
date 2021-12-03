@@ -10,6 +10,8 @@ call test_setter_getter()
 
 call test_join()
 
+call test_parts()
+
 call test_filesep()
 
 call test_manip()
@@ -60,6 +62,42 @@ if (p2%path() /= "a/b/c/d") error stop "join"
 print *, "OK: test_join"
 
 end subroutine test_join
+
+
+subroutine test_parts()
+
+type(path_t) :: p1
+character(:), allocatable :: parts(:)
+
+p1 = path_t("a1/b23/c456")
+parts = p1%parts()
+
+if(size(parts) /= 3) error stop "parts1 split"
+if(len(parts(1)) /= 4) error stop "parts1 len"
+if(parts(1) /= "a1") error stop "parts1 1"
+if(parts(2) /= "b23") error stop "parts1 2"
+if(parts(3) /= "c456") error stop "parts1 3"
+
+p1 = path_t("/a1/b23/c456")
+if(size(parts) /= 3) error stop "parts2 split"
+if(len(parts(1)) /= 4) error stop "parts2 len"
+if(parts(1) /= "a1") error stop "parts2 1"
+if(parts(2) /= "b23") error stop "parts2 2"
+if(parts(3) /= "c456") error stop "parts2 3"
+
+p1 = path_t("a1/b23/c456/")
+parts = p1%parts()
+
+if(size(parts) /= 3) error stop "parts3 split"
+if(len(parts(1)) /= 4) error stop "parts3 len"
+if(parts(1) /= "a1") error stop "parts3 2"
+if(parts(2) /= "b23") error stop "parts3 3"
+if(parts(3) /= "c456") error stop "parts3 4"
+
+print *, "OK: parts"
+
+
+end subroutine test_parts
 
 
 subroutine test_filesep()
