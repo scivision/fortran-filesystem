@@ -1,8 +1,5 @@
 name: ci_cmake
 
-env:
-  CMAKE_GENERATOR: Ninja
-
 on:
   push:
     paths:
@@ -14,20 +11,17 @@ on:
 
 jobs:
 
-  linux-win:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      # just for Ninja
-      with:
-        python-version: 3.x
 
-    - run: pip install ninja
+    - name: install ninja
+      run: |
+        sudo apt update
+        sudo apt install ninja-build
 
     - run: cmake --preset multi
 
@@ -49,7 +43,7 @@ jobs:
         python-version: '3.x'
 
     - name: install Gcovr
-      run: pip install gcovr ninja
+      run: pip install gcovr
 
     - run: cmake --preset coverage
     - run: cmake --build --preset coverage
@@ -62,23 +56,46 @@ jobs:
         name: coverage-report-html
         path: build-coverage/coverage/
 
+
   mac:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest]
+    runs-on: macos-latest
+    timeout-minutes: 10
 
     env:
       FC: gfortran-11
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      # just for Ninja
-      with:
-        python-version: 3.x
 
-    - run: pip install ninja
+    - run: brew install ninja
+
+    - run: cmake --preset multi
+
+    - run: cmake --build --preset debug
+    - run: ctest --preset debug -V
+
+    - run: cmake --build --preset release
+    - run: ctest --preset release -V
+
+
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: >-
+          git
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-ninja
+          mingw-w64-x86_64-gcc-fortran
+
+    - uses: actions/checkout@v2
 
     - run: cmake --preset multi
 
