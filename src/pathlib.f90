@@ -43,20 +43,22 @@ end function home
 end interface
 
 
-interface  ! pathlib_{unix,windows}.f90
-module impure subroutine copy_file(self, dest)
-!! copy file from source to destination
-!! OVERWRITES existing destination files
-!!
-!! implemented via system call since CRT doesn't have this functionality
-class(path_t), intent(in) :: self
-character(*), intent(in) :: dest
-end subroutine copy_file
-
+interface  ! {posix,windows}_crt.f90
 module impure subroutine mkdir(self)
 !! create a directory, with parents if needed
 class(path_t), intent(in) :: self
 end subroutine mkdir
+end interface
+
+
+interface !< {posix,windows}_sys.f90
+!! implemented via system call since CRT doesn't have this functionality
+module impure subroutine copy_file(self, dest)
+!! copy file from source to destination
+!! OVERWRITES existing destination files
+class(path_t), intent(in) :: self
+character(*), intent(in) :: dest
+end subroutine copy_file
 end interface
 
 
