@@ -58,6 +58,8 @@ character(*) :: dest = "new/file.ext"
 call p%copy_file(dest)
 ```
 
+---
+
 Make directory with parent directories if specified
 
 ```fortran
@@ -66,6 +68,14 @@ p = path_t("my/new/dir")
 call p%mkdir()
 ! now directory my/new/dir exists
 ```
+
+or
+
+```fortran
+call mkdir("my/new/dir")
+```
+
+---
 
 Delete file
 
@@ -108,7 +118,7 @@ p%path() == "<absolute path of current working directory>/b"
 p = p%as_windows()
 ```
 
- '\\' => '/' for Unix paths, dropping redundant file separators "//"
+'\\' => '/' for Unix paths, dropping redundant file separators "//"
 
 ```fortran
 p = p%as_posix()
@@ -142,19 +152,6 @@ p = p%join("c/d")
 ! p%path == "a/b/c/d"
 ```
 
-Split path_t into path components.
-Path separators are discarded.
-
-```fortran
-character(:), allocatable :: parts
-
-p = path_t("/a1/b23/c456/")
-
-parts = p%parts()
-
-! parts == [character(4) :: "a1", "b23", "c456"]
-```
-
 ## integer
 
 These methods emit an integer value.
@@ -178,7 +175,6 @@ or:
 ```fortran
 size_bytes("my/file.txt")
 ```
-
 
 ## logical
 
@@ -210,8 +206,6 @@ or plain function:
 is_file("my/file.txt")
 ```
 
-```
-
 Is path absolute:
 
 ```fortran
@@ -232,7 +226,44 @@ p%is_exe()
 
 ## character(:), allocatable
 
-These methods emit a string.
+These procedures emit a string.
+
+'\\' => '/' for Unix paths, dropping redundant file separators "//"
+
+```fortran
+as_posix("my\path")
+```
+
+Drop duplicated file separator "//"
+
+```fortran
+drop_sep("my//path")
+```
+
+---
+
+Split path_t into path components.
+Path separators are discarded.
+
+```fortran
+character(:), allocatable :: parts
+
+p = path_t("/a1/b23/c456/")
+
+parts = p%parts()
+
+! parts == [character(4) :: "a1", "b23", "c456"]
+```
+
+or:
+
+```fortran
+pts = parts("/a1/b23/c456/")
+
+! pts == [character(4) :: "a1", "b23", "c456"]
+```
+
+---
 
 Get file suffix: extracts path suffix, including the final "." dot
 

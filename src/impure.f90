@@ -51,10 +51,13 @@ module procedure pathlib_is_exe
 pathlib_is_exe = is_exe(self%path_str)
 end procedure pathlib_is_exe
 
+module procedure pathlib_mkdir
+call mkdir(self%path_str)
+end procedure pathlib_mkdir
+
 
 module procedure pathlib_expanduser
-ex%path_str = expanduser(self%path_str)
-ex = ex%as_posix()
+ex%path_str = as_posix(expanduser(self%path_str))
 end procedure pathlib_expanduser
 
 

@@ -28,32 +28,37 @@ join = join%drop_sep()
 end procedure join
 
 
+module procedure pathlib_parts
+pathlib_parts = parts(self%path_str)
+end procedure pathlib_parts
+
+
 module procedure parts
 
-type(path_t) :: work
+character(:), allocatable :: wk
 
 integer :: i(1000), j, k, ilast, M, N
 
-if (self%length() == 0) then
+if (len_trim(path) == 0) then
   allocate(character(0) :: parts(0))
   return
 endif
 
-work = self%as_posix()
-j = work%length()
+wk = as_posix(path)
+j = len_trim(wk)
 
-if(index(work%path_str, "/") == 0) then
+if(index(wk, "/") == 0) then
   allocate(character(j) :: parts(1))
-  parts(1) = work%path_str
+  parts(1) = wk
   return
 end if
 
-if(work%path_str(j:j) == "/") work%path_str = work%path_str(:j-1)
+if(wk(j:j) == "/") wk = wk(:j-1)
 
 N = 0
 ilast = 0
 do j = 1, size(i)
-  k = index(work%path_str(ilast+1:), '/')
+  k = index(wk(ilast+1:), '/')
   if(k == 0) exit
   i(j) = ilast + k
   ilast = i(j)
@@ -67,14 +72,14 @@ M = maxval(i(1:N) - eoshift(i(1:N), -1))
 allocate(character(M) :: parts(N+1))
 
 if(i(1) > 1) then
-  parts(1) = work%path_str(:i(1)-1)
+  parts(1) = wk(:i(1)-1)
 else
-  parts(1) = work%path_str(1:1)
+  parts(1) = wk(1:1)
 endif
 do k = 2,N
-  parts(k) = work%path_str(i(k-1)+1:i(k)-1)
+  parts(k) = wk(i(k-1)+1:i(k)-1)
 end do
-parts(N+1) = work%path_str(i(N)+1:)
+parts(N+1) = wk(i(N)+1:)
 
 end procedure parts
 
@@ -153,40 +158,48 @@ end do
 end procedure as_windows
 
 
+module procedure pathlib_as_posix
+sw%path_str = as_posix(self%path_str)
+end procedure pathlib_as_posix
+
+
 module procedure as_posix
 
 integer :: i
 
-sw%path_str = self%path_str
-i = index(sw%path_str, char(92))
+as_posix = path
+i = index(as_posix, char(92))
 do while (i > 0)
-  sw%path_str(i:i) = '/'
-  i = index(sw%path_str, char(92))
+  as_posix(i:i) = '/'
+  i = index(as_posix, char(92))
 end do
 
-sw = sw%drop_sep()
+as_posix = drop_sep(as_posix)
 
 end procedure as_posix
 
+
+module procedure pathlib_drop_sep
+sw%path_str = drop_sep(self%path_str)
+end procedure pathlib_drop_sep
 
 module procedure drop_sep
 
 integer :: i
 
-sw%path_str = self%path_str
-i = index(sw%path_str, "//")
+drop_sep = path
+i = index(drop_sep, "//")
 do while (i > 0)
-  sw%path_str(i:) = sw%path_str(i+1:)
-  i = index(sw%path_str, "//")
+  drop_sep(i:) = drop_sep(i+1:)
+  i = index(drop_sep, "//")
 end do
 
 end procedure drop_sep
 
 
 module procedure with_suffix
-
 sw%path_str = self%path_str(1:len_trim(self%path_str) - len(self%suffix())) // new
-
 end procedure with_suffix
+
 
 end submodule pure_pathlib

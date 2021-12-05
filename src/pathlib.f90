@@ -6,7 +6,7 @@ implicit none (type, external)
 private
 public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
-public :: expanduser, is_dir, is_file, is_exe, size_bytes !< functional API
+public :: as_posix, drop_sep, expanduser, is_dir, is_file, is_exe, mkdir, parts, size_bytes !< functional API
 
 
 type :: path_t
@@ -17,11 +17,11 @@ character(:), allocatable :: path_str
 contains
 
 procedure, public :: path=>get_path, &
-length, join, parts, drop_sep, &
+length, join, parts=>pathlib_parts, drop_sep=>pathlib_drop_sep, &
 is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute, &
-copy_file, mkdir, &
+copy_file, mkdir=>pathlib_mkdir, &
 parent, file_name, stem, root, suffix, &
-as_windows, as_posix, expanduser=>pathlib_expanduser, with_suffix, &
+as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, with_suffix, &
 resolve, same_file, is_exe=>pathlib_is_exe, &
 unlink, size_bytes=>pathlib_size_bytes
 
@@ -52,10 +52,18 @@ module pure function as_windows(self) result(sw)
 class(path_t), intent(in) :: self
 type(path_t) :: sw
 end function as_windows
-module pure function parts(self)
+
+module pure function pathlib_parts(self)
 !! split path into up to 1000 parts (arbitrary limit)
 !! all path separators are discarded, except the leftmost if present
 class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_parts(:)
+end function pathlib_parts
+
+module pure function parts(path)
+!! split path into up to 1000 parts (arbitrary limit)
+!! all path separators are discarded, except the leftmost if present
+character(*), intent(in) :: path
 character(:), allocatable :: parts(:)
 end function parts
 
@@ -82,18 +90,30 @@ module pure function suffix(self)
 class(path_t), intent(in) :: self
 character(:), allocatable :: suffix
 end function suffix
-module pure function as_posix(self) result(sw)
+module pure function pathlib_as_posix(self) result(sw)
 !! '\' => '/', dropping redundant separators
 
 class(path_t), intent(in) :: self
 type(path_t) :: sw
+end function pathlib_as_posix
+
+module pure function as_posix(path)
+!! '\' => '/', dropping redundant separators
+
+character(:), allocatable :: as_posix
+character(*), intent(in) :: path
 end function as_posix
 
-module pure function drop_sep(self) result(sw)
+module pure function pathlib_drop_sep(self) result(sw)
 !! drop redundant "/" file separators
-
 class(path_t), intent(in) :: self
 type(path_t) :: sw
+end function pathlib_drop_sep
+
+module pure function drop_sep(path)
+!! drop redundant "/" file separators
+character(*), intent(in) :: path
+character(:), allocatable :: drop_sep
 end function drop_sep
 
 module pure function with_suffix(self, new) result(sw)
@@ -157,6 +177,11 @@ module impure logical function pathlib_is_exe(self)
 class(path_t), intent(in) :: self
 end function pathlib_is_exe
 
+module impure subroutine pathlib_mkdir(self)
+!! create a directory, with parents if needed
+class(path_t), intent(in) :: self
+end subroutine pathlib_mkdir
+
 end interface  !< impure.f90
 
 
@@ -171,9 +196,9 @@ end interface
 
 
 interface  ! {posix,windows}_crt.f90
-module impure subroutine mkdir(self)
+module impure subroutine mkdir(path)
 !! create a directory, with parents if needed
-class(path_t), intent(in) :: self
+character(*), intent(in) :: path
 end subroutine mkdir
 end interface
 

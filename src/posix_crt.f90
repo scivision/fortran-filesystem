@@ -58,33 +58,31 @@ end procedure canonical
 module procedure mkdir
 !! create a directory, with parents if needed
 
-character(kind=c_char, len=:), allocatable :: buf
+character(kind=c_char, len=:), allocatable :: wk
 !! must use allocatable buffer, not direct substring to C
 
 integer :: i
 integer(c_int) :: ierr
-type(path_t) :: p
-character(:), allocatable :: parts(:)
+character(:), allocatable :: pts(:)
 
-p = self%expanduser()
+wk = expanduser(path)
+if (len_trim(wk) < 1) error stop 'must specify directory to create'
 
-if (p%length() < 1) error stop 'must specify directory to create'
+if(is_dir(wk)) return
 
-if(p%is_dir()) return
+pts = parts(wk)
 
-parts = p%parts()
-
-buf = trim(parts(1))
-if(.not.is_dir(buf)) then
-  ierr = mkdir_c(buf // C_NULL_CHAR, int(o'755', c_int))
-  if (ierr /= 0) error stop 'could not create directory ' // buf
+wk = trim(pts(1))
+if(.not.is_dir(wk)) then
+  ierr = mkdir_c(wk // C_NULL_CHAR, int(o'755', c_int))
+  if (ierr /= 0) error stop 'could not create directory ' // wk
 endif
-do i = 2,size(parts)
-  buf = trim(buf) // "/" // trim(parts(i))
-  if (is_dir(buf)) cycle
+do i = 2,size(pts)
+  wk = trim(wk) // "/" // trim(pts(i))
+  if (is_dir(wk)) cycle
 
-  ierr = mkdir_c(buf // C_NULL_CHAR, int(o'755', c_int))
-  if (ierr /= 0) error stop 'could not create directory ' // buf
+  ierr = mkdir_c(wk // C_NULL_CHAR, int(o'755', c_int))
+  if (ierr /= 0) error stop 'could not create directory ' // wk
 end do
 
 
