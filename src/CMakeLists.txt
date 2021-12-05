@@ -15,11 +15,6 @@ else()
 endif()
 target_include_directories(pathlib INTERFACE ${PROJECT_BINARY_DIR}/include)
 
-# realpath canonicalization via C Runtime Library
-target_sources(pathlib PRIVATE
-$<IF:$<BOOL:${WIN32}>,canonical_windows.f90,canonical_posix.f90>
-)
-
 if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
