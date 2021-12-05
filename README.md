@@ -165,11 +165,20 @@ len_trim() of %path()
 p%length()
 ```
 
+---
+
 File size:
 
 ```fortran
 p%size_bytes()
 ```
+
+or:
+
+```fortran
+size_bytes("my/file.txt")
+```
+
 
 ## logical
 

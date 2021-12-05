@@ -51,18 +51,24 @@ end procedure is_dir
 
 module procedure size_bytes
 
-type(path_t) :: wk
-integer :: statb(13), i
+character(:), allocatable :: wk
+integer :: s(13), i
 
 size_bytes = 0
+wk = expanduser(path)
 
-wk = self%expanduser()
+i = stat(wk, s)
+if(i /= 0) then
+  write(stderr,*) "size_bytes: could not stat file: ", wk
+  return
+endif
 
-if(.not. wk%is_file()) return
-i = stat(wk%path_str, statb)
-if(i /= 0) return
+if (iand(s(3), O'0040000') == 16384) then
+  write(stderr,*) "size_bytes: is a directory: ", wk
+  return
+endif
 
-size_bytes = statb(8)
+size_bytes = s(8)
 
 end procedure size_bytes
 

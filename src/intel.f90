@@ -29,16 +29,22 @@ end procedure is_dir
 module procedure size_bytes
 use ifport, only : stat
 
-type(path_t) :: wk
+character(:), allocatable :: wk
 integer :: s(12), i
 
 size_bytes = 0
+wk = expanduser(path)
 
-wk = self%expanduser()
-if(.not. wk%is_file()) return
+i = stat(wk, s)
+if(i /= 0) then
+  write(stderr,*) "size_bytes: could not stat file: ", wk
+  return
+endif
 
-i = stat(wk%path_str, s)
-if(i /= 0) return
+if (iand(s(3), O'0040000') == 16384) then
+  write(stderr,*) "size_bytes: is a directory: ", wk
+  return
+endif
 
 size_bytes = s(8)
 

@@ -6,7 +6,7 @@ implicit none (type, external)
 private
 public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
-public :: expanduser, is_dir !< functional API
+public :: expanduser, is_dir, size_bytes !< functional API
 
 
 type :: path_t
@@ -23,7 +23,7 @@ copy_file, mkdir, &
 parent, file_name, stem, root, suffix, &
 as_windows, as_posix, expanduser=>pathlib_expanduser, with_suffix, &
 resolve, same_file, executable, &
-unlink, size_bytes
+unlink, size_bytes=>pathlib_size_bytes
 
 end type path_t
 
@@ -102,7 +102,7 @@ class(path_t), intent(in) :: self
 type(path_t) :: sw
 character(*), intent(in) :: new
 end function with_suffix
-end interface
+end interface !< pure.f90
 
 
 interface !< impure.f90
@@ -119,7 +119,6 @@ end subroutine unlink
 module impure logical function same_file(self, other)
 class(path_t), intent(in) :: self, other
 end function same_file
-
 
 module impure logical function pathlib_is_dir(self)
 class(path_t), intent(in) :: self
@@ -145,10 +144,11 @@ character(:), allocatable :: expanduser
 character(*), intent(in) :: path
 end function expanduser
 
+module impure integer function pathlib_size_bytes(self)
+class(path_t), intent(in) :: self
+end function pathlib_size_bytes
 
-end interface
-
-
+end interface  !< impure.f90
 
 
 interface !< envvar.f90
@@ -199,8 +199,8 @@ module impure logical function is_dir(path)
 character(*), intent(in) :: path
 end function is_dir
 
-module impure integer function size_bytes(self)
-class(path_t), intent(in) :: self
+module impure integer function size_bytes(path)
+character(*), intent(in) :: path
 end function size_bytes
 
 module impure logical function executable(self)
