@@ -12,9 +12,9 @@ inquire(file=expanduser(path), exist=is_dir)
 end procedure is_dir
 
 
-module procedure executable
-error stop "%executable method not supported on this compiler yet. Please open GitHub Issue request."
-end procedure executable
+module procedure is_exe
+error stop "%is_exe method not supported on this compiler yet. Please open GitHub Issue request."
+end procedure is_exe
 
 
 module procedure cwd

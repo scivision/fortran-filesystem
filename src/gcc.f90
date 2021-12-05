@@ -73,30 +73,30 @@ size_bytes = s(8)
 end procedure size_bytes
 
 
-module procedure executable
+module procedure is_exe
 
 character(:), allocatable :: wk
 integer :: s(13), iu, ig, i
 
-executable = .false.
-wk = expanduser(self%path_str)
+is_exe = .false.
+wk = expanduser(path)
 
 i = stat(wk, s)
 if(i /= 0) then
-  write(stderr,*) "executable: could not stat file: ", wk
+  write(stderr,*) "is_exe: could not stat file: ", wk
   return
 endif
 
 if (iand(s(3), O'0040000') == 16384) then
-  write(stderr,*) "executable: is a directory: ", wk
+  write(stderr,*) "is_exe: is a directory: ", wk
   return
 endif
 
 iu = iand(s(3), O'0000100')
 ig = iand(s(3), O'0000010')
-executable = (iu == 64 .or. ig == 8)
+is_exe = (iu == 64 .or. ig == 8)
 
-end procedure executable
+end procedure is_exe
 
 
 end submodule pathlib_gcc

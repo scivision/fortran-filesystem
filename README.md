@@ -227,7 +227,7 @@ p%same_file(other)
 is path executable file:
 
 ```fortran
-p%executable()
+p%is_exe()
 ```
 
 ## character(:), allocatable

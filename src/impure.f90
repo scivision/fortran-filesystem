@@ -47,6 +47,10 @@ module procedure pathlib_size_bytes
 pathlib_size_bytes = size_bytes(self%path_str)
 end procedure pathlib_size_bytes
 
+module procedure pathlib_is_exe
+pathlib_is_exe = is_exe(self%path_str)
+end procedure pathlib_is_exe
+
 
 module procedure pathlib_expanduser
 ex%path_str = expanduser(self%path_str)

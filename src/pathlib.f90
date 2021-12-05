@@ -6,7 +6,7 @@ implicit none (type, external)
 private
 public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
-public :: expanduser, is_dir, is_file, size_bytes !< functional API
+public :: expanduser, is_dir, is_file, is_exe, size_bytes !< functional API
 
 
 type :: path_t
@@ -22,7 +22,7 @@ is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute, &
 copy_file, mkdir, &
 parent, file_name, stem, root, suffix, &
 as_windows, as_posix, expanduser=>pathlib_expanduser, with_suffix, &
-resolve, same_file, executable, &
+resolve, same_file, is_exe=>pathlib_is_exe, &
 unlink, size_bytes=>pathlib_size_bytes
 
 end type path_t
@@ -153,6 +153,10 @@ module impure integer function pathlib_size_bytes(self)
 class(path_t), intent(in) :: self
 end function pathlib_size_bytes
 
+module impure logical function pathlib_is_exe(self)
+class(path_t), intent(in) :: self
+end function pathlib_is_exe
+
 end interface  !< impure.f90
 
 
@@ -208,9 +212,9 @@ module impure integer function size_bytes(path)
 character(*), intent(in) :: path
 end function size_bytes
 
-module impure logical function executable(self)
-class(path_t), intent(in) :: self
-end function executable
+module impure logical function is_exe(path)
+character(*), intent(in) :: path
+end function is_exe
 
 module impure function cwd()
 character(:), allocatable :: cwd
