@@ -1,6 +1,5 @@
 program pathlib_test
 
-use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use pathlib, only : path_t
 
 implicit none (type, external)
@@ -10,17 +9,11 @@ call test_setter_getter()
 
 call test_join()
 
-call test_parts()
-
 call test_filesep()
 
 call test_manip()
 
-call test_expanduser()
-
-call test_is_directory()
-
-call test_mkdir()
+call test_is_dir()
 
 call test_absolute()
 
@@ -60,42 +53,6 @@ if (p2%path() /= "a/b/c/d") error stop "join"
 print *, "OK: test_join"
 
 end subroutine test_join
-
-
-subroutine test_parts()
-
-type(path_t) :: p1
-character(:), allocatable :: parts(:)
-
-p1 = path_t("a1/b23/c456")
-parts = p1%parts()
-
-if(size(parts) /= 3) error stop "parts1 split"
-if(len(parts(1)) /= 4) error stop "parts1 len"
-if(parts(1) /= "a1") error stop "parts1 1"
-if(parts(2) /= "b23") error stop "parts1 2"
-if(parts(3) /= "c456") error stop "parts1 3"
-
-p1 = path_t("/a1/b23/c456")
-if(size(parts) /= 3) error stop "parts2 split"
-if(len(parts(1)) /= 4) error stop "parts2 len"
-if(parts(1) /= "a1") error stop "parts2 1"
-if(parts(2) /= "b23") error stop "parts2 2"
-if(parts(3) /= "c456") error stop "parts2 3"
-
-p1 = path_t("a1/b23/c456/")
-parts = p1%parts()
-
-if(size(parts) /= 3) error stop "parts3 split"
-if(len(parts(1)) /= 4) error stop "parts3 len"
-if(parts(1) /= "a1") error stop "parts3 2"
-if(parts(2) /= "b23") error stop "parts3 3"
-if(parts(3) /= "c456") error stop "parts3 4"
-
-print *, "OK: parts"
-
-
-end subroutine test_parts
 
 
 subroutine test_filesep()
@@ -180,36 +137,7 @@ print *, "OK: pathlib: manip"
 end subroutine test_manip
 
 
-subroutine test_expanduser()
-
-character(:), allocatable :: fn
-integer :: i
-
-type(path_t) :: p1, p2, p3
-
-p1 = path_t("")
-p2 = path_t("~")
-
-p1 = p1%expanduser()
-p2 = p2%expanduser()
-
-if(p1%path() /= "") error stop "expanduser blank failed"
-p3 = path_t(p2%path())
-p3 = p3%expanduser()
-if (p3%path() /= p2%path()) error stop "expanduser idempotent failed"
-
-p1 = path_t("~/")
-p1 = p1%expanduser()
-fn = p1%path()
-i = len(fn)
-if (fn(i:i) /= "/") error stop "expanduser preserve separator failed"
-
-print *, "OK: pathlib: expanduser"
-
-end subroutine test_expanduser
-
-
-subroutine test_is_directory()
+subroutine test_is_dir()
 
 integer :: i
 
@@ -217,43 +145,22 @@ type(path_t) :: p1,p2,p3
 
 p1 = path_t(".")
 
-if(.not. p1%is_directory()) error stop "did not detect '.' as directory"
+if(.not. p1%is_dir()) error stop "did not detect '.' as directory"
 if(p1%is_file()) error stop "detected '.' as file"
 
 p2 = path_t('test-pathlib.h5')
 open(newunit=i, file=p2%path(), status='replace')
 close(i)
 
-if(.not. p2%is_file()) error stop "did not detect " // p2%path() // " as file"
-p3 = path_t('test-pathlib.h5.copy')
-call p2%copy_file(p3%path())
-if(.not. p3%is_file()) error stop "did not detect " // p3%path() // " as file"
-
-if (p2%is_directory()) error stop "detected file as directory"
-call unlink('test-pathlib.h5')
-call unlink('test-pathlib.h5.copy')
+if (p2%is_dir()) error stop "detected file as directory"
+call p2%unlink()
 
 p3 = path_t("not-exist-dir")
-if(p3%is_directory()) error stop "not-exist-dir should not exist"
+if(p3%is_dir()) error stop "not-exist-dir should not exist"
 
-print *," OK: pathlib: is_directory"
+print *," OK: pathlib: is_dir"
 
-end subroutine test_is_directory
-
-
-subroutine test_mkdir()
-
-type(path_t) :: p
-
-p = path_t("test-pathlib-dir")
-
-call p%mkdir()
-
-if(.not.p%is_directory()) error stop "did not create directory" // p%path()
-
-print *, "OK: pathlib: mkdir"
-
-end subroutine test_mkdir
+end subroutine test_is_dir
 
 
 subroutine test_absolute()
@@ -284,19 +191,5 @@ endif
 print *, "OK: pathlib: is_absolute"
 
 end subroutine test_absolute
-
-
-
-subroutine unlink(path)
-character(*), intent(in) :: path
-integer :: i
-logical :: e
-
-inquire(file=path, exist=e)
-if (.not.e) return
-
-open(newunit=i, file=path, status='old')
-close(i, status='delete')
-end subroutine unlink
 
 end program

@@ -28,7 +28,7 @@ contains
 
 module procedure canonical
 
-type(path_t) :: p
+character(kind=c_char, len=:), allocatable :: wk
 integer(c_long), parameter :: N = 4096
 character(kind=c_char):: c_buf(N)
 character(N) :: buf
@@ -36,17 +36,16 @@ integer :: i
 
 if(len_trim(path) == 0) error stop "cannot canonicalize empty path"
 
-p = path_t(path)
-p = p%expanduser()
+wk = expanduser(path)
 
 !! some systems e.g. old MacOS can't handle leading "." or ".."
 !! so manually resolve this part with CWD, which is implicit.
 
-if (p%path_str(1:1) == ".") p%path_str = cwd() // "/" // p%path_str
+if (wk(1:1) == ".") wk = cwd() // "/" // wk
 
-if(len(p%path_str) > N) error stop "path too long"
+if(len(wk) > N) error stop "path too long"
 
-call fullpath_c(c_buf, p%path_str // c_null_char, N)
+call fullpath_c(c_buf, wk // c_null_char, N)
 
 do i = 1,N
   if (c_buf(i) == c_null_char) exit

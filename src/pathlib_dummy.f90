@@ -6,28 +6,24 @@ implicit none (type, external)
 
 contains
 
-module procedure is_directory
 
-type(path_t) :: p
-
-p = self%expanduser()
-
-inquire(file=p%path_str, exist=is_directory)
-
-end procedure is_directory
+module procedure is_dir
+inquire(file=expanduser(path), exist=is_dir)
+end procedure is_dir
 
 
 module procedure executable
-
 error stop "%executable method not supported on this compiler yet. Please open GitHub Issue request."
-
 end procedure executable
 
 
 module procedure cwd
-
 error stop "cwd() not supported on this compiler yet. Please open GitHub Issue request."
-
 end procedure cwd
+
+
+module procedure size_bytes
+error stop "%size_bytes not yet supported on this compiler."
+end procedure size_bytes
 
 end submodule pathlib_dummy

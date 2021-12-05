@@ -17,11 +17,11 @@ type(path_t) :: p
 
 p = path_t("test-pathlib-dir")
 call p%mkdir()
-if(.not.p%is_directory()) error stop "mkdir: single: " // p%path()
+if(.not.p%is_dir()) error stop "mkdir: single: " // p%path()
 
 p = path_t("test-pathlib-dir2/hello")
 call p%mkdir()
-if(.not.p%is_directory()) error stop "mkdir: parents: " // p%path()
+if(.not.p%is_dir()) error stop "mkdir: parents: " // p%path()
 
 print *, "OK: pathlib: mkdir"
 

@@ -5,7 +5,8 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit
 implicit none (type, external)
 private
 public :: path_t  !< base class
-public :: home, canonical, cwd  !< utility procedures
+public :: home, canonical, cwd, & !< utility procedures
+expanduser, is_dir !< functional API
 
 
 type :: path_t
@@ -17,10 +18,10 @@ contains
 
 procedure, public :: path=>get_path, &
 length, join, parts, drop_sep, &
-is_file, is_directory, is_absolute, &
+is_file, is_dir=>pathlib_is_dir, is_absolute, &
 copy_file, mkdir, &
 parent, file_name, stem, root, suffix, &
-as_windows, as_posix, expanduser, with_suffix, &
+as_windows, as_posix, expanduser=>pathlib_expanduser, with_suffix, &
 resolve, same_file, executable, &
 unlink, size_bytes
 
@@ -55,9 +56,9 @@ end interface
 
 interface !< pathlib_{intel,gcc}.f90
 
-module impure logical function is_directory(self)
-class(path_t), intent(in) :: self
-end function is_directory
+module impure logical function is_dir(path)
+character(*), intent(in) :: path
+end function is_dir
 
 module impure integer function size_bytes(self)
 class(path_t), intent(in) :: self
@@ -230,7 +231,7 @@ type(path_t) :: p
 p = self%expanduser()
 
 inquire(file=p%path_str, exist=is_file)
-if(is_file .and. self%is_directory()) is_file = .false.
+if(is_file .and. self%is_dir()) is_file = .false.
 
 end function is_file
 
@@ -376,28 +377,51 @@ sw%path_str = self%path_str(1:len_trim(self%path_str) - len(self%suffix())) // n
 end function with_suffix
 
 
-impure function expanduser(self) result (ex)
+impure logical function pathlib_is_dir(self)
+class(path_t), intent(in) :: self
+
+pathlib_is_dir = is_dir(self%path_str)
+
+end function pathlib_is_dir
+
+
+impure function pathlib_expanduser(self) result (ex)
 !! resolve home directory as Fortran does not understand tilde
+!! also swaps "\" for "/" and drops redundant file separators
 !! works for Linux, Mac, Windows, etc.
 class(path_t), intent(in) :: self
 type(path_t) :: ex
 
-character(:), allocatable ::homedir
+ex%path_str = expanduser(self%path_str)
 
-ex%path_str = trim(adjustl(self%path_str))
+ex = ex%as_posix()
 
-if (len(ex%path_str) < 1) return
-if(ex%path_str(1:1) /= '~') return
+end function pathlib_expanduser
+
+
+impure function expanduser(path)
+!! resolve home directory as Fortran does not understand tilde
+!! works for Linux, Mac, Windows, ...
+
+character(*), intent(in) :: path
+character(:), allocatable :: expanduser
+
+character(:), allocatable :: homedir
+
+expanduser = trim(adjustl(path))
+
+if (len(expanduser) < 1) return
+if(expanduser(1:1) /= '~') return
 
 homedir = home()
 if (len_trim(homedir) == 0) return
 
-if (len_trim(ex%path_str) < 2) then
+if (len_trim(expanduser) < 2) then
   !! ~ alone
-  ex%path_str = homedir
+  expanduser = homedir
 else
   !! ~/...
-  ex%path_str = homedir // trim(adjustl(ex%path_str(2:)))
+  expanduser = homedir // expanduser(2:)
 endif
 
 end function expanduser

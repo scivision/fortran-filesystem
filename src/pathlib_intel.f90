@@ -20,15 +20,10 @@ cwd = trim(work)
 
 end procedure cwd
 
-module procedure is_directory
 
-type(path_t) :: p
-
-p = self%expanduser()
-
-inquire(directory=p%path_str, exist=is_directory)
-
-end procedure is_directory
+module procedure is_dir
+inquire(directory=expanduser(path), exist=is_dir)
+end procedure is_dir
 
 
 module procedure size_bytes
@@ -53,13 +48,15 @@ end procedure size_bytes
 module procedure executable
 use ifport, only : stat
 
+type(path_t) :: wk
 integer :: s(12), ierr, iu, ig
 
 executable = .false.
 
-if (.not. self%is_file()) return
+wk = self%expanduser()
+if (.not. wk%is_file()) return
 
-ierr = stat(self%path_str, s)
+ierr = stat(wk%path_str, s)
 if(ierr /= 0) return
 
 iu = iand(s(3), O'0000100')

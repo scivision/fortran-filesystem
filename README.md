@@ -178,7 +178,7 @@ These methods emit a logical value.
 Does directory exist:
 
 ```fortran
-p%is_directory()
+p%is_dir()
 ```
 
 Does file exist:

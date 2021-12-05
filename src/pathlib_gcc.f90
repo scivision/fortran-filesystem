@@ -20,35 +20,33 @@ cwd = trim(work)
 
 end procedure cwd
 
-module procedure is_directory
-!! For GCC Gfortran, similar for other compilers
+
+module procedure is_dir
+
 integer :: i, statb(13)
 character(:), allocatable :: wk
-type(path_t) :: w
 
-w = self%expanduser()
-wk = w%path_str
+wk = expanduser(path)
 
 !! must not have trailing slash on Windows
 i = len_trim(wk)
-if (wk(i:i) == char(92) .or. wk(i:i) == '/') wk = wk(1:i-1)
+if (wk(i:i) == '/') wk = wk(1:i-1)
 
-
-inquire(file=wk, exist=is_directory)
-if(.not.is_directory) return
+inquire(file=wk, exist=is_dir)
+if(.not.is_dir) return
 
 i = stat(wk, statb)
 if(i /= 0) then
-  is_directory = .false.
+  is_dir = .false.
   return
 endif
 
 i = iand(statb(3), O'0040000')
-is_directory = i == 16384
+is_dir = i == 16384
 
 ! print '(O8)', statb(3)
 
-end procedure is_directory
+end procedure is_dir
 
 
 module procedure size_bytes
@@ -71,13 +69,15 @@ end procedure size_bytes
 
 module procedure executable
 
+type(path_t) :: wk
 integer :: s(13), iu, ig, ierr
 
 executable = .false.
 
-if (.not. self%is_file()) return
+wk = self%expanduser()
+if (.not. wk%is_file()) return
 
-ierr = stat(self%path_str, s)
+ierr = stat(wk%path_str, s)
 if(ierr /= 0) return
 
 iu = iand(s(3), O'0000100')
