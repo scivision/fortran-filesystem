@@ -48,20 +48,23 @@ module impure subroutine copy_file(self, dest)
 class(path_t), intent(in) :: self
 character(*), intent(in) :: dest
 end subroutine copy_file
-
 module impure subroutine mkdir(self)
 class(path_t), intent(in) :: self
 end subroutine mkdir
+end interface
 
+
+interface  !< {posix,windows}_path.f90
 module pure logical function is_absolute(self)
+!! is path absolute
+!! do NOT expanduser() to be consistent with Python etc. pathlib
 class(path_t), intent(in) :: self
 end function is_absolute
-
 module pure logical function root(self)
+!! returns root of path
 class(path_t), intent(in) :: self
 character(:), allocatable :: root
 end function root
-
 end interface
 
 interface !< pathlib_{intel,gcc}.f90

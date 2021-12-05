@@ -1,4 +1,4 @@
-submodule (pathlib) pathlib_unix
+submodule (pathlib) posix_crt
 !! It was observed to be more reliable to use execute_command_line() rather
 !! than using the C library directly.
 
@@ -16,28 +16,6 @@ end function mkdir_c
 end interface
 
 contains
-
-
-module procedure is_absolute
-!! is path absolute
-!! do NOT expanduser() to be consistent with Python etc. pathlib
-
-is_absolute = .false.
-
-if(len_trim(self%path_str) > 0) is_absolute = self%path_str(1:1) == "/"
-
-end procedure is_absolute
-
-
-module procedure root
-
-if(self%is_absolute()) then
-  root = self%path_str(1:1)
-else
-  root = ""
-end if
-
-end procedure root
 
 
 module procedure copy_file
@@ -97,4 +75,4 @@ end do
 
 end procedure mkdir
 
-end submodule pathlib_unix
+end submodule posix_crt
