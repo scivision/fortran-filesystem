@@ -1,12 +1,16 @@
 set_directory_properties(PROPERTIES LABELS pathlib)
 
 add_library(pathlib
-pathlib.f90
-$<IF:$<BOOL:${WIN32}>,pathlib_windows.f90,pathlib_unix.f90>
-$<$<Fortran_COMPILER_ID:Intel,IntelLLVM>:pathlib_intel.f90>
-$<$<Fortran_COMPILER_ID:GNU>:pathlib_gcc.f90>
-$<$<NOT:$<Fortran_COMPILER_ID:GNU,Intel,IntelLLVM>>:pathlib_dummy.f90>
+pathlib.f90 envvar.f90
+$<IF:$<BOOL:${WIN32}>,windows_crt.f90,unix_crt.f90>
 )
+if(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
+  target_sources(pathlib PRIVATE gcc.f90)
+elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
+  target_sources(pathlib PRIVATE intel.f90)
+else()
+  target_sources(pathlib PRIVATE dummy_compiler.f90)
+endif()
 target_include_directories(pathlib INTERFACE ${PROJECT_BINARY_DIR}/include)
 
 # realpath canonicalization via C Runtime Library

@@ -5,8 +5,8 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit
 implicit none (type, external)
 private
 public :: path_t  !< base class
-public :: home, canonical, cwd, & !< utility procedures
-expanduser, is_dir !< functional API
+public :: home, canonical, cwd !< utility procedures
+public :: expanduser, is_dir !< functional API
 
 
 type :: path_t
@@ -30,6 +30,16 @@ end type path_t
 
 interface path_t
   module procedure set_path
+end interface
+
+
+interface !< envvar.f90
+module impure function home()
+!! returns home directory, or empty string if not found
+!!
+!! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
+character(:), allocatable :: home
+end function home
 end interface
 
 
@@ -426,30 +436,5 @@ endif
 
 end function expanduser
 
-
-impure function home()
-!! returns home directory, or empty string if not found
-!!
-!! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
-
-character(:), allocatable :: home
-character(256) :: buf
-integer :: L, istat
-
-call get_environment_variable("HOME", buf, length=L, status=istat)
-
-if (L==0 .or. istat /= 0) then
-  call get_environment_variable("USERPROFILE", buf, length=L, status=istat)
-endif
-
-if (L==0 .or. istat /= 0) then
-  write(stderr,*) 'ERROR:pathlib:home: could not determine home directory from env variable'
-  if (istat==1) write(stderr,*) 'neither HOME or USERPROFILE env variable exists.'
-  home = ""
-endif
-
-home = trim(buf)
-
-end function home
 
 end module pathlib
