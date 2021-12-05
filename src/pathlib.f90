@@ -33,6 +33,78 @@ interface path_t
 end interface
 
 
+interface  !< pure.f90
+module pure integer function length(self)
+!! returns string length len_trim(path)
+class(path_t), intent(in) :: self
+end function length
+
+module pure function join(self, other)
+!! returns path_t object with other appended to self using posix separator
+type(path_t) :: join
+class(path_t), intent(in) :: self
+character(*), intent(in) :: other
+end function join
+
+module pure function as_windows(self) result(sw)
+!! '/' => '\' for Windows systems
+
+class(path_t), intent(in) :: self
+type(path_t) :: sw
+end function as_windows
+module pure function parts(self)
+!! split path into up to 1000 parts (arbitrary limit)
+!! all path separators are discarded, except the leftmost if present
+class(path_t), intent(in) :: self
+character(:), allocatable :: parts(:)
+end function parts
+
+module pure function parent(self)
+!! returns parent directory of path
+class(path_t), intent(in) :: self
+character(:), allocatable :: parent
+end function parent
+
+module pure function file_name(self)
+!! returns file name without path
+class(path_t), intent(in) :: self
+character(:), allocatable :: file_name
+end function file_name
+
+module pure function stem(self)
+class(path_t), intent(in) :: self
+
+character(:), allocatable :: stem
+end function stem
+
+module pure function suffix(self)
+!! extracts path suffix, including the final "." dot
+class(path_t), intent(in) :: self
+character(:), allocatable :: suffix
+end function suffix
+module pure function as_posix(self) result(sw)
+!! '\' => '/', dropping redundant separators
+
+class(path_t), intent(in) :: self
+type(path_t) :: sw
+end function as_posix
+
+module pure function drop_sep(self) result(sw)
+!! drop redundant "/" file separators
+
+class(path_t), intent(in) :: self
+type(path_t) :: sw
+end function drop_sep
+
+module pure function with_suffix(self, new) result(sw)
+!! replace file suffix with new suffix
+class(path_t), intent(in) :: self
+type(path_t) :: sw
+character(*), intent(in) :: new
+end function with_suffix
+end interface
+
+
 interface !< envvar.f90
 module impure function home()
 !! returns home directory, or empty string if not found
@@ -141,89 +213,6 @@ close(u, status='delete')
 end subroutine unlink
 
 
-pure integer function length(self)
-class(path_t), intent(in) :: self
-length = len_trim(self%path_str)
-end function length
-
-
-pure function join(self, other)
-!! returns path_t object with other appended to self using posix separator
-type(path_t) :: join
-class(path_t), intent(in) :: self
-character(*), intent(in) :: other
-
-integer :: i
-
-i = len_trim(self%path_str)
-join = self%as_posix()
-
-if(join%path_str(i:i) == '/') then
-  join%path_str = self%path_str // other
-else
-  join%path_str = self%path_str // "/" // other
-end if
-
-join = join%drop_sep()
-
-end function join
-
-
-pure function parts(self)
-!! split path into up to 1000 parts (arbitrary limit)
-!! all path separators are discarded, except the leftmost if present
-class(path_t), intent(in) :: self
-character(:), allocatable :: parts(:)
-
-type(path_t) :: work
-
-integer :: i(1000), j, k, ilast, M, N
-
-if (self%length() == 0) then
-  allocate(character(0) :: parts(0))
-  return
-endif
-
-work = self%as_posix()
-j = work%length()
-
-if(index(work%path_str, "/") == 0) then
-  allocate(character(j) :: parts(1))
-  parts(1) = work%path_str
-  return
-end if
-
-if(work%path_str(j:j) == "/") work%path_str = work%path_str(:j-1)
-
-N = 0
-ilast = 0
-do j = 1, size(i)
-  k = index(work%path_str(ilast+1:), '/')
-  if(k == 0) exit
-  i(j) = ilast + k
-  ilast = i(j)
-  N = N + 1
-end do
-
-! print *, "TRACE: i ", i(:N)
-
-M = maxval(i(1:N) - eoshift(i(1:N), -1))
-!! allocate character(:) array to longest individual part
-allocate(character(M) :: parts(N+1))
-
-if(i(1) > 1) then
-  parts(1) = work%path_str(:i(1)-1)
-else
-  parts(1) = work%path_str(1:1)
-endif
-do k = 2,N
-  parts(k) = work%path_str(i(k-1)+1:i(k)-1)
-end do
-parts(N+1) = work%path_str(i(N)+1:)
-
-end function parts
-
-
 impure function resolve(self)
 class(path_t), intent(in) :: self
 type(path_t) :: resolve
@@ -255,147 +244,6 @@ inquire(file=p%path_str, exist=is_file)
 if(is_file .and. self%is_dir()) is_file = .false.
 
 end function is_file
-
-
-pure function suffix(self)
-!! extracts path suffix, including the final "." dot
-class(path_t), intent(in) :: self
-character(:), allocatable :: suffix
-
-integer :: i
-
-i = index(self%path_str, '.', back=.true.)
-
-if (i > 1) then
-  suffix = trim(self%path_str(i:))
-else
-  suffix = ''
-end if
-
-end function suffix
-
-
-pure function parent(self)
-!! returns parent directory of path
-class(path_t), intent(in) :: self
-
-character(:), allocatable :: parent
-
-type(path_t) :: w
-integer :: i
-
-w = self%as_posix()
-
-i = index(w%path_str, "/", back=.true.)
-if (i > 0) then
-  parent = w%path_str(:i-1)
-else
-  parent = "."
-end if
-
-end function parent
-
-
-pure function file_name(self)
-!! returns file name without path
-class(path_t), intent(in) :: self
-
-character(:), allocatable :: file_name
-
-type(path_t) :: w
-
-w = self%as_posix()
-
-file_name = trim(w%path_str(index(w%path_str, "/", back=.true.) + 1:))
-
-end function file_name
-
-
-pure function stem(self)
-class(path_t), intent(in) :: self
-
-character(:), allocatable :: stem
-
-character(len_trim(self%path_str)) :: work
-integer :: i
-
-work = self%file_name()
-
-i = index(work, '.', back=.true.)
-if (i > 0) then
-  stem = work(:i - 1)
-else
-  stem = work
-endif
-
-end function stem
-
-
-pure function as_windows(self) result(sw)
-!! '/' => '\' for Windows systems
-
-class(path_t), intent(in) :: self
-type(path_t) :: sw
-
-integer :: i
-
-sw%path_str = self%path_str
-i = index(sw%path_str, '/')
-do while (i > 0)
-  sw%path_str(i:i) = char(92)
-  i = index(sw%path_str, '/')
-end do
-
-end function as_windows
-
-
-pure function as_posix(self) result(sw)
-!! '\' => '/', dropping redundant separators
-
-class(path_t), intent(in) :: self
-type(path_t) :: sw
-
-integer :: i
-
-sw%path_str = self%path_str
-i = index(sw%path_str, char(92))
-do while (i > 0)
-  sw%path_str(i:i) = '/'
-  i = index(sw%path_str, char(92))
-end do
-
-sw = sw%drop_sep()
-
-end function as_posix
-
-
-pure function drop_sep(self) result(sw)
-!! drop redundant "/" file separators
-
-class(path_t), intent(in) :: self
-type(path_t) :: sw
-
-integer :: i
-
-sw%path_str = self%path_str
-i = index(sw%path_str, "//")
-do while (i > 0)
-  sw%path_str(i:) = sw%path_str(i+1:)
-  i = index(sw%path_str, "//")
-end do
-
-end function drop_sep
-
-
-pure function with_suffix(self, new) result(sw)
-!! replace file suffix with new suffix
-class(path_t), intent(in) :: self
-type(path_t) :: sw
-character(*), intent(in) :: new
-
-sw%path_str = self%path_str(1:len_trim(self%path_str) - len(self%suffix())) // new
-
-end function with_suffix
 
 
 impure logical function pathlib_is_dir(self)
