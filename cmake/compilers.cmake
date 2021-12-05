@@ -6,11 +6,14 @@ $<IF:$<BOOL:${WIN32}>,/QxHost,-xHost>
 )
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 add_compile_options(
-"$<$<COMPILE_LANGUAGE:Fortran>:-mtune=native;-Wall;-fimplicit-none>"
-"$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug,RelWithDebInfo>>:-Wextra;-fcheck=all;-Werror=array-bounds>"
+-mtune=native -Wall
+$<$<CONFIG:Debug,RelWithDebInfo>:-Wextra>
+"$<$<COMPILE_LANGUAGE:Fortran>:-Wno-intrinsic-shadow;-fimplicit-none>"
+"$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug,RelWithDebInfo>>:-fcheck=all;-Werror=array-bounds>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Release>>:-fno-backtrace>"
 )
-add_compile_options(-Wno-maybe-uninitialized)  # spurious warning on character(:), allocatable
+add_compile_options(-Wno-maybe-uninitialized)  # spurious warning on character(:), allocatable :: C
+add_compile_options(-Wno-uninitialized)  # spurious warning on character(:), allocatable :: C(:)
 endif()
 
 # --- code coverage
