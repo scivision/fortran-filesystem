@@ -16,9 +16,6 @@ contains
 
 
 module procedure copy_file
-!! copy file from source to destination
-!! OVERWRITES existing destination files
-!!
 !! https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/copy
 integer :: i,j
 
@@ -42,8 +39,6 @@ end procedure copy_file
 
 
 module procedure mkdir
-!! create a directory, with parents if needed
-
 !! https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/mkdir-wmkdir
 character(kind=c_char, len=:), allocatable :: buf
 !! must use allocatable buffer, not direct substring to C

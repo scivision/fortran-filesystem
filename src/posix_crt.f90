@@ -1,6 +1,4 @@
 submodule (pathlib) posix_crt
-!! It was observed to be more reliable to use execute_command_line() rather
-!! than using the C library directly.
 
 use, intrinsic :: iso_c_binding, only: c_int, c_char, c_null_char
 
