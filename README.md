@@ -78,7 +78,7 @@ call p%unlink()
 These methods emit a new "path_t" object.
 It can be a new path_t object, or reassign to the existing path_t object.
 
-Expand home directory.
+Expand home directory, swapping file separators "\" for "/" and drop redundant file separators "//".
 
 ```fortran
 ! Fortran does not understand tilde "~"
@@ -108,7 +108,7 @@ p%path() == "<absolute path of current working directory>/b"
 p = p%as_windows()
 ```
 
- '\\' => '/' for Unix paths
+ '\\' => '/' for Unix paths, dropping redundant file separators "//"
 
 ```fortran
 p = p%as_posix()
@@ -181,6 +181,14 @@ Does directory exist:
 p%is_dir()
 ```
 
+or plain function:
+
+```fortran
+is_dir("my/dir")
+```
+
+---
+
 Does file exist:
 
 ```fortran
@@ -238,6 +246,12 @@ Requires absolute path or will return empty string.
 
 ```fortran
 p%root()
+```
+
+Expand user home directory as a plain function:
+
+```fortran
+expanduser("~/my/path")
 ```
 
 ## System
