@@ -105,6 +105,52 @@ end function with_suffix
 end interface
 
 
+interface !< impure.f90
+module impure function resolve(self)
+class(path_t), intent(in) :: self
+type(path_t) :: resolve
+end function resolve
+
+module impure subroutine unlink(self)
+!! delete the file
+class(path_t), intent(in) :: self
+end subroutine unlink
+
+module impure logical function same_file(self, other)
+class(path_t), intent(in) :: self, other
+end function same_file
+
+
+module impure logical function pathlib_is_dir(self)
+class(path_t), intent(in) :: self
+end function pathlib_is_dir
+
+module impure logical function is_file(self)
+!! is a file and not a directory
+class(path_t), intent(in) :: self
+end function is_file
+
+module impure function pathlib_expanduser(self) result (ex)
+!! resolve home directory as Fortran does not understand tilde
+!! also swaps "\" for "/" and drops redundant file separators
+!! works for Linux, Mac, Windows, etc.
+class(path_t), intent(in) :: self
+type(path_t) :: ex
+end function pathlib_expanduser
+
+module impure function expanduser(path)
+!! resolve home directory as Fortran does not understand tilde
+!! works for Linux, Mac, Windows, ...
+character(:), allocatable :: expanduser
+character(*), intent(in) :: path
+end function expanduser
+
+
+end interface
+
+
+
+
 interface !< envvar.f90
 module impure function home()
 !! returns home directory, or empty string if not found
@@ -200,100 +246,6 @@ if(present(iend)) i2 = iend
 get_path = self%path_str(i1:i2)
 
 end function get_path
-
-
-impure subroutine unlink(self)
-!! delete the file
-class(path_t), intent(in) :: self
-integer :: u
-
-open(newunit=u, file=self%path_str, status='old')
-close(u, status='delete')
-
-end subroutine unlink
-
-
-impure function resolve(self)
-class(path_t), intent(in) :: self
-type(path_t) :: resolve
-
-resolve = self%expanduser()
-resolve%path_str = canonical(resolve%path_str)
-end function resolve
-
-
-impure logical function same_file(self, other)
-class(path_t), intent(in) :: self, other
-type(path_t) :: r1, r2
-
-r1 = self%resolve()
-r2 = other%resolve()
-same_file = r1%path_str == r2%path_str
-end function same_file
-
-
-impure logical function is_file(self)
-!! is a file and not a directory
-class(path_t), intent(in) :: self
-
-type(path_t) :: p
-
-p = self%expanduser()
-
-inquire(file=p%path_str, exist=is_file)
-if(is_file .and. self%is_dir()) is_file = .false.
-
-end function is_file
-
-
-impure logical function pathlib_is_dir(self)
-class(path_t), intent(in) :: self
-
-pathlib_is_dir = is_dir(self%path_str)
-
-end function pathlib_is_dir
-
-
-impure function pathlib_expanduser(self) result (ex)
-!! resolve home directory as Fortran does not understand tilde
-!! also swaps "\" for "/" and drops redundant file separators
-!! works for Linux, Mac, Windows, etc.
-class(path_t), intent(in) :: self
-type(path_t) :: ex
-
-ex%path_str = expanduser(self%path_str)
-
-ex = ex%as_posix()
-
-end function pathlib_expanduser
-
-
-impure function expanduser(path)
-!! resolve home directory as Fortran does not understand tilde
-!! works for Linux, Mac, Windows, ...
-
-character(*), intent(in) :: path
-character(:), allocatable :: expanduser
-
-character(:), allocatable :: homedir
-
-expanduser = trim(adjustl(path))
-
-if (len(expanduser) < 1) return
-if(expanduser(1:1) /= '~') return
-
-homedir = home()
-if (len_trim(homedir) == 0) return
-
-if (len_trim(expanduser) < 2) then
-  !! ~ alone
-  expanduser = homedir
-else
-  !! ~/...
-  expanduser = homedir // expanduser(2:)
-endif
-
-end function expanduser
 
 
 end module pathlib

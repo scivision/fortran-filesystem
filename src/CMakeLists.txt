@@ -1,6 +1,6 @@
 set_directory_properties(PROPERTIES LABELS pathlib)
 
-add_library(pathlib pathlib.f90 pure.f90 envvar.f90)
+add_library(pathlib pathlib.f90 pure.f90 impure.f90 envvar.f90)
 if(WIN32)
   target_sources(pathlib PRIVATE windows_crt.f90 windows_path.f90 windows_sys.f90)
 else()
