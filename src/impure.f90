@@ -28,9 +28,14 @@ same_file = r1%path_str == r2%path_str
 end procedure same_file
 
 
+module procedure pathlib_is_file
+pathlib_is_file = is_file(self%path_str)
+end procedure pathlib_is_file
+
+
 module procedure is_file
-inquire(file=expanduser(self%path_str), exist=is_file)
-if(is_file .and. self%is_dir()) is_file = .false.
+inquire(file=expanduser(path), exist=is_file)
+if(is_file .and. is_dir(path)) is_file = .false.
 end procedure is_file
 
 

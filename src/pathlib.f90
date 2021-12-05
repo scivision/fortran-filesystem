@@ -6,7 +6,7 @@ implicit none (type, external)
 private
 public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
-public :: expanduser, is_dir, size_bytes !< functional API
+public :: expanduser, is_dir, is_file, size_bytes !< functional API
 
 
 type :: path_t
@@ -18,7 +18,7 @@ contains
 
 procedure, public :: path=>get_path, &
 length, join, parts, drop_sep, &
-is_file, is_dir=>pathlib_is_dir, is_absolute, &
+is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute, &
 copy_file, mkdir, &
 parent, file_name, stem, root, suffix, &
 as_windows, as_posix, expanduser=>pathlib_expanduser, with_suffix, &
@@ -124,9 +124,14 @@ module impure logical function pathlib_is_dir(self)
 class(path_t), intent(in) :: self
 end function pathlib_is_dir
 
-module impure logical function is_file(self)
+module impure logical function pathlib_is_file(self)
 !! is a file and not a directory
 class(path_t), intent(in) :: self
+end function pathlib_is_file
+
+module impure logical function is_file(path)
+!! is a file and not a directory
+character(*), intent(in) :: path
 end function is_file
 
 module impure function pathlib_expanduser(self) result (ex)

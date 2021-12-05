@@ -204,6 +204,14 @@ Does file exist:
 p%is_file()
 ```
 
+or plain function:
+
+```fortran
+is_file("my/file.txt")
+```
+
+```
+
 Is path absolute:
 
 ```fortran

@@ -54,16 +54,22 @@ end procedure size_bytes
 module procedure executable
 use ifport, only : stat
 
-type(path_t) :: wk
-integer :: s(12), ierr, iu, ig
+character(:), allocatable :: wk
+integer :: s(12), i, iu, ig
 
 executable = .false.
+wk = expanduser(self%path_str)
 
-wk = self%expanduser()
-if (.not. wk%is_file()) return
+i = stat(wk, s)
+if(i /= 0) then
+  write(stderr,*) "executable: could not stat file: ", wk
+  return
+endif
 
-ierr = stat(wk%path_str, s)
-if(ierr /= 0) return
+if (iand(s(3), O'0040000') == 16384) then
+  write(stderr,*) "executable: is a directory: ", wk
+  return
+endif
 
 iu = iand(s(3), O'0000100')
 ig = iand(s(3), O'0000010')
