@@ -24,8 +24,6 @@ call test_mkdir()
 
 call test_absolute()
 
-call test_executable()
-
 
 contains
 
@@ -287,31 +285,6 @@ print *, "OK: pathlib: is_absolute"
 
 end subroutine test_absolute
 
-
-subroutine test_executable()
-
-type(path_t) :: p1
-character(4096) :: buf
-integer :: i
-
-call get_command_argument(1, buf, status=i)
-if (i/=0) error stop "test_executable: input path to an executable file"
-
-p1 = path_t(trim(buf))
-if (.not.p1%executable()) error stop "did not detect executable file " // p1%path()
-
-call get_command_argument(2, buf, status=i)
-if (i/=0) error stop "test_executable: input path to an non-executable file"
-
-p1 = path_t(trim(buf))
-if (p1%executable()) error stop "did not detect non-executable file " // p1%path()
-
-
-p1 = path_t("not-exist-file")
-if (p1%executable()) error stop "non-existant file cannot be exectuable " // p1%path()
-
-print *, "OK: pathlib: executable"
-end subroutine test_executable
 
 
 subroutine unlink(path)

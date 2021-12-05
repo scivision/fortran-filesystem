@@ -67,6 +67,12 @@ call p%mkdir()
 ! now directory my/new/dir exists
 ```
 
+Delete file
+
+```fortran
+call p%unlink()
+```
+
 ## path_t
 
 These methods emit a new "path_t" object.
@@ -118,6 +124,12 @@ p = p%with_suffix(".hdf5")
 ! p%path() == "my/file.hdf5"
 ```
 
+Drop duplicated file separator "//"
+
+```fortran
+p = p%drop_sep()
+```
+
 Join path_t with other path string using posix separators.
 The paths are treated like strings.
 No path resolution is used, so non-sensical paths are possible for non-sensical input.
@@ -151,6 +163,12 @@ len_trim() of %path()
 
 ```fortran
 p%length()
+```
+
+File size:
+
+```fortran
+p%size_bytes()
 ```
 
 ## logical

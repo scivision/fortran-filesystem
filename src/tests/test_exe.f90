@@ -1,0 +1,32 @@
+program test_executable
+
+use pathlib, only : path_t
+
+implicit none (type, external)
+
+type(path_t) :: p1
+character(4096) :: buf
+integer :: i
+
+call get_command_argument(1, buf, status=i)
+if (i/=0) error stop "test_executable: input path to an executable file"
+
+p1 = path_t(trim(buf))
+if (.not.p1%executable()) error stop "did not detect executable file " // p1%path()
+
+p1 = path_t("not-exist-file")
+if (p1%executable()) error stop "non-existant file cannot be exectuable " // p1%path()
+
+if(command_argument_count() == 2) then
+  call get_command_argument(2, buf, status=i)
+  if (i/=0) error stop "test_executable: input path to an non-executable file"
+
+  p1 = path_t(trim(buf))
+  if (p1%executable()) error stop "did not detect non-executable file " // p1%path()
+else
+  print *, "SKIP: non-exe test due to WSL"
+endif
+
+print *, "OK: pathlib: executable"
+
+end program

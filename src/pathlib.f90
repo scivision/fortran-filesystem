@@ -16,12 +16,13 @@ character(:), allocatable :: path_str
 contains
 
 procedure, public :: path=>get_path, &
-length, join, parts, &
+length, join, parts, drop_sep, &
 is_file, is_directory, is_absolute, &
 copy_file, mkdir, &
 parent, file_name, stem, root, suffix, &
 as_windows, as_posix, expanduser, with_suffix, &
-resolve, same_file, executable
+resolve, same_file, executable, &
+unlink, size_bytes
 
 end type path_t
 
@@ -57,6 +58,10 @@ interface !< pathlib_{intel,gcc}.f90
 module impure logical function is_directory(self)
 class(path_t), intent(in) :: self
 end function is_directory
+
+module impure integer function size_bytes(self)
+class(path_t), intent(in) :: self
+end function size_bytes
 
 module impure logical function executable(self)
 class(path_t), intent(in) :: self
@@ -103,6 +108,17 @@ get_path = self%path_str(i1:i2)
 end function get_path
 
 
+impure subroutine unlink(self)
+!! delete the file
+class(path_t), intent(in) :: self
+integer :: u
+
+open(newunit=u, file=self%path_str, status='old')
+close(u, status='delete')
+
+end subroutine unlink
+
+
 pure integer function length(self)
 class(path_t), intent(in) :: self
 length = len_trim(self%path_str)
@@ -126,40 +142,62 @@ else
   join%path_str = self%path_str // "/" // other
 end if
 
+join = join%drop_sep()
+
 end function join
 
 
- function parts(self)
+pure function parts(self)
 !! split path into up to 1000 parts (arbitrary limit)
+!! all path separators are discarded, except the leftmost if present
 class(path_t), intent(in) :: self
 character(:), allocatable :: parts(:)
 
 type(path_t) :: work
 
-integer :: i(0:1000), j, k, N, M
+integer :: i(1000), j, k, ilast, M, N
+
+if (self%length() == 0) then
+  allocate(character(0) :: parts(0))
+  return
+endif
 
 work = self%as_posix()
-if(work%path_str(1:1) == "/") work%path_str = work%path_str(2:)
-j = len_trim(work%path_str)
+j = work%length()
+
+if(index(work%path_str, "/") == 0) then
+  allocate(character(j) :: parts(1))
+  parts(1) = work%path_str
+  return
+end if
+
 if(work%path_str(j:j) == "/") work%path_str = work%path_str(:j-1)
 
-i(0) = 0
-N = 1
-do j = 1, size(i)-1
-  k = i(j-1)
-  i(j) = k + index(work%path_str(k+1:), '/')
-  if(i(j) == k) exit
+N = 0
+ilast = 0
+do j = 1, size(i)
+  k = index(work%path_str(ilast+1:), '/')
+  if(k == 0) exit
+  i(j) = ilast + k
+  ilast = i(j)
   N = N + 1
 end do
 
+! print *, "TRACE: i ", i(:N)
+
 M = maxval(i(1:N) - eoshift(i(1:N), -1))
 !! allocate character(:) array to longest individual part
-allocate(character(M) :: parts(N))
+allocate(character(M) :: parts(N+1))
 
-do j = 1,N-1
-  parts(j) = work%path_str(i(j-1)+1:i(j)-1)
+if(i(1) > 1) then
+  parts(1) = work%path_str(:i(1)-1)
+else
+  parts(1) = work%path_str(1:1)
+endif
+do k = 2,N
+  parts(k) = work%path_str(i(k-1)+1:i(k)-1)
 end do
-parts(N) = work%path_str(i(N)+1:)
+parts(N+1) = work%path_str(i(N)+1:)
 
 end function parts
 
@@ -290,7 +328,7 @@ end function as_windows
 
 
 pure function as_posix(self) result(sw)
-!! '\' => '/'
+!! '\' => '/', dropping redundant separators
 
 class(path_t), intent(in) :: self
 type(path_t) :: sw
@@ -304,16 +342,36 @@ do while (i > 0)
   i = index(sw%path_str, char(92))
 end do
 
+sw = sw%drop_sep()
+
 end function as_posix
 
 
-pure function with_suffix(self, new_suffix) result(sw)
-!! replace file suffix
+pure function drop_sep(self) result(sw)
+!! drop redundant "/" file separators
+
 class(path_t), intent(in) :: self
 type(path_t) :: sw
-character(*), intent(in) :: new_suffix
 
-sw%path_str = self%path_str(1:len_trim(self%path_str) - len(self%suffix())) // new_suffix
+integer :: i
+
+sw%path_str = self%path_str
+i = index(sw%path_str, "//")
+do while (i > 0)
+  sw%path_str(i:) = sw%path_str(i+1:)
+  i = index(sw%path_str, "//")
+end do
+
+end function drop_sep
+
+
+pure function with_suffix(self, new) result(sw)
+!! replace file suffix with new suffix
+class(path_t), intent(in) :: self
+type(path_t) :: sw
+character(*), intent(in) :: new
+
+sw%path_str = self%path_str(1:len_trim(self%path_str) - len(self%suffix())) // new
 
 end function with_suffix
 

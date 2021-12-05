@@ -31,6 +31,25 @@ inquire(directory=p%path_str, exist=is_directory)
 end procedure is_directory
 
 
+module procedure size_bytes
+use ifport, only : stat
+
+type(path_t) :: wk
+integer :: s(12), i
+
+size_bytes = 0
+
+wk = self%expanduser()
+if(.not. wk%is_file()) return
+
+i = stat(wk%path_str, s)
+if(i /= 0) return
+
+size_bytes = s(8)
+
+end procedure size_bytes
+
+
 module procedure executable
 use ifport, only : stat
 
