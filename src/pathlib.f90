@@ -8,7 +8,8 @@ public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
 public :: as_posix, drop_sep, expanduser, &
 is_absolute, is_dir, is_file, is_exe, &
-mkdir, parts, resolve, same_file, size_bytes, unlink
+mkdir, parts, resolve, root, same_file, size_bytes, unlink, &
+file_name, parent, stem, suffix
 !! functional API
 
 
@@ -23,7 +24,7 @@ procedure, public :: path=>get_path, &
 length, join, parts=>pathlib_parts, drop_sep=>pathlib_drop_sep, &
 is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, &
 copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
-parent, file_name, stem, root=>pathlib_root, suffix, &
+parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>pathlib_root, suffix=>pathlib_suffix, &
 as_windows=>pathlib_as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
 with_suffix, &
 resolve=>pathlib_resolve, same_file=>pathlib_same_file, is_exe=>pathlib_is_exe, &
@@ -77,27 +78,50 @@ character(*), intent(in) :: path
 character(:), allocatable :: parts(:)
 end function parts
 
-module pure function parent(self)
+module pure function pathlib_parent(self)
 !! returns parent directory of path
 class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_parent
+end function pathlib_parent
+
+module pure function parent(path)
+!! returns parent directory of path
+character(*), intent(in) :: path
 character(:), allocatable :: parent
 end function parent
 
-module pure function file_name(self)
+
+module pure function pathlib_file_name(self)
 !! returns file name without path
 class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_file_name
+end function pathlib_file_name
+module pure function file_name(path)
+!! returns file name without path
+character(*), intent(in) :: path
 character(:), allocatable :: file_name
 end function file_name
 
-module pure function stem(self)
+
+module pure function pathlib_stem(self)
 class(path_t), intent(in) :: self
 
+character(:), allocatable :: pathlib_stem
+end function pathlib_stem
+module pure function stem(path)
+character(*), intent(in) :: path
 character(:), allocatable :: stem
 end function stem
 
-module pure function suffix(self)
+module pure function pathlib_suffix(self)
 !! extracts path suffix, including the final "." dot
 class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_suffix
+end function pathlib_suffix
+
+module pure function suffix(path)
+!! extracts path suffix, including the final "." dot
+character(*), intent(in) :: path
 character(:), allocatable :: suffix
 end function suffix
 module pure function pathlib_as_posix(self) result(sw)

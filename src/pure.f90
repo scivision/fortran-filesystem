@@ -93,14 +93,19 @@ parts(N+1) = wk(i(N)+1:)
 end procedure parts
 
 
+module procedure pathlib_suffix
+pathlib_suffix = suffix(self%path_str)
+end procedure pathlib_suffix
+
+
 module procedure suffix
 
 integer :: i
 
-i = index(self%path_str, '.', back=.true.)
+i = index(path, '.', back=.true.)
 
 if (i > 1) then
-  suffix = trim(self%path_str(i:))
+  suffix = trim(path(i:))
 else
   suffix = ''
 end if
@@ -108,16 +113,21 @@ end if
 end procedure suffix
 
 
+module procedure pathlib_parent
+pathlib_parent = parent(self%path_str)
+end procedure pathlib_parent
+
+
 module procedure parent
 
-type(path_t) :: w
+character(:), allocatable :: wk
 integer :: i
 
-w = self%as_posix()
+wk = as_posix(path)
 
-i = index(w%path_str, "/", back=.true.)
+i = index(wk, "/", back=.true.)
 if (i > 0) then
-  parent = w%path_str(:i-1)
+  parent = wk(:i-1)
 else
   parent = "."
 end if
@@ -125,29 +135,39 @@ end if
 end procedure parent
 
 
+module procedure pathlib_file_name
+pathlib_file_name = file_name(self%path_str)
+end procedure pathlib_file_name
+
+
 module procedure file_name
 
-type(path_t) :: w
+character(:), allocatable :: wk
 
-w = self%as_posix()
+wk = as_posix(path)
 
-file_name = trim(w%path_str(index(w%path_str, "/", back=.true.) + 1:))
+file_name = trim(wk(index(wk, "/", back=.true.) + 1:))
 
 end procedure file_name
 
 
+module procedure pathlib_stem
+pathlib_stem = stem(self%path_str)
+end procedure pathlib_stem
+
+
 module procedure stem
 
-character(len_trim(self%path_str)) :: work
+character(len_trim(path)) :: wk
 integer :: i
 
-work = self%file_name()
+wk = file_name(path)
 
-i = index(work, '.', back=.true.)
+i = index(wk, '.', back=.true.)
 if (i > 0) then
-  stem = work(:i - 1)
+  stem = wk(:i - 1)
 else
-  stem = work
+  stem = wk
 endif
 
 end procedure stem

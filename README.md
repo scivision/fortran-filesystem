@@ -220,10 +220,18 @@ or plain function:
 is_file("my/file.txt")
 ```
 
+---
+
 Is path absolute:
 
 ```fortran
 p%is_absolute()
+```
+
+or:
+
+```fortran
+is_absolute("my/path")
 ```
 
 ---
@@ -301,11 +309,27 @@ Get file suffix: extracts path suffix, including the final "." dot
 p%suffix()
 ```
 
+or:
+
+```fortran
+suffix("my/file.txt")  !< ".txt"
+```
+
+---
+
 Get parent directory of path:
 
 ```fortran
 p%parent()
 ```
+
+or:
+
+```fortran
+parent("my/file.txt")  !< "my"
+```
+
+---
 
 Get file name without path:
 
@@ -313,17 +337,39 @@ Get file name without path:
 p%file_name()
 ```
 
+or:
+
+```fortran
+file_name("my/file.txt")  ! "file.txt"
+```
+
+---
+
 Get file name without path and suffix:
 
 ```fortran
 p%stem()
 ```
 
+or:
+
+```fortran
+stem("my/file.txt")  !< "file"
+```
+
+---
+
 Get drive root. E.g. Unix "/"  Windows "c:"
 Requires absolute path or will return empty string.
 
 ```fortran
 p%root()
+```
+
+or:
+
+```fortran
+root("/a/b/c")
 ```
 
 Expand user home directory:

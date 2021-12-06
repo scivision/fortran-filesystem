@@ -1,6 +1,6 @@
 program pathlib_test
 
-use pathlib, only : path_t
+use pathlib, only : path_t, file_name, stem, suffix, root, is_absolute
 
 implicit none (type, external)
 
@@ -93,6 +93,7 @@ logical :: is_unix
 
 p1 = path_t("/")
 is_unix = p1%is_absolute()
+if (is_absolute("/") .neqv. p1%is_absolute()) error stop "is_absolute function"
 
 p1 = path_t("hi.a.b")
 if (p1%stem() /= "hi.a") error stop "stem failed"
@@ -120,11 +121,13 @@ if (p2%file_name() /= "a") error stop "file_name idempotent failed"
 p1 = path_t("/etc")
 p2 = path_t("c:/etc")
 if(is_unix) then
-  if(p1%root() /= "/") error stop "unix root failed"
-  if(p2%root() /= "") error stop "unix root failed"
+  if(p1%root() /= "/") error stop "unix %root failed"
+  if(p2%root() /= "") error stop "unix %root failed"
+  if(root("/etc") /= "/") error stop "unix root() failed"
 else
-  if(p1%root() == "/") error stop "windows root failed"
-  if(p2%root() /= "c:") error stop "windows root failed"
+  if(p1%root() == "/") error stop "windows %root failed"
+  if(p2%root() /= "c:") error stop "windows %root failed"
+  if(root("c:/etc") /= "c:") error stop "windows root() failed"
 endif
 
 p1 = path_t("my/file.h5")
