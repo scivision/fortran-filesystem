@@ -6,7 +6,9 @@ implicit none (type, external)
 private
 public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
-public :: as_posix, drop_sep, expanduser, is_dir, is_file, is_exe, mkdir, parts, resolve, same_file, size_bytes, unlink
+public :: as_posix, drop_sep, expanduser, &
+is_absolute, is_dir, is_file, is_exe, &
+mkdir, parts, resolve, same_file, size_bytes, unlink
 !! functional API
 
 
@@ -19,9 +21,9 @@ contains
 
 procedure, public :: path=>get_path, &
 length, join, parts=>pathlib_parts, drop_sep=>pathlib_drop_sep, &
-is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute, &
+is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, &
 copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
-parent, file_name, stem, root, suffix, &
+parent, file_name, stem, root=>pathlib_root, suffix, &
 as_windows=>pathlib_as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
 with_suffix, &
 resolve=>pathlib_resolve, same_file=>pathlib_same_file, is_exe=>pathlib_is_exe, &
@@ -130,6 +132,19 @@ class(path_t), intent(in) :: self
 type(path_t) :: sw
 character(*), intent(in) :: new
 end function with_suffix
+
+module pure logical function pathlib_is_absolute(self)
+!! is path absolute
+!! do NOT expanduser() to be consistent with Python etc. pathlib
+class(path_t), intent(in) :: self
+end function pathlib_is_absolute
+
+module pure function pathlib_root(self)
+!! returns root of path
+class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_root
+end function pathlib_root
+
 end interface !< pure.f90
 
 
@@ -243,14 +258,15 @@ end interface
 
 
 interface  !< {posix,windows}_path.f90
-module pure logical function is_absolute(self)
+module pure logical function is_absolute(path)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. pathlib
-class(path_t), intent(in) :: self
+character(*), intent(in) :: path
 end function is_absolute
-module pure logical function root(self)
+
+module pure logical function root(path)
 !! returns root of path
-class(path_t), intent(in) :: self
+character(*), intent(in) :: path
 character(:), allocatable :: root
 end function root
 end interface

@@ -10,6 +10,15 @@ length = len_trim(self%path_str)
 end procedure length
 
 
+module procedure pathlib_is_absolute
+pathlib_is_absolute = is_absolute(self%path_str)
+end procedure pathlib_is_absolute
+
+module procedure pathlib_root
+pathlib_root = root(self%path_str)
+end procedure pathlib_root
+
+
 module procedure join
 
 integer :: i

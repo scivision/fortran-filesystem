@@ -11,21 +11,21 @@ module procedure is_absolute
 character :: f
 
 is_absolute = .false.
-if(len_trim(self%path_str) < 2) return
+if(len_trim(path) < 2) return
 
-f = self%path_str(1:1)
+f = path(1:1)
 
 if (.not. ((f >= "a" .and. f <= "z") .or. (f >= "A" .and. f <= "Z"))) return
 
-is_absolute = self%path_str(2:2) == ":"
+is_absolute = path(2:2) == ":"
 
 end procedure is_absolute
 
 
 module procedure root
 
-if (self%is_absolute()) then
-  root = self%path_str(1:2)
+if (is_absolute(path)) then
+  root = path(1:2)
 else
   root = ""
 end if
