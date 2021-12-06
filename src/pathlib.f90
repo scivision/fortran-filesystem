@@ -19,9 +19,10 @@ contains
 procedure, public :: path=>get_path, &
 length, join, parts=>pathlib_parts, drop_sep=>pathlib_drop_sep, &
 is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute, &
-copy_file, mkdir=>pathlib_mkdir, &
+copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
 parent, file_name, stem, root, suffix, &
-as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, with_suffix, &
+as_windows=>pathlib_as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
+with_suffix, &
 resolve, same_file, is_exe=>pathlib_is_exe, &
 unlink, size_bytes=>pathlib_size_bytes
 
@@ -46,11 +47,17 @@ class(path_t), intent(in) :: self
 character(*), intent(in) :: other
 end function join
 
-module pure function as_windows(self) result(sw)
+module pure function pathlib_as_windows(self) result(sw)
 !! '/' => '\' for Windows systems
 
 class(path_t), intent(in) :: self
 type(path_t) :: sw
+end function pathlib_as_windows
+
+module pure function as_windows(path)
+!! '/' => '\' for Windows systems
+character(*), intent(in) :: path
+character(:), allocatable :: as_windows
 end function as_windows
 
 module pure function pathlib_parts(self)
@@ -182,6 +189,13 @@ module impure subroutine pathlib_mkdir(self)
 class(path_t), intent(in) :: self
 end subroutine pathlib_mkdir
 
+module impure subroutine pathlib_copy_file(self, dest)
+!! copy file from source to destination
+!! OVERWRITES existing destination files
+class(path_t), intent(in) :: self
+character(*), intent(in) :: dest
+end subroutine pathlib_copy_file
+
 end interface  !< impure.f90
 
 
@@ -205,11 +219,10 @@ end interface
 
 interface !< {posix,windows}_sys.f90
 !! implemented via system call since CRT doesn't have this functionality
-module impure subroutine copy_file(self, dest)
-!! copy file from source to destination
-!! OVERWRITES existing destination files
-class(path_t), intent(in) :: self
-character(*), intent(in) :: dest
+module impure subroutine copy_file(src, dest)
+!! copy single file from src to dest
+!! OVERWRITES existing destination file
+character(*), intent(in) :: src, dest
 end subroutine copy_file
 end interface
 

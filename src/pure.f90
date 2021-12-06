@@ -144,17 +144,20 @@ endif
 end procedure stem
 
 
-module procedure as_windows
+module procedure pathlib_as_windows
+sw%path_str = as_windows(self%path_str)
+end procedure pathlib_as_windows
 
+
+module procedure as_windows
 integer :: i
 
-sw%path_str = self%path_str
-i = index(sw%path_str, '/')
+as_windows = path
+i = index(as_windows, '/')
 do while (i > 0)
-  sw%path_str(i:i) = char(92)
-  i = index(sw%path_str, '/')
+  as_windows(i:i) = char(92)
+  i = index(as_windows, '/')
 end do
-
 end procedure as_windows
 
 

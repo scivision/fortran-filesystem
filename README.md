@@ -58,6 +58,12 @@ character(*) :: dest = "new/file.ext"
 call p%copy_file(dest)
 ```
 
+or
+
+```fortran
+call copy_file("original.txt", "acopy.txt")
+```
+
 ---
 
 Make directory with parent directories if specified
@@ -232,6 +238,12 @@ These procedures emit a string.
 
 ```fortran
 as_posix("my\path")
+```
+
+'/' => '\\' for Windows paths
+
+```fortran
+as_windows("my/path")
 ```
 
 Drop duplicated file separator "//"

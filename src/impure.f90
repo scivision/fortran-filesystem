@@ -55,6 +55,10 @@ module procedure pathlib_mkdir
 call mkdir(self%path_str)
 end procedure pathlib_mkdir
 
+module procedure pathlib_copy_file
+call copy_file(self%path_str, dest)
+end procedure pathlib_copy_file
+
 
 module procedure pathlib_expanduser
 ex%path_str = as_posix(expanduser(self%path_str))
