@@ -1,7 +1,7 @@
 program demo
 
 use, intrinsic :: iso_c_binding, only : c_null_char
-use pathlib, only : path_t, cwd
+use pathlib, only : path_t, cwd, same_file, resolve
 
 implicit none (type, external)
 
@@ -22,7 +22,8 @@ print *, "OK: current dir = ", cur%path()
 ! -- home directory
 p1 = path_t("~")
 p1 = p1%resolve()
-if (p1%path(1,1) == "~") error stop "resolve ~" // p1%path()
+if (p1%path(1,1) == "~") error stop "%resolve ~" // p1%path()
+if (resolve("~") == "~") error stop "resolve('~')"
 print *, "OK: home dir = ", p1%path()
 
 p2 = path_t(p1%parent())
@@ -48,7 +49,8 @@ print *, 'OK: canon_file = ', file%path()
 p1 = path_t("a/c")
 p2 = path_t("a/b/../c")
 
-if (.not. p1%same_file(p2)) error stop 'ERROR: same_file'
+if (.not. p1%same_file(p2)) error stop 'ERROR: %same_file'
+if (.not. same_file(p1%path(), p2%path())) error stop 'ERROR: same_file()'
 
 
 print *, "OK: canonical"

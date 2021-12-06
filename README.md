@@ -220,11 +220,21 @@ Is path absolute:
 p%is_absolute()
 ```
 
+---
+
 Does path "p" resolve to the same path as "other":
 
 ```fortran
 p%same_file(other)
 ```
+
+or:
+
+```fortran
+same_file(path1, path2)
+```
+
+---
 
 is path executable file:
 
