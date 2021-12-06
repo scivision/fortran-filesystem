@@ -58,15 +58,9 @@ Copy path to dest, overwriting existing file
 character(*) :: dest = "new/file.ext"
 
 call p%copy_file(dest)
-```
-
-or
-
-```fortran
+! or
 call copy_file("original.txt", "acopy.txt")
 ```
-
----
 
 Make directory with parent directories if specified
 
@@ -75,39 +69,24 @@ p = path_t("my/new/dir")
 ! suppose only directory "my" exists
 call p%mkdir()
 ! now directory my/new/dir exists
-```
-
-or
-
-```fortran
+! OR
 call mkdir("my/new/dir")
 ```
 
----
 
 Delete file
 
 ```fortran
 call p%unlink()
-```
-
-or
-
-```fortran
+! or
 call unlink("my/file.txt")
 ```
-
----
 
 write text in character variable to file (overwriting existing file)
 
 ```fortran
 call p%write_text(text)
-```
-
-or:
-
-```fortran
+! or
 call write_text(filename, text)
 ```
 
@@ -182,25 +161,19 @@ p = p%join("c/d")
 
 ## integer
 
-These methods emit an integer value.
+These procedures emit an integer value.
 
-len_trim() of %path()
+len_trim() of p%path()
 
 ```fortran
 p%length()
 ```
 
----
-
 File size:
 
 ```fortran
 p%size_bytes()
-```
-
-or:
-
-```fortran
+! or
 size_bytes("my/file.txt")
 ```
 
@@ -212,62 +185,40 @@ Does directory exist:
 
 ```fortran
 p%is_dir()
-```
-
-or plain function:
-
-```fortran
+! or
 is_dir("my/dir")
 ```
-
----
 
 Does file exist:
 
 ```fortran
 p%is_file()
-```
-
-or plain function:
-
-```fortran
+! or
 is_file("my/file.txt")
 ```
-
----
 
 Is path absolute:
 
 ```fortran
 p%is_absolute()
-```
-
-or:
-
-```fortran
+! or
 is_absolute("my/path")
 ```
-
----
 
 Does path "p" resolve to the same path as "other":
 
 ```fortran
 p%same_file(other)
-```
-
-or:
-
-```fortran
+! or
 same_file(path1, path2)
 ```
-
----
 
 is path executable file:
 
 ```fortran
 p%is_exe()
+! or
+is_exe("my/file.exe")
 ```
 
 ## character(:), allocatable
@@ -289,10 +240,8 @@ as_windows("my/path")
 Drop duplicated file separator "//"
 
 ```fortran
-drop_sep("my//path")
+drop_sep("my//path")  !< "my/path"
 ```
-
----
 
 Split path_t into path components.
 Path separators are discarded.
@@ -305,17 +254,13 @@ p = path_t("/a1/b23/c456/")
 parts = p%parts()
 
 ! parts == [character(4) :: "a1", "b23", "c456"]
-```
 
-or:
+! OR
 
-```fortran
 pts = parts("/a1/b23/c456/")
 
 ! pts == [character(4) :: "a1", "b23", "c456"]
 ```
-
----
 
 Join path_t with other path string using posix separators.
 The paths are treated like strings.
@@ -325,21 +270,13 @@ No path resolution is used, so non-sensical paths are possible for non-sensical 
 join("a/b", "c/d") ! "a/b/c/d"
 ```
 
----
-
 Get file suffix: extracts path suffix, including the final "." dot
 
 ```fortran
 p%suffix()
-```
-
-or:
-
-```fortran
+! or
 suffix("my/file.txt")  !< ".txt"
 ```
-
----
 
 Swap file suffix
 
@@ -347,60 +284,36 @@ Swap file suffix
 with_suffix("to/my.h5", ".hdf5")  !< "to/my.hdf5"
 ```
 
----
-
 Get parent directory of path:
 
 ```fortran
 p%parent()
-```
-
-or:
-
-```fortran
+! or
 parent("my/file.txt")  !< "my"
 ```
-
----
 
 Get file name without path:
 
 ```fortran
 p%file_name()
-```
-
-or:
-
-```fortran
+! or
 file_name("my/file.txt")  ! "file.txt"
 ```
-
----
 
 Get file name without path and suffix:
 
 ```fortran
 p%stem()
-```
-
-or:
-
-```fortran
+! or
 stem("my/file.txt")  !< "file"
 ```
-
----
 
 Get drive root. E.g. Unix "/"  Windows "c:"
 Requires absolute path or will return empty string.
 
 ```fortran
 p%root()
-```
-
-or:
-
-```fortran
+! or
 root("/a/b/c")
 ```
 
@@ -419,18 +332,12 @@ resolve("~/../b")
 resolve("../b")
 ```
 
----
-
 Read text from file into character variable (up to max_length characters).
 
 ```fortran
 text = p%read_text(filename)
 text = p%read_text(filename, 16384)  !< default length
-```
-
-or:
-
-```fortran
+! or
 text = read_text(filename)
 ```
 
