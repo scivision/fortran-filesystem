@@ -5,6 +5,8 @@
 [![intel-oneapi](https://github.com/scivision/fortran-pathlib/actions/workflows/intel-oneapi.yml/badge.svg)](https://github.com/scivision/fortran-pathlib/actions/workflows/intel-oneapi.yml)
 
 Platform independent (Linux, macOS, Windows), object-oriented Fortran filesystem path manipulation library.
+The C Runtime Library is used where native Fortran procedures do not exist.
+
 Currently tested with GCC Gfortran and Intel oneAPI compilers.
 Would be happy to support additional Fortran 2018 compilers as available for testing.
 Inspired by
@@ -103,7 +105,7 @@ p = path_t("~/my/path")
 p = p%expanduser()
 ```
 
-Resolve (canonicalize) path. This transparently uses C Runtime Library.
+Resolve (canonicalize) path.
 
 ```fortran
 p = path_t("~/../b")
@@ -308,10 +310,19 @@ Requires absolute path or will return empty string.
 p%root()
 ```
 
-Expand user home directory as a plain function:
+Expand user home directory:
 
 ```fortran
 expanduser("~/my/path")
+```
+
+Resolve (canonicalize) path.
+
+```fortran
+resolve("~/../b")
+
+! --- relative path resolved to current working directory
+resolve("../b")
 ```
 
 ## System

@@ -13,9 +13,13 @@ close(u, status='delete')
 end procedure unlink
 
 
+module procedure pathlib_resolve
+pathlib_resolve%path_str = resolve(self%path_str)
+end procedure pathlib_resolve
+
+
 module procedure resolve
-resolve = self%expanduser()
-resolve%path_str = canonical(resolve%path_str)
+resolve = canonical(expanduser(path))
 end procedure resolve
 
 
