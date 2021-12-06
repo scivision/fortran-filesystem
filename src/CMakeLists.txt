@@ -15,6 +15,9 @@ else()
 endif()
 target_include_directories(pathlib INTERFACE ${PROJECT_BINARY_DIR}/include)
 
+add_executable(pathlib_cli cli.f90)
+target_link_libraries(pathlib_cli PRIVATE pathlib)
+
 if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
