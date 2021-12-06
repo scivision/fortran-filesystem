@@ -9,7 +9,8 @@ public :: home, canonical, cwd !< utility procedures
 public :: as_posix, drop_sep, expanduser, &
 is_absolute, is_dir, is_file, is_exe, join, &
 mkdir, parts, resolve, root, same_file, size_bytes, unlink, &
-file_name, parent, stem, suffix, with_suffix
+file_name, parent, stem, suffix, with_suffix, &
+read_text, write_text
 !! functional API
 
 
@@ -28,7 +29,8 @@ parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>
 as_windows=>pathlib_as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
 with_suffix=>pathlib_with_suffix, &
 resolve=>pathlib_resolve, same_file=>pathlib_same_file, is_exe=>pathlib_is_exe, &
-unlink=>pathlib_unlink, size_bytes=>pathlib_size_bytes
+unlink=>pathlib_unlink, size_bytes=>pathlib_size_bytes, &
+read_text=>pathlib_read_text, write_text=>pathlib_write_text
 
 end type path_t
 
@@ -262,6 +264,30 @@ class(path_t), intent(in) :: self
 character(*), intent(in) :: dest
 end subroutine pathlib_copy_file
 
+module impure function pathlib_read_text(self, max_length)
+!! read text file
+class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_read_text
+integer, optional :: max_length
+end function pathlib_read_text
+
+module impure function read_text(filename, max_length)
+!! read text file
+character(*), intent(in) :: filename
+character(:), allocatable :: read_text
+integer, optional :: max_length
+end function read_text
+
+module impure subroutine pathlib_write_text(self, text)
+!! create or overwrite file with text
+class(path_t), intent(in) :: self
+character(*), intent(in) :: text
+end subroutine pathlib_write_text
+module impure subroutine write_text(filename, text)
+!! create or overwrite file with text
+character(*), intent(in) :: filename, text
+end subroutine write_text
+
 end interface  !< impure.f90
 
 
@@ -337,6 +363,8 @@ end function canonical
 end interface
 
 contains
+
+!! non-functional API
 
 pure function set_path(path)
 type(path_t) :: set_path

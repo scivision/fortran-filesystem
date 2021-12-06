@@ -97,6 +97,20 @@ or
 call unlink("my/file.txt")
 ```
 
+---
+
+write text in character variable to file (overwriting existing file)
+
+```fortran
+call p%write_text(text)
+```
+
+or:
+
+```fortran
+call write_text(filename, text)
+```
+
 ## path_t
 
 These methods emit a new "path_t" object.
@@ -403,6 +417,21 @@ resolve("~/../b")
 
 ! --- relative path resolved to current working directory
 resolve("../b")
+```
+
+---
+
+Read text from file into character variable (up to max_length characters).
+
+```fortran
+text = p%read_text(filename)
+text = p%read_text(filename, 16384)  !< default length
+```
+
+or:
+
+```fortran
+text = read_text(filename)
 ```
 
 ## System

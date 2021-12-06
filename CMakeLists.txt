@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.19...3.22)
 
-project(FortranPathlib LANGUAGES C Fortran)
+project(FortranPathlib
+LANGUAGES C Fortran
+VERSION 2.3.0
+)
 
 include(CTest)
 
