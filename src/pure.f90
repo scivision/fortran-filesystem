@@ -19,21 +19,13 @@ pathlib_root = root(self%path_str)
 end procedure pathlib_root
 
 
+module procedure pathlib_join
+pathlib_join%path_str = join(self%path_str, other)
+end procedure pathlib_join
+
+
 module procedure join
-
-integer :: i
-
-i = len_trim(self%path_str)
-join = self%as_posix()
-
-if(join%path_str(i:i) == '/') then
-  join%path_str = self%path_str // other
-else
-  join%path_str = self%path_str // "/" // other
-end if
-
-join = join%drop_sep()
-
+join = as_posix(path // "/" // other)
 end procedure join
 
 

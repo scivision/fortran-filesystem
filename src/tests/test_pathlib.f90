@@ -1,6 +1,6 @@
 program pathlib_test
 
-use pathlib, only : path_t, file_name, stem, suffix, root, is_absolute, with_suffix
+use pathlib, only : path_t, file_name, join, stem, suffix, root, is_absolute, with_suffix
 
 implicit none (type, external)
 
@@ -48,7 +48,8 @@ if (p2%path() /= "a/b/c/d") error stop "join"
 p2 = p1%join("c/d/")
 if (p2%path() /= "a/b/c/d/") error stop "join"
 p2 = p1%join("c/d")
-if (p2%path() /= "a/b/c/d") error stop "join"
+if (p2%path() /= "a/b/c/d") error stop "%join"
+if (join("a/b", "c/d") /= "a/b/c/d") error stop "join()"
 
 print *, "OK: test_join"
 

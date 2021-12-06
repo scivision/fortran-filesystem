@@ -7,7 +7,7 @@ private
 public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
 public :: as_posix, drop_sep, expanduser, &
-is_absolute, is_dir, is_file, is_exe, &
+is_absolute, is_dir, is_file, is_exe, join, &
 mkdir, parts, resolve, root, same_file, size_bytes, unlink, &
 file_name, parent, stem, suffix, with_suffix
 !! functional API
@@ -21,7 +21,7 @@ character(:), allocatable :: path_str
 contains
 
 procedure, public :: path=>get_path, &
-length, join, parts=>pathlib_parts, drop_sep=>pathlib_drop_sep, &
+length, join=>pathlib_join, parts=>pathlib_parts, drop_sep=>pathlib_drop_sep, &
 is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, &
 copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
 parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>pathlib_root, suffix=>pathlib_suffix, &
@@ -44,11 +44,17 @@ module pure integer function length(self)
 class(path_t), intent(in) :: self
 end function length
 
-module pure function join(self, other)
+module pure function pathlib_join(self, other)
 !! returns path_t object with other appended to self using posix separator
-type(path_t) :: join
+type(path_t) :: pathlib_join
 class(path_t), intent(in) :: self
 character(*), intent(in) :: other
+end function pathlib_join
+
+module pure function join(path, other)
+!! returns path_t object with other appended to self using posix separator
+character(:), allocatable :: join
+character(*), intent(in) :: path, other
 end function join
 
 module pure function pathlib_as_windows(self) result(sw)
