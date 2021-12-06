@@ -6,7 +6,8 @@ implicit none (type, external)
 private
 public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
-public :: as_posix, drop_sep, expanduser, is_dir, is_file, is_exe, mkdir, parts, resolve, same_file, size_bytes !< functional API
+public :: as_posix, drop_sep, expanduser, is_dir, is_file, is_exe, mkdir, parts, resolve, same_file, size_bytes, unlink
+!! functional API
 
 
 type :: path_t
@@ -24,7 +25,7 @@ parent, file_name, stem, root, suffix, &
 as_windows=>pathlib_as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
 with_suffix, &
 resolve=>pathlib_resolve, same_file=>pathlib_same_file, is_exe=>pathlib_is_exe, &
-unlink, size_bytes=>pathlib_size_bytes
+unlink=>pathlib_unlink, size_bytes=>pathlib_size_bytes
 
 end type path_t
 
@@ -143,9 +144,14 @@ character(*), intent(in) :: path
 character(:), allocatable :: resolve
 end function resolve
 
-module impure subroutine unlink(self)
+module impure subroutine pathlib_unlink(self)
 !! delete the file
 class(path_t), intent(in) :: self
+end subroutine pathlib_unlink
+
+module impure subroutine unlink(path)
+!! delete the file
+character(*), intent(in) :: path
 end subroutine unlink
 
 module impure logical function pathlib_same_file(self, other)

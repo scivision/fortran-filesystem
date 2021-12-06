@@ -91,6 +91,12 @@ Delete file
 call p%unlink()
 ```
 
+or
+
+```fortran
+call unlink("my/file.txt")
+```
+
 ## path_t
 
 These methods emit a new "path_t" object.

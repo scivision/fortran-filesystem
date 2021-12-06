@@ -4,19 +4,21 @@ implicit none (type, external)
 
 contains
 
+module procedure pathlib_unlink
+call unlink(self%path_str)
+end procedure pathlib_unlink
+
 module procedure unlink
 integer :: u
 
-open(newunit=u, file=self%path_str, status='old')
+open(newunit=u, file=path, status='old')
 close(u, status='delete')
-
 end procedure unlink
 
 
 module procedure pathlib_resolve
 pathlib_resolve%path_str = resolve(self%path_str)
 end procedure pathlib_resolve
-
 
 module procedure resolve
 resolve = canonical(expanduser(path))
@@ -27,7 +29,6 @@ module procedure pathlib_same_file
 pathlib_same_file = same_file(self%path_str, other%path_str)
 end procedure pathlib_same_file
 
-
 module procedure same_file
 same_file = resolve(path1) == resolve(path2)
 end procedure same_file
@@ -36,7 +37,6 @@ end procedure same_file
 module procedure pathlib_is_file
 pathlib_is_file = is_file(self%path_str)
 end procedure pathlib_is_file
-
 
 module procedure is_file
 inquire(file=expanduser(path), exist=is_file)
