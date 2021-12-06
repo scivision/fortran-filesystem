@@ -17,6 +17,10 @@ target_include_directories(pathlib INTERFACE ${PROJECT_BINARY_DIR}/include)
 
 add_executable(pathlib_cli cli.f90)
 target_link_libraries(pathlib_cli PRIVATE pathlib)
+set_target_properties(pathlib_cli PROPERTIES
+RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+
+install(TARGETS pathlib_cli EXPORT ${PROJECT_NAME}-targets)
 
 if(BUILD_TESTING)
   add_subdirectory(tests)

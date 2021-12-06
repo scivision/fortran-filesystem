@@ -81,7 +81,6 @@ call p%mkdir()
 call mkdir("my/new/dir")
 ```
 
-
 Delete file
 
 ```fortran
@@ -370,3 +369,7 @@ character(:), allocatable :: cur
 
 cur = cwd()
 ```
+
+## Command line
+
+For user convenience, we provide a demo executable "pathlib_cli" that allows simple testing of what the pathlib routines do.
