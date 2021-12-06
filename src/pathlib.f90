@@ -6,7 +6,7 @@ implicit none (type, external)
 private
 public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
-public :: as_posix, drop_sep, expanduser, &
+public :: as_posix, as_windows, drop_sep, expanduser, &
 is_absolute, is_dir, is_file, is_exe, join, &
 copy_file, mkdir, &
 parts, resolve, root, same_file, size_bytes, unlink, &

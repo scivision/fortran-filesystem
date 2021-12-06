@@ -173,7 +173,7 @@ end procedure pathlib_as_windows
 module procedure as_windows
 integer :: i
 
-as_windows = path
+as_windows = trim(path)
 i = index(as_windows, '/')
 do while (i > 0)
   as_windows(i:i) = char(92)
@@ -191,7 +191,7 @@ module procedure as_posix
 
 integer :: i
 
-as_posix = path
+as_posix = trim(path)
 i = index(as_posix, char(92))
 do while (i > 0)
   as_posix(i:i) = '/'
@@ -211,7 +211,7 @@ module procedure drop_sep
 
 integer :: i
 
-drop_sep = path
+drop_sep = trim(path)
 i = index(drop_sep, "//")
 do while (i > 0)
   drop_sep(i:) = drop_sep(i+1:)
@@ -226,7 +226,7 @@ pathlib_with_suffix%path_str = with_suffix(self%path_str, new)
 end procedure pathlib_with_suffix
 
 module procedure with_suffix
-with_suffix = path(1:len_trim(path) - len(suffix(path))) // new
+with_suffix = path(1:len_trim(path) - len(suffix(path))) // trim(new)
 end procedure with_suffix
 
 
