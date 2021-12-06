@@ -20,3 +20,5 @@ add_subdirectory(src)
 
 install(TARGETS pathlib EXPORT ${PROJECT_NAME}-targets)
 install(FILES ${PROJECT_BINARY_DIR}/include/pathlib.mod TYPE INCLUDE)
+
+include(cmake/install.cmake)
