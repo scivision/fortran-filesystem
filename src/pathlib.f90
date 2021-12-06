@@ -8,7 +8,8 @@ public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
 public :: as_posix, drop_sep, expanduser, &
 is_absolute, is_dir, is_file, is_exe, join, &
-mkdir, parts, resolve, root, same_file, size_bytes, unlink, &
+copy_file, mkdir, &
+parts, resolve, root, same_file, size_bytes, unlink, &
 file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text
 !! functional API
@@ -257,11 +258,12 @@ module impure subroutine pathlib_mkdir(self)
 class(path_t), intent(in) :: self
 end subroutine pathlib_mkdir
 
-module impure subroutine pathlib_copy_file(self, dest)
+module impure subroutine pathlib_copy_file(self, dest, overwrite)
 !! copy file from source to destination
 !! OVERWRITES existing destination files
 class(path_t), intent(in) :: self
 character(*), intent(in) :: dest
+logical, intent(in), optional :: overwrite
 end subroutine pathlib_copy_file
 
 module impure function pathlib_read_text(self, max_length)
@@ -311,10 +313,11 @@ end interface
 
 interface !< {posix,windows}_sys.f90
 !! implemented via system call since CRT doesn't have this functionality
-module impure subroutine copy_file(src, dest)
+module impure subroutine copy_file(src, dest, overwrite)
 !! copy single file from src to dest
 !! OVERWRITES existing destination file
 character(*), intent(in) :: src, dest
+logical, intent(in), optional :: overwrite
 end subroutine copy_file
 end interface
 

@@ -61,7 +61,7 @@ call mkdir(self%path_str)
 end procedure pathlib_mkdir
 
 module procedure pathlib_copy_file
-call copy_file(self%path_str, dest)
+call copy_file(self%path_str, dest, overwrite)
 end procedure pathlib_copy_file
 
 

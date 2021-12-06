@@ -8,11 +8,21 @@ contains
 module procedure copy_file
 !! https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/copy
 integer :: i,j
-
 character(:), allocatable  :: cmd, s, d
+logical :: ow
 
 d = as_windows(expanduser(dest))
 s = as_windows(expanduser(src))
+
+ow = .false.
+if(present(overwrite)) ow = overwrite
+if (is_file(d)) then
+  if(ow) then
+    call unlink(d)
+  else
+    error stop "copy_file: overwrite=.false. and destination file exists: " // d
+  endif
+endif
 
 cmd = 'copy /y ' // s // ' ' // d
 

@@ -1,6 +1,6 @@
 program pathlib_test
 
-use pathlib, only : path_t
+use pathlib, only : path_t, copy_file
 
 implicit none (type, external)
 
@@ -39,7 +39,7 @@ close(u)
 
 if(.not. p1%is_file()) error stop "did not detect " // p1%path() // " as file"
 p2 = path_t('test-pathlib.h5.copy')
-call p1%copy_file(p2%path())
+call p1%copy_file(p2%path(), overwrite=.true.)
 if(.not. p2%is_file()) error stop "did not detect " // p2%path() // " as file"
 
 end subroutine test_copyfile

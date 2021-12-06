@@ -52,7 +52,7 @@ This creates build/libpathlib.a or similar.
 
 These subroutines are available in the "pathlib" module.
 
-Copy path to dest, overwriting existing file
+Copy path to dest. Optionally, overwrite existing file.
 
 ```fortran
 character(*) :: dest = "new/file.ext"
@@ -60,6 +60,9 @@ character(*) :: dest = "new/file.ext"
 call p%copy_file(dest)
 ! or
 call copy_file("original.txt", "acopy.txt")
+
+! overwrite
+call copy_file("original.txt", "acopy.txt", overwrite=.true.)
 ```
 
 Make directory with parent directories if specified

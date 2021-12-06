@@ -11,11 +11,22 @@ module procedure copy_file
 !! https://linux.die.net/man/1/cp
 integer :: i, j
 character(:), allocatable  :: cmd, s, d
+logical :: ow
 
 d = expanduser(dest)
 s = expanduser(src)
 
-cmd = 'cp -f ' // s // ' ' // d
+ow = .false.
+if(present(overwrite)) ow = overwrite
+if (is_file(d)) then
+  if(ow) then
+    call unlink(d)
+  else
+    error stop "copy_file: overwrite=.false. and destination file exists: " // d
+  endif
+endif
+
+cmd = 'cp ' // s // ' ' // d
 
 call execute_command_line(cmd, exitstat=i, cmdstat=j)
 if (i /= 0 .or. j /= 0) error stop "could not copy " // s // " => " // d
