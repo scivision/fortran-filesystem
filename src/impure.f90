@@ -66,7 +66,7 @@ end procedure pathlib_copy_file
 
 
 module procedure pathlib_expanduser
-ex%path_str = as_posix(expanduser(self%path_str))
+pathlib_expanduser%path_str = as_posix(expanduser(self%path_str))
 end procedure pathlib_expanduser
 
 

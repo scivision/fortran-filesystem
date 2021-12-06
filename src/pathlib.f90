@@ -57,11 +57,11 @@ character(:), allocatable :: join
 character(*), intent(in) :: path, other
 end function join
 
-module pure function pathlib_as_windows(self) result(sw)
+module pure function pathlib_as_windows(self)
 !! '/' => '\' for Windows systems
 
 class(path_t), intent(in) :: self
-type(path_t) :: sw
+type(path_t) :: pathlib_as_windows
 end function pathlib_as_windows
 
 module pure function as_windows(path)
@@ -130,11 +130,11 @@ module pure function suffix(path)
 character(*), intent(in) :: path
 character(:), allocatable :: suffix
 end function suffix
-module pure function pathlib_as_posix(self) result(sw)
+module pure function pathlib_as_posix(self)
 !! '\' => '/', dropping redundant separators
 
 class(path_t), intent(in) :: self
-type(path_t) :: sw
+type(path_t) :: pathlib_as_posix
 end function pathlib_as_posix
 
 module pure function as_posix(path)
@@ -144,10 +144,10 @@ character(:), allocatable :: as_posix
 character(*), intent(in) :: path
 end function as_posix
 
-module pure function pathlib_drop_sep(self) result(sw)
+module pure function pathlib_drop_sep(self)
 !! drop redundant "/" file separators
 class(path_t), intent(in) :: self
-type(path_t) :: sw
+type(path_t) :: pathlib_drop_sep
 end function pathlib_drop_sep
 
 module pure function drop_sep(path)
@@ -227,12 +227,12 @@ module impure logical function is_file(path)
 character(*), intent(in) :: path
 end function is_file
 
-module impure function pathlib_expanduser(self) result (ex)
+module impure function pathlib_expanduser(self)
 !! resolve home directory as Fortran does not understand tilde
 !! also swaps "\" for "/" and drops redundant file separators
 !! works for Linux, Mac, Windows, etc.
 class(path_t), intent(in) :: self
-type(path_t) :: ex
+type(path_t) :: pathlib_expanduser
 end function pathlib_expanduser
 
 module impure function expanduser(path)

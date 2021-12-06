@@ -166,7 +166,7 @@ end procedure stem
 
 
 module procedure pathlib_as_windows
-sw%path_str = as_windows(self%path_str)
+pathlib_as_windows%path_str = as_windows(self%path_str)
 end procedure pathlib_as_windows
 
 
@@ -183,7 +183,7 @@ end procedure as_windows
 
 
 module procedure pathlib_as_posix
-sw%path_str = as_posix(self%path_str)
+pathlib_as_posix%path_str = as_posix(self%path_str)
 end procedure pathlib_as_posix
 
 
@@ -204,7 +204,7 @@ end procedure as_posix
 
 
 module procedure pathlib_drop_sep
-sw%path_str = drop_sep(self%path_str)
+pathlib_drop_sep%path_str = drop_sep(self%path_str)
 end procedure pathlib_drop_sep
 
 module procedure drop_sep
