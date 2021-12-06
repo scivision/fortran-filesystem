@@ -6,13 +6,17 @@
 
 Platform independent (Linux, macOS, Windows), object-oriented Fortran filesystem path manipulation library.
 The C Runtime Library is used where native Fortran procedures do not exist.
-
-Currently tested with GCC Gfortran and Intel oneAPI compilers.
-Would be happy to support additional Fortran 2018 compilers as available for testing.
 Inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html)
 and
 [C++ filesystem](https://en.cppreference.com/w/cpp/filesystem).
+
+Currently tested with compilers:
+
+* GCC Gfortran &ge; 8.5
+* Intel oneAPI &ge; 2021
+
+Would be happy to support additional Fortran 2018 compilers as available for testing.
 
 Fortran "pathlib" module contains one Fortran type "path_t" that contains properties and methods.
 The "path_t" type uses getter and setter procedure to access the path as a string `character(:), allocatable`.
@@ -53,6 +57,7 @@ This creates build/libpathlib.a or similar.
 These subroutines are available in the "pathlib" module.
 
 Copy path to dest. Optionally, overwrite existing file.
+This is implemented with execute_command_line() because there isn't a simple function in CRT for this.
 
 ```fortran
 character(*) :: dest = "new/file.ext"
