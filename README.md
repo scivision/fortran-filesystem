@@ -317,6 +317,14 @@ suffix("my/file.txt")  !< ".txt"
 
 ---
 
+Swap file suffix
+
+```fortran
+with_suffix("to/my.h5", ".hdf5")  !< "to/my.hdf5"
+```
+
+---
+
 Get parent directory of path:
 
 ```fortran

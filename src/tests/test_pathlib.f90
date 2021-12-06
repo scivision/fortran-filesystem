@@ -1,6 +1,6 @@
 program pathlib_test
 
-use pathlib, only : path_t, file_name, stem, suffix, root, is_absolute
+use pathlib, only : path_t, file_name, stem, suffix, root, is_absolute, with_suffix
 
 implicit none (type, external)
 
@@ -133,7 +133,8 @@ endif
 p1 = path_t("my/file.h5")
 p2 = p1%with_suffix(".hdf5")
 
-if (p2%path() /= "my/file.hdf5") error stop "with_suffix failed: " // p2%path()
+if (p2%path() /= "my/file.hdf5") error stop "%with_suffix failed: " // p2%path()
+if (p2%path() /= with_suffix("my/file.h5", ".hdf5")) error stop "with_suffix() failed: " // p2%path()
 
 print *, "OK: pathlib: manip"
 

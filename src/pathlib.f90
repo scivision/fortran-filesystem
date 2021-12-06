@@ -9,7 +9,7 @@ public :: home, canonical, cwd !< utility procedures
 public :: as_posix, drop_sep, expanduser, &
 is_absolute, is_dir, is_file, is_exe, &
 mkdir, parts, resolve, root, same_file, size_bytes, unlink, &
-file_name, parent, stem, suffix
+file_name, parent, stem, suffix, with_suffix
 !! functional API
 
 
@@ -26,7 +26,7 @@ is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolu
 copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
 parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>pathlib_root, suffix=>pathlib_suffix, &
 as_windows=>pathlib_as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
-with_suffix, &
+with_suffix=>pathlib_with_suffix, &
 resolve=>pathlib_resolve, same_file=>pathlib_same_file, is_exe=>pathlib_is_exe, &
 unlink=>pathlib_unlink, size_bytes=>pathlib_size_bytes
 
@@ -150,11 +150,17 @@ character(*), intent(in) :: path
 character(:), allocatable :: drop_sep
 end function drop_sep
 
-module pure function with_suffix(self, new) result(sw)
+module pure function pathlib_with_suffix(self, new)
 !! replace file suffix with new suffix
 class(path_t), intent(in) :: self
-type(path_t) :: sw
+type(path_t) :: pathlib_with_suffix
 character(*), intent(in) :: new
+end function pathlib_with_suffix
+
+module pure function with_suffix(path, new)
+!! replace file suffix with new suffix
+character(*), intent(in) :: path,new
+character(:), allocatable :: with_suffix
 end function with_suffix
 
 module pure logical function pathlib_is_absolute(self)

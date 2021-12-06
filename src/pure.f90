@@ -229,8 +229,12 @@ end do
 end procedure drop_sep
 
 
+module procedure pathlib_with_suffix
+pathlib_with_suffix%path_str = with_suffix(self%path_str, new)
+end procedure pathlib_with_suffix
+
 module procedure with_suffix
-sw%path_str = self%path_str(1:len_trim(self%path_str) - len(self%suffix())) // new
+with_suffix = path(1:len_trim(path) - len(suffix(path))) // new
 end procedure with_suffix
 
 
