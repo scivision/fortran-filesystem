@@ -70,7 +70,7 @@ if (len_trim(wk) < 1) error stop 'must specify directory to create'
 
 if(is_dir(wk)) return
 
-pts = parts(wk)
+pts = file_parts(wk)
 
 wk = trim(pts(1))
 if(.not.is_dir(wk)) then

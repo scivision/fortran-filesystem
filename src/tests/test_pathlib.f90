@@ -1,6 +1,6 @@
 program pathlib_test
 
-use pathlib, only : path_t, file_name, join, stem, suffix, root, is_absolute, with_suffix
+use pathlib, only : path_t, file_name, join, stem, suffix, root, is_absolute, with_suffix, relative_to
 
 implicit none (type, external)
 
@@ -17,6 +17,7 @@ call test_is_dir()
 
 call test_absolute()
 
+call test_relative_to()
 
 contains
 
@@ -92,9 +93,7 @@ subroutine test_manip()
 type(path_t) :: p1, p2
 logical :: is_unix
 
-p1 = path_t("/")
-is_unix = p1%is_absolute()
-if (is_absolute("/") .neqv. p1%is_absolute()) error stop "is_absolute function"
+is_unix = is_absolute("/")
 
 p1 = path_t("hi.a.b")
 if (p1%stem() /= "hi.a") error stop "stem failed"
@@ -173,8 +172,7 @@ subroutine test_absolute()
 type(path_t) :: p1,p2
 logical :: is_unix
 
-p1 = path_t("/")
-is_unix = p1%is_absolute()
+is_unix = is_absolute("/")
 
 p1 = path_t("")
 if (p1%is_absolute()) error stop "blank is not absolute"
@@ -196,5 +194,26 @@ endif
 print *, "OK: pathlib: is_absolute"
 
 end subroutine test_absolute
+
+
+subroutine test_relative_to()
+
+type(path_t) :: p1
+character(:), allocatable :: rel
+
+
+if(relative_to("/", "") /= "") error stop "empty p2"
+if(relative_to("/a", "b") /= "") error stop "one abs, one rel"
+if(relative_to("/a/b", "/a/b") /= ".") error stop "same path"
+
+rel = relative_to("/a/b", "/a")
+if(rel /= "b") error stop "rel to parent 1: " // rel
+
+rel = relative_to("/a/b/c/d", "/a/b")
+if(rel /= "c/d") error stop "rel to parent 2: " // rel
+p1 = path_t("/a/b/c/d")
+if (p1%relative_to("/a/b") /= rel) error stop " OO rel to parent"
+
+end subroutine
 
 end program

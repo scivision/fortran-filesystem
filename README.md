@@ -339,6 +339,16 @@ resolve("~/../b")
 resolve("../b")
 ```
 
+Get path relative to other path.
+This is a string operation and does not resolve or expand paths.
+
+```fortran
+relative_to("a/b/c", "a/b")  !< "c"
+
+p = path_t("a/b/c")
+p%relative_to(/a")  !< "b/c"
+```
+
 Read text from file into character variable (up to max_length characters).
 
 ```fortran

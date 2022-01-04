@@ -9,7 +9,7 @@ public :: home, canonical, cwd !< utility procedures
 public :: as_posix, as_windows, drop_sep, expanduser, &
 is_absolute, is_dir, is_file, is_exe, join, &
 copy_file, mkdir, &
-parts, resolve, root, same_file, size_bytes, unlink, &
+parts, relative_to, resolve, root, same_file, size_bytes, unlink, &
 file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text
 !! functional API
@@ -23,7 +23,8 @@ character(:), allocatable :: path_str
 contains
 
 procedure, public :: path=>get_path, &
-length, join=>pathlib_join, parts=>pathlib_parts, drop_sep=>pathlib_drop_sep, &
+length, join=>pathlib_join, parts=>pathlib_parts, relative_to=>pathlib_relative_to, &
+drop_sep=>pathlib_drop_sep, &
 is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, &
 copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
 parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>pathlib_root, suffix=>pathlib_suffix, &
@@ -34,6 +35,10 @@ unlink=>pathlib_unlink, size_bytes=>pathlib_size_bytes, &
 read_text=>pathlib_read_text, write_text=>pathlib_write_text
 
 end type path_t
+
+interface parts
+  module procedure file_parts
+end interface
 
 
 interface path_t
@@ -73,20 +78,6 @@ character(*), intent(in) :: path
 character(:), allocatable :: as_windows
 end function as_windows
 
-module pure function pathlib_parts(self)
-!! split path into up to 1000 parts (arbitrary limit)
-!! all path separators are discarded, except the leftmost if present
-class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_parts(:)
-end function pathlib_parts
-
-module pure function parts(path)
-!! split path into up to 1000 parts (arbitrary limit)
-!! all path separators are discarded, except the leftmost if present
-character(*), intent(in) :: path
-character(:), allocatable :: parts(:)
-end function parts
-
 module pure function pathlib_parent(self)
 !! returns parent directory of path
 class(path_t), intent(in) :: self
@@ -98,6 +89,25 @@ module pure function parent(path)
 character(*), intent(in) :: path
 character(:), allocatable :: parent
 end function parent
+
+
+module pure function pathlib_relative_to(self, other)
+!! returns other relative to self
+class(path_t), intent(in) :: self
+character(*), intent(in) :: other
+character(:), allocatable :: pathlib_relative_to
+end function pathlib_relative_to
+
+module pure function relative_to(p1, p2)
+!! returns p2 relative to p1
+!! if p2 is not a subpath of p1, returns "" empty string
+!!
+!! reference: C++17 filesystem relative
+!! https://en.cppreference.com/w/cpp/filesystem/relative
+
+character(*), intent(in) :: p1, p2
+character(:), allocatable :: relative_to
+end function relative_to
 
 
 module pure function pathlib_file_name(self)
@@ -185,6 +195,25 @@ character(:), allocatable :: pathlib_root
 end function pathlib_root
 
 end interface !< pure.f90
+
+
+interface  !< pure_iter.f90
+
+module pure function pathlib_parts(self)
+!! split path into up to 1000 parts (arbitrary limit)
+!! all path separators are discarded, except the leftmost if present
+class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_parts(:)
+end function pathlib_parts
+
+module pure function file_parts(path)
+!! split path into up to 1000 parts (arbitrary limit)
+!! all path separators are discarded, except the leftmost if present
+character(*), intent(in) :: path
+character(:), allocatable :: file_parts(:)
+end function file_parts
+
+end interface
 
 
 interface !< impure.f90

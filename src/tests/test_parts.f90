@@ -1,5 +1,6 @@
 program test_parts
 
+use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use pathlib, only : path_t, parts
 
 implicit none (type, external)
@@ -8,13 +9,15 @@ type(path_t) :: p1
 
 character(:), dimension(:), allocatable :: pts, fpts
 
-p1 = path_t("")
-pts = p1%parts()
+pts = parts("")
 if (size(pts) /= 0) error stop "empty size"
 if (len(pts) /= 0) error stop "empty len"
 
-p1 = path_t("idempotent")
-pts = p1%parts()
+pts = parts("/")
+if (size(pts) /= 1) error stop "slash size"
+if (len(pts) /= 1) error stop "slash len"
+
+pts = parts("idempotent")
 if (size(pts) /= 1) error stop "idempotent size"
 if (len(pts(1)) /= 10) error stop "idempotent len"
 if (pts(1) /= "idempotent") error stop "idempotent"
@@ -23,7 +26,7 @@ p1 = path_t("a1/b23/c456")
 pts = p1%parts()
 if(size(pts) /= 3) error stop "no_startend split"
 if(len(pts(1)) /= 4) error stop "no_startend len"
-if(pts(1) /= "a1") error stop "no_startend 1"
+if(pts(1) /= "a1") error stop "no_startend 1: " // pts(1)
 if(pts(2) /= "b23") error stop "no_startend 2"
 if(pts(3) /= "c456") error stop "no_startend 3"
 fpts = parts("a1/b23/c456")

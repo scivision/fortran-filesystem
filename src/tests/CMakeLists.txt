@@ -67,7 +67,7 @@ COMMAND test_rw_text ${CMAKE_CURRENT_BINARY_DIR}/test_rw_text.txt)
 
 set_tests_properties(pathlib Canonical FileOps FileParts ExeDetect FileSize Expanduser ReadWriteText
 PROPERTIES
-TIMEOUT 10
+TIMEOUT 20
 RUN_SERIAL true  # tests run much faster, especially on Windows
 )
 

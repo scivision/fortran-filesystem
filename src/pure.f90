@@ -29,60 +29,63 @@ join = as_posix(path // "/" // other)
 end procedure join
 
 
-module procedure pathlib_parts
-pathlib_parts = parts(self%path_str)
-end procedure pathlib_parts
+module procedure pathlib_relative_to
+pathlib_relative_to = relative_to(self%path_str, other)
+end procedure pathlib_relative_to
 
 
-module procedure parts
+module procedure relative_to
 
-character(:), allocatable :: wk
+character(:), dimension(:), allocatable :: p1_pts, p2_pts
+character(:), allocatable :: s1, s2
+integer :: i, N1, N2
 
-integer :: i(1000), j, k, ilast, M, N
+s1 = as_posix(p1)
+s2 = as_posix(p2)
 
-if (len_trim(path) == 0) then
-  allocate(character(0) :: parts(0))
+if(s1 == s2) then
+!! same path
+  relative_to = "."
   return
 endif
 
-wk = as_posix(path)
-j = len_trim(wk)
+p1_pts = file_parts(s1)
+p2_pts = file_parts(s2)
 
-if(index(wk, "/") == 0) then
-  allocate(character(j) :: parts(1))
-  parts(1) = wk
+N1 = size(p1_pts)
+N2 = size(p2_pts)
+
+if(N2 == 0 .or. N1 == 0) then
+!! empty
+  relative_to = ""
   return
-end if
-
-if(wk(j:j) == "/") wk = wk(:j-1)
-
-N = 0
-ilast = 0
-do j = 1, size(i)
-  k = index(wk(ilast+1:), '/')
-  if(k == 0) exit
-  i(j) = ilast + k
-  ilast = i(j)
-  N = N + 1
-end do
-
-! print *, "TRACE: i ", i(:N)
-
-M = maxval(i(1:N) - eoshift(i(1:N), -1))
-!! allocate character(:) array to longest individual part
-allocate(character(M) :: parts(N+1))
-
-if(i(1) > 1) then
-  parts(1) = wk(:i(1)-1)
-else
-  parts(1) = wk(1:1)
 endif
-do k = 2,N
-  parts(k) = wk(i(k-1)+1:i(k)-1)
-end do
-parts(N+1) = wk(i(N)+1:)
 
-end procedure parts
+if (N1 < N2+1) then
+!! not a subdir of other
+  relative_to = ""
+  return
+endif
+
+if((p1_pts(1) == "/" .and. p2_pts(1) /= "/") .or. (p2_pts(1) == "/" .and. p1_pts(1) /= "/")) then
+!! one absolute, one relative
+  relative_to = ""
+  return
+endif
+
+do i = 2, N2
+  if(p1_pts(i) /= p2_pts(i)) then
+    relative_to = ""
+    return
+  endif
+end do
+
+relative_to = trim(p1_pts(N2+1))
+do i = N2+2, N1
+  relative_to = join(relative_to, trim(p1_pts(i)))
+end do
+
+end procedure relative_to
 
 
 module procedure pathlib_suffix
