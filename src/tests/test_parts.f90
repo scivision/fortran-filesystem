@@ -1,11 +1,12 @@
 program test_parts
 
-use pathlib, only : path_t
+use pathlib, only : path_t, parts
 
 implicit none (type, external)
 
 type(path_t) :: p1
-character(:), allocatable :: pts(:)
+
+character(:), dimension(:), allocatable :: pts, fpts
 
 p1 = path_t("")
 pts = p1%parts()
@@ -25,6 +26,9 @@ if(len(pts(1)) /= 4) error stop "no_startend len"
 if(pts(1) /= "a1") error stop "no_startend 1"
 if(pts(2) /= "b23") error stop "no_startend 2"
 if(pts(3) /= "c456") error stop "no_startend 3"
+fpts = parts("a1/b23/c456")
+if(size(fpts) /= 3) error stop "no_startend fcn split"
+if(any(fpts /= pts)) error stop "no_startend fcn /= OO"
 
 p1 = path_t("/a1/b23/c456")
 pts = p1%parts()
@@ -34,6 +38,9 @@ if(pts(1) /= "/") error stop "start 1"
 if(pts(2) /= "a1") error stop "start 2"
 if(pts(3) /= "b23") error stop "start 3"
 if(pts(4) /= "c456") error stop "start 4"
+fpts = parts("/a1/b23/c456")
+if(size(fpts) /= 4) error stop "start fcn split"
+if(any(fpts /= pts)) error stop "start fcn /= OO"
 
 p1 = path_t("a1/b23/c456/")
 pts = p1%parts()
