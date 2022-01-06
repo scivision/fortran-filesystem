@@ -4,6 +4,7 @@ project(FortranPathlib
 LANGUAGES C Fortran
 VERSION 2.3.3
 DESCRIPTION "Platform independent, object-oriented Fortran filesystem path manipulation library"
+HOMEPAGE_URL "https://github.com/scivision/fortran-pathlib"
 )
 
 include(CTest)

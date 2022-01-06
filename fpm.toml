@@ -1,0 +1,10 @@
+name = "fortran-pathlib"
+description = "Platform independent, object-oriented Fortran filesystem path manipulation library"
+categories = "io"
+version = "2.3.4"
+
+[library]
+source-dir = "src"
+
+[test]
+source-dir = "src/tests"
