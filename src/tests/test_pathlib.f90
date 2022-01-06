@@ -1,4 +1,4 @@
-program pathlib_test
+program test_pathlib
 
 use pathlib, only : path_t, file_name, join, stem, suffix, root, is_absolute, with_suffix, relative_to
 

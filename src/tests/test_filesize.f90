@@ -1,4 +1,4 @@
-program test_size
+program test_filesize
 
 use pathlib, only : path_t, size_bytes
 

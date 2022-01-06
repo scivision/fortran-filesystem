@@ -1,4 +1,4 @@
-program pathlib_test
+program test_fileop
 
 use pathlib, only : path_t, copy_file
 

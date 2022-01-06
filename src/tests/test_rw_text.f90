@@ -1,4 +1,4 @@
-program test_rw
+program test_rw_text
 
 use pathlib, only : path_t, read_text, write_text
 

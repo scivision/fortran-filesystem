@@ -1,4 +1,4 @@
-program test_executable
+program test_exe
 
 use pathlib, only : path_t, is_exe
 
