@@ -41,7 +41,16 @@ p%path(2) !< character index 2:end
 
 In all the examples, we assume "p" is a pathlib path_t.
 
-Build in CMake (can also use in your project via FetchContent or ExternalProject):
+## Build
+
+Fortran Package Manager (fpm) can build pathlib:
+
+```sh
+fpm build
+```
+
+Or, CMake.
+Can also use in your CMake project via FetchContent or ExternalProject.
 
 ```sh
 cmake -B build
