@@ -1,7 +1,18 @@
 submodule (pathlib) io_pathlib
 !! procedures that read/write file data
 
+use, intrinsic :: iso_c_binding, only : c_int, c_char, C_NULL_CHAR
 implicit none (type, external)
+
+interface
+!! C standard library
+
+integer(c_int) function utime_c(path) bind(C, name="utime_cf")
+import c_int, c_char
+character(kind=c_char), intent(in) :: path(*)
+end function utime_c
+
+end interface
 
 contains
 
@@ -18,8 +29,8 @@ character(:), allocatable :: fn
 fn = expanduser(filename)
 
 if(is_file(fn)) then
+  call utime(fn)
   return
-  !! TODO: we don't update modification time like traditional touch()
 elseif(is_dir(fn)) then
   error stop "pathlib:touch: cannot touch directory: " // fn
 end if
@@ -30,6 +41,22 @@ close(u)
 if(.not. is_file(fn)) error stop 'could not touch ' // fn
 
 end procedure touch
+
+
+module procedure utime
+!! Sets file access_time and modified_time to current time.
+
+character(kind=c_char, len=:), allocatable :: wk
+integer(c_int) :: ierr
+
+wk = expanduser(filename)
+
+ierr = utime_c(wk // C_NULL_CHAR)
+if(ierr == 0) return
+
+error stop "pathlib:utime: could not update mod time for file: " // filename
+
+end procedure utime
 
 
 module procedure pathlib_write_text

@@ -388,10 +388,23 @@ end interface
 
 
 interface  ! {posix,windows}/crt.f90
+!! C Runtime Library procedures
+
+module impure function canonical(path)
+character(:), allocatable :: canonical
+character(*), intent(in) :: path
+end function canonical
+
 module impure subroutine mkdir(path)
 !! create a directory, with parents if needed
 character(*), intent(in) :: path
 end subroutine mkdir
+
+module impure subroutine utime(filename)
+!! like C utime(), update file modification time
+character(*), intent(in) :: filename
+end subroutine utime
+
 end interface
 
 
@@ -444,14 +457,6 @@ end function cwd
 
 end interface
 
-
-interface !< canonical_{windows,posix}.f90
-! C Runtime Library
-module impure function canonical(path)
-character(:), allocatable :: canonical
-character(*), intent(in) :: path
-end function canonical
-end interface
 
 contains
 

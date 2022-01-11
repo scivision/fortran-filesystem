@@ -14,12 +14,12 @@ end function mkdir_c
 subroutine fullpath_c(absPath, relPath, maxLength) bind(c, name='_fullpath')
 !! char *_fullpath(char *absPath, const char *relPath, size_t maxLength)
 !! https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/fullpath-wfullpath?view=vs-2019
-
 import c_char, c_long
 character(kind=c_char), intent(in) :: relPath(*)
 character(kind=c_char), intent(out) :: absPath(*)
 integer(c_long), intent(in) :: maxLength
 end subroutine fullpath_c
+
 end interface
 
 

@@ -92,7 +92,7 @@ call mkdir("my/new/dir")
 
 Touch file (create empty file if not a file).
 The directories containing the file must already exist.
-NOTE: at this time, we do not update the file modification time.
+Also updates the file access/modification times to current time.
 
 ```fortran
 call p%touch()

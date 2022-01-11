@@ -5,7 +5,8 @@ use, intrinsic :: iso_c_binding, only: c_int, c_char, c_null_char
 implicit none (type, external)
 
 interface
-integer(c_int) function mkdir_c(path, mask) bind (C, name='mkdir')
+
+integer(c_int) function mkdir_c(path, mask) bind(C, name='mkdir')
 !! https://linux.die.net/man/3/mkdir
 import c_int, c_char
 character(kind=c_char), intent(in) :: path(*)
@@ -19,6 +20,7 @@ import c_char
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: rpath(*)
 end subroutine realpath_c
+
 end interface
 
 contains
@@ -43,10 +45,10 @@ if (wk(1:1) == ".") wk = cwd() // "/" // wk
 
 if(len(wk) > N) error stop "pathlib:canonical: path too long: " // wk
 
-call realpath_c(wk // c_null_char, c_buf)
+call realpath_c(wk // C_NULL_CHAR, c_buf)
 
 do i = 1,N
-  if (c_buf(i) == c_null_char) exit
+  if (c_buf(i) == C_NULL_CHAR) exit
   buf(i:i) = c_buf(i)
 enddo
 
@@ -85,7 +87,7 @@ do i = 2,size(pts)
   if (ierr /= 0) error stop 'pathlib:mkdir: could not create directory: ' // wk // ' from: ' // path
 end do
 
-
 end procedure mkdir
+
 
 end submodule posix_crt
