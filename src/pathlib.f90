@@ -295,6 +295,11 @@ character(*), intent(in) :: dest
 logical, intent(in), optional :: overwrite
 end subroutine pathlib_copy_file
 
+end interface  !< impure.f90
+
+
+interface !< io.f90
+
 module impure function pathlib_read_text(self, max_length)
 !! read text file
 class(path_t), intent(in) :: self
@@ -319,7 +324,7 @@ module impure subroutine write_text(filename, text)
 character(*), intent(in) :: filename, text
 end subroutine write_text
 
-end interface  !< impure.f90
+end interface
 
 
 interface !< envvar.f90
