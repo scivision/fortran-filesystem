@@ -33,7 +33,7 @@ jobs:
         sudo apt-get update
 
     - name: Install Intel oneAPI
-      timeout-minutes: 5
+      timeout-minutes: 10
       run: sudo apt-get install ninja-build intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
 
     - name: Setup Intel oneAPI environment
