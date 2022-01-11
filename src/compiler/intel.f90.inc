@@ -14,7 +14,7 @@ integer :: i
 character(4096) :: work
 
 i = getcwd(work)
-if(i /= 0) error stop "could not get CWD"
+if(i /= 0) error stop "pathlib:cwd: could not get CWD"
 
 cwd = trim(work)
 

@@ -22,14 +22,14 @@ if (is_file(d)) then
   if(ow) then
     call unlink(d)
   else
-    error stop "copy_file: overwrite=.false. and destination file exists: " // d
+    error stop "pathlib:copy_file: overwrite=.false. and destination file exists: " // d
   endif
 endif
 
 cmd = 'cp ' // s // ' ' // d
 
 call execute_command_line(cmd, exitstat=i, cmdstat=j)
-if (i /= 0 .or. j /= 0) error stop "could not copy " // s // " => " // d
+if (i /= 0 .or. j /= 0) error stop "pathlib:copy_file: could not copy " // s // " => " // d
 
 end procedure copy_file
 

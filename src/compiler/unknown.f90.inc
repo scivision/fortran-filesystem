@@ -13,17 +13,17 @@ end procedure is_dir
 
 
 module procedure is_exe
-error stop "%is_exe method not supported on this compiler yet. Please open GitHub Issue request."
+error stop "pathlib: %is_exe method not supported on this compiler yet. Please open GitHub Issue request."
 end procedure is_exe
 
 
 module procedure cwd
-error stop "cwd() not supported on this compiler yet. Please open GitHub Issue request."
+error stop "pathlib: cwd() not supported on this compiler yet. Please open GitHub Issue request."
 end procedure cwd
 
 
 module procedure size_bytes
-error stop "%size_bytes not yet supported on this compiler."
+error stop "pathlib: %size_bytes not yet supported on this compiler."
 end procedure size_bytes
 
 end submodule pathlib_dummy

@@ -12,7 +12,7 @@ module procedure unlink
 integer :: u
 
 if(is_dir(filename)) then
-  error stop filename // " is a directory, cannot delete."
+  error stop "pathlib:unlink: cannot delete directory: " // filename
 elseif(.not. is_file(filename)) then
   write(stderr,'(a)') "pathlib:unlink: " // filename // " is not a file, so nothing to delete."
   return
@@ -59,11 +59,11 @@ end procedure pathlib_is_dir
 
 
 module procedure assert_is_dir
-if (.not. is_dir(path)) error stop 'directory does not exist ' // path
+if (.not. is_dir(path)) error stop 'pathlib:assert_is_dir: directory does not exist ' // path
 end procedure assert_is_dir
 
 module procedure assert_is_file
-if (.not. is_file(path)) error stop 'file does not exist ' // path
+if (.not. is_file(path)) error stop 'pathlib:assert_is_file: file does not exist ' // path
 end procedure assert_is_file
 
 

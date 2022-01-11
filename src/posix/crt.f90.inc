@@ -32,7 +32,7 @@ character(kind=c_char):: c_buf(N)
 character(N) :: buf
 integer :: i
 
-if(len_trim(path) == 0) error stop "cannot canonicalize empty path"
+if(len_trim(path) == 0) error stop "pathlib:canonical: cannot canonicalize empty path"
 
 wk = expanduser(path)
 
@@ -41,7 +41,7 @@ wk = expanduser(path)
 
 if (wk(1:1) == ".") wk = cwd() // "/" // wk
 
-if(len(wk) > N) error stop "path too long"
+if(len(wk) > N) error stop "pathlib:canonical: path too long: " // wk
 
 call realpath_c(wk // c_null_char, c_buf)
 
@@ -66,7 +66,7 @@ integer(c_int) :: ierr
 character(:), allocatable :: pts(:)
 
 wk = expanduser(path)
-if (len_trim(wk) < 1) error stop 'must specify directory to create'
+if (len_trim(wk) < 1) error stop 'pathlib:mkdir: must specify directory to create'
 
 if(is_dir(wk)) return
 
@@ -75,14 +75,14 @@ pts = file_parts(wk)
 wk = trim(pts(1))
 if(.not.is_dir(wk)) then
   ierr = mkdir_c(wk // C_NULL_CHAR, int(o'755', c_int))
-  if (ierr /= 0) error stop 'could not create directory ' // wk
+  if (ierr /= 0) error stop 'pathlib:mkdir: could not create directory: ' // wk
 endif
 do i = 2,size(pts)
   wk = trim(wk) // "/" // trim(pts(i))
   if (is_dir(wk)) cycle
 
   ierr = mkdir_c(wk // C_NULL_CHAR, int(o'755', c_int))
-  if (ierr /= 0) error stop 'could not create directory ' // wk
+  if (ierr /= 0) error stop 'pathlib:mkdir: could not create directory: ' // wk
 end do
 
 
