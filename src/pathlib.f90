@@ -11,7 +11,8 @@ is_absolute, is_dir, is_file, is_exe, join, &
 copy_file, mkdir, &
 parts, relative_to, resolve, root, same_file, size_bytes, unlink, &
 file_name, parent, stem, suffix, with_suffix, &
-read_text, write_text
+read_text, write_text, &
+get_filename
 !! functional API
 
 
@@ -232,9 +233,9 @@ module impure subroutine pathlib_unlink(self)
 class(path_t), intent(in) :: self
 end subroutine pathlib_unlink
 
-module impure subroutine unlink(path)
+module impure subroutine unlink(filename)
 !! delete the file
-character(*), intent(in) :: path
+character(*), intent(in) :: filename
 end subroutine unlink
 
 module impure logical function pathlib_same_file(self, other)
@@ -296,6 +297,25 @@ logical, intent(in), optional :: overwrite
 end subroutine pathlib_copy_file
 
 end interface  !< impure.f90
+
+
+interface !< find.f90
+
+module function get_filename(path, name, suffixes)
+!! given a path, stem and vector of suffixes, find the full filename
+!! assumes:
+!! * if present, "name" is the file name we wish to find (without suffix or directories)
+!! * if name not present, "path" is the directory + filename without suffix
+!!
+!! suffixes is a vector of suffixes to check. Default is [character(4) :: '.h5', '.nc', '.dat']
+!! if file not found, empty character is returned
+
+character(*), intent(in) :: path
+character(*), intent(in), optional :: name, suffixes(:)
+character(:), allocatable :: get_filename
+end function get_filename
+
+end interface
 
 
 interface !< io.f90

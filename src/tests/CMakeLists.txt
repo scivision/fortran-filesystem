@@ -63,9 +63,15 @@ target_link_libraries(test_rw_text PRIVATE pathlib)
 add_test(NAME ReadWriteText
 COMMAND test_rw_text ${CMAKE_CURRENT_BINARY_DIR}/test_rw_text.txt)
 
+# --- find
+add_executable(test_find test_find.f90)
+target_link_libraries(test_find PRIVATE pathlib)
+
+add_test(NAME Find COMMAND test_find)
+
 # --- props
 
-set_tests_properties(pathlib Canonical FileOps FileParts ExeDetect FileSize Expanduser ReadWriteText
+set_tests_properties(pathlib Canonical FileOps FileParts Find ExeDetect FileSize Expanduser ReadWriteText
 PROPERTIES
 TIMEOUT 20
 RUN_SERIAL true  # tests run much faster, especially on Windows
