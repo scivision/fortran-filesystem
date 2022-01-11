@@ -28,14 +28,16 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/pathlib.mod
 TYPE INCLUDE
 )
 
+install(TARGETS pathlib EXPORT ${PROJECT_NAME}-targets)
+
 # --- CLI
 
-add_executable(pathlib_cli src/cli.f90)
-target_link_libraries(pathlib_cli PRIVATE pathlib)
+if(BUILD_UTILS)
+  add_executable(pathlib_cli src/cli.f90)
+  target_link_libraries(pathlib_cli PRIVATE pathlib)
 
-install(TARGETS pathlib pathlib_cli
-EXPORT ${PROJECT_NAME}-targets
-)
+  install(TARGETS pathlib_cli EXPORT ${PROJECT_NAME}-targets)
+endif()
 
 # --- Tests
 if(BUILD_TESTING)

@@ -1,4 +1,5 @@
 option(ENABLE_COVERAGE "Code coverage tests")
+option(BUILD_UTILS "Build utils e.g. CLI")
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   # will not take effect without FORCE

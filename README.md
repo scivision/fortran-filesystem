@@ -392,3 +392,9 @@ cur = cwd()
 ## Command line
 
 For user convenience, we provide a demo executable "pathlib_cli" that allows simple testing of what the pathlib routines do.
+To build the pathlib_cli utility:
+
+```sh
+cmake -B build -DBUILD_UTILS=on
+cmake --build build
+```
