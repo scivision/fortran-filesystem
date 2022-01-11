@@ -43,13 +43,6 @@ In all the examples, we assume "p" is a pathlib path_t.
 
 ## Build
 
-Fortran Package Manager (fpm) can build pathlib:
-
-```sh
-fpm build
-```
-
-Or, CMake.
 Can also use in your CMake project via FetchContent or ExternalProject.
 
 ```sh
