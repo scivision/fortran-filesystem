@@ -12,7 +12,7 @@ copy_file, mkdir, &
 parts, relative_to, resolve, root, same_file, size_bytes, unlink, &
 file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
-get_filename
+get_filename, make_absolute
 !! functional API
 
 
@@ -314,6 +314,16 @@ character(*), intent(in) :: path
 character(*), intent(in), optional :: name, suffixes(:)
 character(:), allocatable :: get_filename
 end function get_filename
+
+module function make_absolute(path, top_path)
+!! if path is absolute, return expanded path
+!! if path is relative, top_path / path
+!!
+!! idempotent iff top_path is absolute
+
+character(:), allocatable :: make_absolute
+character(*), intent(in) :: path, top_path
+end function make_absolute
 
 end interface
 

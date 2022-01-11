@@ -1,12 +1,15 @@
 program test_find
 
 use, intrinsic :: iso_fortran_env, only : stderr => error_unit
-use pathlib, only : unlink, get_filename, mkdir
+use pathlib, only : unlink, get_filename, mkdir, is_absolute, make_absolute
 
 implicit none (type, external)
 
 call test_get_filename()
 print *, "OK: get_filename"
+
+call test_make_absolute()
+print *, "OK: make_absolute"
 
 contains
 
@@ -73,5 +76,23 @@ fn = get_filename('./temp1/temp2', 'test-pathlib')
 if (fn /= './temp1/temp2/test-pathlib.h5') error stop 'exist dir full 2a'
 
 end subroutine test_get_filename
+
+
+subroutine test_make_absolute()
+
+character(16) :: fn2
+logical :: is_unix
+
+is_unix = is_absolute("/")
+
+if (is_unix) then
+  fn2 = make_absolute("rel", "/foo")
+  if (fn2 /= "/foo/rel") error stop "did not make_absolute Unix /foo/rel, got: " // fn2
+else
+  fn2 = make_absolute("rel", "j:/foo")
+  if (fn2 /= "j:/foo/rel") error stop "did not make_absolute Windows j:/foo/rel, got: " // fn2
+endif
+
+end subroutine test_make_absolute
 
 end program
