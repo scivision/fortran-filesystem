@@ -100,7 +100,7 @@ jobs:
     - run: cmake --preset multi
 
     - run: cmake --build --preset debug
-    - run: ctest --preset debug -V
+    - run: ctest --preset debug --schedule-random -V
 
     - run: cmake --build --preset release
-    - run: ctest --preset release -V
+    - run: ctest --preset release --schedule-random -V

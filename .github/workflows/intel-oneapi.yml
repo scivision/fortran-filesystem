@@ -53,9 +53,9 @@ jobs:
     - name: Release build
       run: cmake --build --preset release
     - name: Release unit test
-      run: ctest --preset release -V
+      run: ctest --preset release --schedule-random -V
 
     - name: debug build
       run: cmake --build --preset debug
     - name: debug unit test
-      run: ctest --preset debug -V
+      run: ctest --preset debug --schedule-random -V
