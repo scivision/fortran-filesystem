@@ -205,12 +205,24 @@ p%is_dir()
 is_dir("my/dir")
 ```
 
+Error stop if directory does not exist
+
+```fortran
+call assert_is_dir("my/dir")
+```
+
 Does file exist:
 
 ```fortran
 p%is_file()
 ! or
 is_file("my/file.txt")
+```
+
+Error stop if file does not exist
+
+```fortran
+call assert_is_file("my/dir")
 ```
 
 Is path absolute:

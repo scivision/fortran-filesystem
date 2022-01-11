@@ -12,7 +12,8 @@ copy_file, mkdir, &
 parts, relative_to, resolve, root, same_file, size_bytes, unlink, &
 file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
-get_filename, make_absolute
+get_filename, make_absolute, &
+assert_is_file, assert_is_dir
 !! functional API
 
 
@@ -295,6 +296,17 @@ class(path_t), intent(in) :: self
 character(*), intent(in) :: dest
 logical, intent(in), optional :: overwrite
 end subroutine pathlib_copy_file
+
+
+module subroutine assert_is_file(path)
+!! throw error if file does not exist
+character(*), intent(in) :: path
+end subroutine assert_is_file
+
+module subroutine assert_is_dir(path)
+!! throw error if directory does not exist
+character(*), intent(in) :: path
+end subroutine assert_is_dir
 
 end interface  !< impure.f90
 

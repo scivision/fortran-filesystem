@@ -57,6 +57,16 @@ module procedure pathlib_is_dir
 pathlib_is_dir = is_dir(self%path_str)
 end procedure pathlib_is_dir
 
+
+module procedure assert_is_dir
+if (.not. is_dir(path)) error stop 'directory does not exist ' // path
+end procedure assert_is_dir
+
+module procedure assert_is_file
+if (.not. is_file(path)) error stop 'file does not exist ' // path
+end procedure assert_is_file
+
+
 module procedure pathlib_size_bytes
 pathlib_size_bytes = size_bytes(self%path_str)
 end procedure pathlib_size_bytes
