@@ -52,9 +52,7 @@ integer(c_int) :: ierr
 wk = expanduser(filename)
 
 ierr = utime_c(wk // C_NULL_CHAR)
-if(ierr == 0) return
-
-error stop "pathlib:utime: could not update mod time for file: " // filename
+if(ierr /= 0) error stop "pathlib:utime: could not update mod time for file: " // filename
 
 end procedure utime
 
