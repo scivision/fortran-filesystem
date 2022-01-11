@@ -1,9 +1,10 @@
 /*
-C Runtime Library convenience interface for Fortran
+C Standard Library convenience interface for Fortran
 based on https://github.com/urbanjost/M_system/blob/master/src/C-M_system.c (Public domain)
 
 https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/utime-utime32-utime64-wutime-wutime32-wutime64
 */
+
 #include <time.h>
 #include <sys/utime.h>
 

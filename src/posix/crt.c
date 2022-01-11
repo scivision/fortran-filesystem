@@ -5,8 +5,14 @@ https://man7.org/linux/man-pages/man2/utime.2.html
 
 Works with MacOS, Linux and MinGW/MSYS2, but NOT Intel oneAPI on Windows
 */
+
 #include <time.h>
+
+#if defined(HAVE_UTIME_H)
 #include <utime.h>
+#elif defined(HAVE_SYS_UTIME_H)
+#include <sys/utime.h>
+#endif
 
 int utime_cf(const char *file) {
    struct utimbuf ut;
