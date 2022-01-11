@@ -90,6 +90,16 @@ call p%mkdir()
 call mkdir("my/new/dir")
 ```
 
+Touch file (create empty file if not a file).
+The directories containing the file must already exist.
+NOTE: at this time, we do not update the file modification time.
+
+```fortran
+call p%touch()
+! or
+call touch("myfile.ext")
+```
+
 Delete file
 
 ```fortran

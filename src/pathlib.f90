@@ -14,7 +14,7 @@ file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
 get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
-sys_posix
+sys_posix, touch
 !! functional API
 
 type :: path_t
@@ -30,6 +30,7 @@ length, join=>pathlib_join, parts=>pathlib_parts, relative_to=>pathlib_relative_
 drop_sep=>pathlib_drop_sep, &
 is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, &
 copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
+touch=>pathlib_touch, &
 parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>pathlib_root, suffix=>pathlib_suffix, &
 as_windows=>pathlib_as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
 with_suffix=>pathlib_with_suffix, &
@@ -343,6 +344,12 @@ end interface
 
 interface !< io.f90
 
+module impure subroutine pathlib_touch(self)
+class(path_t), intent(in) :: self
+end subroutine pathlib_touch
+module impure subroutine touch(filename)
+character(*), intent(in) :: filename
+end subroutine touch
 module impure function pathlib_read_text(self, max_length)
 !! read text file
 class(path_t), intent(in) :: self

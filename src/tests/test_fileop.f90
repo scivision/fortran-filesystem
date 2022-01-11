@@ -1,8 +1,11 @@
 program test_fileop
 
-use pathlib, only : path_t, copy_file, is_absolute, cwd, as_posix, is_dir, mkdir
+use pathlib, only : path_t, copy_file, is_absolute, cwd, as_posix, is_dir, mkdir, touch
 
 implicit none (type, external)
+
+call test_touch()
+print *, "OK: touch"
 
 call test_mkdir()
 print *, "OK: mkdir"
@@ -11,6 +14,19 @@ call test_copyfile()
 print *, "OK: copy_file"
 
 contains
+
+
+subroutine test_touch
+
+type(path_t) :: p
+
+call touch("test_fileop.h5")
+
+p = path_t("test_fileop.empty")
+call p%touch()
+if(.not. p%is_file()) error stop "touch failed"
+
+end subroutine test_touch
 
 
 subroutine test_mkdir()

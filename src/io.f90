@@ -5,6 +5,33 @@ implicit none (type, external)
 
 contains
 
+
+module procedure pathlib_touch
+call touch(self%path_str)
+end procedure pathlib_touch
+
+module procedure touch
+
+integer :: u
+character(:), allocatable :: fn
+
+fn = expanduser(filename)
+
+if(is_file(fn)) then
+  return
+  !! TODO: we don't update modification time like traditional touch()
+elseif(is_dir(fn)) then
+  error stop "pathlib:touch: cannot touch directory: " // fn
+end if
+
+open(newunit=u, file=fn, status='new')
+close(u)
+
+if(.not. is_file(fn)) error stop 'could not touch ' // fn
+
+end procedure touch
+
+
 module procedure pathlib_write_text
 call write_text(self%path_str, text)
 end procedure pathlib_write_text
@@ -14,7 +41,7 @@ module procedure write_text
 
 integer :: u
 
-open(newunit=u, file=filename, status='unknown', action='write')
+open(newunit=u, file=expanduser(filename), status='unknown', action='write')
 write(u,'(A)') text
 close(u)
 
@@ -37,7 +64,7 @@ block
 integer :: u
 character(L) :: buf
 
-open(newunit=u, file=filename, status='old', action='read')
+open(newunit=u, file=expanduser(filename), status='old', action='read')
 read(u,'(A)') buf
 close(u)
 
