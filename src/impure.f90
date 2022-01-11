@@ -40,7 +40,9 @@ end procedure pathlib_is_file
 
 module procedure is_file
 inquire(file=expanduser(path), exist=is_file)
-if(is_file .and. is_dir(path)) is_file = .false.
+if(is_file) then
+  if (is_dir(path)) is_file = .false.
+endif
 end procedure is_file
 
 
