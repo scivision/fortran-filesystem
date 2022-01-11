@@ -5,6 +5,11 @@ implicit none (type, external)
 contains
 
 
+module procedure sys_posix
+sys_posix = .false.
+end procedure sys_posix
+
+
 module procedure is_absolute
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. pathlib

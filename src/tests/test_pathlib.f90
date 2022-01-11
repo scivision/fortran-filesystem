@@ -1,6 +1,7 @@
 program test_pathlib
 
-use pathlib, only : path_t, file_name, join, stem, suffix, root, is_absolute, with_suffix, relative_to
+use pathlib, only : path_t, file_name, join, stem, suffix, root, cwd, &
+is_absolute, with_suffix, relative_to, is_dir, sys_posix
 
 implicit none (type, external)
 
@@ -91,9 +92,6 @@ end subroutine test_filesep
 subroutine test_manip()
 
 type(path_t) :: p1, p2
-logical :: is_unix
-
-is_unix = is_absolute("/")
 
 p1 = path_t("hi.a.b")
 if (p1%stem() /= "hi.a") error stop "stem failed"
@@ -120,7 +118,7 @@ if (p2%file_name() /= "a") error stop "file_name idempotent failed"
 
 p1 = path_t("/etc")
 p2 = path_t("c:/etc")
-if(is_unix) then
+if(sys_posix()) then
   if(p1%root() /= "/") error stop "unix %root failed"
   if(p2%root() /= "") error stop "unix %root failed"
   if(root("/etc") /= "/") error stop "unix root() failed"
@@ -143,9 +141,21 @@ end subroutine test_manip
 
 subroutine test_is_dir()
 
+character(:), allocatable :: r
+
 integer :: i
 
 type(path_t) :: p1,p2,p3
+
+if(is_dir("")) error stop "is_dir empty should be false"
+
+if(sys_posix()) then
+  if(.not. is_dir("/")) error stop "is_dir('/') failed"
+else
+  r = root(cwd())
+  print *, "root drive: ", r
+  if(.not. is_dir(r)) error stop "is_dir('" // r // "') failed"
+endif
 
 p1 = path_t(".")
 
@@ -170,14 +180,11 @@ end subroutine test_is_dir
 subroutine test_absolute()
 
 type(path_t) :: p1,p2
-logical :: is_unix
-
-is_unix = is_absolute("/")
 
 p1 = path_t("")
 if (p1%is_absolute()) error stop "blank is not absolute"
 
-if (is_unix) then
+if (sys_posix()) then
   p2 = path_t("/")
   if (.not. p2%is_absolute()) error stop p2%path() // "on Unix should be absolute"
   p2 = path_t("c:/")

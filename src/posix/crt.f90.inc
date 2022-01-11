@@ -75,14 +75,14 @@ pts = file_parts(wk)
 wk = trim(pts(1))
 if(.not.is_dir(wk)) then
   ierr = mkdir_c(wk // C_NULL_CHAR, int(o'755', c_int))
-  if (ierr /= 0) error stop 'pathlib:mkdir: could not create directory: ' // wk
+  if (ierr /= 0) error stop 'pathlib:mkdir: could not create directory: ' // wk // ' from: ' // path
 endif
 do i = 2,size(pts)
   wk = trim(wk) // "/" // trim(pts(i))
   if (is_dir(wk)) cycle
 
   ierr = mkdir_c(wk // C_NULL_CHAR, int(o'755', c_int))
-  if (ierr /= 0) error stop 'pathlib:mkdir: could not create directory: ' // wk
+  if (ierr /= 0) error stop 'pathlib:mkdir: could not create directory: ' // wk // ' from: ' // path
 end do
 
 

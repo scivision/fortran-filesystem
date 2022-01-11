@@ -433,6 +433,12 @@ character(:), allocatable :: make_absolute
 character(*), intent(in) :: path, top_path
 ```
 
+Tell if system is POSIX-like (MacOS, Unix, Linux, BSD, ...) or not (Windows)
+
+```fortran
+pure logical function sys_posix()
+```
+
 ## Command line
 
 For user convenience, we provide a demo executable "pathlib_cli" that allows simple testing of what the pathlib routines do.

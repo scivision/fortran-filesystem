@@ -5,6 +5,11 @@ implicit none (type, external)
 contains
 
 
+module procedure sys_posix
+sys_posix = .true.
+end procedure sys_posix
+
+
 module procedure is_absolute
 is_absolute = .false.
 

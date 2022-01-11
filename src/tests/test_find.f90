@@ -1,7 +1,7 @@
 program test_find
 
 use, intrinsic :: iso_fortran_env, only : stderr => error_unit
-use pathlib, only : unlink, get_filename, mkdir, is_absolute, make_absolute
+use pathlib, only : unlink, get_filename, mkdir, is_absolute, make_absolute, sys_posix
 
 implicit none (type, external)
 
@@ -81,11 +81,8 @@ end subroutine test_get_filename
 subroutine test_make_absolute()
 
 character(16) :: fn2
-logical :: is_unix
 
-is_unix = is_absolute("/")
-
-if (is_unix) then
+if (sys_posix()) then
   fn2 = make_absolute("rel", "/foo")
   if (fn2 /= "/foo/rel") error stop "did not make_absolute Unix /foo/rel, got: " // fn2
 else

@@ -13,13 +13,14 @@ parts, relative_to, resolve, root, same_file, size_bytes, unlink, &
 file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
 get_filename, make_absolute, &
-assert_is_file, assert_is_dir
+assert_is_file, assert_is_dir, &
+sys_posix
 !! functional API
-
 
 type :: path_t
 
 private
+
 character(:), allocatable :: path_str
 
 contains
@@ -379,7 +380,7 @@ end function home
 end interface
 
 
-interface  ! {posix,windows}_crt.f90
+interface  ! {posix,windows}/crt.f90
 module impure subroutine mkdir(path)
 !! create a directory, with parents if needed
 character(*), intent(in) :: path
@@ -387,7 +388,7 @@ end subroutine mkdir
 end interface
 
 
-interface !< {posix,windows}_sys.f90
+interface !< {posix,windows}/sys.f90
 !! implemented via system call since CRT doesn't have this functionality
 module impure subroutine copy_file(src, dest, overwrite)
 !! copy single file from src to dest
@@ -398,7 +399,7 @@ end subroutine copy_file
 end interface
 
 
-interface  !< {posix,windows}_path.f90
+interface  !< {posix,windows}/path.f90
 module pure logical function is_absolute(path)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. pathlib
@@ -410,6 +411,10 @@ module pure logical function root(path)
 character(*), intent(in) :: path
 character(:), allocatable :: root
 end function root
+
+module pure logical function sys_posix()
+end function sys_posix
+
 end interface
 
 interface !< pathlib_{intel,gcc}.f90

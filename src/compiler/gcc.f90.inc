@@ -26,11 +26,21 @@ module procedure is_dir
 integer :: i, statb(13)
 character(:), allocatable :: wk
 
-wk = expanduser(path)
+is_dir = .false.
 
-!! must not have trailing slash on Windows
-i = len_trim(wk)
-if (wk(i:i) == '/') wk = wk(1:i-1)
+wk = expanduser(path)
+if(len_trim(wk) == 0) return
+
+if(.not. sys_posix()) then
+!! GCC Windows quirk workarounds
+!! must not have trailing slash on Windows EXCEPT if root drive only
+  i = len_trim(wk)
+  if (i > 3) then
+    if(wk(i:i) == '/') wk = wk(1:i-1)
+  elseif (i == 2) then
+    if(wk(i:i) == ':') wk = wk // "/"  !< must have trailing slash if only root drive
+  endif
+endif
 
 inquire(file=wk, exist=is_dir)
 if(.not.is_dir) return
