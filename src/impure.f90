@@ -11,7 +11,14 @@ end procedure pathlib_unlink
 module procedure unlink
 integer :: u
 
-open(newunit=u, file=path, status='old')
+if(is_dir(filename)) then
+  error stop filename // " is a directory, cannot delete."
+elseif(.not. is_file(filename)) then
+  write(stderr,'(a)') "pathlib:unlink: " // filename // " is not a file, so nothing to delete."
+  return
+endif
+
+open(newunit=u, file=filename, status='old')
 close(u, status='delete')
 end procedure unlink
 
