@@ -66,6 +66,10 @@ module procedure assert_is_file
 if (.not. is_file(path)) error stop 'pathlib:assert_is_file: file does not exist ' // path
 end procedure assert_is_file
 
+module procedure pathlib_is_symlink
+pathlib_is_symlink = is_symlink(self%path_str)
+end procedure pathlib_is_symlink
+
 
 module procedure pathlib_size_bytes
 pathlib_size_bytes = size_bytes(self%path_str)

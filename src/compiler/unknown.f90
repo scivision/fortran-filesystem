@@ -4,6 +4,8 @@ submodule (pathlib) pathlib_dummy
 
 implicit none (type, external)
 
+character(*), parameter :: tail = " not supported on this compiler yet. Please open GitHub Issue request."
+
 contains
 
 
@@ -13,17 +15,21 @@ end procedure is_dir
 
 
 module procedure is_exe
-error stop "pathlib: %is_exe method not supported on this compiler yet. Please open GitHub Issue request."
+error stop "pathlib: %is_exe " // tail
 end procedure is_exe
 
 
 module procedure cwd
-error stop "pathlib: cwd() not supported on this compiler yet. Please open GitHub Issue request."
+error stop "pathlib: cwd() " // tail
 end procedure cwd
+
+module procedure is_symlink
+error stop "pathlib: is_symlink() " // tail
+end procedure is_symlink
 
 
 module procedure size_bytes
-error stop "pathlib: %size_bytes not yet supported on this compiler."
+error stop "pathlib: %size_bytes() " // tail
 end procedure size_bytes
 
 end submodule pathlib_dummy

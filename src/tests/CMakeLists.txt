@@ -13,6 +13,25 @@ add_executable(test_expanduser test_expanduser.f90)
 target_link_libraries(test_expanduser PRIVATE pathlib)
 add_test(NAME Expanduser COMMAND test_expanduser)
 
+# -- symlink
+add_executable(test_symlink test_symlink.f90)
+target_link_libraries(test_symlink PRIVATE pathlib)
+
+set(symlink_path ${CMAKE_CURRENT_BINARY_DIR}/test_symlink.f90.link)
+
+add_custom_command(TARGET test_symlink POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/test_symlink.f90 ${symlink_path})
+
+add_test(NAME symlink
+COMMAND test_symlink ${CMAKE_CURRENT_LIST_FILE} ${symlink_path}
+)
+
+set_tests_properties(symlink PROPERTIES
+WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+DISABLED $<NOT:$<BOOL:${HAVE_LSTAT}>>
+REQUIRED_FILES ${symlink_path}
+)
+
 # --- canonical
 add_executable(test_canonical test_canonical.f90)
 target_link_libraries(test_canonical PRIVATE pathlib)
@@ -43,6 +62,10 @@ target_link_libraries(test_exe PRIVATE pathlib)
 
 add_test(NAME ExeDetect
 COMMAND test_exe ${dummy_exe} ${dummy_noexe}
+)
+
+set_tests_properties(ExeDetect PROPERTIES
+REQUIRED_FILES "${dummy_exe};${dummy_noexe}"
 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -71,7 +94,7 @@ add_test(NAME Find COMMAND test_find)
 
 # --- props
 
-set_tests_properties(pathlib Canonical FileOps FileParts Find ExeDetect FileSize Expanduser ReadWriteText
+set_tests_properties(pathlib Canonical FileOps FileParts Find ExeDetect FileSize Expanduser ReadWriteText symlink
 PROPERTIES
 TIMEOUT 20
 RUN_SERIAL true  # tests run much faster, especially on Windows

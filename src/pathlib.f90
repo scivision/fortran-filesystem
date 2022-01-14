@@ -7,7 +7,7 @@ private
 public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
 public :: as_posix, as_windows, drop_sep, expanduser, &
-is_absolute, is_dir, is_file, is_exe, join, &
+is_absolute, is_dir, is_file, is_exe, is_symlink, join, &
 copy_file, mkdir, &
 parts, relative_to, resolve, root, same_file, size_bytes, unlink, &
 file_name, parent, stem, suffix, with_suffix, &
@@ -28,7 +28,7 @@ contains
 procedure, public :: path=>get_path, &
 length, join=>pathlib_join, parts=>pathlib_parts, relative_to=>pathlib_relative_to, &
 drop_sep=>pathlib_drop_sep, &
-is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, &
+is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, is_symlink=>pathlib_is_symlink, &
 copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
 touch=>pathlib_touch, &
 parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>pathlib_root, suffix=>pathlib_suffix, &
@@ -253,13 +253,17 @@ module impure logical function pathlib_is_dir(self)
 class(path_t), intent(in) :: self
 end function pathlib_is_dir
 
+module impure logical function pathlib_is_symlink(self)
+class(path_t), intent(in) :: self
+end function pathlib_is_symlink
+
 module impure logical function pathlib_is_file(self)
-!! is a file and not a directory
 class(path_t), intent(in) :: self
 end function pathlib_is_file
 
 module impure logical function is_file(path)
-!! is a file and not a directory
+!! .true.: "path" is a file OR symlink pointing to a file
+!! .false.: "path" is a directory, broken symlink, or does not exist
 character(*), intent(in) :: path
 end function is_file
 
@@ -437,9 +441,12 @@ end function sys_posix
 
 end interface
 
-interface !< pathlib_{intel,gcc}.f90
+
+interface !< compiler/{intel,gcc}.f90
 
 module impure logical function is_dir(path)
+!! .true.: "path" is a directory OR symlink pointing to a directory
+!! .false.: "path" is a broken symlink, does not exist, or is some other type of filesystem entity
 character(*), intent(in) :: path
 end function is_dir
 
@@ -454,6 +461,17 @@ end function is_exe
 module impure function cwd()
 character(:), allocatable :: cwd
 end function cwd
+
+end interface
+
+
+interface !< {posix,windows}/{gcc,intel}.f90
+
+module impure logical function is_symlink(path)
+!! .true.: "path" is a symbolic link
+!! .false.: "path" is not a symbolic link, or does not exist
+character(*), intent(in) :: path
+end function is_symlink
 
 end interface
 
