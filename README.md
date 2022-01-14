@@ -31,9 +31,12 @@ p = path_t("my/path")  !< setter
 print *, "path: ", p%path() !< getter
 ```
 
+Due to compiler limitations, currently Fortran-pathlib only officially supports ASCII characters.
+You may find that some features work on a particular computer with non-ASCII character, but this is not supported.
+
 ## Build
 
-Can also use in your CMake project via FetchContent or ExternalProject.
+Can also use Pathlib in your CMake project via FetchContent or ExternalProject.
 
 ```sh
 cmake -B build
@@ -45,6 +48,7 @@ ctest --test-dir build
 This creates build/libpathlib.a or similar.
 
 Please see the [API docs](./API.md) for extensive list of functions/subroutines.
+
 ## Command line
 
 For user convenience, we provide a demo executable "pathlib_cli" that allows simple testing of what the pathlib routines do.
@@ -54,3 +58,14 @@ To build the pathlib_cli utility:
 cmake -B build -DBUILD_UTILS=on
 cmake --build build
 ```
+
+## Notes
+
+The UCS
+[selected_char_kind('ISO_10646')](https://gcc.gnu.org/onlinedocs/gfortran/SELECTED_005fCHAR_005fKIND.html),
+is an *optional* feature of Fortran 2003 standard.
+Intel oneAPI does not support `selected_char_kind('ISO_10646')` as of this writing.
+
+pathlib currently uses the default Fortran `character` kind, which is ASCII.
+This means that UTF-8 / UTF-16 / UTF-32 strings are not supported.
+You may find a particular compiler and computer passes some non-ASCII strings, but this is not supported.
