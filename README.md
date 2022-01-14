@@ -17,6 +17,7 @@ Currently tested with compilers:
 * Intel oneAPI &ge; 2021
 
 Would be happy to support additional Fortran 2018 compilers as available for testing.
+For example, NAG, Cray, IBM XL, etc.
 
 Fortran "pathlib" module contains one Fortran type "path_t" that contains properties and methods.
 The "path_t" type uses getter and setter procedure to access the path as a string `character(:), allocatable`.
@@ -61,6 +62,10 @@ cmake --build build
 
 ## Notes
 
+A few topics on unsupported features:
+
+### non-ASCII characters
+
 The UCS
 [selected_char_kind('ISO_10646')](https://gcc.gnu.org/onlinedocs/gfortran/SELECTED_005fCHAR_005fKIND.html),
 is an *optional* feature of Fortran 2003 standard.
@@ -69,3 +74,12 @@ Intel oneAPI does not support `selected_char_kind('ISO_10646')` as of this writi
 pathlib currently uses the default Fortran `character` kind, which is ASCII.
 This means that UTF-8 / UTF-16 / UTF-32 strings are not supported.
 You may find a particular compiler and computer passes some non-ASCII strings, but this is not supported.
+
+### Unsupported compilers
+
+At this time, these compilers aren't supported for reasons including:
+
+#### Nvidia HPC-SDK
+
+nvfortran 22.1 does not support `character(:), allocatable` from Fortran 2003, which is used everywhere in pathlib.
+New Fortran language standard features aren't being added to nvfortran until the Flang f18 LLVM project is ready to use. I would estimate this as being in a couple years from now.
