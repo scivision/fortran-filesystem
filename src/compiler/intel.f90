@@ -1,14 +1,16 @@
 !! these functions could be implemented via C runtime library,
 !! but for speed/ease of implementation, for now we use
 !! compiler-specific intrinsic functions
+submodule (pathlib) pathlib_intel
 
-submodule (pathlib) pathlib_gcc
+use ifport, only : stat
 
 implicit none (type, external)
 
 contains
 
 module procedure cwd
+use ifport, only : getcwd
 
 integer :: i
 character(4096) :: work
@@ -22,47 +24,14 @@ end procedure cwd
 
 
 module procedure is_dir
-
-integer :: i, statb(13)
-character(:), allocatable :: wk
-
-is_dir = .false.
-
-wk = expanduser(path)
-if(len_trim(wk) == 0) return
-
-if(.not. sys_posix()) then
-!! GCC Windows quirk workarounds
-!! must not have trailing slash on Windows EXCEPT if root drive only
-  i = len_trim(wk)
-  if (i > 3) then
-    if(wk(i:i) == '/') wk = wk(1:i-1)
-  elseif (i == 2) then
-    if(wk(i:i) == ':') wk = wk // "/"  !< must have trailing slash if only root drive
-  endif
-endif
-
-inquire(file=wk, exist=is_dir)
-if(.not.is_dir) return
-
-i = stat(wk, statb)
-if(i /= 0) then
-  is_dir = .false.
-  return
-endif
-
-i = iand(statb(3), O'0040000')
-is_dir = i == 16384
-
-! print '(O8)', statb(3)
-
+inquire(directory=expanduser(path), exist=is_dir)
 end procedure is_dir
 
 
 module procedure size_bytes
 
 character(:), allocatable :: wk
-integer :: s(13), i
+integer :: s(12), i
 
 size_bytes = 0
 wk = expanduser(path)
@@ -84,9 +53,10 @@ end procedure size_bytes
 
 
 module procedure is_exe
+use ifport, only : stat
 
 character(:), allocatable :: wk
-integer :: s(13), iu, ig, i
+integer :: s(12), i, iu, ig
 
 is_exe = .false.
 wk = expanduser(path)
@@ -109,4 +79,4 @@ is_exe = (iu == 64 .or. ig == 8)
 end procedure is_exe
 
 
-end submodule pathlib_gcc
+end submodule pathlib_intel
