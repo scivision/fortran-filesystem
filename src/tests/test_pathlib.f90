@@ -7,18 +7,28 @@ implicit none (type, external)
 
 
 call test_setter_getter()
+print *, "OK: getter setter"
 
 call test_join()
+print *, "OK: test_join"
 
 call test_filesep()
+print *, "OK: pathlib: filesep"
 
 call test_manip()
+print *, "OK: pathlib: manip"
+
+call test_exists()
+print *, "OK pathlib: exists"
 
 call test_is_dir()
+print *," OK: pathlib: is_dir"
 
 call test_absolute()
+print *, "OK: pathlib: absolute"
 
 call test_relative_to()
+print *, "OK: pathlib: relative_to"
 
 contains
 
@@ -32,8 +42,6 @@ p1 = path_t("a/b/c")
 if (p1%path(2,3) /= "/b") error stop "getter start,end"
 if (p1%path(3,3) /= "b") error stop "getter same"
 if (p1%path(2) /= "/b/c") error stop "getter start only"
-
-print *, "OK: getter setter"
 
 end subroutine test_setter_getter
 
@@ -52,8 +60,6 @@ if (p2%path() /= "a/b/c/d/") error stop "join"
 p2 = p1%join("c/d")
 if (p2%path() /= "a/b/c/d") error stop "%join"
 if (join("a/b", "c/d") /= "a/b/c/d") error stop "join()"
-
-print *, "OK: test_join"
 
 end subroutine test_join
 
@@ -83,8 +89,6 @@ if(p3%path() /= char(92)) error stop "as_windows '\' failed"
 
 p3 = p2%as_windows()
 if(p3%path() /= char(92)) error stop "as_windows char(92) failed"
-
-print *, "OK: pathlib: filesep"
 
 end subroutine test_filesep
 
@@ -134,9 +138,19 @@ p2 = p1%with_suffix(".hdf5")
 if (p2%path() /= "my/file.hdf5") error stop "%with_suffix failed: " // p2%path()
 if (p2%path() /= with_suffix("my/file.h5", ".hdf5")) error stop "with_suffix() failed: " // p2%path()
 
-print *, "OK: pathlib: manip"
-
 end subroutine test_manip
+
+
+subroutine test_exists()
+
+type(path_t) :: p1
+
+p1 = path_t(cwd())
+
+if(.not. p1%exists()) error stop "%exists() failed"
+if(.not. exists(cwd())) error stop "exists(cwd) failed"
+
+end subroutine test_exists
 
 
 subroutine test_is_dir()
@@ -159,9 +173,6 @@ endif
 
 p1 = path_t(".")
 
-if(.not. p1%exists()) error stop "%exists() failed"
-if(.not. exists(".")) error stop "exists('.') failed"
-
 if(.not. p1%is_dir()) error stop "did not detect '.' as directory"
 if(p1%is_file()) error stop "detected '.' as file"
 
@@ -174,8 +185,6 @@ call p2%unlink()
 
 p3 = path_t("not-exist-dir")
 if(p3%is_dir()) error stop "not-exist-dir should not exist"
-
-print *," OK: pathlib: is_dir"
 
 end subroutine test_is_dir
 
@@ -200,8 +209,6 @@ else
   p2 = path_t("/")
   if (p2%is_absolute()) error stop p2%path() // "on Windows is not absolute"
 endif
-
-print *, "OK: pathlib: is_absolute"
 
 end subroutine test_absolute
 
