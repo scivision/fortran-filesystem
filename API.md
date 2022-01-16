@@ -62,7 +62,7 @@ call p%touch()
 call touch("myfile.ext")
 ```
 
-Delete file
+Delete file, empty directory, or symbolic link (the target of a symbolic link is not deleted).
 
 ```fortran
 call p%unlink()
@@ -76,6 +76,14 @@ write text in character variable to file (overwriting existing file)
 call p%write_text(text)
 ! or
 call write_text(filename, text)
+```
+
+create symbolic link to file or directory:
+
+```fortran
+call p%create_symlink(link)
+! or
+call create_symlink(target, link)
 ```
 
 ## path_t
@@ -183,6 +191,14 @@ Error stop if directory does not exist
 call assert_is_dir("my/dir")
 ```
 
+Is "path" a file or directory (or a symbolic link to existing file or directory):
+
+```fortran
+p%exists()
+! or
+exists("my/file.txt")
+```
+
 Does file exist:
 
 ```fortran
@@ -197,8 +213,7 @@ Error stop if file does not exist
 call assert_is_file("my/dir")
 ```
 
-Is path a symbolic link -- for POSIX systems only.
-Windows requires additional pathlib development -- `is_symlink()` is always .false. on Windows for now.
+Is path a symbolic link:
 
 ```fortran
 p%is_symlink()

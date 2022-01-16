@@ -25,6 +25,11 @@ import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
 end function fs_remove
 
+logical(c_bool) function fs_exists(path) bind(C, name="exists")
+import c_bool, c_char
+character(kind=c_char), intent(in) :: path(*)
+end function fs_exists
+
 end interface
 
 contains
@@ -51,6 +56,16 @@ else
 endif
 
 end procedure create_symlink
+
+
+module procedure exists
+
+character(kind=c_char, len=:), allocatable :: cpath
+
+cpath = expanduser(path) // C_NULL_CHAR
+exists = fs_exists(cpath)
+
+end procedure exists
 
 
 module procedure unlink

@@ -1,7 +1,7 @@
 program test_pathlib
 
 use pathlib, only : path_t, file_name, join, stem, suffix, root, cwd, &
-is_absolute, with_suffix, relative_to, is_dir, sys_posix
+is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists
 
 implicit none (type, external)
 
@@ -158,6 +158,9 @@ else
 endif
 
 p1 = path_t(".")
+
+if(.not. p1%exists()) error stop "%exists() failed"
+if(.not. exists(".")) error stop "exists('.') failed"
 
 if(.not. p1%is_dir()) error stop "did not detect '.' as directory"
 if(p1%is_file()) error stop "detected '.' as file"

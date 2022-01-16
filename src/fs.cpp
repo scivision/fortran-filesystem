@@ -16,3 +16,7 @@ extern "C" void create_symlink(const char* target, const char* link) {
 extern "C" void create_directory_symlink(const char* target, const char* link) {
   std::filesystem::create_directory_symlink(target, link);
 }
+
+extern "C" bool exists(const char* path) {
+  return std::filesystem::exists(path);
+}

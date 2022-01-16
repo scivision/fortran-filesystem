@@ -7,7 +7,8 @@ private
 public :: path_t  !< base class
 public :: home, canonical, cwd !< utility procedures
 public :: as_posix, as_windows, drop_sep, expanduser, &
-is_absolute, is_dir, is_file, is_exe, is_symlink, join, &
+is_absolute, is_dir, is_file, is_exe, is_symlink, exists, &
+join, &
 copy_file, mkdir, &
 file_parts, relative_to, resolve, root, same_file, size_bytes, unlink, &
 file_name, parent, stem, suffix, with_suffix, &
@@ -28,6 +29,7 @@ contains
 procedure, public :: path=>get_path, &
 length, join=>pathlib_join, parts=>pathlib_parts, relative_to=>pathlib_relative_to, &
 drop_sep=>pathlib_drop_sep, &
+exists=>pathlib_exists, &
 is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, &
 is_symlink=>pathlib_is_symlink, create_symlink=>pathlib_create_symlink, &
 copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
@@ -240,6 +242,10 @@ end function pathlib_same_file
 module impure logical function same_file(path1, path2)
 character(*), intent(in) :: path1, path2
 end function same_file
+
+module impure logical function pathlib_exists(self)
+class(path_t), intent(in) :: self
+end function pathlib_exists
 
 module impure logical function pathlib_is_dir(self)
 class(path_t), intent(in) :: self
@@ -473,6 +479,11 @@ end function is_symlink
 module impure subroutine create_symlink(tgt, link)
 character(*), intent(in) :: tgt, link
 end subroutine create_symlink
+
+module impure logical function exists(path)
+!! a file or directory exists
+character(*), intent(in) :: path
+end function exists
 
 
 module impure subroutine unlink(path)
