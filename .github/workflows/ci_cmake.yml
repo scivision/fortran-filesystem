@@ -11,69 +11,25 @@ on:
 
 jobs:
 
-  linux:
+  linux-gcc:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: install ninja
-      run: |
-        sudo apt update
-        sudo apt install ninja-build
-
-    - run: cmake --preset multi
-
-    - run: cmake --build --preset debug
-    - run: ctest --preset debug -V
-
-    - run: cmake --build --preset release
-    - run: ctest --preset release -V
-
-
-  linux-gcc8:
-    runs-on: ubuntu-latest
-    needs: linux
-    timeout-minutes: 5
+    strategy:
+      matrix:
+        gcc-version: [7, 8, 9, 10, 11]
 
     env:
-      CC: gcc-8
-      FC: gfortran-8
+      CC: gcc-${{ matrix.gcc-version }}
+      FC: gfortran-${{ matrix.gcc-version }}
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: install ninja
+    - name: install ninja and compilers
       run: |
         sudo apt update
-        sudo apt install ninja-build gcc-8 gfortran-8
-
-    - run: cmake --preset multi
-
-    - run: cmake --build --preset debug
-    - run: ctest --preset debug -V
-
-    - run: cmake --build --preset release
-    - run: ctest --preset release -V
-
-
-  linux-gcc9:
-    runs-on: ubuntu-latest
-    needs: linux
-    timeout-minutes: 5
-
-    env:
-      CC: gcc-9
-      FC: gfortran-9
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: install ninja
-      run: |
-        sudo apt update
-        sudo apt install ninja-build gcc-9 gfortran-9
+        sudo apt install ninja-build gcc-${{ matrix.gcc-version }} gfortran-${{ matrix.gcc-version }}
 
     - run: cmake --preset multi
 
@@ -86,6 +42,7 @@ jobs:
 
   linux-coverage:
     runs-on: ubuntu-latest
+    needs: linux-gcc
     timeout-minutes: 10
 
     steps:
@@ -111,6 +68,7 @@ jobs:
 
   mac:
     runs-on: macos-latest
+    needs: linux-gcc
     timeout-minutes: 10
 
     env:
@@ -132,6 +90,7 @@ jobs:
 
   windows:
     runs-on: windows-latest
+    needs: linux-gcc
     timeout-minutes: 10
 
     defaults:

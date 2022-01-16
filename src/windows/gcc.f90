@@ -12,6 +12,7 @@ module procedure is_symlink
 !! * directory junction IO_REPARSE_TAG_MOUNT_POINT
 !! C stdlib lstat() does not exist on Windows even with MinGW
 !! C++ Boost and Python os.stat have implemented symlinks on Windows.
+!! C++17 filesystem does not yet work with symlinks on Windows with GCC.
 
 is_symlink = .false.
 

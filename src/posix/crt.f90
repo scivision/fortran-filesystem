@@ -72,7 +72,7 @@ if (len_trim(wk) < 1) error stop 'pathlib:mkdir: must specify directory to creat
 
 if(is_dir(wk)) return
 
-pts = file_parts(wk)
+call file_parts(wk, fparts=pts)
 
 wk = trim(pts(1))
 if(.not.is_dir(wk)) then

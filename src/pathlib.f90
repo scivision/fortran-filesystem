@@ -9,7 +9,7 @@ public :: home, canonical, cwd !< utility procedures
 public :: as_posix, as_windows, drop_sep, expanduser, &
 is_absolute, is_dir, is_file, is_exe, is_symlink, join, &
 copy_file, mkdir, &
-parts, relative_to, resolve, root, same_file, size_bytes, unlink, &
+file_parts, relative_to, resolve, root, same_file, size_bytes, unlink, &
 file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
 get_filename, make_absolute, &
@@ -39,11 +39,6 @@ unlink=>pathlib_unlink, size_bytes=>pathlib_size_bytes, &
 read_text=>pathlib_read_text, write_text=>pathlib_write_text
 
 end type path_t
-
-interface parts
-  module procedure file_parts
-end interface
-
 
 interface path_t
   module procedure set_path
@@ -210,12 +205,13 @@ class(path_t), intent(in) :: self
 character(:), allocatable :: pathlib_parts(:)
 end function pathlib_parts
 
-module pure function file_parts(path)
+module pure subroutine file_parts(path, fparts)
 !! split path into up to 1000 parts (arbitrary limit)
 !! all path separators are discarded, except the leftmost if present
 character(*), intent(in) :: path
-character(:), allocatable :: file_parts(:)
-end function file_parts
+character(:), allocatable, intent(out) :: fparts(:)
+!! allocatable, intent(out) because we do want to implicitly deallocate first
+end subroutine file_parts
 
 end interface
 

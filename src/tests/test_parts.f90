@@ -1,7 +1,7 @@
 program test_parts
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use pathlib, only : path_t, parts
+use pathlib, only : path_t, file_parts
 
 implicit none (type, external)
 
@@ -9,18 +9,25 @@ type(path_t) :: p1
 
 character(:), dimension(:), allocatable :: pts, fpts
 
-pts = parts("")
+call file_parts("", pts)
 if (size(pts) /= 0) error stop "empty size"
 if (len(pts) /= 0) error stop "empty len"
 
-pts = parts("/")
+call file_parts("/", pts)
 if (size(pts) /= 1) error stop "slash size"
 if (len(pts) /= 1) error stop "slash len"
 
-pts = parts("idempotent")
+call file_parts("idempotent", pts)
 if (size(pts) /= 1) error stop "idempotent size"
 if (len(pts(1)) /= 10) error stop "idempotent len"
 if (pts(1) /= "idempotent") error stop "idempotent"
+
+call file_parts("a1/b23/c456", fpts)
+if(size(fpts) /= 3) error stop "no_startend fcn split wrong size"
+if(len(fpts(1)) /= 4) error stop "no_startend len parts()"
+if(fpts(1) /= "a1") error stop "no_startend 1 parts(): " // fpts(1)
+if(fpts(2) /= "b23") error stop "no_startend 2 parts(): " // fpts(2)
+if(fpts(3) /= "c456") error stop "no_startend 3 parts(): " // fpts(3)
 
 p1 = path_t("a1/b23/c456")
 pts = p1%parts()
@@ -29,13 +36,6 @@ if(len(pts(1)) /= 4) error stop "no_startend len %parts"
 if(pts(1) /= "a1") error stop "no_startend 1 %parts: " // pts(1)
 if(pts(2) /= "b23") error stop "no_startend 2 %parts: " // pts(2)
 if(pts(3) /= "c456") error stop "no_startend 3 %parts: " // pts(3)
-
-fpts = parts(p1%path())
-if(size(fpts) /= 3) error stop "no_startend fcn split wrong size"
-if(len(fpts(1)) /= 4) error stop "no_startend len parts()"
-if(fpts(1) /= "a1") error stop "no_startend 1 parts(): " // pts(1)
-if(fpts(2) /= "b23") error stop "no_startend 2 parts(): " // pts(2)
-if(fpts(3) /= "c456") error stop "no_startend 3 parts(): " // pts(3)
 
 if(any(fpts /= pts)) then
   write(stderr,*) "ERROR: parts(): ", fpts, " /= %parts(): ", pts
@@ -51,7 +51,7 @@ if(pts(1) /= "/") error stop "start 1"
 if(pts(2) /= "a1") error stop "start 2"
 if(pts(3) /= "b23") error stop "start 3"
 if(pts(4) /= "c456") error stop "start 4"
-fpts = parts("/a1/b23/c456")
+call file_parts("/a1/b23/c456", fpts)
 if(size(fpts) /= 4) error stop "start fcn split"
 if(any(fpts /= pts)) error stop "start fcn /= OO"
 

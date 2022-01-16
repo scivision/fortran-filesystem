@@ -254,19 +254,21 @@ drop_sep("my//path")  !< "my/path"
 
 Split path_t into path components.
 Path separators are discarded.
+`file_parts()` is a subroutine because GCC < 9 was buggy with `character(:), allocatable, dimension(:)` functions.
+The functional method %parts() was OK at least to GCC >= 7.5.
 
 ```fortran
-character(:), allocatable :: parts
+character(:), allocatable :: pts
 
 p = path_t("/a1/b23/c456/")
 
-parts = p%parts()
+pts = p%parts()
 
-! parts == [character(4) :: "a1", "b23", "c456"]
+! pts == [character(4) :: "a1", "b23", "c456"]
 
 ! OR
 
-pts = parts("/a1/b23/c456/")
+call file_parts("/a1/b23/c456/", pts)
 
 ! pts == [character(4) :: "a1", "b23", "c456"]
 ```

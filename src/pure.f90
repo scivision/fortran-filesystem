@@ -49,8 +49,8 @@ if(s1 == s2) then
   return
 endif
 
-p1_pts = file_parts(s1)
-p2_pts = file_parts(s2)
+call file_parts(s1, fparts=p1_pts)
+call file_parts(s2, fparts=p2_pts)
 
 N1 = size(p1_pts)
 N2 = size(p2_pts)
