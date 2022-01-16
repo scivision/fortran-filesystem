@@ -21,6 +21,7 @@ jobs:
 
     env:
       CC: gcc-${{ matrix.gcc-version }}
+      CXX: g++-${{ matrix.gcc-version }}
       FC: gfortran-${{ matrix.gcc-version }}
 
     steps:
@@ -29,7 +30,7 @@ jobs:
     - name: install ninja and compilers
       run: |
         sudo apt update
-        sudo apt install ninja-build gcc-${{ matrix.gcc-version }} gfortran-${{ matrix.gcc-version }}
+        sudo apt install ninja-build gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }} gfortran-${{ matrix.gcc-version }}
 
     - run: cmake --preset multi
 
