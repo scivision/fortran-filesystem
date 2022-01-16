@@ -28,7 +28,7 @@ COMMAND test_symlink ${CMAKE_CURRENT_LIST_FILE} ${symlink_path}
 
 set_tests_properties(symlink PROPERTIES
 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-DISABLED $<NOT:$<BOOL:${HAVE_LSTAT}>>
+DISABLED $<NOT:$<BOOL:${HAVE_SYMLINK}>>
 REQUIRED_FILES ${symlink_path}
 )
 
