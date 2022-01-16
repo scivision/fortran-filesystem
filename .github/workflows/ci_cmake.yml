@@ -71,8 +71,14 @@ jobs:
     needs: linux-gcc
     timeout-minutes: 10
 
+    strategy:
+      matrix:
+        compiler: [ {cpp: g++-11, c: gcc-11}, {cpp: clang++, c: clang} ]
+
     env:
       FC: gfortran-11
+      CC: ${{ matrix.compiler.c }}
+      CXX: ${{ matrix.compiler.cpp }}
 
     steps:
     - uses: actions/checkout@v2

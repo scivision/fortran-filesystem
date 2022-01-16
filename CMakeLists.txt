@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19...3.22)
 
 project(FortranPathlib
-LANGUAGES C Fortran
+LANGUAGES C CXX Fortran
 VERSION 2.5.0
 DESCRIPTION "Platform independent, object-oriented Fortran filesystem path manipulation library"
 HOMEPAGE_URL "https://github.com/scivision/fortran-pathlib"
@@ -10,6 +10,8 @@ HOMEPAGE_URL "https://github.com/scivision/fortran-pathlib"
 include(CTest)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
+
+set(CMAKE_CXX_STANDARD 17)
 
 include(cmake/compilers.cmake)
 include(cmake/options.cmake)
