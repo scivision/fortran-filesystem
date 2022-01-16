@@ -83,6 +83,11 @@ target_link_libraries(test_find PRIVATE pathlib)
 add_test(NAME Find COMMAND test_find)
 
 # --- props
+set_target_properties(test_pathlib test_find test_rw_text test_filesize test_fileops test_exe test_symlink test_expanduser test_canonical test_pathlib_parts
+PROPERTIES
+LINKER_LANGUAGE Fortran
+)
+# for Intel compiler
 
 set_tests_properties(pathlib Canonical FileOps FileParts Find ExeDetect FileSize Expanduser ReadWriteText symlink
 PROPERTIES
