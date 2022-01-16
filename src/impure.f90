@@ -8,20 +8,6 @@ module procedure pathlib_unlink
 call unlink(self%path_str)
 end procedure pathlib_unlink
 
-module procedure unlink
-integer :: u
-
-if(is_dir(filename)) then
-  error stop "pathlib:unlink: cannot delete directory: " // filename
-elseif(.not. is_file(filename)) then
-  write(stderr,'(a)') "pathlib:unlink: " // filename // " is not a file, so nothing to delete."
-  return
-endif
-
-open(newunit=u, file=filename, status='old')
-close(u, status='delete')
-end procedure unlink
-
 
 module procedure pathlib_resolve
 pathlib_resolve%path_str = resolve(self%path_str)
@@ -69,6 +55,10 @@ end procedure assert_is_file
 module procedure pathlib_is_symlink
 pathlib_is_symlink = is_symlink(self%path_str)
 end procedure pathlib_is_symlink
+
+module procedure pathlib_create_symlink
+call create_symlink(self%path_str, link)
+end procedure pathlib_create_symlink
 
 
 module procedure pathlib_size_bytes

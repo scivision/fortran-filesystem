@@ -1,33 +1,47 @@
 program test_symlink
 
-use pathlib, only : path_t, is_symlink
+use pathlib, only : path_t, is_symlink, parent, create_symlink, unlink
 
 implicit none (type, external)
 
-integer :: i
-type(path_t) :: p_sym, p_nonsym
+integer :: i, L
+type(path_t) :: p_sym, p_tgt
 character(2048) :: buf
 
-character(:), allocatable :: non_symlink_path, symlink_path
+character(:), allocatable :: tgt, link, linko
 
-if(command_argument_count() /= 2) error stop "usage: test_symlink <non-symlink> <symlink>"
+call get_command_argument(0, buf, status=i, length=L)
+if(i /= 0 .or. L == 0) error stop "could not get own exe name"
 
-call get_command_argument(1, buf, status=i)
-if(i /= 0) error stop "please specify non-symlink path to test"
-non_symlink_path = trim(buf)
-p_nonsym = path_t(non_symlink_path)
+tgt = trim(buf)
+p_tgt = path_t(tgt)
 
-call get_command_argument(2, buf, status=i)
-if(i /= 0) error stop "please specify symlink path to test"
-symlink_path = trim(buf)
-p_sym = path_t(symlink_path)
+link = parent(tgt) // "/test.link"
+linko = parent(tgt) // "/test_oo.link"
+
+! print *, "TRACE:test_symlink: target: " // tgt
+! print *, "TRACE:test_symlink: link: " // link
+
+p_sym = path_t(linko)
+
+!if (is_symlink(link)) then
+  print *, "deleting old symlink " // link
+  call unlink(link)
+!endif
+call create_symlink(tgt, link)
+
+if (p_sym%is_symlink()) then
+  print *, "deleting old symlink " // p_sym%path()
+  call p_sym%unlink()
+endif
+call p_tgt%create_symlink(linko)
 
 if(is_symlink("not-exist-path.nobody")) error stop "is_symlink() should be false for non-existant path"
 
-if(is_symlink(non_symlink_path)) error stop "is_symlink() should be false for non-symlink path"
-if(p_nonsym%is_symlink()) error stop "%is_symlink() should be false for non-symlink path"
+if(is_symlink(tgt)) error stop "is_symlink() should be false for non-symlink path"
+if(p_tgt%is_symlink()) error stop "%is_symlink() should be false for non-symlink path"
 
-if(.not. is_symlink(symlink_path)) error stop "is_symlink() should be true for symlink path"
+if(.not. is_symlink(link)) error stop "is_symlink() should be true for symlink path"
 if(.not. p_sym%is_symlink()) error stop "%is_symlink() should be trum for symlink path"
 
 end program

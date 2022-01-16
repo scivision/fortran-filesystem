@@ -14,7 +14,7 @@ file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
 get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
-sys_posix, touch
+sys_posix, touch, create_symlink
 !! functional API
 
 type :: path_t
@@ -28,7 +28,8 @@ contains
 procedure, public :: path=>get_path, &
 length, join=>pathlib_join, parts=>pathlib_parts, relative_to=>pathlib_relative_to, &
 drop_sep=>pathlib_drop_sep, &
-is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, is_symlink=>pathlib_is_symlink, &
+is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, &
+is_symlink=>pathlib_is_symlink, create_symlink=>pathlib_create_symlink, &
 copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
 touch=>pathlib_touch, &
 parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>pathlib_root, suffix=>pathlib_suffix, &
@@ -232,11 +233,6 @@ module impure subroutine pathlib_unlink(self)
 class(path_t), intent(in) :: self
 end subroutine pathlib_unlink
 
-module impure subroutine unlink(filename)
-!! delete the file
-character(*), intent(in) :: filename
-end subroutine unlink
-
 module impure logical function pathlib_same_file(self, other)
 class(path_t), intent(in) :: self, other
 end function pathlib_same_file
@@ -252,6 +248,11 @@ end function pathlib_is_dir
 module impure logical function pathlib_is_symlink(self)
 class(path_t), intent(in) :: self
 end function pathlib_is_symlink
+
+module impure subroutine pathlib_create_symlink(self, link)
+class(path_t), intent(in) :: self
+character(*), intent(in) :: link
+end subroutine pathlib_create_symlink
 
 module impure logical function pathlib_is_file(self)
 class(path_t), intent(in) :: self
@@ -461,13 +462,23 @@ end function cwd
 end interface
 
 
-interface !< {posix,windows}/{gcc,intel}.f90
+interface !< fs_cpp.f90 (or compiler/{intel,gcc}.f90)
 
 module impure logical function is_symlink(path)
 !! .true.: "path" is a symbolic link
 !! .false.: "path" is not a symbolic link, or does not exist
 character(*), intent(in) :: path
 end function is_symlink
+
+module impure subroutine create_symlink(tgt, link)
+character(*), intent(in) :: tgt, link
+end subroutine create_symlink
+
+
+module impure subroutine unlink(path)
+!! delete the file, symbolic link, or empty directory
+character(*), intent(in) :: path
+end subroutine unlink
 
 end interface
 

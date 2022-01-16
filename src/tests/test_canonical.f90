@@ -1,6 +1,5 @@
 program test_canonical
 
-use, intrinsic :: iso_c_binding, only : c_null_char
 use pathlib, only : path_t, cwd, same_file, resolve
 
 implicit none (type, external)

@@ -13,6 +13,9 @@ module procedure is_dir
 inquire(file=expanduser(path), exist=is_dir)
 end procedure is_dir
 
+module procedure unlink
+error stop "pathlib: unlink " // tail
+end procedure unlink
 
 module procedure is_exe
 is_exe = .false.

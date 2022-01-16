@@ -17,19 +17,9 @@ add_test(NAME Expanduser COMMAND test_expanduser)
 add_executable(test_symlink test_symlink.f90)
 target_link_libraries(test_symlink PRIVATE pathlib)
 
-set(symlink_path ${CMAKE_CURRENT_BINARY_DIR}/test_symlink.f90.link)
-
-add_custom_command(TARGET test_symlink POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/test_symlink.f90 ${symlink_path})
-
-add_test(NAME symlink
-COMMAND test_symlink ${CMAKE_CURRENT_LIST_FILE} ${symlink_path}
-)
-
+add_test(NAME symlink COMMAND test_symlink)
 set_tests_properties(symlink PROPERTIES
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 DISABLED $<NOT:$<BOOL:${HAVE_SYMLINK}>>
-REQUIRED_FILES ${symlink_path}
 )
 
 # --- canonical
