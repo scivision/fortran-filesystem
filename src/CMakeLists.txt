@@ -18,27 +18,17 @@ $<$<BOOL:${HAVE_UTIME_H}>:HAVE_UTIME_H>
 $<$<BOOL:${HAVE_SYS_UTIME_H}>:HAVE_SYS_UTIME_H>
 )
 
-# --- lstat() symbolic link information
+# --- C++17 filesystem OR lstat() symbolic link information
 
-
-if(HAVE_LSTAT)
-  if(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
-    target_sources(pathlib PRIVATE posix/gcc.f90)
-  elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
-    target_sources(pathlib PRIVATE posix/intel.f90)
-  else()
-    # already handled by compiler/unknown.f90
-  endif()
+if(HAVE_CXX17_FILESYSTEM)
+  target_sources(pathlib PRIVATE fs.cpp fs_cpp.f90)
+elseif(HAVE_LSTAT)
+  target_sources(pathlib PRIVATE
+  $<$<Fortran_COMPILER_ID:GNU>:posix/gcc.f90>
+  $<$<Fortran_COMPILER_ID:Intel,IntelLLVM>:posix/intel.f90>
+  )
 else()
-  if(HAS_CXX17_FILESYSTEM)
-    target_sources(pathlib PRIVATE fs.cpp fs_cpp.f90)
-  elseif(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
-    target_sources(pathlib PRIVATE windows/gcc.f90)
-  elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
-    target_sources(pathlib PRIVATE windows/intel.f90)
-  else()
-    # already handled by compiler/unknown.f90
-  endif()
+  target_sources(pathlib PRIVATE compiler/unknown.f90)
 endif()
 
 # --- OS or OS-specific compiler dependent

@@ -1,6 +1,13 @@
 include(CheckIncludeFile)
 include(CheckSymbolExists)
 include(CheckCXXSymbolExists)
+include(CMakeDependentOption)
+include(CheckSourceCompiles)
+include(CheckSourceRuns)
+
+check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXX17_FILESYSTEM)
+
+cmake_dependent_option(CPP_FS "use C++17 filesystem" true ${HAVE_CXX17_FILESYSTEM} false)
 
 # --- utime() update file time
 
@@ -20,19 +27,17 @@ endif()
 
 # --- C++17 filesystem or C lstat() symbolic link information
 
-check_include_file(sys/stat.h HAVE_SYS_STAT_H)
-if(HAVE_SYS_STAT_H)
-  check_symbol_exists(lstat sys/stat.h HAVE_LSTAT)
-endif()
-
-if(HAVE_LSTAT)
-  if(CMAKE_Fortran_COMPILER_ID MATCHES "(GNU|^Intel)")
-    set(HAVE_SYMLINK true)
-  endif()
+if(CPP_FS)
+  file(READ ${CMAKE_CURRENT_LIST_DIR}/check_fs_symlink.cpp symlink_src)
+  check_source_runs(CXX "${symlink_src}" HAVE_SYMLINK)
 else()
-  check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAS_CXX17_FILESYSTEM)
-  if(HAS_CXX17_FILESYSTEM)
-    set(HAVE_SYMLINK true)
+  check_include_file(sys/stat.h HAVE_SYS_STAT_H)
+  if(HAVE_SYS_STAT_H)
+    check_symbol_exists(lstat sys/stat.h HAVE_LSTAT)
+  endif()
+  if(HAVE_LSTAT)
+    file(READ ${CMAKE_CURRENT_LIST_DIR}/check_lstat.f90 lstat_src)
+    check_source_compiles(Fortran ${lstat_src} HAVE_SYMLINK)
   endif()
 endif()
 

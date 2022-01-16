@@ -16,6 +16,7 @@ set(CMAKE_CXX_STANDARD 17)
 include(cmake/compilers.cmake)
 include(cmake/options.cmake)
 
+# --- pathlib binary
 add_library(pathlib)
 set_target_properties(pathlib PROPERTIES
 Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include
