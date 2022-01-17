@@ -22,6 +22,7 @@ $<$<BOOL:${HAVE_SYS_UTIME_H}>:HAVE_SYS_UTIME_H>
 
 if(HAVE_CXX17_FILESYSTEM)
   target_sources(pathlib PRIVATE fs.cpp fs_cpp.f90)
+  target_link_libraries(pathlib PUBLIC ${libfs})
 else()
   if(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
     target_sources(pathlib PRIVATE compiler/gcc_no_cpp_fs.f90)

@@ -4,7 +4,15 @@ include(CheckCXXSymbolExists)
 include(CheckSourceCompiles)
 include(CheckSourceRuns)
 
+set(libfs)
+
 if(CPP_FS)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL GNU AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
+    set(libfs stdc++fs)
+  endif()
+
+  set(CMAKE_REQUIRED_LIBRARIES ${libfs})
+
   check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXXFS_MACRO)
   if(HAVE_CXXFS_MACRO)
     check_source_runs(CXX
