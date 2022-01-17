@@ -18,6 +18,8 @@ subroutine test_exists()
 
 type(path_t) :: p1
 
+if(exists("")) error stop "empty does not exist"
+
 p1 = path_t(cwd())
 
 if(.not. p1%exists()) error stop "%exists() failed"
