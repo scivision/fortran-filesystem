@@ -32,16 +32,19 @@ type(path_t) :: p1
 character(:), allocatable :: rel
 
 rel = relative_to("/", "")
-if(rel /= "") error stop "should be empty: " // rel
+if(rel /= "") error stop "empty base should be empty: " // rel
 
 rel = relative_to("", "")
-if(rel /= "") error stop "should be empty: " // rel
+if(rel /= "") error stop "empty path and base should be empty: " // rel
 
 rel = relative_to("", "/")
-if(rel /= "") error stop "should be empty: " // rel
+if(rel /= "") error stop "empty path should be empty: " // rel
 
-rel = relative_to("/a", "b")
-if(rel /= "") error stop "one abs, one rel should be empty: " // rel
+rel = relative_to("/a/b", "c")
+if(rel /= "") error stop "abs path with rel base should be empty: " // rel
+
+rel = relative_to("c", "/a/b")
+if(rel /= "") error stop "rel path with abs base should be empty: " // rel
 
 rel = relative_to("/a/b", "/a/b")
 if(rel /= ".") error stop "same path should be . "  // rel

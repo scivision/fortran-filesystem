@@ -113,18 +113,30 @@ end procedure copy_file
 module procedure relative_to
 
 character(kind=c_char, len=:), allocatable :: s1, s2
+character(:), allocatable :: a1, b1
 character(kind=c_char) :: rel(2048)
 integer(C_SIZE_T) :: N, i
 character(2048) :: buf
 
-if(len_trim(a) == 0 .or. len_trim(b) == 0) then
+a1 = expanduser(a)
+b1 = expanduser(b)
+
+!> library bug handling
+if(len_trim(a1) == 0 .or. len_trim(b1) == 0) then
 !! undefined case, avoid bugs with MacOS
   relative_to = ""
   return
 endif
 
-s1 = expanduser(a) // C_NULL_CHAR
-s2 = expanduser(b) // C_NULL_CHAR
+if(is_absolute(a1) .neqv. is_absolute(b1)) then
+!! cannot be relative, avoid bugs with MacOS
+  relative_to = ""
+  return
+endif
+
+!> interface to C
+s1 = a1 // C_NULL_CHAR
+s2 = b1 // C_NULL_CHAR
 
 N = fs_relative_to(s1, s2, rel)
 
@@ -133,6 +145,7 @@ do i = 1, N
   buf(i:i) = rel(i)
 end do
 
+!> C++ filesystem returns preferred separator, so make posix
 relative_to = as_posix(buf)
 
 end procedure relative_to
