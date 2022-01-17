@@ -32,11 +32,10 @@ extern "C" bool copy_file(const char* source, const char* destination, bool over
 
   if (overwrite) {
 
-#ifdef __MINGW32__
-  // Windows MinGW GCC 11 has bug with overwrite_existing failing on overwrite
+// WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
   if(fs::exists(destination)) fs::remove(destination);
-#endif
-    opt |= fs::copy_options::overwrite_existing;
+
+  opt |= fs::copy_options::overwrite_existing;
   }
 
   return fs::copy_file(source, destination, opt);
