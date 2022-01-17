@@ -51,9 +51,6 @@ print *, "mkdir: testing " // p2
 call mkdir(p2)
 if(.not. is_dir(p2)) error stop "mkdir: full_posix: " // p2
 
-
-print *, "OK: pathlib: mkdir"
-
 end subroutine test_mkdir
 
 

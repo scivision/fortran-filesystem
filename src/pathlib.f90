@@ -10,13 +10,18 @@ public :: as_posix, as_windows, drop_sep, expanduser, &
 is_absolute, is_dir, is_file, is_exe, is_symlink, exists, &
 join, &
 copy_file, mkdir, &
-file_parts, relative_to, resolve, root, same_file, size_bytes, unlink, &
+file_parts, relative_to, resolve, root, same_file, size_bytes, &
 file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
 get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
-sys_posix, touch, create_symlink
+sys_posix, touch, create_symlink, &
+remove
 !! functional API
+
+interface remove
+  module procedure f_unlink
+end interface remove
 
 type :: path_t
 
@@ -38,7 +43,7 @@ parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>
 as_windows=>pathlib_as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
 with_suffix=>pathlib_with_suffix, &
 resolve=>pathlib_resolve, same_file=>pathlib_same_file, is_exe=>pathlib_is_exe, &
-unlink=>pathlib_unlink, size_bytes=>pathlib_size_bytes, &
+remove=>pathlib_unlink, size_bytes=>pathlib_size_bytes, &
 read_text=>pathlib_read_text, write_text=>pathlib_write_text
 
 end type path_t
@@ -416,7 +421,7 @@ end interface
 
 
 interface !< {posix,windows}/sys.f90
-!! implemented via system call since CRT doesn't have this functionality
+!! if not C++17 filesystem, fallback system call since C stdlib doesn't have
 module impure subroutine copy_file(src, dest, overwrite)
 !! copy single file from src to dest
 !! OVERWRITES existing destination file
@@ -485,11 +490,10 @@ module impure logical function exists(path)
 character(*), intent(in) :: path
 end function exists
 
-
-module impure subroutine unlink(path)
+module impure subroutine f_unlink(path)
 !! delete the file, symbolic link, or empty directory
 character(*), intent(in) :: path
-end subroutine unlink
+end subroutine f_unlink
 
 end interface
 

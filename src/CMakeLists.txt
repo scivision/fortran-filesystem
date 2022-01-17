@@ -22,13 +22,20 @@ $<$<BOOL:${HAVE_SYS_UTIME_H}>:HAVE_SYS_UTIME_H>
 
 if(HAVE_CXX17_FILESYSTEM)
   target_sources(pathlib PRIVATE fs.cpp fs_cpp.f90)
-elseif(HAVE_LSTAT)
-  target_sources(pathlib PRIVATE
-  $<$<Fortran_COMPILER_ID:GNU>:posix/gcc.f90>
-  $<$<Fortran_COMPILER_ID:Intel,IntelLLVM>:posix/intel.f90>
-  )
 else()
-  target_sources(pathlib PRIVATE compiler/unknown.f90)
+  if(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
+    target_sources(pathlib PRIVATE compiler/gcc_no_cpp_fs.f90)
+  elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
+    target_sources(pathlib PRIVATE compiler/intel_no_cpp_fs.f90)
+  endif()
+
+  if(WIN32)
+    target_sources(pathlib PRIVATE windows/sys.f90)
+  else()
+    target_sources(pathlib PRIVATE posix/sys.f90)
+  endif()
+
+  target_sources(pathlib PRIVATE compiler/no_fs_cpp.f90)
 endif()
 
 # --- OS or OS-specific compiler dependent

@@ -18,9 +18,6 @@ print *, "OK: pathlib: filesep"
 call test_manip()
 print *, "OK: pathlib: manip"
 
-call test_exists()
-print *, "OK pathlib: exists"
-
 call test_is_dir()
 print *," OK: pathlib: is_dir"
 
@@ -141,18 +138,6 @@ if (p2%path() /= with_suffix("my/file.h5", ".hdf5")) error stop "with_suffix() f
 end subroutine test_manip
 
 
-subroutine test_exists()
-
-type(path_t) :: p1
-
-p1 = path_t(cwd())
-
-if(.not. p1%exists()) error stop "%exists() failed"
-if(.not. exists(cwd())) error stop "exists(cwd) failed"
-
-end subroutine test_exists
-
-
 subroutine test_is_dir()
 
 character(:), allocatable :: r
@@ -181,7 +166,7 @@ open(newunit=i, file=p2%path(), status='replace')
 close(i)
 
 if (p2%is_dir()) error stop "detected file as directory"
-call p2%unlink()
+call p2%remove()
 
 p3 = path_t("not-exist-dir")
 if(p3%is_dir()) error stop "not-exist-dir should not exist"

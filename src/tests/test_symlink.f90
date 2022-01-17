@@ -1,6 +1,6 @@
 program test_symlink
 
-use pathlib, only : path_t, is_symlink, parent, create_symlink, unlink
+use pathlib, only : path_t, is_symlink, parent, create_symlink, remove
 
 implicit none (type, external)
 
@@ -26,13 +26,13 @@ p_sym = path_t(linko)
 
 !if (is_symlink(link)) then
   print *, "deleting old symlink " // link
-  call unlink(link)
+  call remove(link)
 !endif
 call create_symlink(tgt, link)
 
 if (p_sym%is_symlink()) then
   print *, "deleting old symlink " // p_sym%path()
-  call p_sym%unlink()
+  call p_sym%remove()
 endif
 call p_tgt%create_symlink(linko)
 

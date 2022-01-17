@@ -68,7 +68,7 @@ exists = fs_exists(cpath)
 end procedure exists
 
 
-module procedure unlink
+module procedure f_unlink
 
 character(kind=c_char, len=:), allocatable :: cpath
 
@@ -77,7 +77,7 @@ logical :: e
 cpath = expanduser(path) // C_NULL_CHAR
 e = fs_remove(cpath)
 
-end procedure unlink
+end procedure f_unlink
 
 
 end submodule fs_cpp

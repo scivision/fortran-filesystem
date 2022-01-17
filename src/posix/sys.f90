@@ -20,7 +20,7 @@ ow = .false.
 if(present(overwrite)) ow = overwrite
 if (is_file(d)) then
   if(ow) then
-    call unlink(d)
+    call remove(d)
   else
     error stop "pathlib:copy_file: overwrite=.false. and destination file exists: " // d
   endif

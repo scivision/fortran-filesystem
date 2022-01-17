@@ -28,7 +28,6 @@ In all the examples, we assume "p" is a pathlib path_t.
 These subroutines are available in the "pathlib" module.
 
 Copy path to dest. Optionally, overwrite existing file.
-This is implemented with execute_command_line() because there isn't a simple function in CRT for this.
 
 ```fortran
 character(*) :: dest = "new/file.ext"
@@ -65,9 +64,9 @@ call touch("myfile.ext")
 Delete file, empty directory, or symbolic link (the target of a symbolic link is not deleted).
 
 ```fortran
-call p%unlink()
+call p%remove()
 ! or
-call unlink("my/file.txt")
+call remove("my/file.txt")
 ```
 
 write text in character variable to file (overwriting existing file)

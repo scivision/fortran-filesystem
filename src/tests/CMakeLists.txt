@@ -3,6 +3,14 @@ add_executable(test_pathlib test_pathlib.f90)
 target_link_libraries(test_pathlib PRIVATE pathlib)
 add_test(NAME pathlib COMMAND test_pathlib)
 
+# --- C++17 filesystem methods
+add_executable(test_cpp_fs test_cpp_fs.f90)
+target_link_libraries(test_cpp_fs PRIVATE pathlib)
+add_test(NAME CPP_filesystem COMMAND test_cpp_fs)
+set_tests_properties(CPP_filesystem PROPERTIES
+DISABLED $<NOT:$<BOOL:${HAVE_CXX17_FILESYSTEM}>>
+)
+
 # --- file parts
 add_executable(test_pathlib_parts test_parts.f90)
 target_link_libraries(test_pathlib_parts PRIVATE pathlib)
@@ -83,7 +91,8 @@ target_link_libraries(test_find PRIVATE pathlib)
 add_test(NAME Find COMMAND test_find)
 
 # --- props
-set_target_properties(test_pathlib test_find test_rw_text test_filesize test_fileops test_exe test_symlink test_expanduser test_canonical test_pathlib_parts
+set_target_properties(test_pathlib test_cpp_fs test_find test_rw_text test_filesize
+test_fileops test_exe test_symlink test_expanduser test_canonical test_pathlib_parts
 PROPERTIES
 LINKER_LANGUAGE Fortran
 )

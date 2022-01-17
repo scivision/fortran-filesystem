@@ -1,14 +1,21 @@
 include(CheckIncludeFile)
 include(CheckSymbolExists)
 include(CheckCXXSymbolExists)
-include(CMakeDependentOption)
 include(CheckSourceCompiles)
 include(CheckSourceRuns)
 
-check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXX17_FILESYSTEM)
-
-cmake_dependent_option(CPP_FS "use C++17 filesystem" true ${HAVE_CXX17_FILESYSTEM} false)
-
+if(CPP_FS)
+  check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXXFS_MACRO)
+  if(HAVE_CXXFS_MACRO)
+    check_source_runs(CXX
+    [=[
+    #include <filesystem>
+    int main(){ bool e = std::filesystem::exists("."); return 0; }
+    ]=]
+    HAVE_CXX17_FILESYSTEM
+    )
+  endif()
+endif()
 # --- utime() update file time
 
 check_include_file(utime.h HAVE_UTIME_H)
@@ -26,19 +33,9 @@ else()
 endif()
 
 # --- C++17 filesystem or C lstat() symbolic link information
-
-if(CPP_FS)
+if(HAVE_CXX17_FILESYSTEM)
   file(READ ${CMAKE_CURRENT_LIST_DIR}/check_fs_symlink.cpp symlink_src)
   check_source_runs(CXX "${symlink_src}" HAVE_SYMLINK)
-else()
-  check_include_file(sys/stat.h HAVE_SYS_STAT_H)
-  if(HAVE_SYS_STAT_H)
-    check_symbol_exists(lstat sys/stat.h HAVE_LSTAT)
-  endif()
-  if(HAVE_LSTAT)
-    file(READ ${CMAKE_CURRENT_LIST_DIR}/check_lstat.f90 lstat_src)
-    check_source_compiles(Fortran ${lstat_src} HAVE_SYMLINK)
-  endif()
 endif()
 
 # --- flags
@@ -56,7 +53,7 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 add_compile_options(
 -mtune=native -Wall
 $<$<CONFIG:Debug,RelWithDebInfo>:-Wextra>
-"$<$<COMPILE_LANGUAGE:Fortran>:-Wno-intrinsic-shadow;-fimplicit-none>"
+"$<$<COMPILE_LANGUAGE:Fortran>:-fimplicit-none>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug,RelWithDebInfo>>:-fcheck=all;-Werror=array-bounds>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Release>>:-fno-backtrace>"
 )

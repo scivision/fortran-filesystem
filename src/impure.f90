@@ -5,7 +5,7 @@ implicit none (type, external)
 contains
 
 module procedure pathlib_unlink
-call unlink(self%path_str)
+call f_unlink(self%path_str)
 end procedure pathlib_unlink
 
 module procedure pathlib_exists
