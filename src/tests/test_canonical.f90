@@ -1,6 +1,6 @@
 program test_canonical
 
-use pathlib, only : path_t, cwd, same_file, resolve
+use pathlib, only : path_t, cwd, same_file, resolve, mkdir
 
 implicit none (type, external)
 
@@ -44,13 +44,30 @@ if (L3 - L2 /= len(dummy) + 1) error stop 'ERROR: file was not canonicalized: ' 
 
 print *, 'OK: canon_file = ', file%path()
 
-! --- same_file
-p1 = path_t("a/c")
-p2 = path_t("a/b/../c")
+
+call test_same_file()
+print *, "OK: same_file"
+
+
+contains
+
+
+subroutine test_same_file()
+
+type(path_t) :: p1, p2
+
+call mkdir("test-a/b")
+
+p1 = path_t("test-a/c")
+call p1%touch()
+if(.not. p1%exists()) error stop "ERROR: touch same_file"
+
+p2 = path_t("test-a/b/../c")
+if(.not. p2%exists()) error stop "ERROR: exists .. same_file"
 
 if (.not. p1%same_file(p2)) error stop 'ERROR: %same_file'
 if (.not. same_file(p1%path(), p2%path())) error stop 'ERROR: same_file()'
 
+end subroutine test_same_file
 
-print *, "OK: canonical"
 end program

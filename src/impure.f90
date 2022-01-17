@@ -26,11 +26,6 @@ module procedure pathlib_same_file
 pathlib_same_file = same_file(self%path_str, other%path_str)
 end procedure pathlib_same_file
 
-module procedure same_file
-same_file = resolve(path1) == resolve(path2)
-end procedure same_file
-
-
 module procedure pathlib_is_file
 pathlib_is_file = is_file(self%path_str)
 end procedure pathlib_is_file

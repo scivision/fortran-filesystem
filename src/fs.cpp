@@ -25,6 +25,13 @@ extern "C" bool fs_remove(const char* path) {
   return fs::remove(path);
 }
 
+extern "C" bool equivalent(const char* path1, const char* path2) {
+  // check existance to avoid error if not exist
+
+  if (!fs::exists(path1) | !fs::exists(path2)) return false;
+
+  return fs::equivalent(path1, path2);
+}
 
 extern "C" bool copy_file(const char* source, const char* destination, bool overwrite) {
 

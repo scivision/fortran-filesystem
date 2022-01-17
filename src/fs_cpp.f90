@@ -30,6 +30,11 @@ import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
 end function fs_exists
 
+logical(c_bool) function fs_equivalent(path1, path2) bind(C, name="equivalent")
+import c_bool, c_char
+character(kind=c_char), intent(in) :: path1(*), path2(*)
+end function fs_equivalent
+
 logical(c_bool) function fs_copy_file(source, dest, overwrite) bind(C, name="copy_file")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: source(*), dest(*)
@@ -78,6 +83,16 @@ cpath = expanduser(path) // C_NULL_CHAR
 exists = fs_exists(cpath)
 
 end procedure exists
+
+module procedure same_file
+character(kind=c_char, len=:), allocatable :: c1, c2
+
+c1 = expanduser(path1) // C_NULL_CHAR
+c2 = expanduser(path2) // C_NULL_CHAR
+
+same_file = fs_equivalent(c1, c2)
+
+end procedure same_file
 
 
 module procedure f_unlink

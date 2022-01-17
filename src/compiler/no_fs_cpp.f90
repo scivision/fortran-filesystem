@@ -18,6 +18,11 @@ error stop "pathlib: create_symlink() requires C++17 filesystem"
 end procedure create_symlink
 
 
+module procedure same_file
+same_file = resolve(path1) == resolve(path2)
+end procedure same_file
+
+
 module procedure relative_to
 
 character(:), dimension(:), allocatable :: p1_pts, p2_pts
