@@ -17,7 +17,7 @@ call get_command_argument(1, fcn, status=i)
 if (i /= 0) error stop "invalid function name: " // trim(fcn)
 
 select case (fcn)
-case ("cwd", "home")
+case ("cwd", "home", "tempdir")
 case default
   if (command_argument_count() < 2) error stop "usage: ./pathlib <function> <path>"
   call get_command_argument(2, buf, status=i)
@@ -71,6 +71,8 @@ case ("stem")
   print '(A)', stem(buf)
 case ("suffix")
   print '(A)', suffix(buf)
+case ("tempdir")
+  print '(A)', get_tempdir()
 case ("with_suffix")
   print '(A)', with_suffix(buf, buf2)
 case default

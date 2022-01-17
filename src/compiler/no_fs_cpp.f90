@@ -17,6 +17,10 @@ module procedure create_symlink
 error stop "pathlib: create_symlink() requires C++17 filesystem"
 end procedure create_symlink
 
+module procedure get_tempdir
+error stop "pathlib: get_tempdir() requires C++17 filesystem"
+end procedure get_tempdir
+
 
 module procedure same_file
 same_file = resolve(path1) == resolve(path2)

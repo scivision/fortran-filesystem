@@ -404,6 +404,12 @@ character(:), allocatable :: cur
 cur = cwd()
 ```
 
+Get system temporary directory:
+
+```fortran
+character(:), allocatable :: get_tempdir
+```
+
 Find a file "name" under "path"
 
 ```fortran

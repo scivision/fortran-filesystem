@@ -104,3 +104,9 @@ extern "C" bool touch(const char* path) {
   return true;
 
 }
+
+
+extern "C" size_t get_tempdir(char* path) {
+  std::strcpy(path, fs::temp_directory_path().string().c_str());
+  return strlen(path);
+}

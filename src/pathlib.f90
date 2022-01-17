@@ -16,7 +16,7 @@ read_text, write_text, &
 get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
 sys_posix, touch, create_symlink, &
-remove
+remove, get_tempdir
 !! functional API
 
 interface remove
@@ -495,6 +495,12 @@ module impure subroutine f_unlink(path)
 !! delete the file, symbolic link, or empty directory
 character(*), intent(in) :: path
 end subroutine f_unlink
+
+module function get_tempdir()
+!! get system temporary directory
+character(:), allocatable :: get_tempdir
+end function get_tempdir
+
 
 end interface
 

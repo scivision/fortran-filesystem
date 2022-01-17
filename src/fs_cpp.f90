@@ -63,6 +63,11 @@ import
 character(kind=c_char), intent(in) :: path(*)
 end function fs_touch
 
+integer(C_SIZE_T) function fs_get_tempdir(path) bind(C, name="get_tempdir")
+import
+character(kind=c_char), intent(out) :: path(*)
+end function fs_get_tempdir
+
 end interface
 
 contains
@@ -222,6 +227,24 @@ end do
 relative_to = as_posix(buf)
 
 end procedure relative_to
+
+
+module procedure get_tempdir
+character(kind=c_char, len=2048) :: cpath
+integer(C_SIZE_T) :: N, i
+character(2048) :: buf
+
+N = fs_get_tempdir(cpath)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cpath(i:i)
+end do
+
+!> C++ filesystem returns preferred separator, so make posix
+get_tempdir = as_posix(buf)
+
+end procedure get_tempdir
 
 
 end submodule fs_cpp
