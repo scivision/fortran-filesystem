@@ -1,6 +1,6 @@
 submodule (pathlib) fs_cpp
 
-use, intrinsic :: iso_c_binding, only : c_bool, c_char, C_NULL_CHAR
+use, intrinsic :: iso_c_binding, only : c_bool, c_char, C_NULL_CHAR, C_SIZE_T
 
 implicit none (type, external)
 
@@ -35,6 +35,12 @@ import c_bool, c_char
 character(kind=c_char), intent(in) :: source(*), dest(*)
 logical(c_bool), intent(in) :: overwrite
 end function fs_copy_file
+
+integer(C_SIZE_T) function fs_relative_to(path, base, result) bind(C, name="relative_to")
+import
+character(kind=c_char), intent(in) :: path(*), base(*)
+character(kind=c_char), intent(out) :: result(*)
+end function fs_relative_to
 
 end interface
 
@@ -102,6 +108,28 @@ e = fs_copy_file(csrc, cdest, ow)
 if (.not. e) error stop "failed to copy file: " // src // " to " // dest
 
 end procedure copy_file
+
+
+module procedure relative_to
+
+character(kind=c_char, len=:), allocatable :: s1, s2
+character(kind=c_char) :: rel(2048)
+integer(C_SIZE_T) :: N, i
+character(2048) :: buf
+
+s1 = expanduser(a) // C_NULL_CHAR
+s2 = expanduser(b) // C_NULL_CHAR
+
+N = fs_relative_to(s1, s2, rel)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = rel(i)
+end do
+
+relative_to = as_posix(buf)
+
+end procedure relative_to
 
 
 end submodule fs_cpp

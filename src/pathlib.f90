@@ -98,21 +98,21 @@ character(:), allocatable :: parent
 end function parent
 
 
-module pure function pathlib_relative_to(self, other)
+module impure function pathlib_relative_to(self, other)
 !! returns other relative to self
 class(path_t), intent(in) :: self
 character(*), intent(in) :: other
 character(:), allocatable :: pathlib_relative_to
 end function pathlib_relative_to
 
-module pure function relative_to(p1, p2)
-!! returns p2 relative to p1
-!! if p2 is not a subpath of p1, returns "" empty string
+module impure function relative_to(a, b)
+!! returns b relative to a
+!! if b is not a subpath of a, returns "" empty string
 !!
 !! reference: C++17 filesystem relative
 !! https://en.cppreference.com/w/cpp/filesystem/relative
 
-character(*), intent(in) :: p1, p2
+character(*), intent(in) :: a, b
 character(:), allocatable :: relative_to
 end function relative_to
 

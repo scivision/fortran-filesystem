@@ -11,6 +11,14 @@ set_tests_properties(CPP_filesystem PROPERTIES
 DISABLED $<NOT:$<BOOL:${HAVE_CXX17_FILESYSTEM}>>
 )
 
+# --- relative_to
+if(NOT HAVE_CXX17_FILESYSTEM)
+  add_executable(test_relative_to test_relative.f90)
+  target_link_libraries(test_relative_to PRIVATE pathlib)
+  add_test(NAME relative_to COMMAND test_relative_to)
+  set_tests_properties(relative_to PROPERTIES LINKER_LANGUAGE Fortran)
+endif()
+
 # --- file parts
 add_executable(test_pathlib_parts test_parts.f90)
 target_link_libraries(test_pathlib_parts PRIVATE pathlib)
@@ -33,17 +41,12 @@ DISABLED $<NOT:$<BOOL:${HAVE_SYMLINK}>>
 # --- canonical
 add_executable(test_canonical test_canonical.f90)
 target_link_libraries(test_canonical PRIVATE pathlib)
-
-add_test(NAME Canonical
-COMMAND test_canonical
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
+add_test(NAME Canonical COMMAND test_canonical)
 
 # --- file size
 add_executable(test_filesize test_filesize.f90)
 target_link_libraries(test_filesize PRIVATE pathlib)
-
-add_test(NAME FileSize COMMAND test_filesize WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+add_test(NAME FileSize COMMAND test_filesize)
 
 # --- exe detect
 # non-exe doesn't work on WSL due to filesystem interface
