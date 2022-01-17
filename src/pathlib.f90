@@ -5,7 +5,7 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 implicit none (type, external)
 private
 public :: path_t  !< base class
-public :: home, canonical, cwd !< utility procedures
+public :: home, canonical, get_cwd !< utility procedures
 public :: as_posix, as_windows, drop_sep, expanduser, &
 is_absolute, is_dir, is_file, is_exe, is_symlink, exists, &
 join, &
@@ -467,9 +467,9 @@ module impure logical function is_exe(path)
 character(*), intent(in) :: path
 end function is_exe
 
-module impure function cwd()
-character(:), allocatable :: cwd
-end function cwd
+module impure function get_cwd()
+character(:), allocatable :: get_cwd
+end function get_cwd
 
 end interface
 

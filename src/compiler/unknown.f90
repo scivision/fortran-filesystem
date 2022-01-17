@@ -15,9 +15,9 @@ error stop "pathlib: %is_exe " // tail
 end procedure is_exe
 
 
-module procedure cwd
-error stop "pathlib: cwd() " // tail
-end procedure cwd
+module procedure get_cwd
+error stop "pathlib: get_cwd() " // tail
+end procedure get_cwd
 
 module procedure file_size
 error stop "pathlib: %file_size() " // tail

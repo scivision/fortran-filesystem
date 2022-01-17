@@ -11,6 +11,19 @@ call unlink(path)
 end procedure f_unlink
 
 
+module procedure get_cwd
+
+integer :: i
+character(4096) :: work
+
+i = getcwd(work)
+if(i /= 0) error stop "pathlib:get_cwd: could not get current working dir"
+
+get_cwd = as_posix(work)
+
+end procedure get_cwd
+
+
 module procedure is_dir
 
 integer :: i, ftmode, statb(13)

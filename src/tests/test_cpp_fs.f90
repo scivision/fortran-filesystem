@@ -1,7 +1,7 @@
 program test_cpp_fs
 !! test methods from C++17 filesystem
 
-use pathlib, only : path_t, cwd, exists, relative_to
+use pathlib, only : path_t, get_cwd, exists, relative_to
 
 implicit none (type, external)
 
@@ -20,10 +20,10 @@ type(path_t) :: p1
 
 if(exists("")) error stop "empty does not exist"
 
-p1 = path_t(cwd())
+p1 = path_t(get_cwd())
 
 if(.not. p1%exists()) error stop "%exists() failed"
-if(.not. exists(cwd())) error stop "exists(cwd) failed"
+if(.not. exists(get_cwd())) error stop "exists(get_cwd) failed"
 
 end subroutine test_exists
 

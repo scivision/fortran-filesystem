@@ -72,6 +72,11 @@ import
 character(kind=c_char), intent(out) :: path(*)
 end function fs_get_tempdir
 
+integer(C_SIZE_T) function fs_get_cwd(path) bind(C, name="get_cwd")
+import
+character(kind=c_char), intent(out) :: path(*)
+end function fs_get_cwd
+
 integer(C_SIZE_T) function fs_file_size(path) bind(C, name="file_size")
 import
 character(kind=c_char), intent(out) :: path(*)
@@ -264,6 +269,24 @@ end do
 get_tempdir = as_posix(buf)
 
 end procedure get_tempdir
+
+
+module procedure get_cwd
+character(kind=c_char, len=2048) :: cpath
+integer(C_SIZE_T) :: N, i
+character(2048) :: buf
+
+N = fs_get_cwd(cpath)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cpath(i:i)
+end do
+
+!> C++ filesystem returns preferred separator, so make posix
+get_cwd = as_posix(buf)
+
+end procedure get_cwd
 
 
 module procedure file_size

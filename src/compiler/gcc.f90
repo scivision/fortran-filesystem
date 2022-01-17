@@ -8,19 +8,6 @@ implicit none (type, external)
 
 contains
 
-module procedure cwd
-
-integer :: i
-character(4096) :: work
-
-i = getcwd(work)
-if(i /= 0) error stop "pathlib:cwd: could not get CWD"
-
-cwd = as_posix(work)
-
-end procedure cwd
-
-
 module procedure is_exe
 
 character(:), allocatable :: wk

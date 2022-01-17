@@ -1,6 +1,6 @@
 program test_fileop
 
-use pathlib, only : path_t, copy_file, is_absolute, cwd, as_posix, is_dir, mkdir, touch
+use pathlib, only : path_t, copy_file, is_absolute, get_cwd, as_posix, is_dir, mkdir, touch
 
 implicit none (type, external)
 
@@ -35,7 +35,7 @@ type(path_t) :: p
 
 character(:), allocatable :: pwd, p2, p1
 
-pwd = cwd()
+pwd = get_cwd()
 
 p = path_t("test-pathlib-dir")
 call p%mkdir()

@@ -129,3 +129,9 @@ extern "C" uintmax_t file_size(const char* path) {
 
   return fs::file_size(path);
 }
+
+
+extern "C" size_t get_cwd(char* path) {
+  std::strcpy(path, fs::current_path().string().c_str());
+  return strlen(path);
+}

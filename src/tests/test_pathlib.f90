@@ -1,6 +1,6 @@
 program test_pathlib
 
-use pathlib, only : path_t, file_name, join, stem, suffix, root, cwd, &
+use pathlib, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
 is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists
 
 implicit none (type, external)
@@ -148,7 +148,7 @@ if(is_dir("")) error stop "is_dir empty should be false"
 if(sys_posix()) then
   if(.not. is_dir("/")) error stop "is_dir('/') failed"
 else
-  r = root(cwd())
+  r = root(get_cwd())
   print *, "root drive: ", r
   if(.not. is_dir(r)) error stop "is_dir('" // r // "') failed"
 endif

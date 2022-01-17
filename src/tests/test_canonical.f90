@@ -1,6 +1,6 @@
 program test_canonical
 
-use pathlib, only : path_t, cwd, same_file, resolve, mkdir, is_dir, is_file
+use pathlib, only : path_t, get_cwd, same_file, resolve, mkdir, is_dir, is_file
 
 implicit none (type, external)
 
@@ -15,7 +15,7 @@ cur = cur%resolve()
 L1 = cur%length()
 if (L1 < 1) error stop "canonical '.' " // cur%path()
 
-if (cur%path() /= cwd()) error stop "canonical('.') " // cur%path() // " /= cwd: " // cwd()
+if (cur%path() /= get_cwd()) error stop "canonical('.') " // cur%path() // " /= get_cwd: " // get_cwd()
 
 print *, "OK: current dir = ", cur%path()
 ! -- home directory

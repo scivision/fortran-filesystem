@@ -397,11 +397,11 @@ homedir = home()
 Get current working directory
 
 ```fortran
-use pathlib, only : cwd
+use pathlib, only : get_cwd
 
 character(:), allocatable :: cur
 
-cur = cwd()
+cur = get_cwd()
 ```
 
 Get system temporary directory:

@@ -3,25 +3,9 @@
 !! compiler-specific intrinsic functions
 submodule (pathlib) pathlib_intel
 
-use ifport, only : stat
-
 implicit none (type, external)
 
 contains
-
-module procedure cwd
-use ifport, only : getcwd
-
-integer :: i
-character(4096) :: work
-
-i = getcwd(work)
-if(i /= 0) error stop "pathlib:cwd: could not get CWD"
-
-cwd = as_posix(work)
-
-end procedure cwd
-
 
 module procedure is_exe
 use ifport, only : stat
