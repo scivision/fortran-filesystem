@@ -38,7 +38,7 @@ if(len_trim(path) == 0) error stop "pathlib:canonical: cannot canonicalize empty
 
 wk = expanduser(path)
 
-!! some systems e.g. Intel oneAPI Windows can't handle leading "." or ".."
+!! some systems can't handle leading "." or ".."
 !! so manually resolve this part with CWD, which is implicit.
 
 if (wk(1:1) == ".") wk = cwd() // "/" // wk
@@ -67,12 +67,18 @@ integer :: i
 integer(c_int) :: ierr
 character(:), allocatable :: pts(:)
 
-wk = canonical(path)
+wk = expanduser(path)  !< not canonical
 if (len_trim(wk) < 1) error stop 'pathlib:mkdir: must specify directory to create'
+
+!! some systems can't handle leading "." or ".."
+!! so manually resolve this part with CWD, which is implicit.
+if (wk(1:1) == ".") wk = cwd() // "/" // wk
 
 if(is_dir(wk)) return
 
 call file_parts(wk, fparts=pts)
+
+! print *, "TRACE: mkdir: ", wk, pts
 
 wk = trim(pts(1))
 if(.not.is_dir(wk)) then

@@ -1,6 +1,6 @@
 program test_canonical
 
-use pathlib, only : path_t, cwd, same_file, resolve, mkdir
+use pathlib, only : path_t, cwd, same_file, resolve, mkdir, is_dir, is_file
 
 implicit none (type, external)
 
@@ -57,10 +57,12 @@ subroutine test_same_file()
 
 type(path_t) :: p1, p2
 
-call mkdir("test-a/b")
+call mkdir("test-a/b/")
+if(.not. is_dir("test-a/b")) error stop "mkdir test-a/b failed"
 
 p1 = path_t("test-a/c")
 call p1%touch()
+if(.not. is_file("test-a/c")) error stop "touch test-a/c failed"
 
 p2 = path_t("test-a/b/../c")
 
