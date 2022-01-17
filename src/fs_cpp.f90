@@ -117,6 +117,11 @@ character(kind=c_char) :: rel(2048)
 integer(C_SIZE_T) :: N, i
 character(2048) :: buf
 
+if(len_trim(b) == 0) then
+  relative_to = ""
+  return
+endif
+
 s1 = expanduser(a) // C_NULL_CHAR
 s2 = expanduser(b) // C_NULL_CHAR
 

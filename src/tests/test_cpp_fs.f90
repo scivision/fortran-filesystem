@@ -34,6 +34,12 @@ character(:), allocatable :: rel
 rel = relative_to("/", "")
 if(rel /= "") error stop "should be empty: " // rel
 
+rel = relative_to("", "")
+if(rel /= "") error stop "should be empty: " // rel
+
+rel = relative_to("", "/")
+if(rel /= "") error stop "should be empty: " // rel
+
 rel = relative_to("/a", "b")
 if(rel /= "") error stop "one abs, one rel should be empty: " // rel
 
