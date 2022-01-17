@@ -46,7 +46,7 @@ character(kind=c_char), intent(in) :: path1(*), path2(*)
 end function fs_equivalent
 
 logical(c_bool) function fs_copy_file(source, dest, overwrite) bind(C, name="copy_file")
-import c_bool, c_char
+import
 character(kind=c_char), intent(in) :: source(*), dest(*)
 logical(c_bool), intent(in) :: overwrite
 end function fs_copy_file
@@ -57,9 +57,23 @@ character(kind=c_char), intent(in) :: path(*), base(*)
 character(kind=c_char), intent(out) :: result(*)
 end function fs_relative_to
 
+logical(c_bool) function fs_touch(path) bind(C, name="touch")
+import
+character(kind=c_char), intent(in) :: path(*)
+end function fs_touch
+
 end interface
 
 contains
+
+
+module procedure touch
+character(kind=c_char, len=:), allocatable :: cpath
+
+cpath = expanduser(path) // C_NULL_CHAR
+
+if(.not. fs_touch(cpath)) error stop "pathlib:touch could not create " // path
+end procedure touch
 
 
 module procedure is_symlink

@@ -359,8 +359,8 @@ interface !< io.f90
 module impure subroutine pathlib_touch(self)
 class(path_t), intent(in) :: self
 end subroutine pathlib_touch
-module impure subroutine touch(filename)
-character(*), intent(in) :: filename
+module impure subroutine touch(path)
+character(*), intent(in) :: path
 end subroutine touch
 module impure function pathlib_read_text(self, max_length)
 !! read text file

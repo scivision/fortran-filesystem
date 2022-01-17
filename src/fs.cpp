@@ -1,6 +1,7 @@
 // functions from C++17 filesystem
 
 #include <cstring>
+#include <fstream>
 #include <filesystem>
 
 namespace fs = std::filesystem;
@@ -82,4 +83,25 @@ extern "C" size_t relative_to(const char* a, const char* b, char* result) {
   // std::cout << "TRACE:relative_to: " << a << " " << b << " " << r << " " << result_size << std::endl;
 
   return result_size;
+}
+
+
+extern "C" bool touch(const char* path) {
+
+  fs::path p(path);
+
+  if (fs::exists(p) & !fs::is_regular_file(p)) return false;
+
+  if(!fs::is_regular_file(p)) {
+    std::ofstream ost;
+    ost.open(p);
+    ost.close();
+  }
+
+  if (!fs::is_regular_file(p)) return false;
+
+  fs::last_write_time(p, std::filesystem::file_time_type::clock::now());
+
+  return true;
+
 }
