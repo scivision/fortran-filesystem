@@ -67,7 +67,7 @@ integer :: i
 integer(c_int) :: ierr
 character(:), allocatable :: pts(:)
 
-wk = expanduser(path)
+wk = canonical(path)
 if (len_trim(wk) < 1) error stop 'pathlib:mkdir: must specify directory to create'
 
 if(is_dir(wk)) return
