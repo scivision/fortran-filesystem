@@ -42,7 +42,7 @@ extern "C" bool copy_file(const char* source, const char* destination, bool over
 }
 
 
-extern "C" auto relative_to(const char* a, const char* b, char* result) {
+extern "C" size_t relative_to(const char* a, const char* b, char* result) {
 
   auto r = fs::relative(a, b);
 
