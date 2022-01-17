@@ -20,7 +20,7 @@ import c_char
 character(kind=c_char), intent(in) :: target(*), link(*)
 end subroutine fs_create_symlink
 
-logical(c_bool) function fs_remove(path) bind(C, name="remove")
+logical(c_bool) function fs_remove(path) bind(C, name="fs_remove")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
 end function fs_remove
@@ -29,6 +29,12 @@ logical(c_bool) function fs_exists(path) bind(C, name="exists")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
 end function fs_exists
+
+logical(c_bool) function fs_copy_file(source, dest, overwrite) bind(C, name="copy_file")
+import c_bool, c_char
+character(kind=c_char), intent(in) :: source(*), dest(*)
+logical(c_bool), intent(in) :: overwrite
+end function fs_copy_file
 
 end interface
 
@@ -72,12 +78,30 @@ module procedure f_unlink
 
 character(kind=c_char, len=:), allocatable :: cpath
 
-logical :: e
+logical(c_bool) :: e
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 e = fs_remove(cpath)
+if (.not. e) write(stderr, '(a)') "pathlib:unlink: " // path // " did not exist."
 
 end procedure f_unlink
+
+
+module procedure copy_file
+character(kind=c_char, len=:), allocatable :: csrc, cdest
+
+logical(c_bool) :: e, ow
+
+ow = .false.
+if(present(overwrite)) ow = overwrite
+
+csrc = expanduser(src) // C_NULL_CHAR
+cdest = expanduser(dest) // C_NULL_CHAR
+
+e = fs_copy_file(csrc, cdest, ow)
+if (.not. e) error stop "failed to copy file: " // src // " to " // dest
+
+end procedure copy_file
 
 
 end submodule fs_cpp
