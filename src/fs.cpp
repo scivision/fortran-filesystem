@@ -30,15 +30,14 @@ extern "C" bool fs_remove(const char* path) {
   return fs::remove(path);
 }
 
-extern "C" size_t canonical(char* path){
+extern "C" size_t canonical(char* path, bool strict){
 // does NOT expand tilde ~
   fs::path p;
 
-  try{
+  if(strict){
     p = fs::canonical(path);
   }
-  catch(const std::exception& ex)
-  {
+  else {
     p = fs::weakly_canonical(path);
   }
 
@@ -46,8 +45,8 @@ std::strcpy(path, p.string().c_str());
 auto result_size = strlen(path);
 
 return result_size;
-
 }
+
 
 extern "C" bool equivalent(const char* path1, const char* path2) {
   // check existance to avoid error if not exist

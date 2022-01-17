@@ -402,9 +402,10 @@ end interface
 interface  ! {posix,windows}/crt.f90
 !! C Runtime Library procedures
 
-module impure function canonical(path)
+module impure function canonical(path, strict)
 character(:), allocatable :: canonical
 character(*), intent(in) :: path
+logical, intent(in), optional :: strict
 end function canonical
 
 module impure subroutine mkdir(path)

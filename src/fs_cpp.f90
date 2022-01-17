@@ -25,9 +25,10 @@ import c_char
 character(kind=c_char), intent(in) :: path(*)
 end subroutine fs_create_directories
 
-integer(C_SIZE_T) function fs_canonical(path) bind(C, name="canonical")
+integer(C_SIZE_T) function fs_canonical(path, strict) bind(C, name="canonical")
 import
 character(kind=c_char), intent(inout) :: path(*)
+logical(c_bool), intent(in), value :: strict
 end function fs_canonical
 
 logical(c_bool) function fs_remove(path) bind(C, name="fs_remove")
@@ -48,7 +49,7 @@ end function fs_equivalent
 logical(c_bool) function fs_copy_file(source, dest, overwrite) bind(C, name="copy_file")
 import
 character(kind=c_char), intent(in) :: source(*), dest(*)
-logical(c_bool), intent(in) :: overwrite
+logical(c_bool), intent(in), value :: overwrite
 end function fs_copy_file
 
 integer(C_SIZE_T) function fs_relative_to(path, base, result) bind(C, name="relative_to")
@@ -112,10 +113,14 @@ module procedure canonical
 character(kind=c_char, len=2048) :: cpath
 integer(C_SIZE_T) :: N, i
 character(2048) :: buf
+logical(c_bool) :: s
+
+s = .false.
+if(present(strict)) s = strict
 
 cpath = expanduser(path) // C_NULL_CHAR
 
-N = fs_canonical(cpath)
+N = fs_canonical(cpath, s)
 
 buf = ""
 do i = 1, N
