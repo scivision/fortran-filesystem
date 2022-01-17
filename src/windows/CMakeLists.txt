@@ -1,1 +1,1 @@
-target_sources(pathlib PRIVATE crt.f90 path.f90)
+target_sources(pathlib PRIVATE path.f90)

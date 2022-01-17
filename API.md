@@ -353,6 +353,8 @@ expanduser("~/my/path")
 ```
 
 Resolve (canonicalize) path.
+First attempts to resolve an existing path.
+If that fails, the path is resolved as far as possible with existing path components, and then ".", ".." are lexiographically resolved.
 
 ```fortran
 resolve("~/../b")

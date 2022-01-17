@@ -31,9 +31,9 @@ else()
   endif()
 
   if(WIN32)
-    target_sources(pathlib PRIVATE windows/sys.f90)
+    target_sources(pathlib PRIVATE windows/crt.f90 windows/sys.f90)
   else()
-    target_sources(pathlib PRIVATE posix/sys.f90)
+    target_sources(pathlib PRIVATE posix/crt.f90 posix/sys.f90)
   endif()
 
   target_sources(pathlib PRIVATE compiler/no_fs_cpp.f90)

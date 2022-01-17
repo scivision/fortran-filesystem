@@ -18,7 +18,7 @@ pathlib_resolve%path_str = resolve(self%path_str)
 end procedure pathlib_resolve
 
 module procedure resolve
-resolve = canonical(expanduser(path))
+resolve = canonical(path)
 end procedure resolve
 
 

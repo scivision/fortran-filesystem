@@ -20,6 +20,16 @@ import c_char
 character(kind=c_char), intent(in) :: target(*), link(*)
 end subroutine fs_create_symlink
 
+subroutine fs_create_directories(path) bind(C, name="create_directories")
+import c_char
+character(kind=c_char), intent(in) :: path(*)
+end subroutine fs_create_directories
+
+integer(C_SIZE_T) function fs_canonical(path) bind(C, name="canonical")
+import
+character(kind=c_char), intent(inout) :: path(*)
+end function fs_canonical
+
 logical(c_bool) function fs_remove(path) bind(C, name="fs_remove")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
@@ -73,6 +83,35 @@ else
 endif
 
 end procedure create_symlink
+
+
+module procedure mkdir
+character(kind=c_char, len=:), allocatable :: cpath
+
+cpath = expanduser(path) // C_NULL_CHAR
+call fs_create_directories(cpath)
+
+end procedure mkdir
+
+
+module procedure canonical
+character(kind=c_char, len=2048) :: cpath
+integer(C_SIZE_T) :: N, i
+character(2048) :: buf
+
+cpath = expanduser(path) // C_NULL_CHAR
+
+N = fs_canonical(cpath)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cpath(i:i)
+end do
+
+!> C++ filesystem returns preferred separator, so make posix
+canonical = as_posix(buf)
+
+end procedure canonical
 
 
 module procedure exists

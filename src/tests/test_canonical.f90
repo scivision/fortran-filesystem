@@ -13,9 +13,9 @@ integer :: L1, L2, L3
 cur = path_t(".")
 cur = cur%resolve()
 L1 = cur%length()
-if (L1 < 1) error stop "ERROR canonical '.' " // cur%path()
+if (L1 < 1) error stop "canonical '.' " // cur%path()
 
-if (cur%path() /= cwd()) error stop "ERROR current directory " // cwd()
+if (cur%path() /= cwd()) error stop "canonical('.') " // cur%path() // " /= cwd: " // cwd()
 
 print *, "OK: current dir = ", cur%path()
 ! -- home directory
@@ -33,14 +33,15 @@ parent = path_t("~/..")
 parent = parent%resolve()
 
 L2 = parent%length()
-if (L2 < 1) error stop 'ERROR: directory was not canonicalized: ' // parent%path()
+if (L2 < 1) error stop 'directory was not canonicalized: ' // parent%path()
 
 print *, 'OK: parent = ', parent%path()
+
 ! -- relative file
 file = path_t('~/../' // dummy)
 file = file%resolve()
 L3 = file%length()
-if (L3 - L2 /= len(dummy) + 1) error stop 'ERROR: file was not canonicalized: ' // file%path()
+if (L3 - L2 /= len(dummy) + 1) error stop 'file was not canonicalized: ' // file%path()
 
 print *, 'OK: canon_file = ', file%path()
 
@@ -60,10 +61,8 @@ call mkdir("test-a/b")
 
 p1 = path_t("test-a/c")
 call p1%touch()
-if(.not. p1%exists()) error stop "ERROR: touch same_file"
 
 p2 = path_t("test-a/b/../c")
-if(.not. p2%exists()) error stop "ERROR: exists .. same_file"
 
 if (.not. p1%same_file(p2)) error stop 'ERROR: %same_file'
 if (.not. same_file(p1%path(), p2%path())) error stop 'ERROR: same_file()'
