@@ -82,6 +82,11 @@ import
 character(kind=c_char), intent(out) :: path(*)
 end function fs_file_size
 
+logical(c_bool) function fs_is_exe(path) bind(C, name="is_exe")
+import
+character(kind=c_char), intent(out) :: path(*)
+end function fs_is_exe
+
 end interface
 
 contains
@@ -170,6 +175,16 @@ cpath = expanduser(path) // C_NULL_CHAR
 is_dir = fs_is_dir(cpath)
 
 end procedure is_dir
+
+
+module procedure is_exe
+
+character(kind=c_char, len=:), allocatable :: cpath
+
+cpath = expanduser(path) // C_NULL_CHAR
+is_exe = fs_is_exe(cpath)
+
+end procedure is_exe
 
 module procedure same_file
 character(kind=c_char, len=:), allocatable :: c1, c2

@@ -125,13 +125,24 @@ extern "C" size_t get_tempdir(char* path) {
 
 
 extern "C" uintmax_t file_size(const char* path) {
-  if (!fs::is_regular_file(path)) return -1;
+  fs::path p(path);
 
-  return fs::file_size(path);
+  if (!fs::is_regular_file(p)) return -1;
+
+  return fs::file_size(p);
 }
 
 
 extern "C" size_t get_cwd(char* path) {
   std::strcpy(path, fs::current_path().string().c_str());
   return strlen(path);
+}
+
+extern "C" bool is_exe(const char* path) {
+  fs::path p(path);
+
+  if (!fs::is_regular_file(p)) return false;
+
+  auto i = fs::status(p).permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
+  return i != fs::perms::none;
 }
