@@ -41,6 +41,10 @@ import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
 end function fs_exists
 
+logical(c_bool) function fs_is_dir(path) bind(C, name="is_dir")
+import
+character(kind=c_char), intent(in) :: path(*)
+end function fs_is_dir
 logical(c_bool) function fs_equivalent(path1, path2) bind(C, name="equivalent")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path1(*), path2(*)
@@ -146,6 +150,16 @@ cpath = expanduser(path) // C_NULL_CHAR
 exists = fs_exists(cpath)
 
 end procedure exists
+
+
+module procedure is_dir
+
+character(kind=c_char, len=:), allocatable :: cpath
+
+cpath = expanduser(path) // C_NULL_CHAR
+is_dir = fs_is_dir(cpath)
+
+end procedure is_dir
 
 module procedure same_file
 character(kind=c_char, len=:), allocatable :: c1, c2

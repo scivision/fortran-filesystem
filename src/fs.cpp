@@ -26,6 +26,18 @@ extern "C" bool exists(const char* path) {
   return fs::exists(path);
 }
 
+extern "C" bool is_dir(const char* path) {
+  if(std::strlen(path) == 0) return false;
+
+  fs::path p(path);
+
+#ifdef _WIN32
+  if (p.root_name() == p) return true;
+#endif
+
+  return fs::is_directory(p);
+}
+
 extern "C" bool fs_remove(const char* path) {
   return fs::remove(path);
 }

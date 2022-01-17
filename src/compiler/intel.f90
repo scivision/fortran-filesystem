@@ -23,11 +23,6 @@ cwd = as_posix(work)
 end procedure cwd
 
 
-module procedure is_dir
-inquire(directory=expanduser(path), exist=is_dir)
-end procedure is_dir
-
-
 module procedure size_bytes
 
 character(:), allocatable :: wk
