@@ -19,8 +19,8 @@ module procedure cwd
 error stop "pathlib: cwd() " // tail
 end procedure cwd
 
-module procedure size_bytes
-error stop "pathlib: %size_bytes() " // tail
-end procedure size_bytes
+module procedure file_size
+error stop "pathlib: %file_size() " // tail
+end procedure file_size
 
 end submodule pathlib_dummy

@@ -1,6 +1,6 @@
 module pathlib
 
-use, intrinsic:: iso_fortran_env, only: stderr=>error_unit
+use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 
 implicit none (type, external)
 private
@@ -10,7 +10,7 @@ public :: as_posix, as_windows, drop_sep, expanduser, &
 is_absolute, is_dir, is_file, is_exe, is_symlink, exists, &
 join, &
 copy_file, mkdir, &
-file_parts, relative_to, resolve, root, same_file, size_bytes, &
+file_parts, relative_to, resolve, root, same_file, file_size, &
 file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
 get_filename, make_absolute, &
@@ -43,7 +43,7 @@ parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>
 as_windows=>pathlib_as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
 with_suffix=>pathlib_with_suffix, &
 resolve=>pathlib_resolve, same_file=>pathlib_same_file, is_exe=>pathlib_is_exe, &
-remove=>pathlib_unlink, size_bytes=>pathlib_size_bytes, &
+remove=>pathlib_unlink, file_size=>pathlib_file_size, &
 read_text=>pathlib_read_text, write_text=>pathlib_write_text
 
 end type path_t
@@ -290,9 +290,9 @@ character(:), allocatable :: expanduser
 character(*), intent(in) :: path
 end function expanduser
 
-module impure integer function pathlib_size_bytes(self)
+module impure integer(int64) function pathlib_file_size(self)
 class(path_t), intent(in) :: self
-end function pathlib_size_bytes
+end function pathlib_file_size
 
 module impure logical function pathlib_is_exe(self)
 class(path_t), intent(in) :: self
@@ -459,9 +459,9 @@ module impure logical function is_dir(path)
 character(*), intent(in) :: path
 end function is_dir
 
-module impure integer function size_bytes(path)
+module impure integer(int64) function file_size(path)
 character(*), intent(in) :: path
-end function size_bytes
+end function file_size
 
 module impure logical function is_exe(path)
 character(*), intent(in) :: path

@@ -60,9 +60,9 @@ call create_symlink(self%path_str, link)
 end procedure pathlib_create_symlink
 
 
-module procedure pathlib_size_bytes
-pathlib_size_bytes = size_bytes(self%path_str)
-end procedure pathlib_size_bytes
+module procedure pathlib_file_size
+pathlib_file_size = file_size(self%path_str)
+end procedure pathlib_file_size
 
 module procedure pathlib_is_exe
 pathlib_is_exe = is_exe(self%path_str)

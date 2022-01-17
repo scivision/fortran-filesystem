@@ -122,3 +122,10 @@ extern "C" size_t get_tempdir(char* path) {
   std::strcpy(path, fs::temp_directory_path().string().c_str());
   return strlen(path);
 }
+
+
+extern "C" uintmax_t file_size(const char* path) {
+  if (!fs::is_regular_file(path)) return -1;
+
+  return fs::file_size(path);
+}

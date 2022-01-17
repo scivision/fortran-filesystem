@@ -23,30 +23,6 @@ cwd = as_posix(work)
 end procedure cwd
 
 
-module procedure size_bytes
-
-character(:), allocatable :: wk
-integer :: s(12), i
-
-size_bytes = 0
-wk = expanduser(path)
-
-i = stat(wk, s)
-if(i /= 0) then
-  write(stderr,*) "size_bytes: could not stat file: ", wk
-  return
-endif
-
-if (iand(s(3), O'0040000') == 16384) then
-  write(stderr,*) "size_bytes: is a directory: ", wk
-  return
-endif
-
-size_bytes = s(8)
-
-end procedure size_bytes
-
-
 module procedure is_exe
 use ifport, only : stat
 

@@ -72,6 +72,11 @@ import
 character(kind=c_char), intent(out) :: path(*)
 end function fs_get_tempdir
 
+integer(C_SIZE_T) function fs_file_size(path) bind(C, name="file_size")
+import
+character(kind=c_char), intent(out) :: path(*)
+end function fs_file_size
+
 end interface
 
 contains
@@ -259,6 +264,17 @@ end do
 get_tempdir = as_posix(buf)
 
 end procedure get_tempdir
+
+
+module procedure file_size
+character(kind=c_char, len=:), allocatable :: cpath
+
+cpath = expanduser(path) // C_NULL_CHAR
+
+file_size = fs_file_size(cpath)
+if(file_size < 0) write(stderr,*) "pathlib:file_size: " // path // " is not a file."
+
+end procedure file_size
 
 
 end submodule fs_cpp

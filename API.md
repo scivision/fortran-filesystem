@@ -154,9 +154,9 @@ p = p%join("c/d")
 ! p%path == "a/b/c/d"
 ```
 
-## integer
+## integer(int64)
 
-These procedures emit an integer value.
+These procedures emit an 64-bit integer value.
 
 len_trim() of p%path()
 
@@ -164,12 +164,12 @@ len_trim() of p%path()
 p%length()
 ```
 
-File size:
+File size (bytes):
 
 ```fortran
-p%size_bytes()
+p%file_size()
 ! or
-size_bytes("my/file.txt")
+file_size("my/file.txt")
 ```
 
 ## logical
