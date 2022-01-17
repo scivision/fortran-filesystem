@@ -117,7 +117,8 @@ character(kind=c_char) :: rel(2048)
 integer(C_SIZE_T) :: N, i
 character(2048) :: buf
 
-if(len_trim(b) == 0) then
+if(len_trim(a) == 0 .or. len_trim(b) == 0) then
+!! undefined case, avoid bugs with MacOS
   relative_to = ""
   return
 endif

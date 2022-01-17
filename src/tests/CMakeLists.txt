@@ -77,8 +77,9 @@ target_link_libraries(test_fileops PRIVATE pathlib)
 
 add_test(NAME FileOps
 COMMAND test_fileops
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+WORKING_DIRECTORY $<TARGET_FILE_DIR:test_fileops>
 )
+# workdir avoids test state being shared between tests
 
 # --- read/write text file
 add_executable(test_rw_text test_rw_text.f90)
