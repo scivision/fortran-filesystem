@@ -23,6 +23,10 @@ interface remove
   module procedure f_unlink
 end interface remove
 
+interface resolve
+  module procedure canonical
+end interface resolve
+
 type :: path_t
 
 private
@@ -148,49 +152,9 @@ end interface
 
 
 interface !< impure.f90
-module function pathlib_resolve(self)
-class(path_t), intent(in) :: self
-type(path_t) :: pathlib_resolve
-end function pathlib_resolve
-
-module function resolve(path)
-character(*), intent(in) :: path
-character(:), allocatable :: resolve
-end function resolve
-
-module subroutine pathlib_unlink(self)
-!! delete the file
-class(path_t), intent(in) :: self
-end subroutine pathlib_unlink
-
-module logical function pathlib_same_file(self, other)
-class(path_t), intent(in) :: self, other
-end function pathlib_same_file
-
 module logical function same_file(path1, path2)
 character(*), intent(in) :: path1, path2
 end function same_file
-
-module logical function pathlib_exists(self)
-class(path_t), intent(in) :: self
-end function pathlib_exists
-
-module logical function pathlib_is_dir(self)
-class(path_t), intent(in) :: self
-end function pathlib_is_dir
-
-module logical function pathlib_is_symlink(self)
-class(path_t), intent(in) :: self
-end function pathlib_is_symlink
-
-module subroutine pathlib_create_symlink(self, link)
-class(path_t), intent(in) :: self
-character(*), intent(in) :: link
-end subroutine pathlib_create_symlink
-
-module logical function pathlib_is_file(self)
-class(path_t), intent(in) :: self
-end function pathlib_is_file
 
 module logical function is_file(path)
 !! .true.: "path" is a file OR symlink pointing to a file
@@ -198,52 +162,12 @@ module logical function is_file(path)
 character(*), intent(in) :: path
 end function is_file
 
-module function pathlib_expanduser(self)
-!! resolve home directory as Fortran does not understand tilde
-!! also swaps "\" for "/" and drops redundant file separators
-!! works for Linux, Mac, Windows, etc.
-class(path_t), intent(in) :: self
-type(path_t) :: pathlib_expanduser
-end function pathlib_expanduser
-
 module function expanduser(path)
 !! resolve home directory as Fortran does not understand tilde
 !! works for Linux, Mac, Windows, ...
 character(:), allocatable :: expanduser
 character(*), intent(in) :: path
 end function expanduser
-
-module integer(int64) function pathlib_file_size(self)
-class(path_t), intent(in) :: self
-end function pathlib_file_size
-
-module logical function pathlib_is_exe(self)
-class(path_t), intent(in) :: self
-end function pathlib_is_exe
-
-module subroutine pathlib_mkdir(self)
-!! create a directory, with parents if needed
-class(path_t), intent(in) :: self
-end subroutine pathlib_mkdir
-
-module subroutine pathlib_copy_file(self, dest, overwrite)
-!! copy file from source to destination
-!! OVERWRITES existing destination files
-class(path_t), intent(in) :: self
-character(*), intent(in) :: dest
-logical, intent(in), optional :: overwrite
-end subroutine pathlib_copy_file
-
-
-module subroutine assert_is_file(path)
-!! throw error if file does not exist
-character(*), intent(in) :: path
-end subroutine assert_is_file
-
-module subroutine assert_is_dir(path)
-!! throw error if directory does not exist
-character(*), intent(in) :: path
-end subroutine assert_is_dir
 
 end interface  !< impure.f90
 
@@ -568,6 +492,124 @@ character(*), intent(in) :: other
 
 pathlib_join%path_str = join(self%path_str, other)
 end function pathlib_join
+
+
+subroutine pathlib_unlink(self)
+!! delete the file
+class(path_t), intent(in) :: self
+
+call f_unlink(self%path_str)
+end subroutine pathlib_unlink
+
+
+logical function pathlib_exists(self)
+class(path_t), intent(in) :: self
+
+pathlib_exists = exists(self%path_str)
+end function pathlib_exists
+
+
+function pathlib_resolve(self)
+class(path_t), intent(in) :: self
+type(path_t) :: pathlib_resolve
+
+pathlib_resolve%path_str = resolve(self%path_str)
+end function pathlib_resolve
+
+
+logical function pathlib_same_file(self, other)
+class(path_t), intent(in) :: self, other
+
+pathlib_same_file = same_file(self%path_str, other%path_str)
+end function pathlib_same_file
+
+
+logical function pathlib_is_dir(self)
+class(path_t), intent(in) :: self
+
+pathlib_is_dir = is_dir(self%path_str)
+end function pathlib_is_dir
+
+
+logical function pathlib_is_symlink(self)
+class(path_t), intent(in) :: self
+
+pathlib_is_symlink = is_symlink(self%path_str)
+end function pathlib_is_symlink
+
+
+subroutine pathlib_create_symlink(self, link)
+class(path_t), intent(in) :: self
+character(*), intent(in) :: link
+
+call create_symlink(self%path_str, link)
+end subroutine pathlib_create_symlink
+
+
+logical function pathlib_is_file(self)
+class(path_t), intent(in) :: self
+
+pathlib_is_file = is_file(self%path_str)
+end function pathlib_is_file
+
+integer(int64) function pathlib_file_size(self)
+class(path_t), intent(in) :: self
+
+pathlib_file_size = file_size(self%path_str)
+end function pathlib_file_size
+
+
+module logical function pathlib_is_exe(self)
+class(path_t), intent(in) :: self
+
+pathlib_is_exe = is_exe(self%path_str)
+end function pathlib_is_exe
+
+
+module subroutine pathlib_mkdir(self)
+!! create a directory, with parents if needed
+class(path_t), intent(in) :: self
+
+call mkdir(self%path_str)
+end subroutine pathlib_mkdir
+
+
+module subroutine pathlib_copy_file(self, dest, overwrite)
+!! copy file from source to destination
+!! OVERWRITES existing destination files
+class(path_t), intent(in) :: self
+character(*), intent(in) :: dest
+logical, intent(in), optional :: overwrite
+
+call copy_file(self%path_str, dest, overwrite)
+end subroutine pathlib_copy_file
+
+
+module function pathlib_expanduser(self)
+!! resolve home directory as Fortran does not understand tilde
+!! also swaps "\" for "/" and drops redundant file separators
+!! works for Linux, Mac, Windows, etc.
+class(path_t), intent(in) :: self
+type(path_t) :: pathlib_expanduser
+
+pathlib_expanduser%path_str = as_posix(expanduser(self%path_str))
+end function pathlib_expanduser
+
+
+module subroutine assert_is_file(path)
+!! throw error if file does not exist
+character(*), intent(in) :: path
+
+if (.not. is_dir(path)) error stop 'pathlib:assert_is_dir: directory does not exist ' // path
+end subroutine assert_is_file
+
+
+module subroutine assert_is_dir(path)
+!! throw error if directory does not exist
+character(*), intent(in) :: path
+
+if (.not. is_file(path)) error stop 'pathlib:assert_is_file: file does not exist ' // path
+end subroutine assert_is_dir
 
 
 end module pathlib
