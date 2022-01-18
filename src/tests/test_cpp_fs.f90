@@ -5,6 +5,9 @@ use pathlib, only : path_t, get_cwd, exists, relative_to
 
 implicit none (type, external)
 
+call test_normal()
+print *, "OK test_normal()"
+
 call test_exists()
 print *, "OK fs: exists"
 
@@ -12,6 +15,17 @@ call test_relative_to()
 print *, "OK fs: relative_to"
 
 contains
+
+
+subroutine test_normal()
+
+type(path_t) :: p1, p2
+
+p1 = path_t("a//b/../c")
+p2 = p1%normal()
+if (p2%path() /= "a/c") error stop "normalize failed" // p2%path()
+
+end subroutine test_normal
 
 
 subroutine test_exists()

@@ -70,6 +70,15 @@ extern "C" size_t with_suffix(const char* path, const char* new_suffix, char* sw
 }
 
 
+
+extern "C" size_t normal(const char* path, char* normalized) {
+  fs::path p(path);
+
+  std::strcpy(normalized, p.lexically_normal().string().c_str());
+  return strlen(normalized);
+}
+
+
 extern "C" bool is_symlink(const char* path) {
   return fs::is_symlink(path);
 }

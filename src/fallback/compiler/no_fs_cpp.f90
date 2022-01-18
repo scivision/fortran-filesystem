@@ -5,6 +5,11 @@ implicit none (type, external)
 
 contains
 
+
+module procedure normal
+error stop "pathlib: normal() requires C++17 filesystem"
+end procedure normal
+
 module procedure exists
 error stop "pathlib: exists() requires C++17 filesystem"
 end procedure exists

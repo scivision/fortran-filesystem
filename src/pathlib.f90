@@ -6,7 +6,7 @@ implicit none (type, external)
 private
 public :: path_t  !< base class
 public :: home, canonical, get_cwd !< utility procedures
-public :: as_posix, as_windows, drop_sep, expanduser, &
+public :: as_posix, as_windows, normal, expanduser, &
 is_absolute, is_dir, is_file, is_exe, is_symlink, exists, &
 join, &
 copy_file, mkdir, &
@@ -33,7 +33,7 @@ contains
 
 procedure, public :: path=>get_path, &
 length, join=>pathlib_join, parts=>pathlib_parts, relative_to=>pathlib_relative_to, &
-drop_sep=>pathlib_drop_sep, &
+normal=>pathlib_normal, &
 exists=>pathlib_exists, &
 is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, &
 is_symlink=>pathlib_is_symlink, create_symlink=>pathlib_create_symlink, &
@@ -167,17 +167,17 @@ character(:), allocatable :: as_posix
 character(*), intent(in) :: path
 end function as_posix
 
-module pure function pathlib_drop_sep(self)
-!! drop redundant "/" file separators
+module function pathlib_normal(self)
+!! lexically normalize path
 class(path_t), intent(in) :: self
-type(path_t) :: pathlib_drop_sep
-end function pathlib_drop_sep
+type(path_t) :: pathlib_normal
+end function pathlib_normal
 
-module pure function drop_sep(path)
-!! drop redundant "/" file separators
+module function normal(path)
+!! lexically normalize path
 character(*), intent(in) :: path
-character(:), allocatable :: drop_sep
-end function drop_sep
+character(:), allocatable :: normal
+end function normal
 
 module function pathlib_with_suffix(self, new)
 !! replace file suffix with new suffix

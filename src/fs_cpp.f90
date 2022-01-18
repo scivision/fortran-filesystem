@@ -45,6 +45,13 @@ character(kind=c_char), intent(in) :: path(*), new_suffix
 character(kind=c_char), intent(out) :: swapped(*)
 end function fs_with_suffix
 
+
+integer(C_SIZE_T) function fs_normal(path, normalized) bind(C, name="normal")
+import
+character(kind=c_char), intent(in) :: path(*)
+character(kind=c_char), intent(out) :: normalized(*)
+end function fs_normal
+
 logical(c_bool) function fs_is_symlink(path) bind(C, name="is_symlink")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
@@ -235,6 +242,25 @@ end do
 suffix = trim(buf)
 
 end procedure suffix
+
+
+module procedure normal
+character(kind=c_char, len=2048) :: cpath, cbuf
+integer(C_SIZE_T) :: N, i
+character(2048) :: buf
+
+cpath = path // C_NULL_CHAR
+
+N = fs_normal(cpath, cbuf)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cbuf(i:i)
+end do
+
+normal = as_posix(buf)
+
+end procedure normal
 
 
 

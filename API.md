@@ -136,10 +136,13 @@ p = p%with_suffix(".hdf5")
 ! p%path() == "my/file.hdf5"
 ```
 
-Drop duplicated file separator "//"
+Normalize path, a lexical operation removing ".." and "." and duplicate file separators "//".
+The path need not exist.
 
 ```fortran
-p = p%drop_sep()
+p = p%normal()
+! or
+normal("./my/path/../b")  !< "my/b"
 ```
 
 Join path_t with other path string using posix separators.
@@ -262,12 +265,6 @@ as_posix("my\path")
 
 ```fortran
 as_windows("my/path")
-```
-
-Drop duplicated file separator "//"
-
-```fortran
-drop_sep("my//path")  !< "my/path"
 ```
 
 Split path_t into path components.

@@ -87,11 +87,9 @@ as_posix = drop_sep(as_posix)
 end procedure as_posix
 
 
-module procedure pathlib_drop_sep
-pathlib_drop_sep%path_str = drop_sep(self%path_str)
-end procedure pathlib_drop_sep
-
-module procedure drop_sep
+pure function drop_sep(path)
+character(*), intent(in) :: path
+character(:), allocatable :: drop_sep
 
 integer :: i
 
@@ -101,8 +99,11 @@ do while (i > 0)
   drop_sep(i:) = drop_sep(i+1:)
   i = index(drop_sep, "//")
 end do
+end function
 
-end procedure drop_sep
+module procedure pathlib_normal
+pathlib_normal%path_str = normal(self%path_str)
+end procedure pathlib_normal
 
 
 module procedure pathlib_with_suffix

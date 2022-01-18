@@ -120,6 +120,8 @@ if (p2%parent() /= "a") error stop "parent nest failed" // p1%path()
 p2 = path_t("a")
 if (p2%parent() /= ".") error stop "parent idempotent failed. Expected '.', but got: " // p2%path()
 
+p1 = path_t("a/b/c")
+p2 = path_t("a")
 if (p1%file_name() /= "c") error stop "file_name failed"
 if (p2%file_name() /= "a") error stop "file_name idempotent failed"
 
