@@ -33,41 +33,21 @@ module procedure pathlib_relative_to
 pathlib_relative_to = relative_to(self%path_str, other)
 end procedure pathlib_relative_to
 
-
 module procedure pathlib_suffix
 pathlib_suffix = suffix(self%path_str)
 end procedure pathlib_suffix
-
-
-module procedure suffix
-
-integer :: i
-
-i = index(path, '.', back=.true.)
-
-if (i > 1) then
-  suffix = trim(path(i:))
-else
-  suffix = ''
-end if
-
-end procedure suffix
-
 
 module procedure pathlib_parent
 pathlib_parent = parent(self%path_str)
 end procedure pathlib_parent
 
-
 module procedure pathlib_file_name
 pathlib_file_name = file_name(self%path_str)
 end procedure pathlib_file_name
 
-
 module procedure pathlib_stem
 pathlib_stem = stem(self%path_str)
 end procedure pathlib_stem
-
 
 module procedure pathlib_as_windows
 pathlib_as_windows%path_str = as_windows(self%path_str)
@@ -128,10 +108,6 @@ end procedure drop_sep
 module procedure pathlib_with_suffix
 pathlib_with_suffix%path_str = with_suffix(self%path_str, new)
 end procedure pathlib_with_suffix
-
-module procedure with_suffix
-with_suffix = path(1:len_trim(path) - len(suffix(path))) // trim(new)
-end procedure with_suffix
 
 
 end submodule pure_pathlib

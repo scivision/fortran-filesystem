@@ -54,6 +54,22 @@ extern "C" size_t parent(const char* path, char* fparent) {
 }
 
 
+extern "C" size_t suffix(const char* path, char* fsuffix) {
+  fs::path p(path);
+
+  std::strcpy(fsuffix, p.extension().string().c_str());
+  return strlen(fsuffix);
+}
+
+
+extern "C" size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
+  fs::path p(path);
+
+  std::strcpy(swapped, p.replace_extension(new_suffix).string().c_str());
+  return strlen(swapped);
+}
+
+
 extern "C" bool is_symlink(const char* path) {
   return fs::is_symlink(path);
 }

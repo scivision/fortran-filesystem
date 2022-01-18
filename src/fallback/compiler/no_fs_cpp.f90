@@ -65,6 +65,24 @@ end if
 end procedure parent
 
 
+module procedure suffix
+integer :: i
+
+i = index(path, '.', back=.true.)
+
+if (i > 1) then
+  suffix = trim(path(i:))
+else
+  suffix = ''
+end if
+end procedure suffix
+
+
+module procedure with_suffix
+with_suffix = path(1:len_trim(path) - len(suffix(path))) // trim(new)
+end procedure with_suffix
+
+
 module procedure touch
 
 integer :: u

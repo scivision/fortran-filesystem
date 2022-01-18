@@ -141,17 +141,18 @@ character(*), intent(in) :: path
 character(:), allocatable :: stem
 end function stem
 
-module pure function pathlib_suffix(self)
+module function pathlib_suffix(self)
 !! extracts path suffix, including the final "." dot
 class(path_t), intent(in) :: self
 character(:), allocatable :: pathlib_suffix
 end function pathlib_suffix
 
-module pure function suffix(path)
+module function suffix(path)
 !! extracts path suffix, including the final "." dot
 character(*), intent(in) :: path
 character(:), allocatable :: suffix
 end function suffix
+
 module pure function pathlib_as_posix(self)
 !! '\' => '/', dropping redundant separators
 
@@ -178,14 +179,14 @@ character(*), intent(in) :: path
 character(:), allocatable :: drop_sep
 end function drop_sep
 
-module pure function pathlib_with_suffix(self, new)
+module function pathlib_with_suffix(self, new)
 !! replace file suffix with new suffix
 class(path_t), intent(in) :: self
 type(path_t) :: pathlib_with_suffix
 character(*), intent(in) :: new
 end function pathlib_with_suffix
 
-module pure function with_suffix(path, new)
+module function with_suffix(path, new)
 !! replace file suffix with new suffix
 character(*), intent(in) :: path,new
 character(:), allocatable :: with_suffix

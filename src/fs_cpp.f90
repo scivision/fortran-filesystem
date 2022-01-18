@@ -33,6 +33,18 @@ character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: fparent(*)
 end function fs_parent
 
+integer(C_SIZE_T) function fs_suffix(path, fsuffix) bind(C, name="suffix")
+import
+character(kind=c_char), intent(in) :: path(*)
+character(kind=c_char), intent(out) :: fsuffix(*)
+end function fs_suffix
+
+integer(C_SIZE_T) function fs_with_suffix(path, new_suffix, swapped) bind(C, name="with_suffix")
+import
+character(kind=c_char), intent(in) :: path(*), new_suffix
+character(kind=c_char), intent(out) :: swapped(*)
+end function fs_with_suffix
+
 logical(c_bool) function fs_is_symlink(path) bind(C, name="is_symlink")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
@@ -128,6 +140,7 @@ end function fs_is_absolute
 
 end interface
 
+
 contains
 
 
@@ -153,7 +166,7 @@ character(kind=c_char, len=2048) :: cpath, cbuf
 integer(C_SIZE_T) :: N, i
 character(2048) :: buf
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 
 N = fs_file_name(cpath, cbuf)
 
@@ -203,6 +216,46 @@ end do
 parent = trim(buf)
 
 end procedure parent
+
+
+module procedure suffix
+character(kind=c_char, len=2048) :: cpath, cbuf
+integer(C_SIZE_T) :: N, i
+character(2048) :: buf
+
+cpath = path // C_NULL_CHAR
+
+N = fs_suffix(cpath, cbuf)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cbuf(i:i)
+end do
+
+suffix = trim(buf)
+
+end procedure suffix
+
+
+
+module procedure with_suffix
+character(kind=c_char, len=2048) :: cpath, csuff, cbuf
+integer(C_SIZE_T) :: N, i
+character(2048) :: buf
+
+cpath = path // C_NULL_CHAR
+csuff = new // C_NULL_CHAR
+
+N = fs_with_suffix(cpath, csuff, cbuf)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cbuf(i:i)
+end do
+
+with_suffix = trim(buf)
+
+end procedure with_suffix
 
 
 module procedure touch
