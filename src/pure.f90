@@ -10,48 +10,9 @@ length = len_trim(self%path_str)
 end procedure length
 
 
-module procedure pathlib_is_absolute
-pathlib_is_absolute = is_absolute(self%path_str)
-end procedure pathlib_is_absolute
-
-module procedure pathlib_root
-pathlib_root = root(self%path_str)
-end procedure pathlib_root
-
-
-module procedure pathlib_join
-pathlib_join%path_str = join(self%path_str, other)
-end procedure pathlib_join
-
-
 module procedure join
 join = as_posix(path // "/" // other)
 end procedure join
-
-
-module procedure pathlib_relative_to
-pathlib_relative_to = relative_to(self%path_str, other)
-end procedure pathlib_relative_to
-
-module procedure pathlib_suffix
-pathlib_suffix = suffix(self%path_str)
-end procedure pathlib_suffix
-
-module procedure pathlib_parent
-pathlib_parent = parent(self%path_str)
-end procedure pathlib_parent
-
-module procedure pathlib_file_name
-pathlib_file_name = file_name(self%path_str)
-end procedure pathlib_file_name
-
-module procedure pathlib_stem
-pathlib_stem = stem(self%path_str)
-end procedure pathlib_stem
-
-module procedure pathlib_as_windows
-pathlib_as_windows%path_str = as_windows(self%path_str)
-end procedure pathlib_as_windows
 
 
 module procedure as_windows
@@ -64,11 +25,6 @@ do while (i > 0)
   i = index(as_windows, '/')
 end do
 end procedure as_windows
-
-
-module procedure pathlib_as_posix
-pathlib_as_posix%path_str = as_posix(self%path_str)
-end procedure pathlib_as_posix
 
 
 module procedure as_posix
@@ -100,15 +56,5 @@ do while (i > 0)
   i = index(drop_sep, "//")
 end do
 end function
-
-module procedure pathlib_normal
-pathlib_normal%path_str = normal(self%path_str)
-end procedure pathlib_normal
-
-
-module procedure pathlib_with_suffix
-pathlib_with_suffix%path_str = with_suffix(self%path_str, new)
-end procedure pathlib_with_suffix
-
 
 end submodule pure_pathlib

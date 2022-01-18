@@ -59,25 +59,11 @@ module pure integer function length(self)
 class(path_t), intent(in) :: self
 end function length
 
-module pure function pathlib_join(self, other)
-!! returns path_t object with other appended to self using posix separator
-type(path_t) :: pathlib_join
-class(path_t), intent(in) :: self
-character(*), intent(in) :: other
-end function pathlib_join
-
 module pure function join(path, other)
 !! returns path_t object with other appended to self using posix separator
 character(:), allocatable :: join
 character(*), intent(in) :: path, other
 end function join
-
-module pure function pathlib_as_windows(self)
-!! '/' => '\' for Windows systems
-
-class(path_t), intent(in) :: self
-type(path_t) :: pathlib_as_windows
-end function pathlib_as_windows
 
 module pure function as_windows(path)
 !! '/' => '\' for Windows systems
@@ -85,25 +71,11 @@ character(*), intent(in) :: path
 character(:), allocatable :: as_windows
 end function as_windows
 
-module function pathlib_parent(self)
-!! returns parent directory of path
-class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_parent
-end function pathlib_parent
-
 module function parent(path)
 !! returns parent directory of path
 character(*), intent(in) :: path
 character(:), allocatable :: parent
 end function parent
-
-
-module function pathlib_relative_to(self, other)
-!! returns other relative to self
-class(path_t), intent(in) :: self
-character(*), intent(in) :: other
-character(:), allocatable :: pathlib_relative_to
-end function pathlib_relative_to
 
 module function relative_to(a, b)
 !! returns b relative to a
@@ -116,49 +88,22 @@ character(*), intent(in) :: a, b
 character(:), allocatable :: relative_to
 end function relative_to
 
-
-module function pathlib_file_name(self)
-!! returns file name without path
-class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_file_name
-end function pathlib_file_name
-
 module function file_name(path)
 !! returns file name without path
 character(*), intent(in) :: path
 character(:), allocatable :: file_name
 end function file_name
 
-
-module function pathlib_stem(self)
-class(path_t), intent(in) :: self
-
-character(:), allocatable :: pathlib_stem
-end function pathlib_stem
-
 module function stem(path)
 character(*), intent(in) :: path
 character(:), allocatable :: stem
 end function stem
-
-module function pathlib_suffix(self)
-!! extracts path suffix, including the final "." dot
-class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_suffix
-end function pathlib_suffix
 
 module function suffix(path)
 !! extracts path suffix, including the final "." dot
 character(*), intent(in) :: path
 character(:), allocatable :: suffix
 end function suffix
-
-module pure function pathlib_as_posix(self)
-!! '\' => '/', dropping redundant separators
-
-class(path_t), intent(in) :: self
-type(path_t) :: pathlib_as_posix
-end function pathlib_as_posix
 
 module pure function as_posix(path)
 !! '\' => '/', dropping redundant separators
@@ -167,42 +112,17 @@ character(:), allocatable :: as_posix
 character(*), intent(in) :: path
 end function as_posix
 
-module function pathlib_normal(self)
-!! lexically normalize path
-class(path_t), intent(in) :: self
-type(path_t) :: pathlib_normal
-end function pathlib_normal
-
 module function normal(path)
 !! lexically normalize path
 character(*), intent(in) :: path
 character(:), allocatable :: normal
 end function normal
 
-module function pathlib_with_suffix(self, new)
-!! replace file suffix with new suffix
-class(path_t), intent(in) :: self
-type(path_t) :: pathlib_with_suffix
-character(*), intent(in) :: new
-end function pathlib_with_suffix
-
 module function with_suffix(path, new)
 !! replace file suffix with new suffix
 character(*), intent(in) :: path,new
 character(:), allocatable :: with_suffix
 end function with_suffix
-
-module logical function pathlib_is_absolute(self)
-!! is path absolute
-!! do NOT expanduser() to be consistent with Python etc. pathlib
-class(path_t), intent(in) :: self
-end function pathlib_is_absolute
-
-module function pathlib_root(self)
-!! returns root of path
-class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_root
-end function pathlib_root
 
 end interface !< pure.f90
 
@@ -538,6 +458,116 @@ if(present(iend)) i2 = iend
 get_path = self%path_str(i1:i2)
 
 end function get_path
+
+
+function pathlib_relative_to(self, other)
+!! returns other relative to self
+class(path_t), intent(in) :: self
+character(*), intent(in) :: other
+character(:), allocatable :: pathlib_relative_to
+
+pathlib_relative_to = relative_to(self%path_str, other)
+end function pathlib_relative_to
+
+
+function pathlib_stem(self)
+class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_stem
+
+pathlib_stem = stem(self%path_str)
+end function pathlib_stem
+
+
+function pathlib_suffix(self)
+!! extracts path suffix, including the final "." dot
+class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_suffix
+
+pathlib_suffix = suffix(self%path_str)
+end function pathlib_suffix
+
+
+function pathlib_file_name(self)
+!! returns file name without path
+class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_file_name
+
+pathlib_file_name = file_name(self%path_str)
+end function pathlib_file_name
+
+
+function pathlib_parent(self)
+!! returns parent directory of path
+class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_parent
+
+pathlib_parent = parent(self%path_str)
+end function pathlib_parent
+
+
+logical function pathlib_is_absolute(self)
+!! is path absolute
+!! do NOT expanduser() to be consistent with Python etc. pathlib
+class(path_t), intent(in) :: self
+
+pathlib_is_absolute = is_absolute(self%path_str)
+end function pathlib_is_absolute
+
+
+function pathlib_with_suffix(self, new)
+!! replace file suffix with new suffix
+class(path_t), intent(in) :: self
+type(path_t) :: pathlib_with_suffix
+character(*), intent(in) :: new
+
+pathlib_with_suffix%path_str = with_suffix(self%path_str, new)
+end function pathlib_with_suffix
+
+function pathlib_normal(self)
+!! lexically normalize path
+class(path_t), intent(in) :: self
+type(path_t) :: pathlib_normal
+
+pathlib_normal%path_str = normal(self%path_str)
+end function pathlib_normal
+
+function pathlib_root(self)
+!! returns root of path
+class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_root
+
+pathlib_root = root(self%path_str)
+end function pathlib_root
+
+
+pure function pathlib_as_posix(self)
+!! '\' => '/', dropping redundant separators
+
+class(path_t), intent(in) :: self
+type(path_t) :: pathlib_as_posix
+
+pathlib_as_posix%path_str = as_posix(self%path_str)
+end function pathlib_as_posix
+
+
+pure function pathlib_as_windows(self)
+!! '/' => '\' for Windows systems
+
+class(path_t), intent(in) :: self
+type(path_t) :: pathlib_as_windows
+
+pathlib_as_windows%path_str = as_windows(self%path_str)
+end function pathlib_as_windows
+
+
+pure function pathlib_join(self, other)
+!! returns path_t object with other appended to self using posix separator
+type(path_t) :: pathlib_join
+class(path_t), intent(in) :: self
+character(*), intent(in) :: other
+
+pathlib_join%path_str = join(self%path_str, other)
+end function pathlib_join
 
 
 end module pathlib
