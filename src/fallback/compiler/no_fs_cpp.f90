@@ -27,6 +27,29 @@ same_file = resolve(path1) == resolve(path2)
 end procedure same_file
 
 
+module procedure file_name
+character(:), allocatable :: wk
+
+wk = as_posix(path)
+file_name = trim(wk(index(wk, "/", back=.true.) + 1:))
+end procedure file_name
+
+
+module procedure stem
+character(len_trim(path)) :: wk
+integer :: i
+
+wk = file_name(path)
+
+i = index(wk, '.', back=.true.)
+if (i > 0) then
+  stem = wk(:i - 1)
+else
+  stem = wk
+endif
+end procedure stem
+
+
 module procedure touch
 
 integer :: u

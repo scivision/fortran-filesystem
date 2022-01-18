@@ -81,37 +81,9 @@ pathlib_file_name = file_name(self%path_str)
 end procedure pathlib_file_name
 
 
-module procedure file_name
-
-character(:), allocatable :: wk
-
-wk = as_posix(path)
-
-file_name = trim(wk(index(wk, "/", back=.true.) + 1:))
-
-end procedure file_name
-
-
 module procedure pathlib_stem
 pathlib_stem = stem(self%path_str)
 end procedure pathlib_stem
-
-
-module procedure stem
-
-character(len_trim(path)) :: wk
-integer :: i
-
-wk = file_name(path)
-
-i = index(wk, '.', back=.true.)
-if (i > 0) then
-  stem = wk(:i - 1)
-else
-  stem = wk
-endif
-
-end procedure stem
 
 
 module procedure pathlib_as_windows

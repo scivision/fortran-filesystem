@@ -117,24 +117,26 @@ character(:), allocatable :: relative_to
 end function relative_to
 
 
-module pure function pathlib_file_name(self)
+module function pathlib_file_name(self)
 !! returns file name without path
 class(path_t), intent(in) :: self
 character(:), allocatable :: pathlib_file_name
 end function pathlib_file_name
-module pure function file_name(path)
+
+module function file_name(path)
 !! returns file name without path
 character(*), intent(in) :: path
 character(:), allocatable :: file_name
 end function file_name
 
 
-module pure function pathlib_stem(self)
+module function pathlib_stem(self)
 class(path_t), intent(in) :: self
 
 character(:), allocatable :: pathlib_stem
 end function pathlib_stem
-module pure function stem(path)
+
+module function stem(path)
 character(*), intent(in) :: path
 character(:), allocatable :: stem
 end function stem

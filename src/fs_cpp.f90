@@ -15,6 +15,19 @@ import
 character(kind=c_char), intent(out) :: sep(*)
 end function fs_filesep
 
+integer(C_SIZE_T) function fs_file_name(path, filename) bind(C, name="file_name")
+import
+character(kind=c_char), intent(in) :: path(*)
+character(kind=c_char), intent(out) :: filename(*)
+end function fs_file_name
+
+
+integer(C_SIZE_T) function fs_stem(path, fstem) bind(C, name="stem")
+import
+character(kind=c_char), intent(in) :: path(*)
+character(kind=c_char), intent(out) :: fstem(*)
+end function fs_stem
+
 logical(c_bool) function fs_is_symlink(path) bind(C, name="is_symlink")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
@@ -128,6 +141,44 @@ if (cbuf(2) /= C_NULL_CHAR) write(stderr,'(a)') "pathlib:filesep: expected singl
 filesep = cbuf(1)
 
 end procedure filesep
+
+
+module procedure file_name
+character(kind=c_char, len=2048) :: cpath, cbuf
+integer(C_SIZE_T) :: N, i
+character(2048) :: buf
+
+cpath = expanduser(path) // C_NULL_CHAR
+
+N = fs_file_name(cpath, cbuf)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cbuf(i:i)
+end do
+
+file_name = trim(buf)
+
+end procedure file_name
+
+
+module procedure stem
+character(kind=c_char, len=2048) :: cpath, cbuf
+integer(C_SIZE_T) :: N, i
+character(2048) :: buf
+
+cpath = expanduser(path) // C_NULL_CHAR
+
+N = fs_stem(cpath, cbuf)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cbuf(i:i)
+end do
+
+stem = trim(buf)
+
+end procedure stem
 
 
 module procedure touch

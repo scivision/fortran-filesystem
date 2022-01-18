@@ -24,6 +24,26 @@ extern "C" size_t filesep(char* sep) {
   return strlen(sep);
 }
 
+
+extern "C" size_t file_name(const char* path, char* filename) {
+  fs::path p(path);
+
+  std::strcpy(filename, p.filename().string().c_str());
+
+  return strlen(filename);
+}
+
+
+extern "C" size_t stem(const char* path, char* fstem) {
+  fs::path p(path);
+
+  std::strcpy(fstem, p.stem().string().c_str());
+
+  return strlen(fstem);
+}
+
+
+
 extern "C" bool is_symlink(const char* path) {
   return fs::is_symlink(path);
 }
