@@ -1,5 +1,5 @@
 submodule (pathlib) no_cpp_fs
-!! stub for non-C++17 filesystem
+!! all compilers without non-C++17 filesystem
 
 implicit none (type, external)
 

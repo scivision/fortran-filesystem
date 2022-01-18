@@ -6,4 +6,4 @@ else()
   target_sources(pathlib PRIVATE unknown.f90)
 endif()
 
-target_sources(pathlib PRIVATE no_fs_cpp.f90)
+target_sources(pathlib PRIVATE general.f90)
