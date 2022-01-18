@@ -27,6 +27,14 @@ error stop "pathlib: get_tempdir() requires C++17 filesystem"
 end procedure get_tempdir
 
 
+module procedure is_file
+inquire(file=expanduser(path), exist=is_file)
+if(is_file) then
+  if (is_dir(path)) is_file = .false.
+endif
+end procedure is_file
+
+
 module procedure same_file
 same_file = resolve(path1) == resolve(path2)
 end procedure same_file

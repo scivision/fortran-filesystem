@@ -1,6 +1,6 @@
 program test_symlink
 
-use pathlib, only : path_t, is_symlink, parent, create_symlink, remove
+use pathlib, only : path_t, is_symlink, is_file, parent, create_symlink, remove
 
 implicit none (type, external)
 
@@ -40,8 +40,10 @@ if(is_symlink("not-exist-path.nobody")) error stop "is_symlink() should be false
 
 if(is_symlink(tgt)) error stop "is_symlink() should be false for non-symlink path"
 if(p_tgt%is_symlink()) error stop "%is_symlink() should be false for non-symlink path"
+if(.not. is_file(link)) error stop "is_file() should be true for existing regular file"
 
 if(.not. is_symlink(link)) error stop "is_symlink() should be true for symlink path"
 if(.not. p_sym%is_symlink()) error stop "%is_symlink() should be trum for symlink path"
+if(.not. is_file(link)) error stop "is_file() should be true for existing symlink path"
 
 end program

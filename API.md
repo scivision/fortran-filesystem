@@ -201,7 +201,7 @@ p%exists()
 exists("my/file.txt")
 ```
 
-Does file exist:
+Does file exist (or a symbolic link to an existing file):
 
 ```fortran
 p%is_file()

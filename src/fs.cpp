@@ -119,6 +119,10 @@ extern "C" bool is_absolute(const char* path) {
   return p.is_absolute();
 }
 
+extern "C" bool is_file(const char* path) {
+  return fs::is_regular_file(path);
+}
+
 extern "C" bool is_dir(const char* path) {
   if(std::strlen(path) == 0) return false;
 

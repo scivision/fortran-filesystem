@@ -30,13 +30,6 @@ module procedure pathlib_is_file
 pathlib_is_file = is_file(self%path_str)
 end procedure pathlib_is_file
 
-module procedure is_file
-inquire(file=expanduser(path), exist=is_file)
-if(is_file) then
-  if (is_dir(path)) is_file = .false.
-endif
-end procedure is_file
-
 
 module procedure pathlib_is_dir
 pathlib_is_dir = is_dir(self%path_str)

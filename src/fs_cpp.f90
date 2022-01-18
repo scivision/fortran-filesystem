@@ -88,10 +88,16 @@ import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
 end function fs_exists
 
+logical(c_bool) function fs_is_file(path) bind(C, name="is_file")
+import
+character(kind=c_char), intent(in) :: path(*)
+end function fs_is_file
+
 logical(c_bool) function fs_is_dir(path) bind(C, name="is_dir")
 import
 character(kind=c_char), intent(in) :: path(*)
 end function fs_is_dir
+
 logical(c_bool) function fs_equivalent(path1, path2) bind(C, name="equivalent")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path1(*), path2(*)
@@ -378,33 +384,35 @@ end procedure root
 
 
 module procedure exists
-
 character(kind=c_char, len=:), allocatable :: cpath
 
 cpath = expanduser(path) // C_NULL_CHAR
 exists = fs_exists(cpath)
-
 end procedure exists
 
 
-module procedure is_dir
+module procedure is_file
+character(kind=c_char, len=:), allocatable :: cpath
 
+cpath = expanduser(path) // C_NULL_CHAR
+is_file = fs_is_file(cpath)
+end procedure is_file
+
+module procedure is_dir
 character(kind=c_char, len=:), allocatable :: cpath
 
 cpath = expanduser(path) // C_NULL_CHAR
 is_dir = fs_is_dir(cpath)
-
 end procedure is_dir
 
 
 module procedure is_exe
-
 character(kind=c_char, len=:), allocatable :: cpath
 
 cpath = expanduser(path) // C_NULL_CHAR
 is_exe = fs_is_exe(cpath)
-
 end procedure is_exe
+
 
 module procedure same_file
 character(kind=c_char, len=:), allocatable :: c1, c2
@@ -413,12 +421,10 @@ c1 = expanduser(path1) // C_NULL_CHAR
 c2 = expanduser(path2) // C_NULL_CHAR
 
 same_file = fs_equivalent(c1, c2)
-
 end procedure same_file
 
 
 module procedure f_unlink
-
 character(kind=c_char, len=:), allocatable :: cpath
 
 logical(c_bool) :: e
@@ -426,7 +432,6 @@ logical(c_bool) :: e
 cpath = path // C_NULL_CHAR
 e = fs_remove(cpath)
 if (.not. e) write(stderr, '(a)') "pathlib:unlink: " // path // " did not exist."
-
 end procedure f_unlink
 
 
@@ -443,12 +448,10 @@ cdest = expanduser(dest) // C_NULL_CHAR
 
 e = fs_copy_file(csrc, cdest, ow)
 if (.not. e) error stop "failed to copy file: " // src // " to " // dest
-
 end procedure copy_file
 
 
 module procedure relative_to
-
 character(kind=c_char, len=:), allocatable :: s1, s2
 character(:), allocatable :: a1, b1
 character(kind=c_char) :: rel(2048)
@@ -484,7 +487,6 @@ end do
 
 !> C++ filesystem returns preferred separator, so make posix
 relative_to = as_posix(buf)
-
 end procedure relative_to
 
 
