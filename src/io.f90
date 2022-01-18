@@ -5,15 +5,6 @@ implicit none (type, external)
 
 contains
 
-module procedure pathlib_touch
-call touch(self%path_str)
-end procedure pathlib_touch
-
-
-module procedure pathlib_write_text
-call write_text(self%path_str, text)
-end procedure pathlib_write_text
-
 
 module procedure write_text
 
@@ -24,11 +15,6 @@ write(u,'(A)') text
 close(u)
 
 end procedure write_text
-
-
-module procedure pathlib_read_text
-pathlib_read_text = read_text(self%path_str, max_length)
-end procedure pathlib_read_text
 
 
 module procedure read_text

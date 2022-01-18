@@ -196,18 +196,9 @@ end interface
 
 interface !< io.f90
 
-module subroutine pathlib_touch(self)
-class(path_t), intent(in) :: self
-end subroutine pathlib_touch
 module subroutine touch(path)
 character(*), intent(in) :: path
 end subroutine touch
-module function pathlib_read_text(self, max_length)
-!! read text file
-class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_read_text
-integer, optional :: max_length
-end function pathlib_read_text
 
 module function read_text(filename, max_length)
 !! read text file
@@ -216,11 +207,6 @@ character(:), allocatable :: read_text
 integer, optional :: max_length
 end function read_text
 
-module subroutine pathlib_write_text(self, text)
-!! create or overwrite file with text
-class(path_t), intent(in) :: self
-character(*), intent(in) :: text
-end subroutine pathlib_write_text
 module subroutine write_text(filename, text)
 !! create or overwrite file with text
 character(*), intent(in) :: filename, text
@@ -376,6 +362,8 @@ get_path = self%path_str(i1:i2)
 
 end function get_path
 
+
+!> one-liner methods calling actual procedures
 
 function pathlib_relative_to(self, other)
 !! returns other relative to self
@@ -613,5 +601,31 @@ character(:), allocatable :: pathlib_parts(:)
 
 call file_parts(self%path_str, fparts=pathlib_parts)
 end function pathlib_parts
+
+
+subroutine pathlib_touch(self)
+class(path_t), intent(in) :: self
+
+call touch(self%path_str)
+end subroutine pathlib_touch
+
+
+function pathlib_read_text(self, max_length)
+!! read text file
+class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_read_text
+integer, optional :: max_length
+
+pathlib_read_text = read_text(self%path_str, max_length)
+end function pathlib_read_text
+
+
+subroutine pathlib_write_text(self, text)
+!! create or overwrite file with text
+class(path_t), intent(in) :: self
+character(*), intent(in) :: text
+
+call write_text(self%path_str, text)
+end subroutine pathlib_write_text
 
 end module pathlib
