@@ -34,7 +34,10 @@ character(kind=c_char):: c_buf(N)
 character(N) :: buf
 integer :: i
 
-if(len_trim(path) == 0) error stop "pathlib:canonical: cannot canonicalize empty path"
+if(len_trim(path) == 0) then
+  canonical = ""
+  return
+endif
 
 wk = expanduser(path)
 
