@@ -5,6 +5,16 @@ use, intrinsic :: iso_c_binding, only : c_bool, c_char, C_NULL_CHAR, C_SIZE_T
 implicit none (type, external)
 
 interface !< fs.cpp
+
+logical(C_BOOL) function fs_sys_posix() bind(C, name="sys_posix")
+import
+end function fs_sys_posix
+
+integer(C_SIZE_T) function fs_filesep(sep) bind(C, name='filesep')
+import
+character(kind=c_char), intent(out) :: sep(*)
+end function fs_filesep
+
 logical(c_bool) function fs_is_symlink(path) bind(C, name="is_symlink")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
@@ -77,19 +87,48 @@ import
 character(kind=c_char), intent(out) :: path(*)
 end function fs_get_cwd
 
+integer(C_SIZE_T) function fs_root(path, result) bind(C, name="root")
+import
+character(kind=c_char), intent(in) :: path(*)
+character(kind=c_char), intent(out) :: result(*)
+end function fs_root
+
 integer(C_SIZE_T) function fs_file_size(path) bind(C, name="file_size")
 import
-character(kind=c_char), intent(out) :: path(*)
+character(kind=c_char), intent(in) :: path(*)
 end function fs_file_size
 
 logical(c_bool) function fs_is_exe(path) bind(C, name="is_exe")
 import
-character(kind=c_char), intent(out) :: path(*)
+character(kind=c_char), intent(in) :: path(*)
 end function fs_is_exe
+
+logical(c_bool) function fs_is_absolute(path) bind(C, name="is_absolute")
+import
+character(kind=c_char), intent(in) :: path(*)
+end function fs_is_absolute
 
 end interface
 
 contains
+
+
+module procedure sys_posix
+sys_posix = fs_sys_posix()
+end procedure sys_posix
+
+
+module procedure filesep
+character(kind=c_char) :: cbuf(3)
+integer(c_size_t) :: N
+
+N = fs_filesep(cbuf)
+if (N /= 2) write(stderr,'(a,i0)') "pathlib:filesep: expected single null terminated char, got len ", N
+if (cbuf(2) /= C_NULL_CHAR) write(stderr,'(a)') "pathlib:filesep: expected single null terminated char, got: " // cbuf(2)
+
+filesep = cbuf(1)
+
+end procedure filesep
 
 
 module procedure touch
@@ -99,6 +138,15 @@ cpath = expanduser(path) // C_NULL_CHAR
 
 if(.not. fs_touch(cpath)) error stop "pathlib:touch could not create " // path
 end procedure touch
+
+
+module procedure is_absolute
+character(kind=c_char, len=:), allocatable :: cpath
+
+cpath = expanduser(path) // C_NULL_CHAR
+is_absolute = fs_is_absolute(cpath)
+
+end procedure is_absolute
 
 
 module procedure is_symlink
@@ -155,6 +203,25 @@ end do
 canonical = as_posix(buf)
 
 end procedure canonical
+
+
+module procedure root
+character(kind=c_char, len=2048) :: cpath, cbuf
+integer(C_SIZE_T) :: N, i
+character(2048) :: buf
+
+cpath = expanduser(path) // C_NULL_CHAR
+
+N = fs_root(cpath, cbuf)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cbuf(i:i)
+end do
+
+root = trim(buf)
+
+end procedure root
 
 
 module procedure exists

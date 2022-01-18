@@ -22,14 +22,12 @@ else()
   endif()
 
   target_sources(pathlib PRIVATE compiler/no_fs_cpp.f90)
-endif()
 
-# --- OS or OS-specific compiler dependent
-
-if(WIN32)
-  add_subdirectory(windows)
-else()
-  add_subdirectory(posix)
+  if(WIN32)
+    add_subdirectory(windows)
+  else()
+    add_subdirectory(posix)
+  endif()
 endif()
 
 # --- OS-agnostic compiler depedent

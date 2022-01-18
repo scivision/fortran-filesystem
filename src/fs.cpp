@@ -6,6 +6,24 @@
 
 namespace fs = std::filesystem;
 
+extern "C" size_t filesep(char*);
+
+
+extern "C" bool sys_posix() {
+  char sep[2];
+
+  filesep(sep);
+  return strcmp(sep, "/") == 0;
+}
+
+extern "C" size_t filesep(char* sep) {
+  fs::path p("/");
+
+  std::strcpy(sep, p.make_preferred().string().c_str());
+
+  return strlen(sep);
+}
+
 extern "C" bool is_symlink(const char* path) {
   return fs::is_symlink(path);
 }
@@ -22,8 +40,28 @@ extern "C" bool create_directories(const char* path) {
   return fs::create_directories(path);
 }
 
+extern "C" size_t root(const char* path, char* result) {
+  fs::path p(path);
+  fs::path r;
+
+#ifdef _WIN32
+  r = p.root_name();
+#else
+  r = p.root_path();
+#endif
+
+  std::strcpy(result, r.string().c_str());
+
+  return strlen(result);
+}
+
 extern "C" bool exists(const char* path) {
   return fs::exists(path);
+}
+
+extern "C" bool is_absolute(const char* path) {
+  fs::path p(path);
+  return p.is_absolute();
 }
 
 extern "C" bool is_dir(const char* path) {

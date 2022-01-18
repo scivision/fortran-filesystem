@@ -16,7 +16,7 @@ read_text, write_text, &
 get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
 sys_posix, touch, create_symlink, &
-remove, get_tempdir
+remove, get_tempdir, filesep
 !! functional API
 
 interface remove
@@ -98,14 +98,14 @@ character(:), allocatable :: parent
 end function parent
 
 
-module impure function pathlib_relative_to(self, other)
+module function pathlib_relative_to(self, other)
 !! returns other relative to self
 class(path_t), intent(in) :: self
 character(*), intent(in) :: other
 character(:), allocatable :: pathlib_relative_to
 end function pathlib_relative_to
 
-module impure function relative_to(a, b)
+module function relative_to(a, b)
 !! returns b relative to a
 !! if b is not a subpath of a, returns "" empty string
 !!
@@ -189,13 +189,13 @@ character(*), intent(in) :: path,new
 character(:), allocatable :: with_suffix
 end function with_suffix
 
-module pure logical function pathlib_is_absolute(self)
+module logical function pathlib_is_absolute(self)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. pathlib
 class(path_t), intent(in) :: self
 end function pathlib_is_absolute
 
-module pure function pathlib_root(self)
+module function pathlib_root(self)
 !! returns root of path
 class(path_t), intent(in) :: self
 character(:), allocatable :: pathlib_root
@@ -225,57 +225,57 @@ end interface
 
 
 interface !< impure.f90
-module impure function pathlib_resolve(self)
+module function pathlib_resolve(self)
 class(path_t), intent(in) :: self
 type(path_t) :: pathlib_resolve
 end function pathlib_resolve
 
-module impure function resolve(path)
+module function resolve(path)
 character(*), intent(in) :: path
 character(:), allocatable :: resolve
 end function resolve
 
-module impure subroutine pathlib_unlink(self)
+module subroutine pathlib_unlink(self)
 !! delete the file
 class(path_t), intent(in) :: self
 end subroutine pathlib_unlink
 
-module impure logical function pathlib_same_file(self, other)
+module logical function pathlib_same_file(self, other)
 class(path_t), intent(in) :: self, other
 end function pathlib_same_file
 
-module impure logical function same_file(path1, path2)
+module logical function same_file(path1, path2)
 character(*), intent(in) :: path1, path2
 end function same_file
 
-module impure logical function pathlib_exists(self)
+module logical function pathlib_exists(self)
 class(path_t), intent(in) :: self
 end function pathlib_exists
 
-module impure logical function pathlib_is_dir(self)
+module logical function pathlib_is_dir(self)
 class(path_t), intent(in) :: self
 end function pathlib_is_dir
 
-module impure logical function pathlib_is_symlink(self)
+module logical function pathlib_is_symlink(self)
 class(path_t), intent(in) :: self
 end function pathlib_is_symlink
 
-module impure subroutine pathlib_create_symlink(self, link)
+module subroutine pathlib_create_symlink(self, link)
 class(path_t), intent(in) :: self
 character(*), intent(in) :: link
 end subroutine pathlib_create_symlink
 
-module impure logical function pathlib_is_file(self)
+module logical function pathlib_is_file(self)
 class(path_t), intent(in) :: self
 end function pathlib_is_file
 
-module impure logical function is_file(path)
+module logical function is_file(path)
 !! .true.: "path" is a file OR symlink pointing to a file
 !! .false.: "path" is a directory, broken symlink, or does not exist
 character(*), intent(in) :: path
 end function is_file
 
-module impure function pathlib_expanduser(self)
+module function pathlib_expanduser(self)
 !! resolve home directory as Fortran does not understand tilde
 !! also swaps "\" for "/" and drops redundant file separators
 !! works for Linux, Mac, Windows, etc.
@@ -283,27 +283,27 @@ class(path_t), intent(in) :: self
 type(path_t) :: pathlib_expanduser
 end function pathlib_expanduser
 
-module impure function expanduser(path)
+module function expanduser(path)
 !! resolve home directory as Fortran does not understand tilde
 !! works for Linux, Mac, Windows, ...
 character(:), allocatable :: expanduser
 character(*), intent(in) :: path
 end function expanduser
 
-module impure integer(int64) function pathlib_file_size(self)
+module integer(int64) function pathlib_file_size(self)
 class(path_t), intent(in) :: self
 end function pathlib_file_size
 
-module impure logical function pathlib_is_exe(self)
+module logical function pathlib_is_exe(self)
 class(path_t), intent(in) :: self
 end function pathlib_is_exe
 
-module impure subroutine pathlib_mkdir(self)
+module subroutine pathlib_mkdir(self)
 !! create a directory, with parents if needed
 class(path_t), intent(in) :: self
 end subroutine pathlib_mkdir
 
-module impure subroutine pathlib_copy_file(self, dest, overwrite)
+module subroutine pathlib_copy_file(self, dest, overwrite)
 !! copy file from source to destination
 !! OVERWRITES existing destination files
 class(path_t), intent(in) :: self
@@ -356,32 +356,32 @@ end interface
 
 interface !< io.f90
 
-module impure subroutine pathlib_touch(self)
+module subroutine pathlib_touch(self)
 class(path_t), intent(in) :: self
 end subroutine pathlib_touch
-module impure subroutine touch(path)
+module subroutine touch(path)
 character(*), intent(in) :: path
 end subroutine touch
-module impure function pathlib_read_text(self, max_length)
+module function pathlib_read_text(self, max_length)
 !! read text file
 class(path_t), intent(in) :: self
 character(:), allocatable :: pathlib_read_text
 integer, optional :: max_length
 end function pathlib_read_text
 
-module impure function read_text(filename, max_length)
+module function read_text(filename, max_length)
 !! read text file
 character(*), intent(in) :: filename
 character(:), allocatable :: read_text
 integer, optional :: max_length
 end function read_text
 
-module impure subroutine pathlib_write_text(self, text)
+module subroutine pathlib_write_text(self, text)
 !! create or overwrite file with text
 class(path_t), intent(in) :: self
 character(*), intent(in) :: text
 end subroutine pathlib_write_text
-module impure subroutine write_text(filename, text)
+module subroutine write_text(filename, text)
 !! create or overwrite file with text
 character(*), intent(in) :: filename, text
 end subroutine write_text
@@ -390,7 +390,7 @@ end interface
 
 
 interface !< envvar.f90
-module impure function home()
+module function home()
 !! returns home directory, or empty string if not found
 !!
 !! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
@@ -402,18 +402,18 @@ end interface
 interface  ! {posix,windows}/crt.f90
 !! C Runtime Library procedures
 
-module impure function canonical(path, strict)
+module function canonical(path, strict)
 character(:), allocatable :: canonical
 character(*), intent(in) :: path
 logical, intent(in), optional :: strict
 end function canonical
 
-module impure subroutine mkdir(path)
+module subroutine mkdir(path)
 !! create a directory, with parents if needed
 character(*), intent(in) :: path
 end subroutine mkdir
 
-module impure subroutine utime(filename)
+module subroutine utime(filename)
 !! like C utime(), update file modification time
 character(*), intent(in) :: filename
 end subroutine utime
@@ -423,7 +423,7 @@ end interface
 
 interface !< {posix,windows}/sys.f90
 !! if not C++17 filesystem, fallback system call since C stdlib doesn't have
-module impure subroutine copy_file(src, dest, overwrite)
+module subroutine copy_file(src, dest, overwrite)
 !! copy single file from src to dest
 !! OVERWRITES existing destination file
 character(*), intent(in) :: src, dest
@@ -433,19 +433,19 @@ end interface
 
 
 interface  !< {posix,windows}/path.f90
-module pure logical function is_absolute(path)
+module logical function is_absolute(path)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. pathlib
 character(*), intent(in) :: path
 end function is_absolute
 
-module pure logical function root(path)
+module logical function root(path)
 !! returns root of path
 character(*), intent(in) :: path
 character(:), allocatable :: root
 end function root
 
-module pure logical function sys_posix()
+module logical function sys_posix()
 end function sys_posix
 
 end interface
@@ -453,21 +453,21 @@ end interface
 
 interface !< compiler/{intel,gcc}.f90
 
-module impure logical function is_dir(path)
+module logical function is_dir(path)
 !! .true.: "path" is a directory OR symlink pointing to a directory
 !! .false.: "path" is a broken symlink, does not exist, or is some other type of filesystem entity
 character(*), intent(in) :: path
 end function is_dir
 
-module impure integer(int64) function file_size(path)
+module integer(int64) function file_size(path)
 character(*), intent(in) :: path
 end function file_size
 
-module impure logical function is_exe(path)
+module logical function is_exe(path)
 character(*), intent(in) :: path
 end function is_exe
 
-module impure function get_cwd()
+module function get_cwd()
 character(:), allocatable :: get_cwd
 end function get_cwd
 
@@ -476,22 +476,22 @@ end interface
 
 interface !< fs_cpp.f90 (or compiler/{intel,gcc}.f90)
 
-module impure logical function is_symlink(path)
+module logical function is_symlink(path)
 !! .true.: "path" is a symbolic link
 !! .false.: "path" is not a symbolic link, or does not exist
 character(*), intent(in) :: path
 end function is_symlink
 
-module impure subroutine create_symlink(tgt, link)
+module subroutine create_symlink(tgt, link)
 character(*), intent(in) :: tgt, link
 end subroutine create_symlink
 
-module impure logical function exists(path)
+module logical function exists(path)
 !! a file or directory exists
 character(*), intent(in) :: path
 end function exists
 
-module impure subroutine f_unlink(path)
+module subroutine f_unlink(path)
 !! delete the file, symbolic link, or empty directory
 character(*), intent(in) :: path
 end subroutine f_unlink
@@ -500,6 +500,10 @@ module function get_tempdir()
 !! get system temporary directory
 character(:), allocatable :: get_tempdir
 end function get_tempdir
+
+module character function filesep()
+!! get system file separator
+end function filesep
 
 
 end interface

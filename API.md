@@ -384,6 +384,13 @@ text = read_text(filename)
 
 ## System
 
+Filessystem file separator:
+
+```fortran
+character :: sep
+sep = filesep()
+```
+
 Get home directory, or empty string if not found
 
 ```fortran

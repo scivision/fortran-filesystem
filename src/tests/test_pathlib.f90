@@ -1,7 +1,7 @@
 program test_pathlib
 
 use pathlib, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
-is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists
+is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep
 
 implicit none (type, external)
 
@@ -62,6 +62,12 @@ subroutine test_filesep()
 
 type(path_t) :: p1, p2, p3
 
+if(sys_posix()) then
+  if (filesep() /= "/") error stop "filesep posix"
+else
+  if(filesep() /= char(92)) error stop "filesep windows"
+endif
+
 p1 = path_t("")
 
 p2 = p1%as_posix()
@@ -91,6 +97,8 @@ subroutine test_manip()
 
 type(path_t) :: p1, p2
 
+character(:), allocatable :: r
+
 p1 = path_t("hi.a.b")
 if (p1%stem() /= "hi.a") error stop "stem failed"
 p2 = path_t(p1%stem())
@@ -117,12 +125,20 @@ if (p2%file_name() /= "a") error stop "file_name idempotent failed"
 p1 = path_t("/etc")
 p2 = path_t("c:/etc")
 if(sys_posix()) then
-  if(p1%root() /= "/") error stop "unix %root failed"
-  if(p2%root() /= "") error stop "unix %root failed"
-  if(root("/etc") /= "/") error stop "unix root() failed"
+  r = p1%root()
+  if(r /= "/") error stop "unix %root failed 1: " // r
+
+  r = p2%root()
+  if(r /= "") error stop "unix %root failed 2: " // r
+
+  r = root("/etc")
+  if(r /= "/") error stop "unix root() failed: " // r
 else
   if(p1%root() == "/") error stop "windows %root failed"
-  if(p2%root() /= "c:") error stop "windows %root failed"
+
+  r = p2%root()
+  print *, "TRACE: test_root: 2: " // r
+  if( r/= "c:") error stop "windows %root failed 2: " // r
   if(root("c:/etc") /= "c:") error stop "windows root() failed"
 endif
 

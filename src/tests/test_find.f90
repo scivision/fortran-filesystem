@@ -1,7 +1,7 @@
 program test_find
 
 use, intrinsic :: iso_fortran_env, only : stderr => error_unit
-use pathlib, only : remove, get_filename, mkdir, is_absolute, make_absolute, sys_posix, touch
+use pathlib, only : remove, get_filename, mkdir, make_absolute, sys_posix, touch
 
 implicit none (type, external)
 
