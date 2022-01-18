@@ -300,9 +300,10 @@ end procedure touch
 
 
 module procedure is_absolute
+!! no expanduser to be consistent with Python pathlib etc.
 character(kind=c_char, len=:), allocatable :: cpath
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 is_absolute = fs_is_absolute(cpath)
 
 end procedure is_absolute
