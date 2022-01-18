@@ -1,6 +1,6 @@
 program test_fileop
 
-use pathlib, only : path_t, copy_file, is_absolute, get_cwd, as_posix, is_dir, mkdir, touch
+use pathlib, only : path_t, copy_file, is_absolute, get_cwd, as_posix, is_dir, mkdir, touch, copy_file
 
 implicit none (type, external)
 
@@ -20,6 +20,8 @@ subroutine test_touch
 
 type(path_t) :: p
 
+! call touch("")  !< error stops
+
 call touch("test_fileop.h5")
 
 p = path_t("test_fileop.empty")
@@ -34,6 +36,8 @@ subroutine test_mkdir()
 type(path_t) :: p
 
 character(:), allocatable :: pwd, p2, p1
+
+! call mkdir("")  !< error stops
 
 pwd = get_cwd()
 
@@ -64,9 +68,12 @@ open(newunit=u, file=p1%path(), status='replace')
 close(u)
 
 if(.not. p1%is_file()) error stop "did not detect " // p1%path() // " as file"
+
 p2 = path_t('test-pathlib.h5.copy')
 call p1%copy_file(p2%path(), overwrite=.true.)
 if(.not. p2%is_file()) error stop "did not detect " // p2%path() // " as file"
+
+! call copy_file(p1%path(), "") !< error stops
 
 end subroutine test_copyfile
 

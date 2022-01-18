@@ -67,10 +67,10 @@ import c_char
 character(kind=c_char), intent(in) :: target(*), link(*)
 end subroutine fs_create_symlink
 
-subroutine fs_create_directories(path) bind(C, name="create_directories")
-import c_char
+logical(c_bool) function fs_create_directories(path) bind(C, name="create_directories")
+import
 character(kind=c_char), intent(in) :: path(*)
-end subroutine fs_create_directories
+end function fs_create_directories
 
 integer(C_SIZE_T) function fs_canonical(path, strict) bind(C, name="canonical")
 import
@@ -293,9 +293,11 @@ end procedure with_suffix
 module procedure touch
 character(kind=c_char, len=:), allocatable :: cpath
 
+if(len_trim(path) == 0) error stop "pathlib:touch: cannot touch empty path"
+
 cpath = expanduser(path) // C_NULL_CHAR
 
-if(.not. fs_touch(cpath)) error stop "pathlib:touch could not create " // path
+if(.not. fs_touch(cpath)) error stop "pathlib:touch: " // path
 end procedure touch
 
 
@@ -337,9 +339,22 @@ end procedure create_symlink
 
 module procedure mkdir
 character(kind=c_char, len=:), allocatable :: cpath
+character(:), allocatable :: wk
 
-cpath = expanduser(path) // C_NULL_CHAR
-call fs_create_directories(cpath)
+wk = expanduser(path)
+
+if(len_trim(wk) == 0) error stop "pathlib:mkdir: cannot mkdir empty directory name"
+
+if(exists(wk)) then
+  if(is_dir(wk)) then
+    return
+  else
+    error stop "pathlib:mkdir: " // wk // " already exists but is not a directory"
+  endif
+endif
+
+cpath = wk // C_NULL_CHAR
+if(.not. fs_create_directories(cpath)) error stop "pathlib:mkdir: could not create directory: " // path
 
 end procedure mkdir
 
@@ -443,6 +458,9 @@ module procedure copy_file
 character(kind=c_char, len=:), allocatable :: csrc, cdest
 
 logical(c_bool) :: e, ow
+
+if(len_trim(src) == 0) error stop "pathlib:copy_file: source path must not be empty"
+if(len_trim(dest) == 0) error stop "pathlib:copy_file: destination path must not be empty"
 
 ow = .false.
 if(present(overwrite)) ow = overwrite

@@ -581,12 +581,11 @@ end subroutine pathlib_copy_file
 
 function pathlib_expanduser(self)
 !! resolve home directory as Fortran does not understand tilde
-!! also swaps "\" for "/" and drops redundant file separators
 !! works for Linux, Mac, Windows, etc.
 class(path_t), intent(in) :: self
 type(path_t) :: pathlib_expanduser
 
-pathlib_expanduser%path_str = as_posix(expanduser(self%path_str))
+pathlib_expanduser%path_str = expanduser(self%path_str)
 end function pathlib_expanduser
 
 
