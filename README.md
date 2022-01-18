@@ -5,16 +5,18 @@
 [![intel-oneapi](https://github.com/scivision/fortran-pathlib/actions/workflows/intel-oneapi.yml/badge.svg)](https://github.com/scivision/fortran-pathlib/actions/workflows/intel-oneapi.yml)
 
 Platform independent (Linux, macOS, Windows), object-oriented Fortran filesystem path manipulation library.
-The C Runtime Library is used where native Fortran procedures do not exist.
-Inspired by
-[Python pathlib](https://docs.python.org/3/library/pathlib.html)
-and
-[C++ filesystem](https://en.cppreference.com/w/cpp/filesystem).
+This Fortran library uses
+[C++17 filesystem](https://en.cppreference.com/w/cpp/filesystem)
+internally, with fallback to C stdlib and vendor extensions to standard Fortran.
+Also inspired by
+[Python pathlib](https://docs.python.org/3/library/pathlib.html).
 
-Currently tested with compilers:
+Currently tested with compilers below, all of which use C++17 filesystem except GCC < 8.
 
-* GCC Gfortran &ge; 8.5
-* Intel oneAPI &ge; 2021
+* GCC 7
+* GCC 8, 9, 10, 11
+* Clang
+* Intel oneAPI
 
 Would be happy to support additional Fortran 2018 compilers as available for testing.
 For example, NAG, Cray, IBM XL, etc.
