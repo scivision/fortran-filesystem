@@ -320,6 +320,9 @@ end procedure is_symlink
 module procedure create_symlink
 character(kind=c_char, len=:), allocatable :: ctgt, clink
 
+if(len_trim(tgt) == 0) error stop "pathlib:create_symlink: target path must not be empty"
+if(len_trim(link) == 0) error stop "pathlib:create_symlink: link path must not be empty"
+
 ctgt = expanduser(tgt) // C_NULL_CHAR
 clink = expanduser(link) // C_NULL_CHAR
 

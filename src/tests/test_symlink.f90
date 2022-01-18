@@ -24,10 +24,10 @@ linko = parent(tgt) // "/test_oo.link"
 
 p_sym = path_t(linko)
 
-!if (is_symlink(link)) then
+if (is_symlink(link)) then
   print *, "deleting old symlink " // link
   call remove(link)
-!endif
+endif
 call create_symlink(tgt, link)
 
 if (p_sym%is_symlink()) then
@@ -36,6 +36,9 @@ if (p_sym%is_symlink()) then
 endif
 call p_tgt%create_symlink(linko)
 
+! call create_symlink("", "")  !< this error stops
+
+if(is_symlink("")) error stop "is_symlink('') should be false"
 if(is_symlink("not-exist-path.nobody")) error stop "is_symlink() should be false for non-existant path"
 
 if(is_symlink(tgt)) error stop "is_symlink() should be false for non-symlink path"
