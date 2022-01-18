@@ -310,12 +310,14 @@ Swap file suffix
 with_suffix("to/my.h5", ".hdf5")  !< "to/my.hdf5"
 ```
 
-Get parent directory of path:
+Get parent directory of path. The parent of the top-most relative path is ".".
 
 ```fortran
 p%parent()
 ! or
 parent("my/file.txt")  !< "my"
+
+parent("a") !< "."
 ```
 
 Get file name without path:
@@ -340,13 +342,15 @@ Requires absolute path or will return empty string.
 ```fortran
 p%root()
 ! or
-root("/a/b/c")
+root("/a/b/c") !< "/" on Unix, "" on Windows
+
+root ("c:/a/b/c") !< "c:" on Windows, "" on Unix
 ```
 
 Expand user home directory:
 
 ```fortran
-expanduser("~/my/path")
+expanduser("~/my/path")   !< "/home/user/my/path" on Unix, "<root>/Users/user/my/path" on Windows
 ```
 
 Resolve (canonicalize) path.
