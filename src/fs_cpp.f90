@@ -123,7 +123,6 @@ character(kind=c_char) :: cbuf(3)
 integer(c_size_t) :: N
 
 N = fs_filesep(cbuf)
-if (N /= 2) write(stderr,'(a,i0)') "pathlib:filesep: expected single null terminated char, got len ", N
 if (cbuf(2) /= C_NULL_CHAR) write(stderr,'(a)') "pathlib:filesep: expected single null terminated char, got: " // cbuf(2)
 
 filesep = cbuf(1)

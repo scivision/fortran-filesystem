@@ -15,6 +15,9 @@ print *, "OK: test_join"
 call test_filesep()
 print *, "OK: pathlib: filesep"
 
+call test_root()
+print *, "OK: pathlib: root"
+
 call test_manip()
 print *, "OK: pathlib: manip"
 
@@ -97,8 +100,6 @@ subroutine test_manip()
 
 type(path_t) :: p1, p2
 
-character(:), allocatable :: r
-
 p1 = path_t("hi.a.b")
 if (p1%stem() /= "hi.a") error stop "stem failed"
 p2 = path_t(p1%stem())
@@ -122,8 +123,23 @@ if (p2%parent() /= ".") error stop "parent idempotent failed" // p2%path()
 if (p1%file_name() /= "c") error stop "file_name failed"
 if (p2%file_name() /= "a") error stop "file_name idempotent failed"
 
+p1 = path_t("my/file.h5")
+p2 = p1%with_suffix(".hdf5")
+
+if (p2%path() /= "my/file.hdf5") error stop "%with_suffix failed: " // p2%path()
+if (p2%path() /= with_suffix("my/file.h5", ".hdf5")) error stop "with_suffix() failed: " // p2%path()
+
+end subroutine test_manip
+
+
+subroutine test_root()
+
+type(path_t) :: p1, p2
+character(:), allocatable :: r
+
 p1 = path_t("/etc")
 p2 = path_t("c:/etc")
+
 if(sys_posix()) then
   r = p1%root()
   if(r /= "/") error stop "unix %root failed 1: " // r
@@ -142,13 +158,7 @@ else
   if(root("c:/etc") /= "c:") error stop "windows root() failed"
 endif
 
-p1 = path_t("my/file.h5")
-p2 = p1%with_suffix(".hdf5")
-
-if (p2%path() /= "my/file.hdf5") error stop "%with_suffix failed: " // p2%path()
-if (p2%path() /= with_suffix("my/file.h5", ".hdf5")) error stop "with_suffix() failed: " // p2%path()
-
-end subroutine test_manip
+end subroutine test_root
 
 
 subroutine test_is_dir()
