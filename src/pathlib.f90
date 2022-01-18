@@ -133,13 +133,6 @@ end interface !< pure.f90
 
 interface  !< pure_iter.f90
 
-module pure function pathlib_parts(self)
-!! split path into up to 1000 parts (arbitrary limit)
-!! all path separators are discarded, except the leftmost if present
-class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_parts(:)
-end function pathlib_parts
-
 module pure subroutine file_parts(path, fparts)
 !! split path into up to 1000 parts (arbitrary limit)
 !! all path separators are discarded, except the leftmost if present
@@ -559,14 +552,14 @@ pathlib_file_size = file_size(self%path_str)
 end function pathlib_file_size
 
 
-module logical function pathlib_is_exe(self)
+logical function pathlib_is_exe(self)
 class(path_t), intent(in) :: self
 
 pathlib_is_exe = is_exe(self%path_str)
 end function pathlib_is_exe
 
 
-module subroutine pathlib_mkdir(self)
+subroutine pathlib_mkdir(self)
 !! create a directory, with parents if needed
 class(path_t), intent(in) :: self
 
@@ -574,7 +567,7 @@ call mkdir(self%path_str)
 end subroutine pathlib_mkdir
 
 
-module subroutine pathlib_copy_file(self, dest, overwrite)
+subroutine pathlib_copy_file(self, dest, overwrite)
 !! copy file from source to destination
 !! OVERWRITES existing destination files
 class(path_t), intent(in) :: self
@@ -585,7 +578,7 @@ call copy_file(self%path_str, dest, overwrite)
 end subroutine pathlib_copy_file
 
 
-module function pathlib_expanduser(self)
+function pathlib_expanduser(self)
 !! resolve home directory as Fortran does not understand tilde
 !! also swaps "\" for "/" and drops redundant file separators
 !! works for Linux, Mac, Windows, etc.
@@ -596,7 +589,7 @@ pathlib_expanduser%path_str = as_posix(expanduser(self%path_str))
 end function pathlib_expanduser
 
 
-module subroutine assert_is_file(path)
+subroutine assert_is_file(path)
 !! throw error if file does not exist
 character(*), intent(in) :: path
 
@@ -604,12 +597,21 @@ if (.not. is_dir(path)) error stop 'pathlib:assert_is_dir: directory does not ex
 end subroutine assert_is_file
 
 
-module subroutine assert_is_dir(path)
+subroutine assert_is_dir(path)
 !! throw error if directory does not exist
 character(*), intent(in) :: path
 
 if (.not. is_file(path)) error stop 'pathlib:assert_is_file: file does not exist ' // path
 end subroutine assert_is_dir
 
+
+pure function pathlib_parts(self)
+!! split path into up to 1000 parts (arbitrary limit)
+!! all path separators are discarded, except the leftmost if present
+class(path_t), intent(in) :: self
+character(:), allocatable :: pathlib_parts(:)
+
+call file_parts(self%path_str, fparts=pathlib_parts)
+end function pathlib_parts
 
 end module pathlib
