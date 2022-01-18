@@ -50,6 +50,21 @@ endif
 end procedure stem
 
 
+module procedure parent
+character(:), allocatable :: wk
+integer :: i
+
+wk = as_posix(path)
+
+i = index(wk, "/", back=.true.)
+if (i > 0) then
+  parent = wk(:i-1)
+else
+  parent = "."
+end if
+end procedure parent
+
+
 module procedure touch
 
 integer :: u

@@ -85,13 +85,13 @@ character(*), intent(in) :: path
 character(:), allocatable :: as_windows
 end function as_windows
 
-module pure function pathlib_parent(self)
+module function pathlib_parent(self)
 !! returns parent directory of path
 class(path_t), intent(in) :: self
 character(:), allocatable :: pathlib_parent
 end function pathlib_parent
 
-module pure function parent(path)
+module function parent(path)
 !! returns parent directory of path
 character(*), intent(in) :: path
 character(:), allocatable :: parent

@@ -118,7 +118,7 @@ if (p1%parent() /= "a/b") error stop "parent failed" // p1%path()
 p2 = path_t(p1%parent())
 if (p2%parent() /= "a") error stop "parent nest failed" // p1%path()
 p2 = path_t("a")
-if (p2%parent() /= ".") error stop "parent idempotent failed" // p2%path()
+if (p2%parent() /= ".") error stop "parent idempotent failed. Expected '.', but got: " // p2%path()
 
 if (p1%file_name() /= "c") error stop "file_name failed"
 if (p2%file_name() /= "a") error stop "file_name idempotent failed"
@@ -153,7 +153,6 @@ else
   if(p1%root() == "/") error stop "windows %root failed"
 
   r = p2%root()
-  print *, "TRACE: test_root: 2: " // r
   if( r/= "c:") error stop "windows %root failed 2: " // r
   if(root("c:/etc") /= "c:") error stop "windows root() failed"
 endif

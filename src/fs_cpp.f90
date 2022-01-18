@@ -21,12 +21,17 @@ character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: filename(*)
 end function fs_file_name
 
-
 integer(C_SIZE_T) function fs_stem(path, fstem) bind(C, name="stem")
 import
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: fstem(*)
 end function fs_stem
+
+integer(C_SIZE_T) function fs_parent(path, fparent) bind(C, name="parent")
+import
+character(kind=c_char), intent(in) :: path(*)
+character(kind=c_char), intent(out) :: fparent(*)
+end function fs_parent
 
 logical(c_bool) function fs_is_symlink(path) bind(C, name="is_symlink")
 import c_bool, c_char
@@ -179,6 +184,25 @@ end do
 stem = trim(buf)
 
 end procedure stem
+
+
+module procedure parent
+character(kind=c_char, len=2048) :: cpath, cbuf
+integer(C_SIZE_T) :: N, i
+character(2048) :: buf
+
+cpath = expanduser(path) // C_NULL_CHAR
+
+N = fs_parent(cpath, cbuf)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cbuf(i:i)
+end do
+
+parent = trim(buf)
+
+end procedure parent
 
 
 module procedure touch

@@ -20,7 +20,6 @@ extern "C" size_t filesep(char* sep) {
   fs::path p("/");
 
   std::strcpy(sep, p.make_preferred().string().c_str());
-
   return strlen(sep);
 }
 
@@ -29,7 +28,6 @@ extern "C" size_t file_name(const char* path, char* filename) {
   fs::path p(path);
 
   std::strcpy(filename, p.filename().string().c_str());
-
   return strlen(filename);
 }
 
@@ -38,10 +36,22 @@ extern "C" size_t stem(const char* path, char* fstem) {
   fs::path p(path);
 
   std::strcpy(fstem, p.stem().string().c_str());
-
   return strlen(fstem);
 }
 
+
+extern "C" size_t parent(const char* path, char* fparent) {
+  fs::path p(path);
+
+  if(p.has_parent_path()){
+    std::strcpy(fparent, p.parent_path().string().c_str());
+  }
+  else{
+    std::strcpy(fparent, ".");
+  }
+
+  return strlen(fparent);
+}
 
 
 extern "C" bool is_symlink(const char* path) {

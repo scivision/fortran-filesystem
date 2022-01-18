@@ -59,23 +59,6 @@ pathlib_parent = parent(self%path_str)
 end procedure pathlib_parent
 
 
-module procedure parent
-
-character(:), allocatable :: wk
-integer :: i
-
-wk = as_posix(path)
-
-i = index(wk, "/", back=.true.)
-if (i > 0) then
-  parent = wk(:i-1)
-else
-  parent = "."
-end if
-
-end procedure parent
-
-
 module procedure pathlib_file_name
 pathlib_file_name = file_name(self%path_str)
 end procedure pathlib_file_name
