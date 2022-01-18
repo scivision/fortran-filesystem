@@ -15,7 +15,7 @@ module procedure get_cwd
 use ifport, only : getcwd
 
 integer :: i
-character(4096) :: work
+character(MAXP) :: work
 
 i = getcwd(work)
 if(i /= 0) error stop "pathlib:get_cwd: could not get current working dir"

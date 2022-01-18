@@ -8,7 +8,7 @@ use pathlib
 implicit none (type, external)
 
 integer :: i
-character(1000) :: buf, buf2
+character(MAXP) :: buf, buf2
 character(16) :: fcn
 
 if (command_argument_count() < 1) error stop "usage: ./pathlib <function> [<path> ...]"

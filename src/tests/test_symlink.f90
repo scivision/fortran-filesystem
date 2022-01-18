@@ -6,7 +6,7 @@ implicit none (type, external)
 
 integer :: i, L
 type(path_t) :: p_sym, p_tgt
-character(2048) :: buf
+character(4096) :: buf
 
 character(:), allocatable :: tgt, link, linko
 

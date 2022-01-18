@@ -175,9 +175,9 @@ end procedure filesep
 
 
 module procedure file_name
-character(kind=c_char, len=2048) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cpath, cbuf
 integer(C_SIZE_T) :: N, i
-character(2048) :: buf
+character(MAXP) :: buf
 
 cpath = path // C_NULL_CHAR
 
@@ -194,9 +194,9 @@ end procedure file_name
 
 
 module procedure stem
-character(kind=c_char, len=2048) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cpath, cbuf
 integer(C_SIZE_T) :: N, i
-character(2048) :: buf
+character(MAXP) :: buf
 
 cpath = expanduser(path) // C_NULL_CHAR
 
@@ -213,9 +213,9 @@ end procedure stem
 
 
 module procedure parent
-character(kind=c_char, len=2048) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cpath, cbuf
 integer(C_SIZE_T) :: N, i
-character(2048) :: buf
+character(MAXP) :: buf
 
 cpath = expanduser(path) // C_NULL_CHAR
 
@@ -232,9 +232,9 @@ end procedure parent
 
 
 module procedure suffix
-character(kind=c_char, len=2048) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cpath, cbuf
 integer(C_SIZE_T) :: N, i
-character(2048) :: buf
+character(MAXP) :: buf
 
 cpath = path // C_NULL_CHAR
 
@@ -251,9 +251,9 @@ end procedure suffix
 
 
 module procedure normal
-character(kind=c_char, len=2048) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cpath, cbuf
 integer(C_SIZE_T) :: N, i
-character(2048) :: buf
+character(MAXP) :: buf
 
 cpath = path // C_NULL_CHAR
 
@@ -271,9 +271,9 @@ end procedure normal
 
 
 module procedure with_suffix
-character(kind=c_char, len=2048) :: cpath, csuff, cbuf
+character(kind=c_char, len=MAXP) :: cpath, csuff, cbuf
 integer(C_SIZE_T) :: N, i
-character(2048) :: buf
+character(MAXP) :: buf
 
 cpath = path // C_NULL_CHAR
 csuff = new // C_NULL_CHAR
@@ -342,9 +342,9 @@ end procedure mkdir
 
 
 module procedure canonical
-character(kind=c_char, len=2048) :: cpath
+character(kind=c_char, len=MAXP) :: cpath
 integer(C_SIZE_T) :: N, i
-character(2048) :: buf
+character(MAXP) :: buf
 logical(c_bool) :: s
 
 s = .false.
@@ -366,9 +366,9 @@ end procedure canonical
 
 
 module procedure root
-character(kind=c_char, len=2048) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cpath, cbuf
 integer(C_SIZE_T) :: N, i
-character(2048) :: buf
+character(MAXP) :: buf
 
 cpath = expanduser(path) // C_NULL_CHAR
 
@@ -455,9 +455,9 @@ end procedure copy_file
 module procedure relative_to
 character(kind=c_char, len=:), allocatable :: s1, s2
 character(:), allocatable :: a1, b1
-character(kind=c_char) :: rel(2048)
+character(kind=c_char) :: rel(MAXP)
 integer(C_SIZE_T) :: N, i
-character(2048) :: buf
+character(MAXP) :: buf
 
 a1 = expanduser(a)
 b1 = expanduser(b)
@@ -492,9 +492,9 @@ end procedure relative_to
 
 
 module procedure get_tempdir
-character(kind=c_char, len=2048) :: cpath
+character(kind=c_char, len=MAXP) :: cpath
 integer(C_SIZE_T) :: N, i
-character(2048) :: buf
+character(MAXP) :: buf
 
 N = fs_get_tempdir(cpath)
 
@@ -510,9 +510,9 @@ end procedure get_tempdir
 
 
 module procedure get_cwd
-character(kind=c_char, len=2048) :: cpath
+character(kind=c_char, len=MAXP) :: cpath
 integer(C_SIZE_T) :: N, i
-character(2048) :: buf
+character(MAXP) :: buf
 
 N = fs_get_cwd(cpath)
 

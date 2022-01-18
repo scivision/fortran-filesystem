@@ -11,7 +11,7 @@ module procedure home
 !!
 !! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
 
-character(4096) :: buf
+character(MAXP) :: buf
 integer :: L, istat
 
 call get_environment_variable("HOME", buf, length=L, status=istat)
