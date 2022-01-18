@@ -50,6 +50,8 @@ else
   expanduser = homedir // expanduser(2:)
 endif
 
+expanduser = as_posix(expanduser)
+
 end procedure expanduser
 
 

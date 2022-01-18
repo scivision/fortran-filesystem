@@ -1,6 +1,7 @@
 program test_expanduser
 
-use pathlib, only : path_t
+use pathlib, only : path_t, expanduser
+
 implicit none (type,external)
 
 character(:), allocatable :: fn
@@ -13,6 +14,8 @@ p2 = path_t("~")
 
 p1 = p1%expanduser()
 p2 = p2%expanduser()
+
+if(expanduser("~") /= p2%path()) error stop "expanduser() fcn /= method" // expanduser("~") // " /= " // p2%path()
 
 if(p1%path() /= "") error stop "expanduser blank failed"
 p3 = path_t(p2%path())
