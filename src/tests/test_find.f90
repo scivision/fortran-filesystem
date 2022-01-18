@@ -89,6 +89,12 @@ else
   if (fn2 /= "j:/foo/rel") error stop "did not make_absolute Windows j:/foo/rel, got: " // fn2
 endif
 
+if(make_absolute("rel", "") /= "/rel") error stop "make_absolute empty root"
+
+if(make_absolute("", "") /= "/") error stop "make_absolute empty both"
+
+if(make_absolute("", "rel") /= "rel/") error stop "make_absolute empty base: " //make_absolute("", "rel")
+
 end subroutine test_make_absolute
 
 end program
