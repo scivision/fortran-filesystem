@@ -7,6 +7,8 @@ implicit none (type, external)
 integer :: u, d(10)
 type(path_t) :: p1
 
+d = 0
+
 p1 = path_t("test_size.bin")
 
 open(newunit=u, file=p1%path(), status="replace", action="write", access="stream")

@@ -37,6 +37,10 @@ jobs:
     - run: cmake --build --preset debug
     - run: ctest --preset debug -V
 
+    - name: Valgrind
+      if: matrix.gcc-version == 11
+      run: ctest -T memcheck --test-dir build -C Debug
+
     - run: cmake --build --preset release
     - run: ctest --preset release -V
 

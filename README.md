@@ -7,7 +7,9 @@
 Platform independent (Linux, macOS, Windows), object-oriented Fortran filesystem path manipulation library.
 This Fortran library uses
 [C++17 filesystem](https://en.cppreference.com/w/cpp/filesystem)
-internally, with fallback to C stdlib and vendor extensions to standard Fortran.
+internally.
+That is, we do not use compiler extensions unless C++17 filesystem isn't available.
+For those old compilers, pathlib falls back to C stdlib and vendor extensions to standard Fortran.
 Also inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html).
 
@@ -18,8 +20,8 @@ Currently tested with compilers below, all of which use C++17 filesystem except 
 * Clang
 * Intel oneAPI
 
-Would be happy to support additional Fortran 2018 compilers as available for testing.
-For example, NAG, Cray, IBM XL, etc.
+Should work with other C++17 and Fortran 2008 compilers, but we haven't tested them.
+E.g. Cray, IBM XL, NAG, et al.
 
 Fortran "pathlib" module contains one Fortran type "path_t" that contains properties and methods.
 The "path_t" type uses getter and setter procedure to access the path as a string `character(:), allocatable`.
