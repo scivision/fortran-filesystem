@@ -365,6 +365,11 @@ integer(C_SIZE_T) :: N, i
 character(MAXP) :: buf
 logical(c_bool) :: s
 
+if(len_trim(path) == 0) then
+  canonical = ""
+  return
+endif
+
 s = .false.
 if(present(strict)) s = strict
 
