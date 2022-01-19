@@ -391,11 +391,9 @@ sep = filesep()
 Get home directory, or empty string if not found
 
 ```fortran
-use pathlib, only : home
+character(:), allocatable :: home
 
-character(:), allocatable :: homedir
-
-homedir = home()
+home = get_homedir()
 ```
 
 Get current working directory

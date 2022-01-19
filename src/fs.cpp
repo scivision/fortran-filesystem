@@ -343,3 +343,15 @@ extern "C" bool is_exe(const char* path) {
   auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
   return i != fs::perms::none;
 }
+
+
+extern "C" size_t get_homedir(char* path) {
+
+#ifdef _WIN32
+  std::strcpy(path, fs::path(getenv("USERPROFILE")).string().c_str());
+#else
+  std::strcpy(path, fs::path(getenv("HOME")).string().c_str());
+#endif
+
+  return as_posix(path);
+}

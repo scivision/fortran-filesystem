@@ -120,6 +120,11 @@ import
 character(kind=c_char), intent(in) :: path(*)
 end function fs_touch
 
+integer(C_SIZE_T) function fs_get_homedir(path) bind(C, name="get_homedir")
+import
+character(kind=c_char), intent(out) :: path(*)
+end function fs_get_homedir
+
 integer(C_SIZE_T) function fs_get_tempdir(path) bind(C, name="get_tempdir")
 import
 character(kind=c_char), intent(out) :: path(*)
@@ -482,6 +487,23 @@ end do
 
 relative_to = trim(buf)
 end procedure relative_to
+
+
+module procedure get_homedir
+character(kind=c_char, len=MAXP) :: cpath
+integer(C_SIZE_T) :: N, i
+character(MAXP) :: buf
+
+N = fs_get_homedir(cpath)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cpath(i:i)
+end do
+
+get_homedir = trim(buf)
+
+end procedure get_homedir
 
 
 module procedure get_tempdir

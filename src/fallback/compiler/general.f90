@@ -202,4 +202,25 @@ end do
 end procedure relative_to
 
 
+module procedure get_homedir
+!! returns home directory, or empty string if not found
+!!
+!! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
+
+character(MAXP) :: buf
+integer :: istat
+
+if(sys_posix()) then
+  call get_environment_variable("HOME", buf, status=istat)
+else
+  call get_environment_variable("USERPROFILE", buf, status=istat)
+endif
+
+if (istat /= 0) get_homedir = ""
+
+get_homedir = as_posix(buf)
+
+end procedure get_homedir
+
+
 end submodule no_cpp_fs

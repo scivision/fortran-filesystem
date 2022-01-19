@@ -5,7 +5,7 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 implicit none (type, external)
 private
 public :: path_t  !< base class
-public :: home, canonical, get_cwd !< utility procedures
+public :: get_homedir, canonical, get_cwd !< utility procedures
 public :: as_posix, normal, expanduser, &
 is_absolute, is_dir, is_file, is_exe, is_symlink, exists, &
 join, &
@@ -212,12 +212,14 @@ end interface
 
 
 interface !< envvar.f90
-module function home()
+module function get_homedir()
 !! returns home directory, or empty string if not found
 !!
 !! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
-character(:), allocatable :: home
-end function home
+character(:), allocatable :: get_homedir
+end function get_homedir
+
+
 end interface
 
 
