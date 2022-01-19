@@ -624,7 +624,7 @@ length = len_trim(self%path_str)
 end function length
 
 
-module function join(path, other)
+function join(path, other)
 !! returns path_t object with other appended to self using posix separator
 character(:), allocatable :: join
 character(*), intent(in) :: path, other
