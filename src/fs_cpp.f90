@@ -120,6 +120,12 @@ import
 character(kind=c_char), intent(in) :: path(*)
 end function fs_touch
 
+integer(C_SIZE_T) function fs_expanduser(path, result) bind(C, name="expanduser")
+import
+character(kind=c_char), intent(in) :: path(*)
+character(kind=c_char), intent(out) :: result(*)
+end function fs_expanduser
+
 integer(C_SIZE_T) function fs_get_homedir(path) bind(C, name="get_homedir")
 import
 character(kind=c_char), intent(out) :: path(*)
@@ -203,7 +209,7 @@ character(kind=c_char, len=MAXP) :: cpath, cbuf
 integer(C_SIZE_T) :: N, i
 character(MAXP) :: buf
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 
 N = fs_stem(cpath, cbuf)
 
@@ -222,7 +228,7 @@ character(kind=c_char, len=MAXP) :: cpath, cbuf
 integer(C_SIZE_T) :: N, i
 character(MAXP) :: buf
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 
 N = fs_parent(cpath, cbuf)
 
@@ -317,7 +323,7 @@ end procedure with_suffix
 module procedure touch
 character(kind=c_char, len=:), allocatable :: cpath
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 
 if(.not. fs_touch(cpath)) error stop "pathlib:touch: " // path
 end procedure touch
@@ -335,7 +341,7 @@ end procedure is_absolute
 module procedure is_symlink
 character(kind=c_char, len=:), allocatable :: cpath
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 is_symlink = fs_is_symlink(cpath)
 end procedure is_symlink
 
@@ -343,8 +349,8 @@ end procedure is_symlink
 module procedure create_symlink
 character(kind=c_char, len=:), allocatable :: ctgt, clink
 
-ctgt = expanduser(tgt) // C_NULL_CHAR
-clink = expanduser(link) // C_NULL_CHAR
+ctgt = tgt // C_NULL_CHAR
+clink = link // C_NULL_CHAR
 
 call fs_create_symlink(ctgt, clink)
 end procedure create_symlink
@@ -353,7 +359,7 @@ end procedure create_symlink
 module procedure mkdir
 character(kind=c_char, len=:), allocatable :: cpath
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 
 if (.not. fs_create_directories(cpath)) error stop "pathlib:mkdir: failed to create directory: " // path
 end procedure mkdir
@@ -368,7 +374,7 @@ logical(c_bool) :: s
 s = .false.
 if(present(strict)) s = strict
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 
 N = fs_canonical(cpath, s)
 
@@ -387,7 +393,7 @@ character(kind=c_char, len=MAXP) :: cpath, cbuf
 integer(C_SIZE_T) :: N, i
 character(MAXP) :: buf
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 
 N = fs_root(cpath, cbuf)
 
@@ -404,7 +410,7 @@ end procedure root
 module procedure exists
 character(kind=c_char, len=:), allocatable :: cpath
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 exists = fs_exists(cpath)
 end procedure exists
 
@@ -412,14 +418,14 @@ end procedure exists
 module procedure is_file
 character(kind=c_char, len=:), allocatable :: cpath
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 is_file = fs_is_file(cpath)
 end procedure is_file
 
 module procedure is_dir
 character(kind=c_char, len=:), allocatable :: cpath
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 is_dir = fs_is_dir(cpath)
 end procedure is_dir
 
@@ -427,7 +433,7 @@ end procedure is_dir
 module procedure is_exe
 character(kind=c_char, len=:), allocatable :: cpath
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 is_exe = fs_is_exe(cpath)
 end procedure is_exe
 
@@ -435,8 +441,8 @@ end procedure is_exe
 module procedure same_file
 character(kind=c_char, len=:), allocatable :: c1, c2
 
-c1 = expanduser(path1) // C_NULL_CHAR
-c2 = expanduser(path2) // C_NULL_CHAR
+c1 = path1 // C_NULL_CHAR
+c2 = path2 // C_NULL_CHAR
 
 same_file = fs_equivalent(c1, c2)
 end procedure same_file
@@ -461,8 +467,8 @@ logical(c_bool) :: e, ow
 ow = .false.
 if(present(overwrite)) ow = overwrite
 
-csrc = expanduser(src) // C_NULL_CHAR
-cdest = expanduser(dest) // C_NULL_CHAR
+csrc = src // C_NULL_CHAR
+cdest = dest // C_NULL_CHAR
 
 e = fs_copy_file(csrc, cdest, ow)
 if (.not. e) error stop "failed to copy file: " // src // " to " // dest
@@ -475,8 +481,8 @@ character(kind=c_char) :: rel(MAXP)
 integer(C_SIZE_T) :: N, i
 character(MAXP) :: buf
 
-s1 = expanduser(a) // C_NULL_CHAR
-s2 = expanduser(b) // C_NULL_CHAR
+s1 = a // C_NULL_CHAR
+s2 = b // C_NULL_CHAR
 
 N = fs_relative_to(s1, s2, rel)
 
@@ -487,6 +493,25 @@ end do
 
 relative_to = trim(buf)
 end procedure relative_to
+
+
+module procedure expanduser
+character(kind=c_char, len=:), allocatable :: s1
+character(kind=c_char) :: cbuf(MAXP)
+integer(C_SIZE_T) :: N, i
+character(MAXP) :: buf
+
+s1 = trim(path) // C_NULL_CHAR
+
+N = fs_expanduser(s1, cbuf)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cbuf(i)
+end do
+
+expanduser = trim(buf)
+end procedure expanduser
 
 
 module procedure get_homedir
@@ -543,7 +568,7 @@ end procedure get_cwd
 module procedure file_size
 character(kind=c_char, len=:), allocatable :: cpath
 
-cpath = expanduser(path) // C_NULL_CHAR
+cpath = path // C_NULL_CHAR
 
 file_size = fs_file_size(cpath)
 if(file_size < 0) write(stderr,*) "pathlib:file_size: " // path // " is not a file."

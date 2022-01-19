@@ -4,7 +4,7 @@ use pathlib, only : path_t, get_cwd, same_file, resolve, mkdir, is_dir, is_file
 
 implicit none (type, external)
 
-type(path_t) :: cur, parent, file, p1, p2
+type(path_t) :: cur, par, file, p1, p2
 character(*), parameter :: dummy = "nobody.txt"
 
 integer :: L1, L2, L3
@@ -24,21 +24,24 @@ print *, "OK: current dir = ", cur%path()
 ! -- home directory
 p1 = path_t("~")
 p1 = p1%resolve()
-if (p1%path(1,1) == "~") error stop "%resolve ~" // p1%path()
+if (p1%path(1,1) == "~") error stop "%resolve ~ did not expanduser: " // p1%path()
 if (resolve("~") == "~") error stop "resolve('~') should not be '~'"
 print *, "OK: home dir = ", p1%path()
 
 p2 = path_t(p1%parent())
-if (p2%length() >= p1%length()) error stop "parent home " // p2%path()
+L1 = p2%length()
+if (L1 >= p1%length()) error stop "parent home " // p2%path()
+print *, "OK: parent home = ", p2%path()
+
 
 ! -- relative dir
-parent = path_t("~/..")
-parent = parent%resolve()
+par = path_t("~/..")
+par = par%resolve()
 
-L2 = parent%length()
-if (L2 < 1) error stop 'directory was not canonicalized: ' // parent%path()
+L2 = par%length()
+if (L2 /= L1) error stop 'up directory was not canonicalized: ~/.. => ' // par%path()
 
-print *, 'OK: parent = ', parent%path()
+print *, 'OK: canon_dir = ', par%path()
 
 ! -- relative file
 file = path_t('~/../' // dummy)

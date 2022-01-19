@@ -28,6 +28,8 @@ fn = p1%path()
 i = len(fn)
 if (fn(i:i) /= "/") error stop "expanduser preserve separator failed"
 
+if (expanduser("~//") /= expanduser("~/")) error stop "expanduser double separator failed: " // expanduser("~//")
+
 print *, "OK: pathlib: expanduser"
 
 end program

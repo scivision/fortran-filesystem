@@ -5,18 +5,26 @@
 #include <cstring>
 #include <fstream>
 #include <filesystem>
+#include <regex>
 
 namespace fs = std::filesystem;
 
 extern "C" size_t filesep(char*);
 extern "C" size_t as_posix(char*);
 extern "C" bool is_dir(const char*);
+extern "C" size_t get_homedir(char*);
+extern "C" size_t expanduser(const char*, char*);
 
 
 extern "C" size_t as_posix(char* path){
+  // also remove duplicated separators
     std::string s(path);
 
     std::replace(s.begin(), s.end(), '\\', '/');
+
+    std::regex r("/{2,}");
+    std::regex_replace(s, r, "/");
+
     strcpy(path, s.c_str());
 
     return strlen(path);
@@ -27,7 +35,7 @@ extern "C" bool sys_posix() {
   char sep[2];
 
   filesep(sep);
-  return strcmp(sep, "/") == 0;
+  return sep[0] == '/';
 }
 
 extern "C" size_t filesep(char* sep) {
@@ -207,14 +215,21 @@ extern "C" size_t canonical(char* path, bool strict){
     return 0;
   }
 
+  char ex[4096];
+  expanduser(path, ex);
+
+   std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
+
   fs::path p;
 
   if(strict){
-    p = fs::canonical(path);
+    p = fs::canonical(ex);
   }
   else {
-    p = fs::weakly_canonical(path);
+    p = fs::weakly_canonical(ex);
   }
+
+  std::cout << "TRACE:canonical: " << p << std::endl;
 
   std::strcpy(path, p.string().c_str());
   return as_posix(path);
@@ -354,4 +369,65 @@ extern "C" size_t get_homedir(char* path) {
 #endif
 
   return as_posix(path);
+}
+
+
+extern "C" size_t expanduser(const char* path, char* result){
+
+  std::string p(path);
+
+  // std::cout << "TRACE:expanduser: path: " << p << " length: " << strlen(path) << std::endl;
+
+  if( p.length() == 0 ) {
+    result = NULL;
+    return 0;
+  }
+
+  if(p.front() != '~') {
+    strcpy(result, path);
+    return as_posix(result);
+  }
+
+  char h[4096];
+  get_homedir(h);
+
+  std::string s(h);
+
+  // std::cout << "TRACE:expanduser: home: " << s << std::endl;
+
+  if( s.length() == 0 ) {
+    strcpy(result, path);
+    return as_posix(result);
+  }
+
+  fs::path home(s);
+
+  // std::cout << "TRACE:expanduser: path(home) " << home << std::endl;
+
+// drop duplicated separators
+  std::regex r("/{2,}");
+
+  std::replace(p.begin(), p.end(), '\\', '/');
+  p = std::regex_replace(p, r, "/");
+
+  // std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
+
+  if (p.length() == 1) {
+    // ~ alone
+    strcpy(result, home.string().c_str());
+    return as_posix(result);
+  }
+  else if (p.length() == 2) {
+    // ~/ alone
+    strcpy(result, (home.string() + "/").c_str());
+    return as_posix(result);
+  }
+
+  // std::cout << "TRACE:expanduser: trailing path: " << p1 << std::endl;
+
+  strcpy(result, (home / p.substr(2)).string().c_str());
+
+  // std::cout << "TRACE:expanduser: result " << result << std::endl;
+
+  return as_posix(result);
 }
