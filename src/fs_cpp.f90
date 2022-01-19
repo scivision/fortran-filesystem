@@ -1,6 +1,6 @@
 submodule (pathlib) fs_cpp
 
-use, intrinsic :: iso_c_binding, only : c_bool, c_char, C_NULL_CHAR, C_SIZE_T
+use, intrinsic :: iso_c_binding, only : c_bool, c_char, c_ptr, C_NULL_CHAR, C_SIZE_T
 
 implicit none (type, external)
 

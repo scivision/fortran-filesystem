@@ -159,25 +159,28 @@ return result_size;
 
 extern "C" bool equivalent(const char* path1, const char* path2) {
   // check existance to avoid error if not exist
+  fs::path p1(path1);
+  fs::path p2(path2);
 
-  if (!fs::exists(path1) | !fs::exists(path2)) return false;
+  if (! (fs::exists(p1) & fs::exists(p2)) ) return false;
 
-  return fs::equivalent(path1, path2);
+  return fs::equivalent(p1, p2);
 }
 
 extern "C" bool copy_file(const char* source, const char* destination, bool overwrite) {
+  fs::path d(destination);
 
   auto opt = fs::copy_options::none;
 
   if (overwrite) {
 
 // WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
-  if(fs::exists(destination)) fs::remove(destination);
+  if(fs::exists(d)) fs::remove(d);
 
   opt |= fs::copy_options::overwrite_existing;
   }
 
-  return fs::copy_file(source, destination, opt);
+  return fs::copy_file(source, d, opt);
 }
 
 
@@ -188,8 +191,6 @@ extern "C" size_t relative_to(const char* a, const char* b, char* result) {
   std::strcpy(result, r.string().c_str());
   auto result_size = strlen(result);
 
-  // std::cout << "TRACE:relative_to: " << a << " " << b << " " << r << " " << result_size << std::endl;
-
   return result_size;
 }
 
@@ -198,15 +199,18 @@ extern "C" bool touch(const char* path) {
 
   fs::path p(path);
 
-  if (fs::exists(p) & !fs::is_regular_file(p)) return false;
+  auto s = fs::status(p);
 
-  if(!fs::is_regular_file(p)) {
+  if (fs::exists(s) & !fs::is_regular_file(s)) return false;
+
+  if(!fs::is_regular_file(s)) {
     std::ofstream ost;
     ost.open(p);
     ost.close();
   }
 
   if (!fs::is_regular_file(p)) return false;
+  // here p because we want to check the new file
 
   fs::last_write_time(p, std::filesystem::file_time_type::clock::now());
 
@@ -235,11 +239,14 @@ extern "C" size_t get_cwd(char* path) {
   return strlen(path);
 }
 
+
 extern "C" bool is_exe(const char* path) {
   fs::path p(path);
 
-  if (!fs::is_regular_file(p)) return false;
+  auto s = fs::status(p);
 
-  auto i = fs::status(p).permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
+  if (!fs::is_regular_file(s)) return false;
+
+  auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
   return i != fs::perms::none;
 }
