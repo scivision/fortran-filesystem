@@ -6,7 +6,7 @@ implicit none (type, external)
 private
 public :: path_t  !< base class
 public :: home, canonical, get_cwd !< utility procedures
-public :: as_posix, as_windows, normal, expanduser, &
+public :: as_posix, normal, expanduser, &
 is_absolute, is_dir, is_file, is_exe, is_symlink, exists, &
 join, &
 copy_file, mkdir, &
@@ -57,7 +57,7 @@ is_symlink=>pathlib_is_symlink, create_symlink=>pathlib_create_symlink, &
 copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
 touch=>pathlib_touch, &
 parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>pathlib_root, suffix=>pathlib_suffix, &
-as_windows=>pathlib_as_windows, as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
+as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
 with_suffix=>pathlib_with_suffix, &
 resolve=>pathlib_resolve, same_file=>pathlib_same_file, is_exe=>pathlib_is_exe, &
 remove=>pathlib_unlink, file_size=>pathlib_file_size, &
@@ -81,12 +81,6 @@ module function join(path, other)
 character(:), allocatable :: join
 character(*), intent(in) :: path, other
 end function join
-
-module pure function as_windows(path)
-!! '/' => '\' for Windows systems
-character(*), intent(in) :: path
-character(:), allocatable :: as_windows
-end function as_windows
 
 module function parent(path)
 !! returns parent directory of path
@@ -466,16 +460,6 @@ type(path_t) :: pathlib_as_posix
 
 pathlib_as_posix%path_str = as_posix(self%path_str)
 end function pathlib_as_posix
-
-
-pure function pathlib_as_windows(self)
-!! '/' => '\' for Windows systems
-
-class(path_t), intent(in) :: self
-type(path_t) :: pathlib_as_windows
-
-pathlib_as_windows%path_str = as_windows(self%path_str)
-end function pathlib_as_windows
 
 
 function pathlib_join(self, other)

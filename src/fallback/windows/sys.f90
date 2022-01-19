@@ -32,4 +32,22 @@ if (i /= 0 .or. j /= 0) error stop "pathlib:copy_file: could not copy " // s // 
 end procedure copy_file
 
 
+pure function as_windows(path)
+!! '/' => '\' for Windows systems
+character(*), intent(in) :: path
+character(:), allocatable :: as_windows
+
+integer :: i
+
+as_windows = trim(path)
+
+i = index(as_windows, '/')
+do while (i > 0)
+  as_windows(i:i) = char(92)
+  i = index(as_windows, '/')
+end do
+
+end function as_windows
+
+
 end submodule windows_sys

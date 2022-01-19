@@ -122,12 +122,6 @@ p = p%resolve()
 p%path() == "<absolute path of current working directory>/b"
 ```
 
-'/' => '\\' for Windows paths
-
-```fortran
-p = p%as_windows()
-```
-
 '\\' => '/' for Unix paths, dropping redundant file separators "//"
 
 ```fortran
@@ -267,12 +261,6 @@ These procedures emit a string.
 
 ```fortran
 as_posix("my\path")
-```
-
-'/' => '\\' for Windows paths
-
-```fortran
-as_windows("my/path")
 ```
 
 Split path_t into path components.

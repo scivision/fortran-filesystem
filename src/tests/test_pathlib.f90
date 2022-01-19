@@ -76,9 +76,6 @@ p1 = path_t("")
 p2 = p1%as_posix()
 if (p2%path() /= "") error stop "as_posix empty"
 
-p2 = p1%as_windows()
-if (p2%path() /= "") error stop "as_windows empty"
-
 p1 = path_t("/")
 p3 = p1%as_posix()
 if(p3%path() /= "/") error stop "as_posix '/' failed"
@@ -86,12 +83,6 @@ if(p3%path() /= "/") error stop "as_posix '/' failed"
 p2 = path_t(char(92))
 p3 = p2%as_posix()
 if(p3%path() /= "/") error stop "as_posix char(92) failed"
-
-p3 = p1%as_windows()
-if(p3%path() /= char(92)) error stop "as_windows '\' failed"
-
-p3 = p2%as_windows()
-if(p3%path() /= char(92)) error stop "as_windows char(92) failed"
 
 end subroutine test_filesep
 

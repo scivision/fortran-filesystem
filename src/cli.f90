@@ -34,8 +34,6 @@ end select
 select case (fcn)
 case ("as_posix")
   print '(A)', as_posix(buf)
-case ("as_windows")
-  print '(A)', as_windows(buf)
 case ("get_cwd")
   print '(A)', trim(get_cwd())
 case ("normal")
