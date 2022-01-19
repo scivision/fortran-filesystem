@@ -71,17 +71,6 @@ end interface
 
 
 interface  !< pure.f90
-module pure integer function length(self)
-!! returns string length len_trim(path)
-class(path_t), intent(in) :: self
-end function length
-
-module function join(path, other)
-!! returns path_t object with other appended to self using posix separator
-character(:), allocatable :: join
-character(*), intent(in) :: path, other
-end function join
-
 module function parent(path)
 !! returns parent directory of path
 character(*), intent(in) :: path
@@ -623,5 +612,23 @@ character(*), intent(in) :: text
 
 call write_text(self%path_str, text)
 end subroutine pathlib_write_text
+
+
+pure integer function length(self)
+!! returns string length len_trim(path)
+class(path_t), intent(in) :: self
+
+length = len_trim(self%path_str)
+end function length
+
+
+module function join(path, other)
+!! returns path_t object with other appended to self using posix separator
+character(:), allocatable :: join
+character(*), intent(in) :: path, other
+
+join = as_posix(path // "/" // other)
+end function join
+
 
 end module pathlib
