@@ -354,8 +354,11 @@ if(exists(wk)) then
 endif
 
 cpath = wk // C_NULL_CHAR
-if(.not. fs_create_directories(cpath)) error stop "pathlib:mkdir: could not create directory: " // path
 
+if(.not. fs_create_directories(cpath)) then
+  !! old MacOS return false even if directory was created
+  if(.not. is_dir(wk)) error stop "pathlib:mkdir: could not create directory: " // path
+endif
 end procedure mkdir
 
 
