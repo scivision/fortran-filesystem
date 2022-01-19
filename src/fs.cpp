@@ -141,7 +141,9 @@ extern "C" bool create_directories(const char* path) {
 
   if( !ok ) {
     // old MacOS return false even if directory was created
-    if(!is_dir(path)) {
+    if(is_dir(path)) {
+      return true;
+    else{
       std::cerr << "pathlib:mkdir:create_directories: " << path << " could not be created" << std::endl;
       exit(EXIT_FAILURE);
     }
