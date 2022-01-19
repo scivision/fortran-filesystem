@@ -1,5 +1,6 @@
 // functions from C++17 filesystem
 
+#include <iostream>
 #include <cstring>
 #include <fstream>
 #include <filesystem>
@@ -7,6 +8,7 @@
 namespace fs = std::filesystem;
 
 extern "C" size_t filesep(char*);
+extern "C" bool is_dir(const char*);
 
 
 extern "C" bool sys_posix() {
@@ -84,7 +86,22 @@ extern "C" bool is_symlink(const char* path) {
 }
 
 extern "C" void create_symlink(const char* target, const char* link) {
-  fs::create_symlink(target, link);
+
+  if(strlen(target) == 0) {
+    std::cerr << "pathlib:create_symlink: target path must not be empty" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  if(strlen(link) == 0) {
+    std::cerr << "pathlib:create_symlink: link path must not be empty" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  if (is_dir(target)) {
+    fs::create_directory_symlink(target, link);
+  }
+  else {
+    fs::create_symlink(target, link);
+  }
 }
 
 extern "C" void create_directory_symlink(const char* target, const char* link) {
@@ -92,8 +109,34 @@ extern "C" void create_directory_symlink(const char* target, const char* link) {
 }
 
 extern "C" bool create_directories(const char* path) {
-  return fs::create_directories(path);
+
+  if(strlen(path) == 0) {
+    std::cerr << "pathlib:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  auto s = fs::status(path);
+
+  if(fs::exists(s)) {
+    if(is_dir(path)) return true;
+
+    std::cerr << "pathlib:mkdir:create_directories: " << path << " already exists but is not a directory" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  auto ok = fs::create_directories(path);
+
+  if( !ok ) {
+    // old MacOS return false even if directory was created
+    if(!is_dir(path)) {
+      std::cerr << "pathlib:mkdir:create_directories: " << path << " could not be created" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  return ok;
 }
+
 
 extern "C" size_t root(const char* path, char* result) {
   fs::path p(path);
@@ -140,7 +183,13 @@ extern "C" bool fs_remove(const char* path) {
 }
 
 extern "C" size_t canonical(char* path, bool strict){
-// does NOT expand tilde ~
+  // does NOT expand tilde ~
+
+  if( (strlen(path) == 0) ) {
+    path = NULL;
+    return 0;
+  }
+
   fs::path p;
 
   if(strict){
@@ -168,6 +217,16 @@ extern "C" bool equivalent(const char* path1, const char* path2) {
 }
 
 extern "C" bool copy_file(const char* source, const char* destination, bool overwrite) {
+
+  if(strlen(source) == 0) {
+    std::cerr << "pathlib:copy_file: source path must not be empty" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  if(strlen(destination) == 0) {
+    std::cerr << "pathlib:copy_file: destination path must not be empty" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
   fs::path d(destination);
 
   auto opt = fs::copy_options::none;
@@ -186,7 +245,23 @@ extern "C" bool copy_file(const char* source, const char* destination, bool over
 
 extern "C" size_t relative_to(const char* a, const char* b, char* result) {
 
-  auto r = fs::relative(a, b);
+  // library bug handling
+  if( (strlen(a) == 0) | (strlen(b) == 0) ) {
+    // undefined case, avoid bugs with MacOS
+    result = NULL;
+    return 0;
+  }
+
+  fs::path a1(a);
+  fs::path b1(b);
+
+  if(a1.is_absolute() != b1.is_absolute()) {
+    // cannot be relative, avoid bugs with MacOS
+    result = NULL;
+    return 0;
+  }
+
+  auto r = fs::relative(a1, b1);
 
   std::strcpy(result, r.string().c_str());
   auto result_size = strlen(result);
@@ -196,6 +271,11 @@ extern "C" size_t relative_to(const char* a, const char* b, char* result) {
 
 
 extern "C" bool touch(const char* path) {
+
+  if(strlen(path) == 0) {
+    std::cerr << "pathlib:touch: cannot touch empty file name" << std::endl;
+    exit(EXIT_FAILURE);
+  }
 
   fs::path p(path);
 

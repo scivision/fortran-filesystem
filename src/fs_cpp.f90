@@ -293,8 +293,6 @@ end procedure with_suffix
 module procedure touch
 character(kind=c_char, len=:), allocatable :: cpath
 
-if(len_trim(path) == 0) error stop "pathlib:touch: cannot touch empty path"
-
 cpath = expanduser(path) // C_NULL_CHAR
 
 if(.not. fs_touch(cpath)) error stop "pathlib:touch: " // path
@@ -307,7 +305,6 @@ character(kind=c_char, len=:), allocatable :: cpath
 
 cpath = path // C_NULL_CHAR
 is_absolute = fs_is_absolute(cpath)
-
 end procedure is_absolute
 
 
@@ -322,43 +319,19 @@ end procedure is_symlink
 module procedure create_symlink
 character(kind=c_char, len=:), allocatable :: ctgt, clink
 
-if(len_trim(tgt) == 0) error stop "pathlib:create_symlink: target path must not be empty"
-if(len_trim(link) == 0) error stop "pathlib:create_symlink: link path must not be empty"
-
 ctgt = expanduser(tgt) // C_NULL_CHAR
 clink = expanduser(link) // C_NULL_CHAR
 
-if (is_dir(tgt)) then
-  call fs_create_directory_symlink(ctgt, clink)
-else
-  call fs_create_symlink(ctgt, clink)
-endif
-
+call fs_create_symlink(ctgt, clink)
 end procedure create_symlink
 
 
 module procedure mkdir
 character(kind=c_char, len=:), allocatable :: cpath
-character(:), allocatable :: wk
 
-wk = expanduser(path)
+cpath = expanduser(path) // C_NULL_CHAR
 
-if(len_trim(wk) == 0) error stop "pathlib:mkdir: cannot mkdir empty directory name"
-
-if(exists(wk)) then
-  if(is_dir(wk)) then
-    return
-  else
-    error stop "pathlib:mkdir: " // wk // " already exists but is not a directory"
-  endif
-endif
-
-cpath = wk // C_NULL_CHAR
-
-if(.not. fs_create_directories(cpath)) then
-  !! old MacOS return false even if directory was created
-  if(.not. is_dir(wk)) error stop "pathlib:mkdir: could not create directory: " // path
-endif
+if (.not. fs_create_directories(cpath)) error stop "pathlib:mkdir: failed to create directory: " // path
 end procedure mkdir
 
 
@@ -367,11 +340,6 @@ character(kind=c_char, len=MAXP) :: cpath
 integer(C_SIZE_T) :: N, i
 character(MAXP) :: buf
 logical(c_bool) :: s
-
-if(len_trim(path) == 0) then
-  canonical = ""
-  return
-endif
 
 s = .false.
 if(present(strict)) s = strict
@@ -467,9 +435,6 @@ character(kind=c_char, len=:), allocatable :: csrc, cdest
 
 logical(c_bool) :: e, ow
 
-if(len_trim(src) == 0) error stop "pathlib:copy_file: source path must not be empty"
-if(len_trim(dest) == 0) error stop "pathlib:copy_file: destination path must not be empty"
-
 ow = .false.
 if(present(overwrite)) ow = overwrite
 
@@ -483,30 +448,12 @@ end procedure copy_file
 
 module procedure relative_to
 character(kind=c_char, len=:), allocatable :: s1, s2
-character(:), allocatable :: a1, b1
 character(kind=c_char) :: rel(MAXP)
 integer(C_SIZE_T) :: N, i
 character(MAXP) :: buf
 
-a1 = expanduser(a)
-b1 = expanduser(b)
-
-!> library bug handling
-if(len_trim(a1) == 0 .or. len_trim(b1) == 0) then
-!! undefined case, avoid bugs with MacOS
-  relative_to = ""
-  return
-endif
-
-if(is_absolute(a1) .neqv. is_absolute(b1)) then
-!! cannot be relative, avoid bugs with MacOS
-  relative_to = ""
-  return
-endif
-
-!> interface to C
-s1 = a1 // C_NULL_CHAR
-s2 = b1 // C_NULL_CHAR
+s1 = expanduser(a) // C_NULL_CHAR
+s2 = expanduser(b) // C_NULL_CHAR
 
 N = fs_relative_to(s1, s2, rel)
 
