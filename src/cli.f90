@@ -8,7 +8,7 @@ use pathlib
 implicit none (type, external)
 
 integer :: i
-character(MAXP) :: buf, buf2
+character(4096) :: buf, buf2
 character(16) :: fcn
 
 if (command_argument_count() < 1) error stop "usage: ./pathlib <function> [<path> ...]"
@@ -25,7 +25,7 @@ case default
 end select
 
 select case (fcn)
-case ("same_file", "with_suffix")
+case ("relative_to", "same_file", "with_suffix")
   if (command_argument_count() < 3) error stop "usage: ./pathlib <function> <path> <path>"
   call get_command_argument(3, buf2, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf2)
@@ -59,6 +59,8 @@ case ("mkdir")
   call mkdir(trim(buf))
 case ("parent")
   print '(A)', parent(buf)
+case ("relative_to")
+  print '(A)', relative_to(buf, buf2)
 case ("resolve")
   print '(A)', resolve(buf)
 case ("root")

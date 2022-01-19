@@ -1,6 +1,7 @@
 // functions from C++17 filesystem
 
 #include <iostream>
+#include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <filesystem>
@@ -8,7 +9,18 @@
 namespace fs = std::filesystem;
 
 extern "C" size_t filesep(char*);
+extern "C" size_t as_posix(char*);
 extern "C" bool is_dir(const char*);
+
+
+extern "C" size_t as_posix(char* path){
+    std::string s(path);
+
+    std::replace(s.begin(), s.end(), '\\', '/');
+    strcpy(path, s.c_str());
+
+    return strlen(path);
+}
 
 
 extern "C" bool sys_posix() {
@@ -77,7 +89,8 @@ extern "C" size_t normal(const char* path, char* normalized) {
   fs::path p(path);
 
   std::strcpy(normalized, p.lexically_normal().string().c_str());
-  return strlen(normalized);
+
+  return as_posix(normalized);
 }
 
 
@@ -199,10 +212,8 @@ extern "C" size_t canonical(char* path, bool strict){
     p = fs::weakly_canonical(path);
   }
 
-std::strcpy(path, p.string().c_str());
-auto result_size = strlen(path);
-
-return result_size;
+  std::strcpy(path, p.string().c_str());
+  return as_posix(path);
 }
 
 
@@ -264,9 +275,7 @@ extern "C" size_t relative_to(const char* a, const char* b, char* result) {
   auto r = fs::relative(a1, b1);
 
   std::strcpy(result, r.string().c_str());
-  auto result_size = strlen(result);
-
-  return result_size;
+  return as_posix(result);
 }
 
 
@@ -301,7 +310,7 @@ extern "C" bool touch(const char* path) {
 
 extern "C" size_t get_tempdir(char* path) {
   std::strcpy(path, fs::temp_directory_path().string().c_str());
-  return strlen(path);
+  return as_posix(path);
 }
 
 
@@ -316,7 +325,7 @@ extern "C" uintmax_t file_size(const char* path) {
 
 extern "C" size_t get_cwd(char* path) {
   std::strcpy(path, fs::current_path().string().c_str());
-  return strlen(path);
+  return as_posix(path);
 }
 
 

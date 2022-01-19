@@ -76,7 +76,7 @@ module pure integer function length(self)
 class(path_t), intent(in) :: self
 end function length
 
-module pure function join(path, other)
+module function join(path, other)
 !! returns path_t object with other appended to self using posix separator
 character(:), allocatable :: join
 character(*), intent(in) :: path, other
@@ -122,7 +122,7 @@ character(*), intent(in) :: path
 character(:), allocatable :: suffix
 end function suffix
 
-module pure function as_posix(path)
+module function as_posix(path)
 !! '\' => '/', dropping redundant separators
 
 character(:), allocatable :: as_posix
@@ -146,7 +146,7 @@ end interface !< pure.f90
 
 interface  !< pure_iter.f90
 
-module pure subroutine file_parts(path, fparts)
+module subroutine file_parts(path, fparts)
 !! split path into up to 1000 parts (arbitrary limit)
 !! all path separators are discarded, except the leftmost if present
 character(*), intent(in) :: path
@@ -458,7 +458,7 @@ pathlib_root = root(self%path_str)
 end function pathlib_root
 
 
-pure function pathlib_as_posix(self)
+function pathlib_as_posix(self)
 !! '\' => '/', dropping redundant separators
 
 class(path_t), intent(in) :: self
@@ -478,7 +478,7 @@ pathlib_as_windows%path_str = as_windows(self%path_str)
 end function pathlib_as_windows
 
 
-pure function pathlib_join(self, other)
+function pathlib_join(self, other)
 !! returns path_t object with other appended to self using posix separator
 type(path_t) :: pathlib_join
 class(path_t), intent(in) :: self
@@ -605,7 +605,7 @@ if (.not. is_file(path)) error stop 'pathlib:assert_is_file: file does not exist
 end subroutine assert_is_dir
 
 
-pure function pathlib_parts(self)
+function pathlib_parts(self)
 !! split path into up to 1000 parts (arbitrary limit)
 !! all path separators are discarded, except the leftmost if present
 class(path_t), intent(in) :: self

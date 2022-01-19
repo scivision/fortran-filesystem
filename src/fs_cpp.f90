@@ -264,9 +264,28 @@ do i = 1, N
   buf(i:i) = cbuf(i:i)
 end do
 
-normal = as_posix(buf)
+normal = trim(buf)
 
 end procedure normal
+
+
+module procedure as_posix
+character(kind=c_char, len=MAXP) :: cpath, cbuf
+integer(C_SIZE_T) :: N, i
+character(MAXP) :: buf
+
+cpath = path // C_NULL_CHAR
+
+N = fs_normal(cpath, cbuf)
+
+buf = ""
+do i = 1, N
+  buf(i:i) = cbuf(i:i)
+end do
+
+as_posix = trim(buf)
+
+end procedure as_posix
 
 
 
@@ -353,8 +372,7 @@ do i = 1, N
   buf(i:i) = cpath(i:i)
 end do
 
-!> C++ filesystem returns preferred separator, so make posix
-canonical = as_posix(buf)
+canonical = trim(buf)
 
 end procedure canonical
 
@@ -462,8 +480,7 @@ do i = 1, N
   buf(i:i) = rel(i)
 end do
 
-!> C++ filesystem returns preferred separator, so make posix
-relative_to = as_posix(buf)
+relative_to = trim(buf)
 end procedure relative_to
 
 
@@ -479,8 +496,7 @@ do i = 1, N
   buf(i:i) = cpath(i:i)
 end do
 
-!> C++ filesystem returns preferred separator, so make posix
-get_tempdir = as_posix(buf)
+get_tempdir = trim(buf)
 
 end procedure get_tempdir
 
@@ -497,8 +513,7 @@ do i = 1, N
   buf(i:i) = cpath(i:i)
 end do
 
-!> C++ filesystem returns preferred separator, so make posix
-get_cwd = as_posix(buf)
+get_cwd = trim(buf)
 
 end procedure get_cwd
 
