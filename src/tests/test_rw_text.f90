@@ -13,6 +13,12 @@ if (command_argument_count() /= 1) error stop "please input test filename"
 call get_command_argument(1, filename, status=i)
 if (i/=0) error stop "please input test filename"
 
+!> empty
+call write_text(filename, "")
+rtext = read_text(filename)
+if (rtext /= "") error stop "read_text empty failed"
+
+!> regular
 text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit," // &
 " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." // &
 " Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." // &

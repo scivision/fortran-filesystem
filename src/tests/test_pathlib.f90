@@ -1,7 +1,7 @@
 program test_pathlib
 
 use pathlib, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
-is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep
+is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep, parent
 
 implicit none (type, external)
 
@@ -100,6 +100,10 @@ subroutine test_manip()
 
 type(path_t) :: p1, p2
 
+!> stem
+
+if(stem("") /= "") error stop "stem empty"
+
 p1 = path_t("hi.a.b")
 if (p1%stem() /= "hi.a") error stop "stem failed"
 p2 = path_t(p1%stem())
@@ -107,11 +111,19 @@ if (p2%stem() /= "hi") error stop "stem nest failed"
 p2 = path_t("hi")
 if (p2%stem() /= "hi") error stop "stem idempotent failed"
 
+!> suffix
+
+if(suffix("") /= "") error stop "suffix empty"
+
 if (p1%suffix() /= ".b") error stop "suffix failed"
 p2 = path_t(p1%suffix())
 if (p2%suffix() /= "") error stop "suffix nest failed on " // p2%path()
 p2 = path_t(p2%suffix())
 if (p2%suffix() /= "") error stop "suffix idempotent failed"
+
+!> parent
+
+if(parent("") /= ".") error stop "parent empty: " // parent("")
 
 p1 = path_t("a/b/c")
 if (p1%parent() /= "a/b") error stop "parent failed" // p1%path()
@@ -138,6 +150,8 @@ subroutine test_root()
 
 type(path_t) :: p1, p2
 character(:), allocatable :: r
+
+if(root("") /= "") error stop "root empty"
 
 p1 = path_t("/etc")
 p2 = path_t("c:/etc")
