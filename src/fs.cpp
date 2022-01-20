@@ -218,7 +218,7 @@ extern "C" size_t canonical(char* path, bool strict){
   char ex[4096];
   expanduser(path, ex);
 
-   std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
+  // std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
 
   fs::path p;
 
@@ -229,7 +229,7 @@ extern "C" size_t canonical(char* path, bool strict){
     p = fs::weakly_canonical(ex);
   }
 
-  std::cout << "TRACE:canonical: " << p << std::endl;
+  // std::cout << "TRACE:canonical: " << p << std::endl;
 
   std::strcpy(path, p.string().c_str());
   return as_posix(path);
