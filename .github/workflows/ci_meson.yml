@@ -1,0 +1,24 @@
+name: ci_meson
+
+on:
+  push:
+    paths:
+      - "**/meson.build"
+      - ".github/workflows/ci_meson.yml"
+
+jobs:
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - run: pip install meson ninja
+
+    - run: meson setup build
+    - run: meson compile -C build
+
+    - run: meson test -C build -v
