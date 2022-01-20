@@ -13,7 +13,7 @@ For those old compilers, pathlib falls back to C stdlib and vendor extensions to
 Also inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html).
 
-Currently tested with compilers below, all of which use C++17 filesystem except GCC < 8.
+Currently tested with compilers below, all of which use C++17 filesystem except GCC 7.
 
 * GCC 7
 * GCC 8, 9, 10, 11
@@ -50,7 +50,16 @@ cmake --build build
 ctest --test-dir build
 ```
 
-This creates build/libpathlib.a or similar.
+OR use Meson build system:
+
+```sh
+meson setup build
+meson compile -C build
+# optional
+meson test -C build
+```
+
+Either CMake or Meson creates build/libpathlib.a or similar.
 
 Please see the [API docs](./API.md) for extensive list of functions/subroutines.
 
@@ -86,4 +95,5 @@ At this time, these compilers aren't supported for reasons including:
 #### Nvidia HPC-SDK
 
 nvfortran 22.1 does not support `character(:), allocatable` from Fortran 2003, which is used everywhere in pathlib.
+nvc++ 22.1 does not support C++17 filesystem, which is essential for pathlib.
 New Fortran language standard features aren't being added to nvfortran until the Flang f18 LLVM project is ready to use. I would estimate this as being in a couple years from now.
