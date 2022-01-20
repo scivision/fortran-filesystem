@@ -24,6 +24,9 @@ fs.o: $(CXXSRC)
 pathlib.a: $(FOBJS) fs.o
 	$(AR) cr $@ *.o
 
+pathlib_cli: cli.f90 pathlib.a
+	$(FC) $(FFLAGS) -o $@ $^ $(LDFLAGS)
+
 %.o %.mod %.smod: %.f90
 	$(FC) $(FFLAGS) -c -o $*.o $< $(LDFLAGS)
 

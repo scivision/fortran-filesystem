@@ -25,3 +25,8 @@ sources: [symlink_src, files('src/pathlib.f90', 'src/iter.f90', 'src/io.f90', 's
 
 # --- tests
 subdir('src/tests')
+
+# --- CLI
+if get_option('BUILD_UTILS')
+  cli = executable('pathlib_cli', files('src/cli.f90'), link_with: pathlib)
+endif
