@@ -17,7 +17,9 @@ include(cmake/options.cmake)
 include(cmake/compilers.cmake)
 
 # --- pathlib binary
-add_library(pathlib)
+add_library(pathlib
+src/pathlib.f90 src/iter.f90 src/io.f90 src/find.f90
+)
 set_target_properties(pathlib PROPERTIES
 Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include
 )
@@ -25,7 +27,17 @@ target_include_directories(pathlib PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 $<INSTALL_INTERFACE:include>
 )
-add_subdirectory(src)
+
+# --- C++17 filesystem OR lstat() symbolic link information
+
+if(HAVE_CXX17_FILESYSTEM)
+  target_sources(pathlib PRIVATE src/fs_cpp.f90 src/fs.cpp)
+  target_compile_definitions(pathlib PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
+  target_link_libraries(pathlib PUBLIC ${libfs})
+else()
+  add_subdirectory(fallback)
+endif()
+
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/pathlib.mod
 TYPE INCLUDE

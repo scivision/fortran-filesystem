@@ -1,7 +1,7 @@
 name = "fortran-pathlib"
-description = "Platform independent, object-oriented Fortran filesystem path manipulation library"
+description = "Platform independent, object-oriented Fortran filesystem path manipulation library. Based on C++17 filesystem."
 categories = "io"
-version = "2.3.5"
+version = "3.0.0"
 
 [library]
 source-dir = "src"
