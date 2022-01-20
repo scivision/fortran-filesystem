@@ -45,6 +45,8 @@ if (pathlib_has_symlink()) then
 endif
 ```
 
+Windows users needing symlinks can use Gfortran with Clang, or Intel oneAPI.
+
 ## subroutines
 
 These subroutines are available in the "pathlib" module.
