@@ -23,7 +23,7 @@ extern "C" size_t as_posix(char* path){
     std::replace(s.begin(), s.end(), '\\', '/');
 
     std::regex r("/{2,}");
-    std::regex_replace(s, r, "/");
+    s = std::regex_replace(s, r, "/");
 
     strcpy(path, s.c_str());
 
