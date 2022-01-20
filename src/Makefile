@@ -1,6 +1,13 @@
 .SUFFIXES:
 # deactivates implicit file extension so Fortran .mod isn't mistaken for Modula source
 
+ifeq ($(FC),)
+FC = gfortran
+endif
+ifndef FC
+FC = gfortran
+endif
+
 CXXFLAGS = -std=c++17
 LDFLAGS = -lstdc++
 
