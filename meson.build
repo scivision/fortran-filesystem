@@ -1,5 +1,5 @@
 project('FortranPathlib', 'c', 'cpp', 'fortran',
-version: '3.0.0',
+version: '3.0.1',
 default_options : ['default_library=static', 'cpp_std=c++17'])
 
 # --- does system work with symlinks

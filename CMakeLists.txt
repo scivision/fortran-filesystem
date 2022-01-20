@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.19...3.22)
 
 project(FortranPathlib
 LANGUAGES C CXX Fortran
-VERSION 3.0.0
+VERSION 3.0.1
 DESCRIPTION "Platform independent, object-oriented Fortran filesystem path manipulation library"
 HOMEPAGE_URL "https://github.com/scivision/fortran-pathlib"
 )
