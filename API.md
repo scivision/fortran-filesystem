@@ -35,6 +35,7 @@ If this fixed buffer length becomes an issue, we may be able to update pathlib t
 
 Not every system is capable of every pathlib feature. At the moment, this limitation applies to Windows MinGW GCC with symbolic (soft) links.
 We provide the status of the symlink feature via `logical function pathlib_has_symlink()` to avoid user program errors--check if pathlib has a feature before using the feature.
+This function does NOT tell if a particular drive is capable of symlinks.
 
 ```fortran
 use pathlib
