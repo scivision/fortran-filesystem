@@ -1,10 +1,19 @@
-name = "fortran-pathlib"
+name = "pathlib"
 description = "Platform independent, object-oriented Fortran filesystem path manipulation library. Based on C++17 filesystem."
 categories = "io"
 version = "3.0.0"
 
-[library]
-source-dir = "src"
+[install]
+library = true
 
-[test]
+[library]
+build-script="src/Makefile"
+
+[build]
+auto-tests = false
+link="stdc++"
+
+[[ test ]]
+name="core"
 source-dir = "src/tests"
+main="test_pathlib.f90"
