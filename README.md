@@ -42,7 +42,7 @@ You may find that some features work on a particular computer with non-ASCII cha
 
 ## Build
 
-Fortran-pathlib can be built with your choice of: Makefile, CMake, Meson, Fortran Package Manager (FPM).
+Fortran-pathlib can be built with your choice of: Makefile, CMake, Meson.
 
 [lib]pathlib.a is the library binary built that contains the Fortran "pathlib" module--it is the only binary you need to use in your project.
 
@@ -70,12 +70,6 @@ meson setup build
 meson compile -C build
 # optional
 meson test -C build
-```
-
-Fortran Package Manager (FPM):
-
-```sh
-fpm build
 ```
 
 ## Command line
