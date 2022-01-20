@@ -41,7 +41,9 @@ You may find that some features work on a particular computer with non-ASCII cha
 
 ## Build
 
-Can also use Pathlib in your CMake project via FetchContent or ExternalProject.
+Fortran-pathlib can be built with your choice of: CMake, Meson, Fortran Package Manager (FPM).
+
+CMake:
 
 ```sh
 cmake -B build
@@ -50,7 +52,7 @@ cmake --build build
 ctest --test-dir build
 ```
 
-OR use Meson build system:
+Meson build system:
 
 ```sh
 meson setup build
@@ -59,7 +61,13 @@ meson compile -C build
 meson test -C build
 ```
 
-Either CMake or Meson creates build/libpathlib.a or similar.
+Fortran Package Manager (FPM):
+
+```sh
+fpm build
+```
+
+libpathlib.a is thereby the library binary built that contains the Fortran "pathlib" module--it is the only binary you need to use in your project.
 
 Please see the [API docs](./API.md) for extensive list of functions/subroutines.
 
