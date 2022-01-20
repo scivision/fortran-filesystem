@@ -5,5 +5,3 @@ elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
 else()
   target_sources(pathlib PRIVATE unknown.f90)
 endif()
-
-target_sources(pathlib PRIVATE general.f90)

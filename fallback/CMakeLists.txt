@@ -1,3 +1,5 @@
+target_sources(pathlib PRIVATE general.f90)
+
 if(WIN32)
   add_subdirectory(windows)
 else()
