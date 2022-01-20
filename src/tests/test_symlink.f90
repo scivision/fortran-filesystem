@@ -51,4 +51,6 @@ if(.not. is_symlink(link)) error stop "is_symlink() should be true for symlink p
 if(.not. p_sym%is_symlink()) error stop "%is_symlink() should be trum for symlink path"
 if(.not. is_file(link)) error stop "is_file() should be true for existing symlink path"
 
+print *, "OK: pathlib symbolic links"
+
 end program
