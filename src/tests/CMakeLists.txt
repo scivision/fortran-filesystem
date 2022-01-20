@@ -34,9 +34,6 @@ add_executable(test_symlink test_symlink.f90)
 target_link_libraries(test_symlink PRIVATE pathlib)
 
 add_test(NAME symlink COMMAND test_symlink)
-set_tests_properties(symlink PROPERTIES
-DISABLED $<NOT:$<BOOL:${HAVE_SYMLINK}>>
-)
 
 # --- canonical
 add_executable(test_canonical test_canonical.f90)

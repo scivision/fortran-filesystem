@@ -16,9 +16,7 @@ test('Expanduser', test_expanduser)
 
 # -- symlink
 test_symlink = executable('test_symlink', 'test_symlink.f90', link_with: pathlib)
-if has_symlink
-  test('symlink', test_symlink)
-endif
+test('symlink', test_symlink)
 
 # --- canonical
 test_canonical = executable('test_canonical', 'test_canonical.f90', link_with: pathlib)

@@ -11,8 +11,16 @@ has_symlink = ret_symlink.returncode() == 0
 
 # --- pathlib binary
 
+c = configuration_data()
+if has_symlink
+  c.set('has_symlink', '.true.')
+else
+  c.set('has_symlink', '.false.')
+endif
+symlink_src = configure_file(input : 'src/symlink.in.f90', output : 'symlink.f90', configuration : c)
+
 pathlib = library('pathlib',
-sources: files('src/pathlib.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90', 'src/fs_cpp.f90', 'src/fs.cpp')
+sources: [symlink_src, files('src/pathlib.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90', 'src/fs_cpp.f90', 'src/fs.cpp')]
 )
 
 # --- tests

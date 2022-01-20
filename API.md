@@ -31,6 +31,19 @@ Currently, MAXP = 4096; that is, 4096 ASCII characters is the maximum path lengt
 The operating system and filesystem may have stricter limits.
 If this fixed buffer length becomes an issue, we may be able to update pathlib to make the length dynamic.
 
+## System capabilities
+
+Not every system is capable of every pathlib feature. At the moment, this limitation applies to Windows MinGW GCC with symbolic (soft) links.
+We provide the status of the symlink feature via `logical function pathlib_has_symlink()` to avoid user program errors--check if pathlib has a feature before using the feature.
+
+```fortran
+use pathlib
+
+if (pathlib_has_symlink()) then
+  call create_symlink("my/path", "my/symlink")
+endif
+```
+
 ## subroutines
 
 These subroutines are available in the "pathlib" module.

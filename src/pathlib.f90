@@ -7,7 +7,9 @@ private
 public :: path_t  !< base class
 public :: get_homedir, canonical, get_cwd !< utility procedures
 public :: as_posix, normal, expanduser, &
-is_absolute, is_dir, is_file, is_exe, is_symlink, exists, &
+is_absolute, is_dir, is_file, is_exe, &
+pathlib_has_symlink, is_symlink, &
+exists, &
 join, &
 copy_file, mkdir, &
 file_parts, relative_to, resolve, root, same_file, file_size, &
@@ -298,7 +300,10 @@ end function get_cwd
 end interface
 
 
-interface !< fs_cpp.f90 (or compiler/{intel,gcc}.f90)
+interface !< fs_cpp.f90
+
+module logical function pathlib_has_symlink()
+end function pathlib_has_symlink
 
 module logical function is_symlink(path)
 !! .true.: "path" is a symbolic link

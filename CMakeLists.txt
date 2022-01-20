@@ -17,8 +17,16 @@ include(cmake/options.cmake)
 include(cmake/compilers.cmake)
 
 # --- pathlib binary
+if(HAVE_SYMLINK)
+  set(has_symlink .true.)
+else()
+  set(has_symlink .false.)
+endif()
+configure_file(src/symlink.in.f90 symlink.f90 @ONLY)
+
 add_library(pathlib
 src/pathlib.f90 src/iter.f90 src/io.f90 src/find.f90
+${CMAKE_CURRENT_BINARY_DIR}/symlink.f90
 )
 set_target_properties(pathlib PROPERTIES
 Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include
@@ -27,6 +35,9 @@ target_include_directories(pathlib PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 $<INSTALL_INTERFACE:include>
 )
+
+
+
 
 # --- C++17 filesystem OR lstat() symbolic link information
 
