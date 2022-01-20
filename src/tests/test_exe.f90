@@ -8,6 +8,8 @@ type(path_t) :: p1
 character(4096) :: buf
 integer :: i
 
+if(is_exe("")) error stop "is_ext('') should be false"
+
 call get_command_argument(1, buf, status=i)
 if (i/=0) error stop "test_executable: input path to an executable file"
 

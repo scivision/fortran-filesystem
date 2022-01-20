@@ -1,24 +1,27 @@
-!! these functions could be implemented via C runtime library,
-!! but for speed/ease of implementation, for now we use
-!! compiler-specific intrinsic functions
-
-submodule (pathlib) pathlib_gcc
+submodule (pathlib) gcc_no_cpp_fs
+!! GCC non-C++17 filesystem
 
 implicit none (type, external)
 
 contains
 
-module procedure cwd
+module procedure f_unlink
+intrinsic :: unlink
+call unlink(path)
+end procedure f_unlink
+
+
+module procedure get_cwd
 
 integer :: i
-character(4096) :: work
+character(MAXP) :: work
 
 i = getcwd(work)
-if(i /= 0) error stop "pathlib:cwd: could not get CWD"
+if(i /= 0) error stop "pathlib:get_cwd: could not get current working dir"
 
-cwd = trim(work)
+get_cwd = as_posix(work)
 
-end procedure cwd
+end procedure get_cwd
 
 
 module procedure is_dir
@@ -62,35 +65,6 @@ is_dir = i == 16384
 end procedure is_dir
 
 
-module procedure size_bytes
-
-character(:), allocatable :: wk
-integer :: ftmode, s(13), i
-
-size_bytes = -1
-
-wk = expanduser(path)
-if(len_trim(wk) == 0) return
-
-i = stat(wk, s)
-if(i /= 0) then
-  write(stderr,*) "size_bytes: could not stat file: ", wk
-  return
-endif
-
-ftmode = iand(s(3), O'0170000') !< file type mode
-! print '(a,O8)', "TRACE:size_bytes stat(3) file type octal: ", ftmode
-
-if (iand(ftmode, O'0040000') == 16384) then
-  write(stderr,*) "size_bytes: is a directory: ", wk
-  return
-endif
-
-size_bytes = s(8)
-
-end procedure size_bytes
-
-
 module procedure is_exe
 
 character(:), allocatable :: wk
@@ -120,4 +94,34 @@ is_exe = (iand(s(3), O'0000100') == 64 .or. &
 end procedure is_exe
 
 
-end submodule pathlib_gcc
+module procedure file_size
+
+character(:), allocatable :: wk
+integer :: ftmode, s(13), i
+
+file_size = -1
+
+wk = expanduser(path)
+if(len_trim(wk) == 0) return
+
+i = stat(wk, s)
+if(i /= 0) then
+  write(stderr,*) "file_size: could not stat file: ", wk
+  return
+endif
+
+ftmode = iand(s(3), O'0170000') !< file type mode
+! print '(a,O8)', "TRACE:file_size stat(3) file type octal: ", ftmode
+
+if (iand(ftmode, O'0040000') == 16384) then
+  write(stderr,*) "file_size: is a directory: ", wk
+  return
+endif
+
+file_size = s(8)
+
+end procedure file_size
+
+
+
+end submodule gcc_no_cpp_fs

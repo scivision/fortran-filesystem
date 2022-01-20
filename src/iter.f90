@@ -6,10 +6,6 @@ implicit none (type, external)
 
 contains
 
-module procedure pathlib_parts
-call file_parts(self%path_str, fparts=pathlib_parts)
-end procedure pathlib_parts
-
 
 module procedure file_parts
 !! with GCC >= 9 and Intel oneAPI, this also works as a function.

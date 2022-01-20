@@ -34,14 +34,16 @@ character(kind=c_char):: c_buf(N)
 character(N) :: buf
 integer :: i
 
-if(len_trim(path) == 0) error stop "pathlib:canonical: cannot canonicalize empty path"
+if(len_trim(path) == 0) then
+  canonical = ""
+  return
+endif
 
 wk = expanduser(path)
 
-!! some systems e.g. old MacOS can't handle leading "." or ".."
-!! so manually resolve this part with CWD, which is implicit.
+!! some systems e.g. old MacOS can't handle leading "." or ".."; implicitly resolve
 
-if (wk(1:1) == ".") wk = cwd() // "/" // wk
+if (wk(1:1) == ".") wk = get_cwd() // "/" // wk
 
 if(len(wk) > N) error stop "pathlib:canonical: path too long: " // wk
 
@@ -66,8 +68,11 @@ integer :: i
 integer(c_int) :: ierr
 character(:), allocatable :: pts(:)
 
-wk = expanduser(path)
+wk = expanduser(path) !< not canonical as it trims path part we want to create with mkdir
 if (len_trim(wk) == 0) error stop 'pathlib:mkdir: must specify directory to create'
+
+!! some systems can't handle leading "." or ".."; implicitly resolve
+if (wk(1:1) == ".") wk = get_cwd() // "/" // wk
 
 if(is_dir(wk)) return
 

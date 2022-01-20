@@ -10,6 +10,11 @@ sys_posix = .false.
 end procedure sys_posix
 
 
+module procedure filesep
+filesep = char(92)
+end procedure filesep
+
+
 module procedure is_absolute
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. pathlib

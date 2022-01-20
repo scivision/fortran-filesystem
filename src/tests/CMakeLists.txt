@@ -3,6 +3,22 @@ add_executable(test_pathlib test_pathlib.f90)
 target_link_libraries(test_pathlib PRIVATE pathlib)
 add_test(NAME pathlib COMMAND test_pathlib)
 
+# --- C++17 filesystem methods
+add_executable(test_cpp_fs test_cpp_fs.f90)
+target_link_libraries(test_cpp_fs PRIVATE pathlib)
+add_test(NAME CPP_filesystem COMMAND test_cpp_fs)
+set_tests_properties(CPP_filesystem PROPERTIES
+DISABLED $<NOT:$<BOOL:${HAVE_CXX17_FILESYSTEM}>>
+)
+
+# --- relative_to
+if(NOT HAVE_CXX17_FILESYSTEM)
+  add_executable(test_relative_to test_relative.f90)
+  target_link_libraries(test_relative_to PRIVATE pathlib)
+  add_test(NAME relative_to COMMAND test_relative_to)
+  set_tests_properties(relative_to PROPERTIES LINKER_LANGUAGE Fortran)
+endif()
+
 # --- file parts
 add_executable(test_pathlib_parts test_parts.f90)
 target_link_libraries(test_pathlib_parts PRIVATE pathlib)
@@ -17,35 +33,20 @@ add_test(NAME Expanduser COMMAND test_expanduser)
 add_executable(test_symlink test_symlink.f90)
 target_link_libraries(test_symlink PRIVATE pathlib)
 
-set(symlink_path ${CMAKE_CURRENT_BINARY_DIR}/test_symlink.f90.link)
-
-add_custom_command(TARGET test_symlink POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/test_symlink.f90 ${symlink_path})
-
-add_test(NAME symlink
-COMMAND test_symlink ${CMAKE_CURRENT_LIST_FILE} ${symlink_path}
-)
-
+add_test(NAME symlink COMMAND test_symlink)
 set_tests_properties(symlink PROPERTIES
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-DISABLED $<NOT:$<BOOL:${HAVE_LSTAT}>>
-REQUIRED_FILES ${symlink_path}
+DISABLED $<NOT:$<BOOL:${HAVE_SYMLINK}>>
 )
 
 # --- canonical
 add_executable(test_canonical test_canonical.f90)
 target_link_libraries(test_canonical PRIVATE pathlib)
-
-add_test(NAME Canonical
-COMMAND test_canonical
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
+add_test(NAME Canonical COMMAND test_canonical)
 
 # --- file size
 add_executable(test_filesize test_filesize.f90)
 target_link_libraries(test_filesize PRIVATE pathlib)
-
-add_test(NAME FileSize COMMAND test_filesize WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+add_test(NAME FileSize COMMAND test_filesize)
 
 # --- exe detect
 # non-exe doesn't work on WSL due to filesystem interface
@@ -76,8 +77,9 @@ target_link_libraries(test_fileops PRIVATE pathlib)
 
 add_test(NAME FileOps
 COMMAND test_fileops
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+WORKING_DIRECTORY $<TARGET_FILE_DIR:test_fileops>
 )
+# workdir avoids test state being shared between tests
 
 # --- read/write text file
 add_executable(test_rw_text test_rw_text.f90)
@@ -93,6 +95,12 @@ target_link_libraries(test_find PRIVATE pathlib)
 add_test(NAME Find COMMAND test_find)
 
 # --- props
+set_target_properties(test_pathlib test_cpp_fs test_find test_rw_text test_filesize
+test_fileops test_exe test_symlink test_expanduser test_canonical test_pathlib_parts
+PROPERTIES
+LINKER_LANGUAGE Fortran
+)
+# for Intel compiler
 
 set_tests_properties(pathlib Canonical FileOps FileParts Find ExeDetect FileSize Expanduser ReadWriteText symlink
 PROPERTIES

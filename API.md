@@ -23,12 +23,19 @@ p%path(2) !< character index 2:end
 
 In all the examples, we assume "p" is a pathlib path_t.
 
+C++17 filesystem is used extensively within Fortran-pathlib to implement functions in a platform-agnostic and robust way.
+The fallback functions use C stdlib when C++17 filesystem isn't available.
+For the interchange of character strings between Fortran and C/C++, a fixed buffer length is used.
+This buffer length is defined as MAXP in src/pathlib.f90.
+Currently, MAXP = 4096; that is, 4096 ASCII characters is the maximum path length.
+The operating system and filesystem may have stricter limits.
+If this fixed buffer length becomes an issue, we may be able to update pathlib to make the length dynamic.
+
 ## subroutines
 
 These subroutines are available in the "pathlib" module.
 
 Copy path to dest. Optionally, overwrite existing file.
-This is implemented with execute_command_line() because there isn't a simple function in CRT for this.
 
 ```fortran
 character(*) :: dest = "new/file.ext"
@@ -62,12 +69,12 @@ call p%touch()
 call touch("myfile.ext")
 ```
 
-Delete file
+Delete file, empty directory, or symbolic link (the target of a symbolic link is not deleted).
 
 ```fortran
-call p%unlink()
+call p%remove()
 ! or
-call unlink("my/file.txt")
+call remove("my/file.txt")
 ```
 
 write text in character variable to file (overwriting existing file)
@@ -76,6 +83,14 @@ write text in character variable to file (overwriting existing file)
 call p%write_text(text)
 ! or
 call write_text(filename, text)
+```
+
+create symbolic link to file or directory:
+
+```fortran
+call p%create_symlink(link)
+! or
+call create_symlink(target, link)
 ```
 
 ## path_t
@@ -107,12 +122,6 @@ p = p%resolve()
 p%path() == "<absolute path of current working directory>/b"
 ```
 
-'/' => '\\' for Windows paths
-
-```fortran
-p = p%as_windows()
-```
-
 '\\' => '/' for Unix paths, dropping redundant file separators "//"
 
 ```fortran
@@ -129,10 +138,13 @@ p = p%with_suffix(".hdf5")
 ! p%path() == "my/file.hdf5"
 ```
 
-Drop duplicated file separator "//"
+Normalize path, a lexical operation removing ".." and "." and duplicate file separators "//".
+The path need not exist.
 
 ```fortran
-p = p%drop_sep()
+p = p%normal()
+! or
+normal("./my/path/../b")  !< "my/b"
 ```
 
 Join path_t with other path string using posix separators.
@@ -147,9 +159,9 @@ p = p%join("c/d")
 ! p%path == "a/b/c/d"
 ```
 
-## integer
+## integer(int64)
 
-These procedures emit an integer value.
+These procedures emit an 64-bit integer value.
 
 len_trim() of p%path()
 
@@ -157,12 +169,12 @@ len_trim() of p%path()
 p%length()
 ```
 
-File size:
+File size (bytes):
 
 ```fortran
-p%size_bytes()
+p%file_size()
 ! or
-size_bytes("my/file.txt")
+file_size("my/file.txt")
 ```
 
 ## logical
@@ -183,7 +195,15 @@ Error stop if directory does not exist
 call assert_is_dir("my/dir")
 ```
 
-Does file exist:
+Is "path" a file or directory (or a symbolic link to existing file or directory):
+
+```fortran
+p%exists()
+! or
+exists("my/file.txt")
+```
+
+Does file exist (or a symbolic link to an existing file):
 
 ```fortran
 p%is_file()
@@ -197,8 +217,7 @@ Error stop if file does not exist
 call assert_is_file("my/dir")
 ```
 
-Is path a symbolic link -- for POSIX systems only.
-Windows requires additional pathlib development -- `is_symlink()` is always .false. on Windows for now.
+Is path a symbolic link:
 
 ```fortran
 p%is_symlink()
@@ -214,7 +233,11 @@ p%is_absolute()
 is_absolute("my/path")
 ```
 
-Does path "p" resolve to the same path as "other":
+Does path "p" resolve to the same path as "other".
+To be true:
+
+* path must exist
+* path must be traversable  E.g. "a/b/../c" resolves to "a/c" iff a/b also exists.
 
 ```fortran
 p%same_file(other)
@@ -238,18 +261,6 @@ These procedures emit a string.
 
 ```fortran
 as_posix("my\path")
-```
-
-'/' => '\\' for Windows paths
-
-```fortran
-as_windows("my/path")
-```
-
-Drop duplicated file separator "//"
-
-```fortran
-drop_sep("my//path")  !< "my/path"
 ```
 
 Split path_t into path components.
@@ -295,12 +306,14 @@ Swap file suffix
 with_suffix("to/my.h5", ".hdf5")  !< "to/my.hdf5"
 ```
 
-Get parent directory of path:
+Get parent directory of path. The parent of the top-most relative path is ".".
 
 ```fortran
 p%parent()
 ! or
 parent("my/file.txt")  !< "my"
+
+parent("a") !< "."
 ```
 
 Get file name without path:
@@ -325,16 +338,20 @@ Requires absolute path or will return empty string.
 ```fortran
 p%root()
 ! or
-root("/a/b/c")
+root("/a/b/c") !< "/" on Unix, "" on Windows
+
+root ("c:/a/b/c") !< "c:" on Windows, "" on Unix
 ```
 
 Expand user home directory:
 
 ```fortran
-expanduser("~/my/path")
+expanduser("~/my/path")   !< "/home/user/my/path" on Unix, "<root>/Users/user/my/path" on Windows
 ```
 
 Resolve (canonicalize) path.
+First attempts to resolve an existing path.
+If that fails, the path is resolved as far as possible with existing path components, and then ".", ".." are lexiographically resolved.
 
 ```fortran
 resolve("~/../b")
@@ -364,24 +381,35 @@ text = read_text(filename)
 
 ## System
 
+Filessystem file separator:
+
+```fortran
+character :: sep
+sep = filesep()
+```
+
 Get home directory, or empty string if not found
 
 ```fortran
-use pathlib, only : home
+character(:), allocatable :: home
 
-character(:), allocatable :: homedir
-
-homedir = home()
+home = get_homedir()
 ```
 
 Get current working directory
 
 ```fortran
-use pathlib, only : cwd
+use pathlib, only : get_cwd
 
 character(:), allocatable :: cur
 
-cur = cwd()
+cur = get_cwd()
+```
+
+Get system temporary directory:
+
+```fortran
+character(:), allocatable :: get_tempdir
 ```
 
 Find a file "name" under "path"

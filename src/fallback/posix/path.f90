@@ -10,6 +10,11 @@ sys_posix = .true.
 end procedure sys_posix
 
 
+module procedure filesep
+filesep = "/"
+end procedure filesep
+
+
 module procedure is_absolute
 is_absolute = .false.
 

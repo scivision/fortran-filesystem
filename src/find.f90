@@ -10,7 +10,6 @@ module procedure get_filename
 
 character(:), allocatable :: path1, suff(:)
 integer :: i
-logical :: exists
 
 if(present(suffixes)) then
   suff = suffixes
@@ -28,21 +27,18 @@ if(present(name)) then
     get_filename = get_filename // '/' // name
   elseif(index(get_filename, '.', back=.true.) > 4) then
     !> it's a stem-matching full path with a suffix
-    inquire(file=get_filename, exist=exists)
-    if(.not. exists) get_filename = ''
+    if(.not. is_file(get_filename)) get_filename = ''
     return
   endif
 endif
 
-inquire(file=get_filename, exist=exists)
-if(exists) return
+if(is_file(get_filename)) return
 
 path1 = get_filename
 
 do i = 1, size(suff)
   get_filename = path1 // trim(suff(i))
-  inquire(file=get_filename, exist=exists)
-  if (exists) return
+  if (is_file(get_filename)) return
 enddo
 
 get_filename = ''

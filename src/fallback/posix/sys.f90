@@ -1,35 +1,36 @@
-submodule (pathlib) windows_sys
+submodule (pathlib) posix_sys
 
 implicit none (type, external)
 
 contains
 
-
 module procedure copy_file
-!! https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/copy
-integer :: i,j
+!! copy file from src to dst
+!! OVERWRITES existing destination files
+!!
+!! https://linux.die.net/man/1/cp
+integer :: i, j
 character(:), allocatable  :: cmd, s, d
 logical :: ow
 
-d = as_windows(expanduser(dest))
-s = as_windows(expanduser(src))
+d = expanduser(dest)
+s = expanduser(src)
 
 ow = .false.
 if(present(overwrite)) ow = overwrite
 if (is_file(d)) then
   if(ow) then
-    call unlink(d)
+    call remove(d)
   else
     error stop "pathlib:copy_file: overwrite=.false. and destination file exists: " // d
   endif
 endif
 
-cmd = 'copy /y ' // s // ' ' // d
+cmd = 'cp ' // s // ' ' // d
 
 call execute_command_line(cmd, exitstat=i, cmdstat=j)
 if (i /= 0 .or. j /= 0) error stop "pathlib:copy_file: could not copy " // s // " => " // d
 
 end procedure copy_file
 
-
-end submodule windows_sys
+end submodule posix_sys

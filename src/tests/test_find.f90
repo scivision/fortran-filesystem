@@ -1,7 +1,7 @@
 program test_find
 
 use, intrinsic :: iso_fortran_env, only : stderr => error_unit
-use pathlib, only : unlink, get_filename, mkdir, is_absolute, make_absolute, sys_posix, touch
+use pathlib, only : remove, get_filename, mkdir, make_absolute, sys_posix, touch
 
 implicit none (type, external)
 
@@ -25,7 +25,7 @@ if(get_filename(' ') /= '') error stop 'empty 1'
 if(get_filename(' ',' ') /= '') error stop 'empty 2'
 !! " " instead of "" to avoid compile-time glitch error with GCC-10 with -Og
 
-call unlink(th5)
+call remove(th5)
 
 if(len(get_filename(th5)) > 0) error stop 'not exist full 1'
 
@@ -50,7 +50,7 @@ if(fn /= './' // th5) error stop 'exist parts 2: ' // fn
 fn = get_filename('./' // th5, name)
 if(fn /= './' // th5) error stop 'exist full 2: ' // fn
 
-call unlink(th5)
+call remove(th5)
 
 open(newunit=i, file=tnc, status='replace')
 close(i)
@@ -60,10 +60,10 @@ if(get_filename(name) /= tnc) error stop 'exist stem 1a'
 if(get_filename('.', name) /= './' // tnc) error stop 'exist stem 2a'
 if(get_filename('./' // name, name) /= './' // tnc) error stop 'exist parts 2a'
 
-call unlink(tnc)
+call remove(tnc)
 
 call mkdir('temp1/temp2')
-call unlink('temp1/temp2/' // th5)
+call remove('temp1/temp2/' // th5)
 fn = get_filename('temp1/temp2', name)
 if (fn /= '') error stop 'non-exist dir'
 open(newunit=i, file='temp1/temp2/' // th5, status='replace')
@@ -88,6 +88,12 @@ else
   fn2 = make_absolute("rel", "j:/foo")
   if (fn2 /= "j:/foo/rel") error stop "did not make_absolute Windows j:/foo/rel, got: " // fn2
 endif
+
+if(make_absolute("rel", "") /= "/rel") error stop "make_absolute empty root"
+
+if(make_absolute("", "") /= "/") error stop "make_absolute empty both"
+
+if(make_absolute("", "rel") /= "rel/") error stop "make_absolute empty base: " //make_absolute("", "rel")
 
 end subroutine test_make_absolute
 
