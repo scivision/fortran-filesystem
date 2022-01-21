@@ -1,10 +1,10 @@
 # Fortran Filesystem API
 
-Fortran filesystem "pathlib" module contains one Fortran type "path_t" that contains properties and methods.
+Fortran filesystem module contains one Fortran type "path_t" that contains properties and methods.
 The "path_t" type uses getter and setter procedure to access the path as a string `character(:), allocatable`.
 
 ```fortran
-use pathlib, only : path_t
+use filesystem, only : path_t
 
 type(path_t) :: p
 
@@ -32,19 +32,19 @@ If this fixed buffer length becomes an issue, we may be able to make the length 
 
 ## System capabilities
 
-Not every system is capable of every pathlib feature.
+Not every system is capable of every filesystem feature.
 For example, older compilers with the legacy experimental C++17 filesystem have most but not all standard C++17 filesystem features.
 Another limitation applies to Windows MinGW GCC with symbolic (soft) links.
-We provide the status of each feature via `logical function pathlib_has_*()` to avoid user program errors--check if pathlib has a feature before using the feature.
+We provide the status of each feature via `logical function filesystem_has_*()` to avoid user program errors--check if filesystem has a feature before using the feature.
 
-`pathlib_has_normalize()`, `pathlib_has_relative_to()`, `pathlib_has_weakly_canonical()` are for legacy C++17 experimental filesystem on old compilers, and work similar to the example below.
+`filesystem_has_normalize()`, `filesystem_has_relative_to()`, `filesystem_has_weakly_canonical()` are for legacy C++17 experimental filesystem on old compilers, and work similar to the example below.
 
-The `pathlib_has_symlink()` function does NOT tell if a particular drive is capable of symlinks.
+The `filesystem_has_symlink()` function does NOT tell if a particular drive is capable of symlinks.
 
 ```fortran
-use pathlib
+use filesystem
 
-if (pathlib_has_symlink()) then
+if (filesystem_has_symlink()) then
   call create_symlink("my/path", "my/symlink")
 endif
 ```
@@ -53,7 +53,7 @@ Windows users needing symlinks can use Gfortran with Clang, or Intel oneAPI.
 
 ## subroutines
 
-These subroutines are available in the "pathlib" module.
+These subroutines are available in the "filesystem" module.
 
 Copy path to dest. Optionally, overwrite existing file.
 
@@ -443,7 +443,7 @@ home = get_homedir()
 Get current working directory
 
 ```fortran
-use pathlib, only : get_cwd
+use filesystem, only : get_cwd
 
 character(:), allocatable :: cur
 
@@ -459,7 +459,7 @@ character(:), allocatable :: get_tempdir
 Find a file "name" under "path"
 
 ```fortran
-use pathlib, only : get_filename
+use filesystem, only : get_filename
 
 function get_filename(path, name, suffixes)
 !! given a path, stem and vector of suffixes, find the full filename

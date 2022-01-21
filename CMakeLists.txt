@@ -51,12 +51,8 @@ if(HAVE_CXX17_FILESYSTEM OR HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
 
   target_sources(filesystem PRIVATE src/fs_cpp.f90 $<TARGET_OBJECTS:filesystem_cpp>)
   target_link_libraries(filesystem PUBLIC ${libfs})
-elseif(fallback)
-  add_subdirectory(fallback)
 else()
-  message(FATAL_ERROR "C++17 filesystem support is required or enable deprecated fallback with
-    cmake -Dfallback=yes"
-  )
+  message(FATAL_ERROR "C++17 filesystem support is required for Fortran filesystem")
 endif()
 
 

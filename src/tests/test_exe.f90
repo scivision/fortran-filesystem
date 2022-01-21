@@ -1,6 +1,6 @@
 program test_exe
 
-use pathlib, only : path_t, is_exe
+use filesystem, only : path_t, is_exe
 
 implicit none (type, external)
 
@@ -28,6 +28,6 @@ call p2%chmod_no_exe()
 if(.not. p2%is_file()) error stop "test_executable: " // noexe_name // " is not a file."
 if (p1%is_exe()) error stop "did not detect non-executable file."
 
-print *, "OK: pathlib: executable"
+print *, "OK: filesystem: executable"
 
 end program

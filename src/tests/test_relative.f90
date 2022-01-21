@@ -1,6 +1,6 @@
 program test_relative
 
-use pathlib, only : path_t, relative_to
+use filesystem, only : path_t, relative_to
 
 implicit none (type, external)
 

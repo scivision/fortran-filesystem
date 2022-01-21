@@ -1,4 +1,4 @@
-submodule (pathlib) fs_cpp
+submodule (filesystem) fs_cpp
 
 use, intrinsic :: iso_c_binding, only : c_bool, c_char, c_ptr, C_NULL_CHAR, C_SIZE_T
 
@@ -193,7 +193,7 @@ character(kind=c_char) :: cbuf(3)
 integer(c_size_t) :: N
 
 N = fs_filesep(cbuf)
-if (cbuf(2) /= C_NULL_CHAR) write(stderr,'(a)') "pathlib:filesep: expected single null terminated char, got: " // cbuf(2)
+if (cbuf(2) /= C_NULL_CHAR) write(stderr,'(a)') "filesystem:filesep: expected single null terminated char, got: " // cbuf(2)
 
 filesep = cbuf(1)
 
@@ -334,12 +334,12 @@ character(kind=c_char, len=:), allocatable :: cpath
 
 cpath = path // C_NULL_CHAR
 
-if(.not. fs_touch(cpath)) error stop "pathlib:touch: " // path
+if(.not. fs_touch(cpath)) error stop "filesystem:touch: " // path
 end procedure touch
 
 
 module procedure is_absolute
-!! no expanduser to be consistent with Python pathlib etc.
+!! no expanduser to be consistent with Python filesystem etc.
 character(kind=c_char, len=:), allocatable :: cpath
 
 cpath = path // C_NULL_CHAR
@@ -370,7 +370,7 @@ character(kind=c_char, len=:), allocatable :: cpath
 
 cpath = path // C_NULL_CHAR
 
-if (.not. fs_create_directories(cpath)) error stop "pathlib:mkdir: failed to create directory: " // path
+if (.not. fs_create_directories(cpath)) error stop "filesystem:mkdir: failed to create directory: " // path
 end procedure mkdir
 
 
@@ -464,7 +464,7 @@ logical(c_bool) :: e
 
 cpath = path // C_NULL_CHAR
 e = fs_remove(cpath)
-if (.not. e) write(stderr, '(a)') "pathlib:unlink: " // path // " did not exist."
+if (.not. e) write(stderr, '(a)') "filesystem:unlink: " // path // " did not exist."
 end procedure f_unlink
 
 

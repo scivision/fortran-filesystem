@@ -1,6 +1,6 @@
 program test_symlink
 
-use pathlib, only : path_t, is_symlink, is_file, parent, create_symlink, remove, pathlib_has_symlink
+use filesystem, only : path_t, is_symlink, is_file, parent, create_symlink, remove, filesystem_has_symlink
 
 implicit none (type, external)
 
@@ -10,7 +10,7 @@ character(4096) :: buf
 
 character(:), allocatable :: tgt, link, linko
 
-if(.not. pathlib_has_symlink()) stop "pathlib on this system does not support symlinks"
+if(.not. filesystem_has_symlink()) stop "filesystem on this system does not support symlinks"
 
 call get_command_argument(0, buf, status=i, length=L)
 if(i /= 0 .or. L == 0) error stop "could not get own exe name"
@@ -51,6 +51,6 @@ if(.not. is_symlink(link)) error stop "is_symlink() should be true for symlink p
 if(.not. p_sym%is_symlink()) error stop "%is_symlink() should be trum for symlink path"
 if(.not. is_file(link)) error stop "is_file() should be true for existing symlink path"
 
-print *, "OK: pathlib symbolic links"
+print *, "OK: filesystem symbolic links"
 
 end program

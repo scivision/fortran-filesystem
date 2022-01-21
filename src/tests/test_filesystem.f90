@@ -1,6 +1,6 @@
-program test_pathlib
+program test_filesystem
 
-use pathlib, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
+use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
 is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep, parent
 
 implicit none (type, external)
@@ -13,19 +13,19 @@ call test_join()
 print *, "OK: test_join"
 
 call test_filesep()
-print *, "OK: pathlib: filesep"
+print *, "OK: filesystem: filesep"
 
 call test_root()
-print *, "OK: pathlib: root"
+print *, "OK: filesystem: root"
 
 call test_manip()
-print *, "OK: pathlib: manip"
+print *, "OK: filesystem: manip"
 
 call test_is_dir()
-print *," OK: pathlib: is_dir"
+print *," OK: filesystem: is_dir"
 
 call test_absolute()
-print *, "OK: pathlib: absolute"
+print *, "OK: filesystem: absolute"
 
 contains
 
@@ -190,7 +190,7 @@ p1 = path_t(".")
 if(.not. p1%is_dir()) error stop "did not detect '.' as directory"
 if(p1%is_file()) error stop "detected '.' as file"
 
-p2 = path_t('test-pathlib.h5')
+p2 = path_t('test-filesystem.h5')
 open(newunit=i, file=p2%path(), status='replace')
 close(i)
 

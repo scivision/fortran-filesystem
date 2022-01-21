@@ -1,7 +1,7 @@
 program test_find
 
 use, intrinsic :: iso_fortran_env, only : stderr => error_unit
-use pathlib, only : remove, get_filename, mkdir, make_absolute, sys_posix, touch
+use filesystem, only : remove, get_filename, mkdir, make_absolute, sys_posix, touch
 
 implicit none (type, external)
 
@@ -18,7 +18,7 @@ subroutine test_get_filename()
 character(:), allocatable:: fn
 integer :: i
 
-character(*), parameter :: th5 = "test-pathlib.h5", tnc = "test-pathlib.nc", name = 'test-pathlib'
+character(*), parameter :: th5 = "test-filesystem.h5", tnc = "test-filesystem.nc", name = 'test-filesystem'
 
 
 if(get_filename(' ') /= '') error stop 'empty 1'

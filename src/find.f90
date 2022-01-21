@@ -1,4 +1,4 @@
-submodule (pathlib) find_pathlib
+submodule (filesystem) find_filesystem
 !! procedures that find files
 
 implicit none (type, external)
@@ -43,9 +43,9 @@ enddo
 
 get_filename = ''
 if(present(name)) then
-  write(stderr,*) 'pathlib:get_filename: ',name,' not found in ', path
+  write(stderr,*) 'filesystem:get_filename: ',name,' not found in ', path
 else
-  write(stderr,*) 'pathlib:get_filename: file not found: ',path
+  write(stderr,*) 'filesystem:get_filename: file not found: ',path
 endif
 
 end procedure get_filename
@@ -65,4 +65,4 @@ endif
 end procedure make_absolute
 
 
-end submodule find_pathlib
+end submodule find_filesystem

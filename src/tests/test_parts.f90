@@ -1,7 +1,7 @@
 program test_parts
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use pathlib, only : path_t, file_parts
+use filesystem, only : path_t, file_parts
 
 implicit none (type, external)
 

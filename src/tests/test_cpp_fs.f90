@@ -1,7 +1,7 @@
 program test_cpp_fs
 !! test methods from C++17 filesystem
 
-use pathlib, only : path_t, get_cwd, exists, sys_posix, get_tempdir, get_homedir
+use filesystem, only : path_t, get_cwd, exists, sys_posix, get_tempdir, get_homedir
 
 implicit none (type, external)
 

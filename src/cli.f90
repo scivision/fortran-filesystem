@@ -1,9 +1,9 @@
-!! a CLI frontent for pathlib
-!! helps people understand pathlib output
+!! a CLI frontent for filesystem
+!! helps people understand filesystem output
 
 program cli
 
-use pathlib
+use filesystem
 
 implicit none (type, external)
 
@@ -11,7 +11,7 @@ integer :: i
 character(4096) :: buf, buf2
 character(16) :: fcn
 
-if (command_argument_count() < 1) error stop "usage: ./pathlib <function> [<path> ...]"
+if (command_argument_count() < 1) error stop "usage: ./filesystem_cli <function> [<path> ...]"
 
 call get_command_argument(1, fcn, status=i)
 if (i /= 0) error stop "invalid function name: " // trim(fcn)
@@ -19,14 +19,14 @@ if (i /= 0) error stop "invalid function name: " // trim(fcn)
 select case (fcn)
 case ("get_cwd", "homedir", "tempdir")
 case default
-  if (command_argument_count() < 2) error stop "usage: ./pathlib <function> <path>"
+  if (command_argument_count() < 2) error stop "usage: ./filesystem_cli <function> <path>"
   call get_command_argument(2, buf, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf)
 end select
 
 select case (fcn)
 case ("relative_to", "same_file", "with_suffix")
-  if (command_argument_count() < 3) error stop "usage: ./pathlib <function> <path> <path>"
+  if (command_argument_count() < 3) error stop "usage: ./filesystem_cli <function> <path> <path>"
   call get_command_argument(3, buf2, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf2)
 end select

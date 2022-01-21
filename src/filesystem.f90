@@ -1,4 +1,4 @@
-module pathlib
+module filesystem
 
 use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 
@@ -8,7 +8,7 @@ public :: path_t  !< base class
 public :: get_homedir, canonical, get_cwd !< utility procedures
 public :: as_posix, normal, expanduser, &
 is_absolute, is_dir, is_file, is_exe, &
-pathlib_has_symlink, pathlib_has_normalize, pathlib_has_relative_to, pathlib_has_weakly_canonical, &
+filesystem_has_symlink, filesystem_has_normalize, filesystem_has_relative_to, filesystem_has_weakly_canonical, &
 is_symlink, &
 exists, &
 join, &
@@ -53,20 +53,21 @@ character(:), allocatable :: path_str
 contains
 
 procedure, public :: path=>get_path, &
-length, join=>pathlib_join, parts=>pathlib_parts, relative_to=>pathlib_relative_to, &
-normal=>pathlib_normal, &
-exists=>pathlib_exists, &
-is_file=>pathlib_is_file, is_dir=>pathlib_is_dir, is_absolute=>pathlib_is_absolute, &
-is_symlink=>pathlib_is_symlink, create_symlink=>pathlib_create_symlink, &
-copy_file=>pathlib_copy_file, mkdir=>pathlib_mkdir, &
-touch=>pathlib_touch, &
-parent=>pathlib_parent, file_name=>pathlib_file_name, stem=>pathlib_stem, root=>pathlib_root, suffix=>pathlib_suffix, &
-as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
-with_suffix=>pathlib_with_suffix, &
-resolve=>pathlib_resolve, same_file=>pathlib_same_file, is_exe=>pathlib_is_exe, &
-remove=>pathlib_unlink, file_size=>pathlib_file_size, &
-read_text=>pathlib_read_text, write_text=>pathlib_write_text, &
-chmod_exe=>pathlib_chmod_exe, chmod_no_exe=>pathlib_chmod_no_exe
+length, join=>filesystem_join, parts=>filesystem_parts, relative_to=>filesystem_relative_to, &
+normal=>filesystem_normal, &
+exists=>filesystem_exists, &
+is_file=>filesystem_is_file, is_dir=>filesystem_is_dir, is_absolute=>filesystem_is_absolute, &
+is_symlink=>filesystem_is_symlink, create_symlink=>filesystem_create_symlink, &
+copy_file=>filesystem_copy_file, mkdir=>filesystem_mkdir, &
+touch=>filesystem_touch, &
+parent=>filesystem_parent, file_name=>filesystem_file_name, stem=>filesystem_stem, &
+root=>filesystem_root, suffix=>filesystem_suffix, &
+as_posix=>filesystem_as_posix, expanduser=>filesystem_expanduser, &
+with_suffix=>filesystem_with_suffix, &
+resolve=>filesystem_resolve, same_file=>filesystem_same_file, is_exe=>filesystem_is_exe, &
+remove=>filesystem_unlink, file_size=>filesystem_file_size, &
+read_text=>filesystem_read_text, write_text=>filesystem_write_text, &
+chmod_exe=>filesystem_chmod_exe, chmod_no_exe=>filesystem_chmod_no_exe
 
 end type path_t
 
@@ -264,7 +265,7 @@ end interface
 interface  !< {posix,windows}/path.f90
 module logical function is_absolute(path)
 !! is path absolute
-!! do NOT expanduser() to be consistent with Python etc. pathlib
+!! do NOT expanduser() to be consistent with Python etc. filesystem
 character(*), intent(in) :: path
 end function is_absolute
 
@@ -305,17 +306,17 @@ end interface
 
 interface !< fs_cpp.f90
 
-module logical function pathlib_has_symlink()
-end function pathlib_has_symlink
+module logical function filesystem_has_symlink()
+end function filesystem_has_symlink
 
-module logical function pathlib_has_weakly_canonical()
-end function pathlib_has_weakly_canonical
+module logical function filesystem_has_weakly_canonical()
+end function filesystem_has_weakly_canonical
 
-module logical function pathlib_has_normalize()
-end function pathlib_has_normalize
+module logical function filesystem_has_normalize()
+end function filesystem_has_normalize
 
-module logical function pathlib_has_relative_to()
-end function pathlib_has_relative_to
+module logical function filesystem_has_relative_to()
+end function filesystem_has_relative_to
 
 module logical function is_symlink(path)
 !! .true.: "path" is a symbolic link
@@ -392,187 +393,187 @@ end function get_path
 
 !> one-liner methods calling actual procedures
 
-function pathlib_relative_to(self, other)
+function filesystem_relative_to(self, other)
 !! returns other relative to self
 class(path_t), intent(in) :: self
 character(*), intent(in) :: other
-character(:), allocatable :: pathlib_relative_to
+character(:), allocatable :: filesystem_relative_to
 
-pathlib_relative_to = relative_to(self%path_str, other)
-end function pathlib_relative_to
+filesystem_relative_to = relative_to(self%path_str, other)
+end function filesystem_relative_to
 
 
-function pathlib_stem(self)
+function filesystem_stem(self)
 class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_stem
+character(:), allocatable :: filesystem_stem
 
-pathlib_stem = stem(self%path_str)
-end function pathlib_stem
+filesystem_stem = stem(self%path_str)
+end function filesystem_stem
 
 
-function pathlib_suffix(self)
+function filesystem_suffix(self)
 !! extracts path suffix, including the final "." dot
 class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_suffix
+character(:), allocatable :: filesystem_suffix
 
-pathlib_suffix = suffix(self%path_str)
-end function pathlib_suffix
+filesystem_suffix = suffix(self%path_str)
+end function filesystem_suffix
 
 
-function pathlib_file_name(self)
+function filesystem_file_name(self)
 !! returns file name without path
 class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_file_name
+character(:), allocatable :: filesystem_file_name
 
-pathlib_file_name = file_name(self%path_str)
-end function pathlib_file_name
+filesystem_file_name = file_name(self%path_str)
+end function filesystem_file_name
 
 
-function pathlib_parent(self)
+function filesystem_parent(self)
 !! returns parent directory of path
 class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_parent
+character(:), allocatable :: filesystem_parent
 
-pathlib_parent = parent(self%path_str)
-end function pathlib_parent
+filesystem_parent = parent(self%path_str)
+end function filesystem_parent
 
 
-logical function pathlib_is_absolute(self)
+logical function filesystem_is_absolute(self)
 !! is path absolute
-!! do NOT expanduser() to be consistent with Python etc. pathlib
+!! do NOT expanduser() to be consistent with Python etc. filesystem
 class(path_t), intent(in) :: self
 
-pathlib_is_absolute = is_absolute(self%path_str)
-end function pathlib_is_absolute
+filesystem_is_absolute = is_absolute(self%path_str)
+end function filesystem_is_absolute
 
 
-function pathlib_with_suffix(self, new)
+function filesystem_with_suffix(self, new)
 !! replace file suffix with new suffix
 class(path_t), intent(in) :: self
-type(path_t) :: pathlib_with_suffix
+type(path_t) :: filesystem_with_suffix
 character(*), intent(in) :: new
 
-pathlib_with_suffix%path_str = with_suffix(self%path_str, new)
-end function pathlib_with_suffix
+filesystem_with_suffix%path_str = with_suffix(self%path_str, new)
+end function filesystem_with_suffix
 
-function pathlib_normal(self)
+function filesystem_normal(self)
 !! lexically normalize path
 class(path_t), intent(in) :: self
-type(path_t) :: pathlib_normal
+type(path_t) :: filesystem_normal
 
-pathlib_normal%path_str = normal(self%path_str)
-end function pathlib_normal
+filesystem_normal%path_str = normal(self%path_str)
+end function filesystem_normal
 
-function pathlib_root(self)
+function filesystem_root(self)
 !! returns root of path
 class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_root
+character(:), allocatable :: filesystem_root
 
-pathlib_root = root(self%path_str)
-end function pathlib_root
+filesystem_root = root(self%path_str)
+end function filesystem_root
 
 
-function pathlib_as_posix(self)
+function filesystem_as_posix(self)
 !! '\' => '/', dropping redundant separators
 
 class(path_t), intent(in) :: self
-type(path_t) :: pathlib_as_posix
+type(path_t) :: filesystem_as_posix
 
-pathlib_as_posix%path_str = as_posix(self%path_str)
-end function pathlib_as_posix
+filesystem_as_posix%path_str = as_posix(self%path_str)
+end function filesystem_as_posix
 
 
-function pathlib_join(self, other)
+function filesystem_join(self, other)
 !! returns path_t object with other appended to self using posix separator
-type(path_t) :: pathlib_join
+type(path_t) :: filesystem_join
 class(path_t), intent(in) :: self
 character(*), intent(in) :: other
 
-pathlib_join%path_str = join(self%path_str, other)
-end function pathlib_join
+filesystem_join%path_str = join(self%path_str, other)
+end function filesystem_join
 
 
-subroutine pathlib_unlink(self)
+subroutine filesystem_unlink(self)
 !! delete the file
 class(path_t), intent(in) :: self
 
 call f_unlink(self%path_str)
-end subroutine pathlib_unlink
+end subroutine filesystem_unlink
 
 
-logical function pathlib_exists(self)
+logical function filesystem_exists(self)
 class(path_t), intent(in) :: self
 
-pathlib_exists = exists(self%path_str)
-end function pathlib_exists
+filesystem_exists = exists(self%path_str)
+end function filesystem_exists
 
 
-function pathlib_resolve(self)
+function filesystem_resolve(self)
 class(path_t), intent(in) :: self
-type(path_t) :: pathlib_resolve
+type(path_t) :: filesystem_resolve
 
-pathlib_resolve%path_str = resolve(self%path_str)
-end function pathlib_resolve
+filesystem_resolve%path_str = resolve(self%path_str)
+end function filesystem_resolve
 
 
-logical function pathlib_same_file(self, other)
+logical function filesystem_same_file(self, other)
 class(path_t), intent(in) :: self, other
 
-pathlib_same_file = same_file(self%path_str, other%path_str)
-end function pathlib_same_file
+filesystem_same_file = same_file(self%path_str, other%path_str)
+end function filesystem_same_file
 
 
-logical function pathlib_is_dir(self)
+logical function filesystem_is_dir(self)
 class(path_t), intent(in) :: self
 
-pathlib_is_dir = is_dir(self%path_str)
-end function pathlib_is_dir
+filesystem_is_dir = is_dir(self%path_str)
+end function filesystem_is_dir
 
 
-logical function pathlib_is_symlink(self)
+logical function filesystem_is_symlink(self)
 class(path_t), intent(in) :: self
 
-pathlib_is_symlink = is_symlink(self%path_str)
-end function pathlib_is_symlink
+filesystem_is_symlink = is_symlink(self%path_str)
+end function filesystem_is_symlink
 
 
-subroutine pathlib_create_symlink(self, link)
+subroutine filesystem_create_symlink(self, link)
 class(path_t), intent(in) :: self
 character(*), intent(in) :: link
 
 call create_symlink(self%path_str, link)
-end subroutine pathlib_create_symlink
+end subroutine filesystem_create_symlink
 
 
-logical function pathlib_is_file(self)
+logical function filesystem_is_file(self)
 class(path_t), intent(in) :: self
 
-pathlib_is_file = is_file(self%path_str)
-end function pathlib_is_file
+filesystem_is_file = is_file(self%path_str)
+end function filesystem_is_file
 
-integer(int64) function pathlib_file_size(self)
+integer(int64) function filesystem_file_size(self)
 class(path_t), intent(in) :: self
 
-pathlib_file_size = file_size(self%path_str)
-end function pathlib_file_size
+filesystem_file_size = file_size(self%path_str)
+end function filesystem_file_size
 
 
-logical function pathlib_is_exe(self)
+logical function filesystem_is_exe(self)
 class(path_t), intent(in) :: self
 
-pathlib_is_exe = is_exe(self%path_str)
-end function pathlib_is_exe
+filesystem_is_exe = is_exe(self%path_str)
+end function filesystem_is_exe
 
 
-subroutine pathlib_mkdir(self)
+subroutine filesystem_mkdir(self)
 !! create a directory, with parents if needed
 class(path_t), intent(in) :: self
 
 call mkdir(self%path_str)
-end subroutine pathlib_mkdir
+end subroutine filesystem_mkdir
 
 
-subroutine pathlib_copy_file(self, dest, overwrite)
+subroutine filesystem_copy_file(self, dest, overwrite)
 !! copy file from source to destination
 !! OVERWRITES existing destination files
 class(path_t), intent(in) :: self
@@ -580,24 +581,24 @@ character(*), intent(in) :: dest
 logical, intent(in), optional :: overwrite
 
 call copy_file(self%path_str, dest, overwrite)
-end subroutine pathlib_copy_file
+end subroutine filesystem_copy_file
 
 
-function pathlib_expanduser(self)
+function filesystem_expanduser(self)
 !! resolve home directory as Fortran does not understand tilde
 !! works for Linux, Mac, Windows, etc.
 class(path_t), intent(in) :: self
-type(path_t) :: pathlib_expanduser
+type(path_t) :: filesystem_expanduser
 
-pathlib_expanduser%path_str = expanduser(self%path_str)
-end function pathlib_expanduser
+filesystem_expanduser%path_str = expanduser(self%path_str)
+end function filesystem_expanduser
 
 
 subroutine assert_is_file(path)
 !! throw error if file does not exist
 character(*), intent(in) :: path
 
-if (.not. is_dir(path)) error stop 'pathlib:assert_is_dir: directory does not exist ' // path
+if (.not. is_dir(path)) error stop 'filesystem:assert_is_dir: directory does not exist ' // path
 end subroutine assert_is_file
 
 
@@ -605,44 +606,44 @@ subroutine assert_is_dir(path)
 !! throw error if directory does not exist
 character(*), intent(in) :: path
 
-if (.not. is_file(path)) error stop 'pathlib:assert_is_file: file does not exist ' // path
+if (.not. is_file(path)) error stop 'filesystem:assert_is_file: file does not exist ' // path
 end subroutine assert_is_dir
 
 
-function pathlib_parts(self)
+function filesystem_parts(self)
 !! split path into up to 1000 parts (arbitrary limit)
 !! all path separators are discarded, except the leftmost if present
 class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_parts(:)
+character(:), allocatable :: filesystem_parts(:)
 
-call file_parts(self%path_str, fparts=pathlib_parts)
-end function pathlib_parts
+call file_parts(self%path_str, fparts=filesystem_parts)
+end function filesystem_parts
 
 
-subroutine pathlib_touch(self)
+subroutine filesystem_touch(self)
 class(path_t), intent(in) :: self
 
 call touch(self%path_str)
-end subroutine pathlib_touch
+end subroutine filesystem_touch
 
 
-function pathlib_read_text(self, max_length)
+function filesystem_read_text(self, max_length)
 !! read text file
 class(path_t), intent(in) :: self
-character(:), allocatable :: pathlib_read_text
+character(:), allocatable :: filesystem_read_text
 integer, optional :: max_length
 
-pathlib_read_text = read_text(self%path_str, max_length)
-end function pathlib_read_text
+filesystem_read_text = read_text(self%path_str, max_length)
+end function filesystem_read_text
 
 
-subroutine pathlib_write_text(self, text)
+subroutine filesystem_write_text(self, text)
 !! create or overwrite file with text
 class(path_t), intent(in) :: self
 character(*), intent(in) :: text
 
 call write_text(self%path_str, text)
-end subroutine pathlib_write_text
+end subroutine filesystem_write_text
 
 
 pure integer function length(self)
@@ -662,18 +663,18 @@ join = as_posix(path // "/" // other)
 end function join
 
 
-subroutine pathlib_chmod_exe(self)
+subroutine filesystem_chmod_exe(self)
 class(path_t), intent(in) :: self
 
 call chmod_exe(self%path_str)
-end subroutine pathlib_chmod_exe
+end subroutine filesystem_chmod_exe
 
 
-subroutine pathlib_chmod_no_exe(self)
+subroutine filesystem_chmod_no_exe(self)
 class(path_t), intent(in) :: self
 
 call chmod_no_exe(self%path_str)
-end subroutine pathlib_chmod_no_exe
+end subroutine filesystem_chmod_no_exe
 
 
-end module pathlib
+end module filesystem

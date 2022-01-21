@@ -1,6 +1,6 @@
 program test_filesize
 
-use pathlib, only : path_t, file_size
+use filesystem, only : path_t, file_size
 
 implicit none (type, external)
 

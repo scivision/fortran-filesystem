@@ -3,6 +3,6 @@ authors:
   - family-names: Hirsch
     given-names: Michael
     orcid: https://orcid.org/0000-0002-1637-6526
-title: Fortran Pathlib
+title: Fortran filesystem
 doi: 10.5281/zenodo.5839009
-date-released: 2022-01-18
+date-released: 2022-01-21

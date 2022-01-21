@@ -118,7 +118,7 @@ extern "C" size_t normal(const char* path, char* normalized) {
   std::strcpy(normalized, p.lexically_normal().string().c_str());
 #else
   std::strcpy(normalized, path);
-  std::cerr << "pathlib:normal: legacy C++17 experimental filesystem cannot normalize " << normalized << std::endl;
+  std::cerr << "filesystem:normal: legacy C++17 experimental filesystem cannot normalize " << normalized << std::endl;
 #endif
 
   return as_posix(normalized);
@@ -132,11 +132,11 @@ extern "C" bool is_symlink(const char* path) {
 extern "C" void create_symlink(const char* target, const char* link) {
 
   if(strlen(target) == 0) {
-    std::cerr << "pathlib:create_symlink: target path must not be empty" << std::endl;
+    std::cerr << "filesystem:create_symlink: target path must not be empty" << std::endl;
     exit(EXIT_FAILURE);
   }
   if(strlen(link) == 0) {
-    std::cerr << "pathlib:create_symlink: link path must not be empty" << std::endl;
+    std::cerr << "filesystem:create_symlink: link path must not be empty" << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -155,7 +155,7 @@ extern "C" void create_directory_symlink(const char* target, const char* link) {
 extern "C" bool create_directories(const char* path) {
 
   if(strlen(path) == 0) {
-    std::cerr << "pathlib:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
+    std::cerr << "filesystem:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -164,7 +164,7 @@ extern "C" bool create_directories(const char* path) {
   if(fs::exists(s)) {
     if(is_dir(path)) return true;
 
-    std::cerr << "pathlib:mkdir:create_directories: " << path << " already exists but is not a directory" << std::endl;
+    std::cerr << "filesystem:mkdir:create_directories: " << path << " already exists but is not a directory" << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -177,7 +177,7 @@ extern "C" bool create_directories(const char* path) {
     }
     else
     {
-      std::cerr << "pathlib:mkdir:create_directories: " << path << " could not be created" << std::endl;
+      std::cerr << "filesystem:mkdir:create_directories: " << path << " could not be created" << std::endl;
       exit(EXIT_FAILURE);
     }
   }
@@ -262,7 +262,7 @@ extern "C" size_t canonical(char* path, bool strict){
   // std::cout << "TRACE:canonical: " << p << std::endl;
 
   if(ec) {
-    std::cerr << "ERROR:pathlib:canonical: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:canonical: " << ec.message() << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -284,11 +284,11 @@ extern "C" bool equivalent(const char* path1, const char* path2) {
 extern "C" bool copy_file(const char* source, const char* destination, bool overwrite) {
 
   if(strlen(source) == 0) {
-    std::cerr << "pathlib:copy_file: source path must not be empty" << std::endl;
+    std::cerr << "filesystem:copy_file: source path must not be empty" << std::endl;
     exit(EXIT_FAILURE);
   }
   if(strlen(destination) == 0) {
-    std::cerr << "pathlib:copy_file: destination path must not be empty" << std::endl;
+    std::cerr << "filesystem:copy_file: destination path must not be empty" << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -331,7 +331,7 @@ extern "C" size_t relative_to(const char* a, const char* b, char* result) {
 #ifdef __cpp_lib_filesystem
   r = fs::relative(a1, b1);
 #else
-  std::cerr << "pathlib:relative_to: legacy C++17 filesystem does not support relative_to." << std::endl;
+  std::cerr << "filesystem:relative_to: legacy C++17 filesystem does not support relative_to." << std::endl;
   exit(EXIT_FAILURE);
 #endif
 
@@ -343,7 +343,7 @@ extern "C" size_t relative_to(const char* a, const char* b, char* result) {
 extern "C" bool touch(const char* path) {
 
   if(strlen(path) == 0) {
-    std::cerr << "pathlib:touch: cannot touch empty file name" << std::endl;
+    std::cerr << "filesystem:touch: cannot touch empty file name" << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -372,7 +372,7 @@ extern "C" bool touch(const char* path) {
 
   fs::last_write_time(p, fs::file_time_type::clock::now(), ec);
   if(ec) {
-    std::cerr << "pathlib:touch: " << path << " was created, but modtime was not updated: " << ec.message() << std::endl;
+    std::cerr << "filesystem:touch: " << path << " was created, but modtime was not updated: " << ec.message() << std::endl;
     return false;
   }
 
@@ -386,7 +386,7 @@ extern "C" size_t get_tempdir(char* path) {
   std::error_code ec;
 
   auto t = fs::temp_directory_path(ec);
-  if(ec) std::cerr << "pathlib:get_tempdir: " << ec.message() << std::endl;
+  if(ec) std::cerr << "filesystem:get_tempdir: " << ec.message() << std::endl;
 
   std::strcpy(path, t.string().c_str());
   return as_posix(path);
@@ -398,7 +398,7 @@ extern "C" uintmax_t file_size(const char* path) {
   fs::path p(path);
 
   if (!fs::is_regular_file(p)) {
-    std::cerr << "pathlib:file_size: " << p << " is not a regular file" << std::endl;
+    std::cerr << "filesystem:file_size: " << p << " is not a regular file" << std::endl;
     return -1;
   }
 
@@ -406,7 +406,7 @@ extern "C" uintmax_t file_size(const char* path) {
   auto fsize = fs::file_size(p, ec);
 
   if (ec) {
-    std::cerr << "ERROR:pathlib:file_size: " << p << " could not get file size: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:file_size: " << p << " could not get file size: " << ec.message() << std::endl;
     return -1;
   }
 
@@ -426,7 +426,7 @@ extern "C" bool is_exe(const char* path) {
   auto s = fs::status(p);
 
   if (!fs::is_regular_file(s)) {
-    std::cerr << "pathlib:is_exe: " << p << " is not a regular file" << std::endl;
+    std::cerr << "filesystem:is_exe: " << p << " is not a regular file" << std::endl;
     return false;
   }
 
@@ -517,7 +517,7 @@ extern "C" bool chmod_exe(const char* path) {
   fs::path p(path);
 
   if(!fs::is_regular_file(p)) {
-    std::cerr << "pathlib:chmod_exe: " << p << " is not a regular file" << std::endl;
+    std::cerr << "filesystem:chmod_exe: " << p << " is not a regular file" << std::endl;
     return false;
   }
 
@@ -530,7 +530,7 @@ extern "C" bool chmod_exe(const char* path) {
 #endif
 
   if(ec) {
-    std::cerr << "ERROR:pathlib:chmod_exe: " << p << ": " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:chmod_exe: " << p << ": " << ec.message() << std::endl;
     return false;
   }
 
@@ -544,7 +544,7 @@ extern "C" bool chmod_no_exe(const char* path) {
   fs::path p(path);
 
   if(!fs::is_regular_file(p)) {
-    std::cerr << "pathlib:chmod_no_exe: " << p << " is not a regular file" << std::endl;
+    std::cerr << "filesystem:chmod_no_exe: " << p << " is not a regular file" << std::endl;
     return false;
   }
 
@@ -557,7 +557,7 @@ extern "C" bool chmod_no_exe(const char* path) {
 #endif
 
   if(ec) {
-    std::cerr << "ERROR:pathlib:chmod_no_exe: " << p << ": " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:chmod_no_exe: " << p << ": " << ec.message() << std::endl;
     return false;
   }
 

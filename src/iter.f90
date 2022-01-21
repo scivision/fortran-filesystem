@@ -1,4 +1,4 @@
-submodule (pathlib) pure_iter
+submodule (filesystem) pure_iter
 !! GCC 11.2 has a bug where this function can't be in the same file as the caller.
 !! specifically, relative_to broke file_parts
 

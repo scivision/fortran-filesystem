@@ -1,4 +1,4 @@
-name = "pathlib"
+name = "filesystem"
 description = "Platform independent, object-oriented Fortran filesystem path manipulation library. Based on C++17 filesystem."
 categories = "io"
 version = "3.0.0"
@@ -16,4 +16,4 @@ link="stdc++"
 [[ test ]]
 name="core"
 source-dir = "src/tests"
-main="test_pathlib.f90"
+main="test_filesystem.f90"

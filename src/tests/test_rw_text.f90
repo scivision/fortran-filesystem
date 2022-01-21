@@ -1,6 +1,6 @@
 program test_rw_text
 
-use pathlib, only : path_t, read_text, write_text
+use filesystem, only : path_t, read_text, write_text
 
 implicit none (type, external)
 

@@ -1,6 +1,6 @@
 program test_expanduser
 
-use pathlib, only : path_t, expanduser
+use filesystem, only : path_t, expanduser
 
 implicit none (type,external)
 
@@ -30,6 +30,6 @@ if (fn(i:i) /= "/") error stop "expanduser preserve separator failed"
 
 if (expanduser("~//") /= expanduser("~/")) error stop "expanduser double separator failed: " // expanduser("~//")
 
-print *, "OK: pathlib: expanduser"
+print *, "OK: filesystem: expanduser"
 
 end program

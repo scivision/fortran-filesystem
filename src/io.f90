@@ -1,4 +1,4 @@
-submodule (pathlib) io_pathlib
+submodule (filesystem) io_filesystem
 !! procedures that read/write file data
 
 implicit none (type, external)
@@ -37,4 +37,4 @@ end block
 
 end procedure read_text
 
-end submodule io_pathlib
+end submodule io_filesystem
