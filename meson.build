@@ -45,7 +45,8 @@ endif
 platform_src = configure_file(input : 'src/platform.in.f90', output : 'platform.f90', configuration : c)
 
 pathlib = library('pathlib',
-sources: [platform_src, files('src/pathlib.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90', 'src/fs_cpp.f90', 'src/fs.cpp')]
+sources: [platform_src, files('src/pathlib.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90', 'src/fs_cpp.f90', 'src/fs.cpp')],
+dependencies: fs_dep
 )
 
 # --- tests
