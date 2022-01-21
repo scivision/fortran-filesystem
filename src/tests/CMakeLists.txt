@@ -32,7 +32,6 @@ add_test(NAME Expanduser COMMAND test_expanduser)
 # -- symlink
 add_executable(test_symlink test_symlink.f90)
 target_link_libraries(test_symlink PRIVATE pathlib)
-
 add_test(NAME symlink COMMAND test_symlink)
 
 # --- canonical

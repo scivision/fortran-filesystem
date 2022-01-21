@@ -1,7 +1,7 @@
 program test_cpp_fs
 !! test methods from C++17 filesystem
 
-use pathlib, only : path_t, get_cwd, exists, relative_to
+use pathlib, only : path_t, get_cwd, exists, relative_to, sys_posix
 
 implicit none (type, external)
 
@@ -56,23 +56,46 @@ if(rel /= "") error stop "empty path and base should be empty: " // rel
 rel = relative_to("", "/")
 if(rel /= "") error stop "empty path should be empty: " // rel
 
-rel = relative_to("/a/b", "c")
-if(rel /= "") error stop "abs path with rel base should be empty: " // rel
+print *, "OK: relative_to: empty"
 
-rel = relative_to("c", "/a/b")
-if(rel /= "") error stop "rel path with abs base should be empty: " // rel
+if(sys_posix()) then
+  rel = relative_to("/a/b", "c")
+  if(rel /= "") error stop "abs path with rel base should be empty: " // rel
 
-rel = relative_to("/a/b", "/a/b")
-if(rel /= ".") error stop "same path should be . "  // rel
+  rel = relative_to("c", "/a/b")
+  if(rel /= "") error stop "rel path with abs base should be empty: " // rel
 
-rel = relative_to("/a/b", "/a")
-if(rel /= "b") error stop "rel to parent 1: " // rel
+  rel = relative_to("/a/b", "/a/b")
+  if(rel /= ".") error stop "same path should be . "  // rel
 
-rel = relative_to("/a/b/c/d", "/a/b")
-if(rel /= "c/d") error stop "rel to parent 2: " // rel
+  rel = relative_to("/a/b", "/a")
+  if(rel /= "b") error stop "rel to parent 1: " // rel
 
-p1 = path_t("/a/b/c/d")
-if (p1%relative_to("/a/b") /= rel) error stop " OO rel to parent"
+  rel = relative_to("/a/b/c/d", "/a/b")
+  if(rel /= "c/d") error stop "rel to parent 2: " // rel
+
+  p1 = path_t("/a/b/c/d")
+  if (p1%relative_to("/a/b") /= rel) error stop " OO rel to parent"
+else
+  rel  = relative_to("c:/a/b", "c")
+  if(rel /= "") error stop "abs path with rel base should be empty: " // rel
+
+  rel = relative_to("c", "c:/a/b")
+  if(rel /= "") error stop "rel path with abs base should be empty: " // rel
+
+  rel = relative_to("c:/a/b", "c:/a/b")
+  if(rel /= ".") error stop "same path should be . "  // rel
+
+  rel = relative_to("c:/a/b", "c:/a")
+  if(rel /= "b") error stop "rel to parent 1: " // rel
+
+  rel = relative_to("c:/a/b/c/d", "c:/a/b")
+  if(rel /= "c/d") error stop "rel to parent 2: " // rel
+
+  p1 = path_t("c:/a/b/c/d")
+  if (p1%relative_to("c:/a/b") /= rel) error stop " OO rel to parent"
+
+endif
 
 end subroutine test_relative_to
 
