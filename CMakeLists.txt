@@ -11,6 +11,7 @@ include(CTest)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
+
 set(CMAKE_CXX_STANDARD 17)
 
 include(cmake/options.cmake)
@@ -40,11 +41,6 @@ target_include_directories(pathlib PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 $<INSTALL_INTERFACE:include>
 )
-
-# fixes errors about needing -fPIE on certain systems:
-if(CMAKE_SYSTEM_NAME STREQUAL Linux AND CMAKE_CXX_COMPILER_ID STREQUAL Clang)
-  set_target_properties(pathlib PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-endif()
 
 # --- C++17 filesystem OR lstat() symbolic link information
 

@@ -25,6 +25,11 @@ if(HAVE_CXX17_FILESYSTEM OR HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
   check_source_runs(CXX "${symlink_src}" HAVE_SYMLINK)
 endif()
 
+# fixes errors about needing -fPIE
+if(CMAKE_SYSTEM_NAME STREQUAL Linux AND CMAKE_CXX_COMPILER_ID STREQUAL Clang)
+  set(CMAKE_POSITION_INDEPENDENT_CODE true)
+endif()
+
 # --- flags
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
