@@ -32,13 +32,13 @@ Due to compiler limitations, currently Fortran-filesystem only officially suppor
 Full C++17 filesystem support and hence full Fortran-filesystem features are available with any of these compilers:
 
 * GCC &ge; 8
-* Clang &ge; 7
+* Clang &ge; 6
 * Intel oneAPI (icx, ifx, icpc, ifort, icl)
 
-Fortran-filesystem has most features when used with older compilers that have C++17 "experimental" filesystem support, such as:
+Fortran-filesystem has a large subset of features when used with older compilers that have C++17 "experimental" filesystem support, such as:
 
 * GCC 7
-* Clang 7
+* Clang 6
 
 Expected to work with other
 [C++17 compilers](https://en.cppreference.com/w/cpp/compiler_support)
