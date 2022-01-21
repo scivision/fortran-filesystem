@@ -10,11 +10,6 @@ module procedure is_dir
 error stop "pathlib: is_dir " // tail
 end procedure is_dir
 
-module procedure is_exe
-error stop "pathlib: %is_exe " // tail
-end procedure is_exe
-
-
 module procedure get_cwd
 error stop "pathlib: get_cwd() " // tail
 end procedure get_cwd
