@@ -50,9 +50,9 @@ dependencies: fs_dep
 )
 
 # --- tests
-subdir('src/tests')
+subdir('tests')
 
 # --- CLI
 if get_option('BUILD_UTILS')
-  cli = executable('filesystem_cli', files('src/cli.f90'), link_with: filesystem)
+  cli = executable('filesystem_cli', files('app/main.f90'), link_with: filesystem)
 endif

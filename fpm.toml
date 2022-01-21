@@ -15,5 +15,5 @@ link="stdc++"
 
 [[ test ]]
 name="core"
-source-dir = "src/tests"
+source-dir = "tests"
 main="test_filesystem.f90"
