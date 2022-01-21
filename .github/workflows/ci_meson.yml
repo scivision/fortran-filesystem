@@ -8,8 +8,19 @@ on:
 
 jobs:
 
-  linux:
+  linux-gcc:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    strategy:
+      matrix:
+        gcc-version: [7, 8, 9, 10, 11]
+
+    env:
+      CC: gcc-${{ matrix.gcc-version }}
+      CXX: g++-${{ matrix.gcc-version }}
+      FC: gfortran-${{ matrix.gcc-version }}
+
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
@@ -17,6 +28,41 @@ jobs:
         python-version: '3.x'
 
     - run: pip install meson ninja
+
+    - name: install ninja and compilers
+      run: |
+        sudo apt update
+        sudo apt install gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }} gfortran-${{ matrix.gcc-version }}
+
+    - run: meson setup build
+    - run: meson compile -C build
+
+    - run: meson test -C build -v
+
+  linux-clang:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        clang-version: [7, 8, 9, 10]
+
+    env:
+      CC: clang-${{ matrix.clang-version }}
+      CXX: clang-${{ matrix.clang-version }}
+      FC: gfortran
+
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - run: pip install meson ninja
+
+    - name: install ninja and compilers
+      run: |
+        sudo apt update
+        sudo apt install ninja-build clang-${{ matrix.clang-version }}
 
     - run: meson setup build
     - run: meson compile -C build
