@@ -315,12 +315,20 @@ extern "C" bool touch(const char* path) {
     std::ofstream ost;
     ost.open(p);
     ost.close();
+    // ensure user can access file, as default permissions may be mode 600 or such
+    fs::permissions(p, fs::perms::owner_read & fs::perms::owner_write, fs::perm_options::add);
   }
 
   if (!fs::is_regular_file(p)) return false;
   // here p because we want to check the new file
 
-  fs::last_write_time(p, std::filesystem::file_time_type::clock::now());
+  std::error_code ec;
+
+  fs::last_write_time(p, std::filesystem::file_time_type::clock::now(), ec);
+  if(ec) {
+    std::cerr << "pathlib:touch: " << path << " was created, but modtime was not updated." << std::endl;
+    return false;
+  }
 
   return true;
 
