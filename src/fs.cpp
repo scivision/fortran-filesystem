@@ -57,6 +57,12 @@ extern "C" size_t filesep(char* sep) {
 }
 
 
+extern "C" bool match(const char* path, const char* pattern) {
+  std::regex r(pattern);
+  return std::regex_search(path, r);
+}
+
+
 extern "C" size_t file_name(const char* path, char* filename) {
   fs::path p(path);
 
