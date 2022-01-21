@@ -1,5 +1,5 @@
 project('FortranFilesystem', 'c', 'cpp', 'fortran',
-version: '3.1.0',
+version: '3.1.1',
 meson_version: '>= 0.55.0',
 default_options : ['default_library=static', 'cpp_std=c++17'])
 
