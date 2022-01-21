@@ -36,6 +36,8 @@ $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 $<INSTALL_INTERFACE:include>
 )
 
+# if get errors about needing -fPIE try:
+set_target_properties(pathlib PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 
 

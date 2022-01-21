@@ -14,12 +14,11 @@ For those old compilers, pathlib falls back with limited feature set to C stdlib
 Also inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html).
 
-CI tested with compilers including:
+Tested with compilers including:
 
-* GCC 8, 9, 10, 11
-* Clang
+* GCC 8 and newer
+* Clang 7 and newer
 * Intel oneAPI (icx, ifx, icpc, ifort, icl)
-* Visual Studio + Intel oneAPI
 
 Should work with other C++17 and Fortran 2008 compilers, but we haven't tested them.
 E.g. Cray, IBM XL, NAG, et al.

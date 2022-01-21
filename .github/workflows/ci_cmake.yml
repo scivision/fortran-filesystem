@@ -51,7 +51,7 @@ jobs:
 
     strategy:
       matrix:
-        clang-version: [9, 10]
+        clang-version: [7, 8, 9, 10]
 
     env:
       CC: clang-${{ matrix.clang-version }}
@@ -104,7 +104,7 @@ jobs:
 
   mac:
     runs-on: macos-latest
-    needs: linux-gcc
+    needs: linux-clang
     timeout-minutes: 10
 
     strategy:
