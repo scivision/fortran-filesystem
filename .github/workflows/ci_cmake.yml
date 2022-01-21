@@ -45,6 +45,36 @@ jobs:
     - run: ctest --preset release -V
 
 
+  linux-clang:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    strategy:
+      matrix:
+        clang-version: [9, 10]
+
+    env:
+      CC: clang-${{ matrix.clang-version }}
+      CXX: clang-${{ matrix.clang-version }}
+      FC: gfortran
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: install ninja and compilers
+      run: |
+        sudo apt update
+        sudo apt install ninja-build clang-${{ matrix.clang-version }}
+
+    - run: cmake --preset multi
+
+    - run: cmake --build --preset debug
+    - run: ctest --preset debug -V
+
+    - run: cmake --build --preset release
+    - run: ctest --preset release -V
+
+
   linux-coverage:
     if: false
     runs-on: ubuntu-latest
