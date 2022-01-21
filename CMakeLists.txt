@@ -41,8 +41,10 @@ $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 $<INSTALL_INTERFACE:include>
 )
 
-# if get errors about needing -fPIE try:
-# set_target_properties(pathlib PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+# fixes errors about needing -fPIE on certain systems:
+if(CMAKE_SYSTEM_NAME STREQUAL Linux AND CMAKE_CXX_COMPILER_ID STREQUAL Clang)
+  set_target_properties(pathlib PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+endif()
 
 # --- C++17 filesystem OR lstat() symbolic link information
 
