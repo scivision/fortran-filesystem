@@ -4,19 +4,17 @@ include(CheckSourceRuns)
 
 set(libfs)
 
-if(CPP_FS)
-  if(CMAKE_CXX_COMPILER_ID STREQUAL GNU AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
-    set(libfs stdc++fs)
-  endif()
+if(CMAKE_CXX_COMPILER_ID STREQUAL GNU AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
+  set(libfs stdc++fs)
+endif()
 
-  set(CMAKE_REQUIRED_LIBRARIES ${libfs})
+set(CMAKE_REQUIRED_LIBRARIES ${libfs})
 
-  check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXXFS_MACRO)
-  if(HAVE_CXXFS_MACRO)
-    check_include_file_cxx(filesystem HAVE_CXX17_FILESYSTEM)
-  else()
-    check_include_file_cxx(experimental/filesystem HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
-  endif()
+check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXXFS_MACRO)
+if(HAVE_CXXFS_MACRO)
+  check_include_file_cxx(filesystem HAVE_CXX17_FILESYSTEM)
+else()
+  check_include_file_cxx(experimental/filesystem HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
 endif()
 
 # --- C++17 filesystem or C lstat() symbolic link information

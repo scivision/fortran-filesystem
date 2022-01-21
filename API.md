@@ -24,8 +24,7 @@ p%path(2) !< character index 2:end
 In all the examples, we assume "p" is a pathlib path_t.
 
 C++17 filesystem is used extensively within Fortran-pathlib to implement functions in a platform-agnostic and robust way.
-The fallback functions use C stdlib when C++17 filesystem isn't available.
-For the interchange of character strings between Fortran and C/C++, a fixed buffer length is used.
+For the interchange of character strings between Fortran and C++, a fixed buffer length is used.
 This buffer length is defined as MAXP in src/pathlib.f90.
 Currently, MAXP = 4096; that is, 4096 ASCII characters is the maximum path length.
 The operating system and filesystem may have stricter limits.

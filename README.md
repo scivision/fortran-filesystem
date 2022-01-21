@@ -9,21 +9,8 @@ Platform independent (Linux, macOS, Windows), object-oriented Fortran filesystem
 This Fortran library uses
 [C++17 filesystem](https://en.cppreference.com/w/cpp/filesystem)
 internally.
-That is, we do not use compiler extensions unless C++17 filesystem isn't available.
-For those old compilers, pathlib falls back with limited feature set to C stdlib and vendor extensions to standard Fortran.
 Also inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html).
-
-Tested with compilers including:
-
-* GCC &ge; 8
-* Clang &ge; 7 (when GCC &ge; 8 stdc++ is used by Clang)
-* Intel oneAPI (icx, ifx, icpc, ifort, icl)
-
-Expected to work with other
-[C++17 compilers](https://en.cppreference.com/w/cpp/compiler_support)
-and Fortran 2008 compilers yet to be tested.
-E.g. Cray, IBM XL, NAG, et al.
 
 Fortran "pathlib" module contains one Fortran type "path_t" that contains properties and methods.
 The "path_t" type uses getter and setter procedure to access the path as a string `character(:), allocatable`.
@@ -39,7 +26,24 @@ print *, "path: ", p%path() !< getter
 ```
 
 Due to compiler limitations, currently Fortran-pathlib only officially supports ASCII characters.
-You may find that some features work on a particular computer with non-ASCII character, but this is not supported.
+
+## Compiler support
+
+Full C++17 filesystem support and hence full Fortran-pathlib features are available with any of these compilers:
+
+* GCC &ge; 8
+* Clang &ge; 7
+* Intel oneAPI (icx, ifx, icpc, ifort, icl)
+
+Fortran-pathlib has most features when used with older compilers that have C++17 "experimental" filesystem support, such as:
+
+* GCC 7
+* Clang 6
+
+Expected to work with other
+[C++17 compilers](https://en.cppreference.com/w/cpp/compiler_support)
+and Fortran 2008 compilers yet to be tested.
+E.g. Cray, IBM XL, NAG, et al.
 
 ## Build
 

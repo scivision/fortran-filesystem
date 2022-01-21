@@ -53,8 +53,12 @@ if(HAVE_CXX17_FILESYSTEM OR HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
 
   target_sources(pathlib PRIVATE src/fs_cpp.f90 $<TARGET_OBJECTS:pathlib_cpp>)
   target_link_libraries(pathlib PUBLIC ${libfs})
-else()
+elseif(fallback)
   add_subdirectory(fallback)
+else()
+  message(FATAL_ERROR "C++17 filesystem support is required or enable deprecated fallback with
+    cmake -Dfallback=yes"
+  )
 endif()
 
 
