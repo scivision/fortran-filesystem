@@ -162,15 +162,15 @@ import
 character(kind=c_char), intent(in) :: path(*)
 end function fs_is_absolute
 
-subroutine fs_chmod_exe(path) bind(C, name="chmod_exe")
+logical(c_bool) function fs_chmod_exe(path) bind(C, name="chmod_exe")
 import
 character(kind=c_char), intent(in) :: path(*)
-end subroutine fs_chmod_exe
+end function fs_chmod_exe
 
-subroutine fs_chmod_no_exe(path) bind(C, name="chmod_exe")
+logical(c_bool) function fs_chmod_no_exe(path) bind(C, name="chmod_exe")
 import
 character(kind=c_char), intent(in) :: path(*)
-end subroutine fs_chmod_no_exe
+end function fs_chmod_no_exe
 
 end interface
 
@@ -537,7 +537,6 @@ do i = 1, N
 end do
 
 get_homedir = trim(buf)
-
 end procedure get_homedir
 
 
@@ -554,7 +553,6 @@ do i = 1, N
 end do
 
 get_tempdir = trim(buf)
-
 end procedure get_tempdir
 
 
@@ -571,7 +569,6 @@ do i = 1, N
 end do
 
 get_cwd = trim(buf)
-
 end procedure get_cwd
 
 
@@ -581,26 +578,28 @@ character(kind=c_char, len=:), allocatable :: cpath
 cpath = path // C_NULL_CHAR
 
 file_size = fs_file_size(cpath)
-if(file_size < 0) write(stderr,*) "pathlib:file_size: " // path // " is not a file."
-
 end procedure file_size
 
 
 module procedure chmod_exe
 character(kind=c_char, len=:), allocatable :: cpath
+logical :: s
 
 cpath = path // C_NULL_CHAR
 
-call fs_chmod_exe(cpath)
+s = fs_chmod_exe(cpath)
+if(present(ok)) ok = s
 end procedure chmod_exe
 
 
 module procedure chmod_no_exe
 character(kind=c_char, len=:), allocatable :: cpath
+logical :: s
 
 cpath = path // C_NULL_CHAR
 
-call fs_chmod_no_exe(cpath)
+s = fs_chmod_no_exe(cpath)
+if(present(ok)) ok = s
 end procedure chmod_no_exe
 
 

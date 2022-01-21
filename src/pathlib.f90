@@ -336,14 +336,16 @@ module character function filesep()
 !! get system file separator
 end function filesep
 
-module subroutine chmod_exe(path)
+module subroutine chmod_exe(path, ok)
 !! set owner executable bit for regular file
 character(*), intent(in) :: path
+logical, intent(out), optional :: ok
 end subroutine chmod_exe
 
-module subroutine chmod_no_exe(path)
+module subroutine chmod_no_exe(path, ok)
 !! set owner non-executable bit for regular file
 character(*), intent(in) :: path
+logical, intent(out), optional :: ok
 end subroutine chmod_no_exe
 
 

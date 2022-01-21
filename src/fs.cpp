@@ -326,7 +326,7 @@ extern "C" bool touch(const char* path) {
 
   fs::last_write_time(p, std::filesystem::file_time_type::clock::now(), ec);
   if(ec) {
-    std::cerr << "pathlib:touch: " << path << " was created, but modtime was not updated." << std::endl;
+    std::cerr << "pathlib:touch: " << path << " was created, but modtime was not updated: " << ec.message() << std::endl;
     return false;
   }
 
@@ -344,7 +344,10 @@ extern "C" size_t get_tempdir(char* path) {
 extern "C" uintmax_t file_size(const char* path) {
   fs::path p(path);
 
-  if (!fs::is_regular_file(p)) return -1;
+  if (!fs::is_regular_file(p)) {
+    std::cerr << "pathlib:file_size: " << path << " is not a regular file" << std::endl;
+    return -1;
+  }
 
   return fs::file_size(p);
 }
@@ -361,7 +364,10 @@ extern "C" bool is_exe(const char* path) {
 
   auto s = fs::status(p);
 
-  if (!fs::is_regular_file(s)) return false;
+  if (!fs::is_regular_file(s)) {
+    std::cerr << "pathlib:is_exe: " << path << " is not a regular file" << std::endl;
+    return false;
+  }
 
   auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
   auto isexe = i != fs::perms::none;
@@ -444,30 +450,48 @@ extern "C" size_t expanduser(const char* path, char* result){
   return as_posix(result);
 }
 
-extern "C" void chmod_exe(const char* path) {
+extern "C" bool chmod_exe(const char* path) {
   // make path owner executable, if it's a file
 
   fs::path p(path);
 
   if(!fs::is_regular_file(p)) {
     std::cerr << "pathlib:chmod_exe: " << p << " is not a regular file" << std::endl;
-    exit(EXIT_FAILURE);
+    return false;
   }
 
-  fs::permissions(p, fs::perms::owner_exec, fs::perm_options::add);
+  std::error_code ec;
+
+  fs::permissions(p, fs::perms::owner_exec, fs::perm_options::add, ec);
+
+  if(ec) {
+    std::cerr << "ERROR:pathlib:chmod_exe: " << p << ": " << ec.message() << std::endl;
+    return false;
+  }
+
+  return true;
 
 }
 
-extern "C" void chmod_no_exe(const char* path) {
+extern "C" bool chmod_no_exe(const char* path) {
   // make path not executable, if it's a file
 
   fs::path p(path);
 
   if(!fs::is_regular_file(p)) {
     std::cerr << "pathlib:chmod_no_exe: " << p << " is not a regular file" << std::endl;
-    exit(EXIT_FAILURE);
+    return false;
   }
 
-  fs::permissions(p, fs::perms::owner_exec, fs::perm_options::remove);
+  std::error_code ec;
+
+  fs::permissions(p, fs::perms::owner_exec, fs::perm_options::remove, ec);
+
+  if(ec) {
+    std::cerr << "ERROR:pathlib:chmod_no_exe: " << p << ": " << ec.message() << std::endl;
+    return false;
+  }
+
+  return true;
 
 }
