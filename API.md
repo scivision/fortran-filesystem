@@ -261,12 +261,36 @@ p%same_file(other)
 same_file(path1, path2)
 ```
 
+## file permissions
+
 is path executable file:
 
 ```fortran
+!! logical
+
 p%is_exe()
 ! or
 is_exe("my/file.exe")
+```
+
+Make regular file executable for owner:
+
+```fortran
+!! subroutine
+
+call p%chmod_exe()
+! or
+call chmod_exe("my/file.exe")
+```
+
+Make regular file not executable for owner:
+
+```fortran
+!! subroutine
+
+call p%chmod_not_exe()
+! or
+call chmod_not_exe("my/file.exe")
 ```
 
 ## character(:), allocatable

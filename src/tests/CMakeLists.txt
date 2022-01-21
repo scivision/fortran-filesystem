@@ -46,27 +46,9 @@ target_link_libraries(test_filesize PRIVATE pathlib)
 add_test(NAME FileSize COMMAND test_filesize)
 
 # --- exe detect
-# non-exe doesn't work on WSL due to filesystem interface
-set(dummy_exe ${CMAKE_CURRENT_BINARY_DIR}/dummy.exe)
-file(TOUCH ${dummy_exe})
-file(CHMOD ${dummy_exe} PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_EXECUTE)
-if(NOT CMAKE_HOST_SYSTEM_VERSION MATCHES "microsoft-standard")
-  set(dummy_noexe ${CMAKE_CURRENT_BINARY_DIR}/dummy)
-  file(TOUCH ${dummy_noexe})
-endif()
-
 add_executable(test_exe test_exe.f90)
 target_link_libraries(test_exe PRIVATE pathlib)
-
-add_test(NAME ExeDetect
-COMMAND test_exe ${dummy_exe} ${dummy_noexe}
-)
-
-set_tests_properties(ExeDetect PROPERTIES
-REQUIRED_FILES "${dummy_exe};${dummy_noexe}"
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
-
+add_test(NAME ExeDetect COMMAND test_exe)
 
 # --- file ops
 add_executable(test_fileops test_fileop.f90)

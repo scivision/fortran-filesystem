@@ -18,7 +18,8 @@ read_text, write_text, &
 get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
 sys_posix, touch, create_symlink, &
-remove, get_tempdir, filesep
+remove, get_tempdir, filesep, &
+chmod_exe, chmod_no_exe
 !! functional API
 
 integer, public, protected :: MAXP = 4096
@@ -63,7 +64,8 @@ as_posix=>pathlib_as_posix, expanduser=>pathlib_expanduser, &
 with_suffix=>pathlib_with_suffix, &
 resolve=>pathlib_resolve, same_file=>pathlib_same_file, is_exe=>pathlib_is_exe, &
 remove=>pathlib_unlink, file_size=>pathlib_file_size, &
-read_text=>pathlib_read_text, write_text=>pathlib_write_text
+read_text=>pathlib_read_text, write_text=>pathlib_write_text, &
+chmod_exe=>pathlib_chmod_exe, chmod_no_exe=>pathlib_chmod_no_exe
 
 end type path_t
 
@@ -333,6 +335,16 @@ end function get_tempdir
 module character function filesep()
 !! get system file separator
 end function filesep
+
+module subroutine chmod_exe(path)
+!! set owner executable bit for regular file
+character(*), intent(in) :: path
+end subroutine chmod_exe
+
+module subroutine chmod_no_exe(path)
+!! set owner non-executable bit for regular file
+character(*), intent(in) :: path
+end subroutine chmod_no_exe
 
 
 end interface
@@ -636,6 +648,20 @@ character(*), intent(in) :: path, other
 
 join = as_posix(path // "/" // other)
 end function join
+
+
+subroutine pathlib_chmod_exe(self)
+class(path_t), intent(in) :: self
+
+call chmod_exe(self%path_str)
+end subroutine pathlib_chmod_exe
+
+
+subroutine pathlib_chmod_no_exe(self)
+class(path_t), intent(in) :: self
+
+call chmod_no_exe(self%path_str)
+end subroutine pathlib_chmod_no_exe
 
 
 end module pathlib

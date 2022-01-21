@@ -356,7 +356,11 @@ extern "C" bool is_exe(const char* path) {
   if (!fs::is_regular_file(s)) return false;
 
   auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
-  return i != fs::perms::none;
+  auto isexe = i != fs::perms::none;
+
+  // std::cout << "TRACE:is_exe: " << p << " " << isexe << std::endl;
+
+  return isexe;
 }
 
 
@@ -430,4 +434,32 @@ extern "C" size_t expanduser(const char* path, char* result){
   // std::cout << "TRACE:expanduser: result " << result << std::endl;
 
   return as_posix(result);
+}
+
+extern "C" void chmod_exe(const char* path) {
+  // make path owner executable, if it's a file
+
+  fs::path p(path);
+
+  if(!fs::is_regular_file(p)) {
+    std::cerr << "pathlib:chmod_exe: " << p << " is not a regular file" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  fs::permissions(p, fs::perms::owner_exec, fs::perm_options::add);
+
+}
+
+extern "C" void chmod_no_exe(const char* path) {
+  // make path not executable, if it's a file
+
+  fs::path p(path);
+
+  if(!fs::is_regular_file(p)) {
+    std::cerr << "pathlib:chmod_no_exe: " << p << " is not a regular file" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  fs::permissions(p, fs::perms::owner_exec, fs::perm_options::remove);
+
 }

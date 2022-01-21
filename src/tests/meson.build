@@ -27,19 +27,8 @@ test_filesize = executable('test_filesize', 'test_filesize.f90', link_with: path
 test('FileSize', test_filesize)
 
 # --- exe detect
-# non-exe doesn't work on WSL due to filesystem interface
-
-#dummy_exe = files(meson.current_build_dir() / 'dummy.exe')
-# file(['TOUCH', dummy_exe])
-# file(['CHMOD', dummy_exe, 'PERMISSIONS', 'OWNER_EXECUTE', 'OWNER_READ', 'GROUP_EXECUTE'])
-#if 'NOT', 'CMAKE_HOST_SYSTEM_VERSION', 'MATCHES', 'microsoft-standard'
- # dummy_noexe = [cmake_current_binary_dir, '/dummy']
-  # file(['TOUCH', dummy_noexe])
-#endif
-
-#test_exe = executable('test_exe', 'test_exe.f90', link_with: pathlib)
-#test('ExeDetect', test_exe, args: [dummy_exe, dummy_noexe])
-
+test_exe = executable('test_exe', 'test_exe.f90', link_with: pathlib)
+test('ExeDetect', test_exe)
 
 # --- file ops
 test_fileops = executable('test_fileops', 'test_fileop.f90', link_with: pathlib)
