@@ -17,7 +17,7 @@ call get_command_argument(1, fcn, status=i)
 if (i /= 0) error stop "invalid function name: " // trim(fcn)
 
 select case (fcn)
-case ("get_cwd", "home", "tempdir")
+case ("get_cwd", "homedir", "tempdir")
 case default
   if (command_argument_count() < 2) error stop "usage: ./pathlib <function> <path>"
   call get_command_argument(2, buf, status=i)

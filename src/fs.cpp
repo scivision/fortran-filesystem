@@ -336,7 +336,13 @@ extern "C" bool touch(const char* path) {
 
 
 extern "C" size_t get_tempdir(char* path) {
-  std::strcpy(path, fs::temp_directory_path().string().c_str());
+
+  std::error_code ec;
+
+  auto t = fs::temp_directory_path(ec);
+  if(ec) std::cerr << "pathlib:get_tempdir: " << ec.message() << std::endl;
+
+  std::strcpy(path, t.string().c_str());
   return as_posix(path);
 }
 

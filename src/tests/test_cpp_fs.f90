@@ -1,7 +1,7 @@
 program test_cpp_fs
 !! test methods from C++17 filesystem
 
-use pathlib, only : path_t, get_cwd, exists, relative_to, sys_posix
+use pathlib, only : path_t, get_cwd, exists, relative_to, sys_posix, get_tempdir, get_homedir
 
 implicit none (type, external)
 
@@ -13,6 +13,9 @@ print *, "OK fs: exists"
 
 call test_relative_to()
 print *, "OK fs: relative_to"
+
+call test_tempdir()
+print *, "OK: tempdir, homedir"
 
 contains
 
@@ -98,6 +101,21 @@ else
 endif
 
 end subroutine test_relative_to
+
+
+subroutine test_tempdir()
+
+character(:), allocatable :: temp, home
+
+
+home = get_homedir()
+if (len_trim(home) == 0) error stop "get_homedir failed"
+
+temp = get_tempdir()
+if (len_trim(temp) == 0) error stop "get_tempdir failed"
+
+
+end subroutine test_tempdir
 
 
 end program
