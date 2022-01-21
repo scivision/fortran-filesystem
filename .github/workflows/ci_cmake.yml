@@ -55,7 +55,7 @@ jobs:
 
     env:
       CC: clang-${{ matrix.clang-version }}
-      CXX: clang-${{ matrix.clang-version }}
+      CXX: clang++-${{ matrix.clang-version }}
       FC: gfortran
 
     steps:
