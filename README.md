@@ -16,11 +16,13 @@ Also inspired by
 
 Tested with compilers including:
 
-* GCC 8 and newer
-* Clang 7 and newer
+* GCC &ge; 8
+* Clang &ge; 7 (when GCC &ge; 8 stdc++ is used by Clang)
 * Intel oneAPI (icx, ifx, icpc, ifort, icl)
 
-Should work with other C++17 and Fortran 2008 compilers, but we haven't tested them.
+Expected to work with other
+[C++17 compilers](https://en.cppreference.com/w/cpp/compiler_support)
+and Fortran 2008 compilers yet to be tested.
 E.g. Cray, IBM XL, NAG, et al.
 
 Fortran "pathlib" module contains one Fortran type "path_t" that contains properties and methods.
