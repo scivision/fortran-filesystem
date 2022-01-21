@@ -39,6 +39,7 @@ jobs:
 
     - run: meson test -C build -v
 
+
   linux-clang:
     runs-on: ubuntu-latest
     strategy:
@@ -63,6 +64,35 @@ jobs:
       run: |
         sudo apt update
         sudo apt install ninja-build clang-${{ matrix.clang-version }}
+
+    - run: meson setup build
+    - run: meson compile -C build
+
+    - run: meson test -C build -v
+
+
+  mac:
+    runs-on: macos-latest
+    needs: linux-clang
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        compiler: [ {cpp: g++-11, c: gcc-11}, {cpp: clang++, c: clang} ]
+
+    env:
+      FC: gfortran-11
+      CC: ${{ matrix.compiler.c }}
+      CXX: ${{ matrix.compiler.cpp }}
+
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - run: pip install meson ninja
 
     - run: meson setup build
     - run: meson compile -C build
