@@ -3,11 +3,11 @@ include(CheckCXXSymbolExists)
 include(CheckSourceRuns)
 
 set(libfs)
-
 if(CMAKE_CXX_COMPILER_ID STREQUAL GNU AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1.0)
   set(libfs stdc++fs)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL Clang AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0.0)
-  set(libfs c++fs)
+# https://releases.llvm.org/9.0.0/projects/libcxx/docs/UsingLibcxx.html#using-filesystem
+  # set(libfs c++fs)  # /usr/bin/ld: cannot find -lc++fs  also happens in Meson
 endif()
 
 set(CMAKE_REQUIRED_LIBRARIES ${libfs})

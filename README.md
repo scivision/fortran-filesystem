@@ -38,7 +38,7 @@ Full C++17 filesystem support and hence full Fortran-pathlib features are availa
 Fortran-pathlib has most features when used with older compilers that have C++17 "experimental" filesystem support, such as:
 
 * GCC 7
-* Clang 6
+* Clang 7
 
 Expected to work with other
 [C++17 compilers](https://en.cppreference.com/w/cpp/compiler_support)
