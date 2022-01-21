@@ -22,11 +22,16 @@ if(HAVE_SYMLINK)
 else()
   set(has_symlink .false.)
 endif()
-configure_file(src/symlink.in.f90 symlink.f90 @ONLY)
+if(HAVE_CXX17_FILESYSTEM)
+  set(cpp_full_filesystem .true.)
+else()
+  set(cpp_full_filesystem .false.)
+endif()
+configure_file(src/platform.in.f90 platform.f90 @ONLY)
 
 add_library(pathlib
 src/pathlib.f90 src/iter.f90 src/io.f90 src/find.f90
-${CMAKE_CURRENT_BINARY_DIR}/symlink.f90
+${CMAKE_CURRENT_BINARY_DIR}/platform.f90
 )
 set_target_properties(pathlib PROPERTIES
 Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include
@@ -37,15 +42,16 @@ $<INSTALL_INTERFACE:include>
 )
 
 # if get errors about needing -fPIE try:
-set_target_properties(pathlib PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-
-
+# set_target_properties(pathlib PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 # --- C++17 filesystem OR lstat() symbolic link information
 
-if(HAVE_CXX17_FILESYSTEM)
-  target_sources(pathlib PRIVATE src/fs_cpp.f90 src/fs.cpp)
-  target_compile_definitions(pathlib PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
+if(HAVE_CXX17_FILESYSTEM OR HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
+  add_library(pathlib_cpp OBJECT src/fs.cpp)
+  target_compile_features(pathlib_cpp PRIVATE cxx_std_17)
+  target_compile_definitions(pathlib_cpp PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
+
+  target_sources(pathlib PRIVATE src/fs_cpp.f90 $<TARGET_OBJECTS:pathlib_cpp>)
   target_link_libraries(pathlib PUBLIC ${libfs})
 else()
   add_subdirectory(fallback)

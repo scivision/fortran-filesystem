@@ -1,8 +1,19 @@
-program test_canonical
+program test_canon
 
-use pathlib, only : path_t, get_cwd, same_file, resolve, mkdir, is_dir, is_file
+use pathlib, only : path_t, get_cwd, same_file, resolve, mkdir, is_dir, is_file, pathlib_has_weakly_canonical
 
 implicit none (type, external)
+
+
+call test_same_file()
+print *, "OK: same_file"
+
+call test_canonical()
+print *, "OK: canonical full"
+
+contains
+
+subroutine test_canonical()
 
 type(path_t) :: cur, par, file, p1, p2
 character(*), parameter :: dummy = "nobody.txt"
@@ -44,6 +55,8 @@ if (L2 /= L1) error stop 'up directory was not canonicalized: ~/.. => ' // par%p
 print *, 'OK: canon_dir = ', par%path()
 
 ! -- relative file
+if (.not. pathlib_has_weakly_canonical()) stop "pathlib legacy C++17 filesystem does not have weakly_canonical()"
+
 file = path_t('~/../' // dummy)
 file = file%resolve()
 L3 = file%length()
@@ -51,12 +64,7 @@ if (L3 - L2 /= len(dummy) + 1) error stop 'file was not canonicalized: ' // file
 
 print *, 'OK: canon_file = ', file%path()
 
-
-call test_same_file()
-print *, "OK: same_file"
-
-
-contains
+end subroutine test_canonical
 
 
 subroutine test_same_file()

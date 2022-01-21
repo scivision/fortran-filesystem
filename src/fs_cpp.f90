@@ -15,6 +15,11 @@ import
 character(kind=c_char), intent(out) :: sep(*)
 end function fs_filesep
 
+integer(C_SIZE_T) function fs_as_posix(path) bind(C, name="as_posix")
+import
+character(kind=c_char), intent(inout) :: path(*)
+end function fs_as_posix
+
 integer(C_SIZE_T) function fs_file_name(path, filename) bind(C, name="file_name")
 import
 character(kind=c_char), intent(in) :: path(*)
@@ -229,7 +234,6 @@ do i = 1, N
 end do
 
 stem = trim(buf)
-
 end procedure stem
 
 
@@ -248,7 +252,6 @@ do i = 1, N
 end do
 
 parent = trim(buf)
-
 end procedure parent
 
 
@@ -267,7 +270,6 @@ do i = 1, N
 end do
 
 suffix = trim(buf)
-
 end procedure suffix
 
 
@@ -286,18 +288,17 @@ do i = 1, N
 end do
 
 normal = trim(buf)
-
 end procedure normal
 
 
 module procedure as_posix
-character(kind=c_char, len=MAXP) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cbuf
 integer(C_SIZE_T) :: N, i
 character(MAXP) :: buf
 
-cpath = path // C_NULL_CHAR
+cbuf = path // C_NULL_CHAR
 
-N = fs_normal(cpath, cbuf)
+N = fs_as_posix(cbuf)
 
 buf = ""
 do i = 1, N
@@ -305,7 +306,6 @@ do i = 1, N
 end do
 
 as_posix = trim(buf)
-
 end procedure as_posix
 
 
@@ -326,7 +326,6 @@ do i = 1, N
 end do
 
 with_suffix = trim(buf)
-
 end procedure with_suffix
 
 

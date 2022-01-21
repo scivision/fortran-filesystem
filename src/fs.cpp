@@ -4,10 +4,21 @@
 #include <algorithm>
 #include <cstring>
 #include <fstream>
-#include <filesystem>
 #include <regex>
 
+#ifndef __has_include
+#error "Compiler not C++17 compliant"
+#endif
+
+#if __has_include(<filesystem>)
+#include <filesystem>
 namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#else
+#error "No C++17 filesystem support"
+#endif
 
 extern "C" size_t filesep(char*);
 extern "C" size_t as_posix(char*);
@@ -77,6 +88,13 @@ extern "C" size_t parent(const char* path, char* fparent) {
 
 
 extern "C" size_t suffix(const char* path, char* fsuffix) {
+
+  if( (path[0] == '.') ) {
+    // for experimental::filesystem to work with leading .filename
+    fsuffix = NULL;
+    return 0;
+  }
+
   fs::path p(path);
 
   std::strcpy(fsuffix, p.extension().string().c_str());
@@ -94,9 +112,14 @@ extern "C" size_t with_suffix(const char* path, const char* new_suffix, char* sw
 
 
 extern "C" size_t normal(const char* path, char* normalized) {
-  fs::path p(path);
 
+#ifdef __cpp_lib_filesystem
+  fs::path p(path);
   std::strcpy(normalized, p.lexically_normal().string().c_str());
+#else
+  std::strcpy(normalized, path);
+  std::cerr << "pathlib:normal: legacy C++17 experimental filesystem cannot normalize " << normalized << std::endl;
+#endif
 
   return as_posix(normalized);
 }
@@ -221,15 +244,27 @@ extern "C" size_t canonical(char* path, bool strict){
   // std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
 
   fs::path p;
+  std::error_code ec;
 
   if(strict){
-    p = fs::canonical(ex);
+    p = fs::canonical(ex, ec);
   }
   else {
-    p = fs::weakly_canonical(ex);
+
+#ifdef __cpp_lib_filesystem
+    p = fs::weakly_canonical(ex, ec);
+#else
+    p = fs::canonical(ex, ec);
+#endif
+
   }
 
   // std::cout << "TRACE:canonical: " << p << std::endl;
+
+  if(ec) {
+    std::cerr << "ERROR:pathlib:canonical: " << ec.message() << std::endl;
+    exit(EXIT_FAILURE);
+  }
 
   std::strcpy(path, p.string().c_str());
   return as_posix(path);
@@ -291,7 +326,14 @@ extern "C" size_t relative_to(const char* a, const char* b, char* result) {
     return 0;
   }
 
-  auto r = fs::relative(a1, b1);
+  fs::path r;
+
+#ifdef __cpp_lib_filesystem
+  r = fs::relative(a1, b1);
+#else
+  std::cerr << "pathlib:relative_to: legacy C++17 filesystem does not support relative_to." << std::endl;
+  exit(EXIT_FAILURE);
+#endif
 
   std::strcpy(result, r.string().c_str());
   return as_posix(result);
@@ -316,7 +358,11 @@ extern "C" bool touch(const char* path) {
     ost.open(p);
     ost.close();
     // ensure user can access file, as default permissions may be mode 600 or such
-    fs::permissions(p, fs::perms::owner_read & fs::perms::owner_write, fs::perm_options::add);
+#ifdef __cpp_lib_filesystem
+    fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add);
+#else
+  fs::permissions(p, fs::perms::add_perms | fs::perms::owner_read | fs::perms::owner_write);
+#endif
   }
 
   if (!fs::is_regular_file(p)) return false;
@@ -324,7 +370,7 @@ extern "C" bool touch(const char* path) {
 
   std::error_code ec;
 
-  fs::last_write_time(p, std::filesystem::file_time_type::clock::now(), ec);
+  fs::last_write_time(p, fs::file_time_type::clock::now(), ec);
   if(ec) {
     std::cerr << "pathlib:touch: " << path << " was created, but modtime was not updated: " << ec.message() << std::endl;
     return false;
@@ -477,7 +523,11 @@ extern "C" bool chmod_exe(const char* path) {
 
   std::error_code ec;
 
+#ifdef __cpp_lib_filesystem
   fs::permissions(p, fs::perms::owner_exec, fs::perm_options::add, ec);
+#else
+  fs::permissions(p, fs::perms::add_perms | fs::perms::owner_exec, ec);
+#endif
 
   if(ec) {
     std::cerr << "ERROR:pathlib:chmod_exe: " << p << ": " << ec.message() << std::endl;
@@ -500,7 +550,11 @@ extern "C" bool chmod_no_exe(const char* path) {
 
   std::error_code ec;
 
+#ifdef __cpp_lib_filesystem
   fs::permissions(p, fs::perms::owner_exec, fs::perm_options::remove, ec);
+#else
+  fs::permissions(p, fs::perms::remove_perms | fs::perms::owner_exec, ec);
+#endif
 
   if(ec) {
     std::cerr << "ERROR:pathlib:chmod_no_exe: " << p << ": " << ec.message() << std::endl;

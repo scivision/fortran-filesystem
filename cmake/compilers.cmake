@@ -1,7 +1,5 @@
-include(CheckIncludeFile)
-include(CheckSymbolExists)
+include(CheckIncludeFileCXX)
 include(CheckCXXSymbolExists)
-include(CheckSourceCompiles)
 include(CheckSourceRuns)
 
 set(libfs)
@@ -15,18 +13,14 @@ if(CPP_FS)
 
   check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXXFS_MACRO)
   if(HAVE_CXXFS_MACRO)
-    check_source_runs(CXX
-    [=[
-    #include <filesystem>
-    int main(){ bool e = std::filesystem::exists("."); return 0; }
-    ]=]
-    HAVE_CXX17_FILESYSTEM
-    )
+    check_include_file_cxx(filesystem HAVE_CXX17_FILESYSTEM)
+  else()
+    check_include_file_cxx(experimental/filesystem HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
   endif()
 endif()
 
 # --- C++17 filesystem or C lstat() symbolic link information
-if(HAVE_CXX17_FILESYSTEM)
+if(HAVE_CXX17_FILESYSTEM OR HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
   file(READ ${CMAKE_CURRENT_LIST_DIR}/check_fs_symlink.cpp symlink_src)
   check_source_runs(CXX "${symlink_src}" HAVE_SYMLINK)
 endif()

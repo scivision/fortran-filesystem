@@ -1,15 +1,24 @@
 #include <iostream>
-#include <filesystem>
 
-#ifndef __cpp_lib_filesystem
-#error "Compiler doesn't support C++17 filesystem"
+#ifndef __has_include
+#error "Compiler not C++17 compliant"
 #endif
 
+#if __has_include(<filesystem>)
+#include <filesystem>
 namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#else
+#error "No C++17 filesystem support"
+#endif
+
+
 
 int main(int argc, char **argv){
 
-auto tgt = fs::weakly_canonical(argv[0]);
+auto tgt = fs::canonical(argv[0]);
 auto lnk = tgt.parent_path() / "test.lnk";
 
 if(!fs::is_regular_file(tgt)) {

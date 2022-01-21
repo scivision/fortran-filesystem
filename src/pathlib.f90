@@ -8,7 +8,8 @@ public :: path_t  !< base class
 public :: get_homedir, canonical, get_cwd !< utility procedures
 public :: as_posix, normal, expanduser, &
 is_absolute, is_dir, is_file, is_exe, &
-pathlib_has_symlink, is_symlink, &
+pathlib_has_symlink, pathlib_has_normalize, pathlib_has_relative_to, pathlib_has_weakly_canonical, &
+is_symlink, &
 exists, &
 join, &
 copy_file, mkdir, &
@@ -306,6 +307,15 @@ interface !< fs_cpp.f90
 
 module logical function pathlib_has_symlink()
 end function pathlib_has_symlink
+
+module logical function pathlib_has_weakly_canonical()
+end function pathlib_has_weakly_canonical
+
+module logical function pathlib_has_normalize()
+end function pathlib_has_normalize
+
+module logical function pathlib_has_relative_to()
+end function pathlib_has_relative_to
 
 module logical function is_symlink(path)
 !! .true.: "path" is a symbolic link
