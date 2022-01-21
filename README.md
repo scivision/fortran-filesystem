@@ -10,16 +10,16 @@ This Fortran library uses
 [C++17 filesystem](https://en.cppreference.com/w/cpp/filesystem)
 internally.
 That is, we do not use compiler extensions unless C++17 filesystem isn't available.
-For those old compilers, pathlib falls back to C stdlib and vendor extensions to standard Fortran.
+For those old compilers, pathlib falls back with limited feature set to C stdlib and vendor extensions to standard Fortran.
 Also inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html).
 
-Currently tested with compilers below, all of which use C++17 filesystem except GCC 7.
+CI tested with compilers including:
 
-* GCC 7
 * GCC 8, 9, 10, 11
 * Clang
-* Intel oneAPI
+* Intel oneAPI (icx, ifx, icpc, ifort, icl)
+* Visual Studio + Intel oneAPI
 
 Should work with other C++17 and Fortran 2008 compilers, but we haven't tested them.
 E.g. Cray, IBM XL, NAG, et al.
@@ -42,17 +42,11 @@ You may find that some features work on a particular computer with non-ASCII cha
 
 ## Build
 
-Fortran-pathlib can be built with your choice of: Makefile, CMake, Meson.
+Fortran-pathlib can be built with CMake or Meson.
 
 [lib]pathlib.a is the library binary built that contains the Fortran "pathlib" module--it is the only binary you need to use in your project.
 
 Please see the [API docs](./API.md) for extensive list of functions/subroutines.
-
-GNU Make creates /src/pathlib.a:
-
-```sh
-make -C src
-```
 
 CMake:
 
@@ -63,7 +57,7 @@ cmake --build build
 ctest --test-dir build
 ```
 
-Meson build system:
+Meson:
 
 ```sh
 meson setup build
