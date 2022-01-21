@@ -342,14 +342,23 @@ extern "C" size_t get_tempdir(char* path) {
 
 
 extern "C" uintmax_t file_size(const char* path) {
+  // need to check is_regular_file for MSVC/Intel Windows
   fs::path p(path);
 
   if (!fs::is_regular_file(p)) {
-    std::cerr << "pathlib:file_size: " << path << " is not a regular file" << std::endl;
+    std::cerr << "pathlib:file_size: " << p << " is not a regular file" << std::endl;
     return -1;
   }
 
-  return fs::file_size(p);
+  std::error_code ec;
+  auto fsize = fs::file_size(p, ec);
+
+  if (ec) {
+    std::cerr << "ERROR:pathlib:file_size: " << p << " could not get file size: " << ec.message() << std::endl;
+    return -1;
+  }
+
+  return fsize;
 }
 
 
@@ -365,7 +374,7 @@ extern "C" bool is_exe(const char* path) {
   auto s = fs::status(p);
 
   if (!fs::is_regular_file(s)) {
-    std::cerr << "pathlib:is_exe: " << path << " is not a regular file" << std::endl;
+    std::cerr << "pathlib:is_exe: " << p << " is not a regular file" << std::endl;
     return false;
   }
 
