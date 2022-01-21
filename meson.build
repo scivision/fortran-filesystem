@@ -1,4 +1,4 @@
-project('FortranPathlib', 'c', 'cpp', 'fortran',
+project('FortranFilesystem', 'c', 'cpp', 'fortran',
 version: '3.1.0',
 meson_version: '>= 0.55.0',
 default_options : ['default_library=static', 'cpp_std=c++17'])
@@ -29,7 +29,7 @@ if not has_filesys
   has_experimental_filesys = cpp.check_header('experimental/filesystem')
 endif
 
-# --- pathlib binary
+# --- filesystem binary
 
 c = configuration_data()
 if has_symlink
@@ -44,8 +44,8 @@ else
 endif
 platform_src = configure_file(input : 'src/platform.in.f90', output : 'platform.f90', configuration : c)
 
-pathlib = library('pathlib',
-sources: [platform_src, files('src/pathlib.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90', 'src/fs_cpp.f90', 'src/fs.cpp')],
+filesystem = library('filesystem',
+sources: [platform_src, files('src/filesystem.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90', 'src/fs_cpp.f90', 'src/fs.cpp')],
 dependencies: fs_dep
 )
 
@@ -54,5 +54,5 @@ subdir('src/tests')
 
 # --- CLI
 if get_option('BUILD_UTILS')
-  cli = executable('pathlib_cli', files('src/cli.f90'), link_with: pathlib)
+  cli = executable('filesystem_cli', files('src/cli.f90'), link_with: filesystem)
 endif

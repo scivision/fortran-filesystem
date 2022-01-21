@@ -1,6 +1,6 @@
-# Fortran pathlib API
+# Fortran Filesystem API
 
-Fortran "pathlib" module contains one Fortran type "path_t" that contains properties and methods.
+Fortran filesystem "pathlib" module contains one Fortran type "path_t" that contains properties and methods.
 The "path_t" type uses getter and setter procedure to access the path as a string `character(:), allocatable`.
 
 ```fortran
@@ -21,14 +21,14 @@ p%path(2,4)  !< character index 2:4
 p%path(2) !< character index 2:end
 ```
 
-In all the examples, we assume "p" is a pathlib path_t.
+In all the examples, we assume "p" is path_t.
 
-C++17 filesystem is used extensively within Fortran-pathlib to implement functions in a platform-agnostic and robust way.
+C++17 filesystem is used extensively within Fortran-filesystem to implement functions in a platform-agnostic and robust way.
 For the interchange of character strings between Fortran and C++, a fixed buffer length is used.
-This buffer length is defined as MAXP in src/pathlib.f90.
+This buffer length is defined as MAXP in src/filesystem.f90.
 Currently, MAXP = 4096; that is, 4096 ASCII characters is the maximum path length.
 The operating system and filesystem may have stricter limits.
-If this fixed buffer length becomes an issue, we may be able to update pathlib to make the length dynamic.
+If this fixed buffer length becomes an issue, we may be able to make the length dynamic.
 
 ## System capabilities
 
