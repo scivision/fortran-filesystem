@@ -81,6 +81,11 @@ cmake -B build -DBUILD_UTILS=on
 cmake --build build
 ```
 
+## Usage from other projects
+
+The [examples](./examples) directory contains a use pattern from external projects.
+One can either `cmake --install build` or use ExternalProject from the other project.
+
 ## Notes
 
 A few topics on unsupported features:
