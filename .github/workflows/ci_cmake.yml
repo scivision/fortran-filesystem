@@ -32,13 +32,25 @@ jobs:
         sudo apt update
         sudo apt install ninja-build gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }} gfortran-${{ matrix.gcc-version }}
 
-    - run: cmake --preset multi
+    - run: cmake --preset multi --install-prefix=${HOME}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug -V
 
     - run: cmake --build --preset release
     - run: ctest --preset release -V
+
+    - name: install package
+      run: cmake --install build
+
+    - name: example config
+      run: cmake -B examples/build -S examples/ -DFortranFilesystem_ROOT=${HOME}
+
+    - name: example build
+      run: cmake --build examples/build
+
+    - name: example test
+      run: ctest --test-dir examples/build -V
 
 
   linux-clang:
@@ -62,13 +74,25 @@ jobs:
         sudo apt update
         sudo apt install ninja-build clang-${{ matrix.clang-version }}
 
-    - run: cmake --preset multi
+    - run: cmake --preset multi --install-prefix=${HOME}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug -V
 
     - run: cmake --build --preset release
     - run: ctest --preset release -V
+
+    - name: install package
+      run: cmake --install build
+
+    - name: example config
+      run: cmake -B examples/build -S examples/ -DFortranFilesystem_ROOT=${HOME}
+
+    - name: example build
+      run: cmake --build examples/build
+
+    - name: example test
+      run: ctest --test-dir examples/build -V
 
 
   valgrind-memory:
@@ -136,7 +160,7 @@ jobs:
 
     - run: brew install ninja
 
-    - run: cmake --preset multi
+    - run: cmake --preset multi --install-prefix=${HOME}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug -V
@@ -144,11 +168,26 @@ jobs:
     - run: cmake --build --preset release
     - run: ctest --preset release -V
 
+    - name: install package
+      run: cmake --install build
+
+    - name: example config
+      run: cmake -B examples/build -S examples/ -DFortranFilesystem_ROOT=${HOME}
+
+    - name: example build
+      run: cmake --build examples/build
+
+    - name: example test
+      run: ctest --test-dir examples/build -V
+
 
   windows:
     runs-on: windows-latest
     needs: linux-gcc
     timeout-minutes: 10
+
+    env:
+      CMAKE_GENERATOR: Ninja
 
     defaults:
       run:
@@ -165,10 +204,22 @@ jobs:
 
     - uses: actions/checkout@v2
 
-    - run: cmake --preset multi
+    - run: cmake --preset multi --install-prefix=${HOME}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug --schedule-random -V
 
     - run: cmake --build --preset release
     - run: ctest --preset release --schedule-random -V
+
+    - name: install package
+      run: cmake --install build
+
+    - name: example config
+      run: cmake -B examples/build -S examples/ -DFortranFilesystem_ROOT=${HOME}
+
+    - name: example build
+      run: cmake --build examples/build
+
+    - name: example test
+      run: ctest --test-dir examples/build -V

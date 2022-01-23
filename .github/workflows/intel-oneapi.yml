@@ -44,7 +44,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Configure CMake
-      run: cmake --preset multi
+      run: cmake --preset multi --install-prefix=${HOME}
 
     - name: print config log
       if: ${{ failure() }}
@@ -59,3 +59,15 @@ jobs:
       run: cmake --build --preset debug
     - name: debug unit test
       run: ctest --preset debug --schedule-random -V
+
+    - name: install package
+      run: cmake --install build
+
+    - name: example config
+      run: cmake -B examples/build -S examples/ -DFortranFilesystem_ROOT=${HOME}
+
+    - name: example build
+      run: cmake --build examples/build
+
+    - name: example test
+      run: ctest --test-dir examples/build -V
