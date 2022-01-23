@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.19...3.22)
 # 3.19 for CONFIG:list genex
 
-project(FortranFilesystem
+project(ffilesystem
 LANGUAGES C CXX Fortran
-VERSION 3.1.1
+VERSION 3.2.0
 DESCRIPTION "Platform independent, object-oriented Fortran filesystem path manipulation library"
 HOMEPAGE_URL "https://github.com/scivision/fortran-filesystem"
 )

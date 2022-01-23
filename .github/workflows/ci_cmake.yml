@@ -44,7 +44,7 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -DFortranFilesystem_ROOT=${HOME}
+      run: cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME}
 
     - name: example build
       run: cmake --build examples/build
@@ -86,7 +86,7 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -DFortranFilesystem_ROOT=${HOME}
+      run: cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME} || cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME} --debug-find
 
     - name: example build
       run: cmake --build examples/build
@@ -172,7 +172,7 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -DFortranFilesystem_ROOT=${HOME}
+      run: cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME}
 
     - name: example build
       run: cmake --build examples/build
@@ -216,7 +216,7 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -DFortranFilesystem_ROOT=${HOME}
+      run: cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME}
 
     - name: example build
       run: cmake --build examples/build

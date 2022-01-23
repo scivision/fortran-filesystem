@@ -6,11 +6,11 @@ LANGUAGES C CXX Fortran
 
 enable_testing()
 
-find_package(FortranFilesystem CONFIG REQUIRED)
+find_package(ffilesystem CONFIG REQUIRED)
 
 # --- example 1
 add_executable(example1 ex1.f90)
-target_link_libraries(example1 FortranFilesystem::filesystem)
+target_link_libraries(example1 ffilesystem::filesystem)
 
 add_test(NAME Example1
 COMMAND $<TARGET_FILE:example1>
