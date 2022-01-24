@@ -9,12 +9,9 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL Clang AND CMAKE_CXX_COMPILER_VERSION VERSI
 # https://releases.llvm.org/9.0.0/projects/libcxx/docs/UsingLibcxx.html#using-filesystem
   # set(libfs c++fs)  # /usr/bin/ld: cannot find -lc++fs  also happens in Meson
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^Intel" AND CMAKE_SYSTEM_NAME STREQUAL Linux)
-  find_library(pre_gcc9fs NAMES stdc++fs)
-  if(pre_gcc9fs)
-    set(libfs stdc++fs stdc++)
-  else()
-    set(libfs stdc++)
-  endif()
+  # NOTE: Intel compiler must use GCC >= 9 else you get linker errors, even with -lstdc++fs
+  # e.g. on CentOS / RHEL use gcc-toolset-9 or similar
+  set(libfs stdc++)
 endif()
 
 set(CMAKE_REQUIRED_LIBRARIES ${libfs})

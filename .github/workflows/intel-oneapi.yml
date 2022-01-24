@@ -72,11 +72,14 @@ jobs:
     - name: example test
       run: ctest --test-dir examples/build -V
 
-    - name: shared config
-      run: cmake -B builds -DBUILD_SHARED_LIBS:BOOL=on
+# NOTE: as with any C++ / Fortran program with Intel compiler,
+# need to have GCC environment carefully set
+# so that underlying libstdc++ is compatible.
+    # - name: shared config
+    #   run: cmake -B builds -DBUILD_SHARED_LIBS:BOOL=on
 
-    - name: shared build
-      run: cmake --build builds || cmake --build builds -v
+    # - name: shared build
+    #   run: cmake --build builds || cmake --build builds -v
 
-    - name: shared test
-      run: ctest --test-dir builds -V
+    # - name: shared test
+    #   run: ctest --test-dir builds -V

@@ -24,7 +24,7 @@ if(NOT ffilesystem_FOUND)
   set(ffilesystem_INCLUDE_DIRS ${ffilesystem_ROOT}/include)
 
   set(ffilesystem_args
-  --install-prefix=${ffilesystem_ROOT}
+  -DCMAKE_INSTALL_PREFIX=${ffilesystem_ROOT}
   -DBUILD_TESTING:BOOL=false
   -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
   )
