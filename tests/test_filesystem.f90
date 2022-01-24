@@ -180,6 +180,11 @@ if (p2%parent() /= "a") error stop "parent nest failed" // p1%path()
 p2 = path_t("a")
 if (p2%parent() /= ".") error stop "parent idempotent failed. Expected '.', but got: " // p2%path()
 
+if(parent("./.config") /= ".") error stop "parent leading dot filename cwd"
+if(parent(".config.txt") /= ".") error stop "parent leading dot filename w/ext"
+if(parent("./.config.txt") /= ".") error stop "parent leading dot filename w/ext and cwd"
+if(parent("../../.config.txt") /= "../..") error stop "parent leading dot filename w/ext up"
+
 end subroutine test_parent
 
 
