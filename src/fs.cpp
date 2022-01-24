@@ -74,7 +74,17 @@ extern "C" size_t file_name(const char* path, char* filename) {
 extern "C" size_t stem(const char* path, char* fstem) {
   fs::path p(path);
 
-  std::strcpy(fstem, p.stem().string().c_str());
+  auto fn = p.filename();
+  auto s = fn.stem();
+
+  // std::cout << "TRACE:suffix: filename = " << fn << " stem = " << s << std::endl;
+
+#ifndef __cpp_lib_filesystem
+  // experimental::filesystem with leading .filename
+  if (fn == fn.extension()) s = fn;
+#endif
+
+  std::strcpy(fstem, s.string().c_str());
   return strlen(fstem);
 }
 
@@ -102,11 +112,13 @@ extern "C" size_t suffix(const char* path, char* fsuffix) {
 
   //std::cout << "TRACE:suffix: filename = " << f << " suffix = " << ext << std::endl;
 
-  // need this filename == suffix lexical equality check for experimental::filesystem to work with leading .filename
+#ifndef __cpp_lib_filesystem
+  // experimental::filesystem with leading .filename
   if (f == ext) {
     fsuffix = NULL;
     return 0;
   }
+#endif
 
   std::strcpy(fsuffix, ext.string().c_str());
   return strlen(fsuffix);
@@ -114,9 +126,29 @@ extern "C" size_t suffix(const char* path, char* fsuffix) {
 
 
 extern "C" size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
+
+  if( (strlen(path) == 0) ) {
+    swapped = NULL;
+    return 0;
+  }
+
   fs::path p(path);
 
+#ifndef __cpp_lib_filesystem
+  auto f = p.filename();
+  auto ext = f.extension();
+  // experimental::filesystem with leading .filename
+  if (f == ext) {
+    p += new_suffix;
+    std::strcpy(swapped, p.string().c_str());
+  }
+  else{
+    std::strcpy(swapped, p.replace_extension(new_suffix).string().c_str());
+  }
+#else
   std::strcpy(swapped, p.replace_extension(new_suffix).string().c_str());
+#endif
+
   return strlen(swapped);
 }
 

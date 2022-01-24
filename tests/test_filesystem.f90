@@ -16,14 +16,23 @@ print *, "OK: test_join"
 call test_filesep()
 print *, "OK: filesystem: filesep"
 
+call test_stem()
+print *, "OK: filesystem: stem"
+
+call test_parent()
+print *, "OK: filesystem: parent"
+
+call test_filename()
+print *, "OK: filesystem: filename"
+
 call test_suffix()
 print *, "OK: filesystem: suffix"
 
+call test_with_suffix()
+print *, "OK: filesystem: with_suffix"
+
 call test_root()
 print *, "OK: filesystem: root"
-
-call test_manip()
-print *, "OK: filesystem: manip"
 
 call test_is_dir()
 print *," OK: filesystem: is_dir"
@@ -91,6 +100,26 @@ if(p3%path() /= "/") error stop "as_posix char(92) failed"
 end subroutine test_filesep
 
 
+subroutine test_filename()
+
+type(path_t) :: p1, p2
+
+if(file_name("") /= "") error stop "filename empty"
+
+p1 = path_t("a/b/c")
+p2 = path_t("a")
+if (p1%file_name() /= "c") error stop "file_name failed"
+if (p2%file_name() /= "a") error stop "file_name idempotent failed"
+
+if(file_name(".config") /= ".config") error stop "file_name leading dot filename"
+if(file_name("./.config") /= ".config") error stop "file_name leading dot filename cwd"
+if(file_name(".config.txt") /= ".config.txt") error stop "file_name leading dot filename w/ext"
+if(file_name("./.config.txt") /= ".config.txt") error stop "file_name leading dot filename w/ext and cwd"
+if(file_name("../.config.txt") /= ".config.txt") error stop "file_name leading dot filename w/ext up"
+
+end subroutine test_filename
+
+
 subroutine test_suffix()
 
 type(path_t) :: p1, p2
@@ -114,11 +143,9 @@ if(suffix("../.config.txt") /= ".txt") error stop "suffix leading dot filename w
 end subroutine test_suffix
 
 
-subroutine test_manip()
+subroutine test_stem()
 
 type(path_t) :: p1, p2
-
-!> stem
 
 if(stem("") /= "") error stop "stem empty"
 
@@ -126,10 +153,23 @@ p1 = path_t("hi.a.b")
 if (p1%stem() /= "hi.a") error stop "stem failed"
 p2 = path_t(p1%stem())
 if (p2%stem() /= "hi") error stop "stem nest failed"
-p2 = path_t("hi")
-if (p2%stem() /= "hi") error stop "stem idempotent failed"
 
-!> parent
+print *, stem("hi")
+if (stem("hi") /= "hi") error stop "stem idempotent failed: " // stem("hi")
+
+if(stem(".config") /= ".config") error stop "stem leading dot filename"
+if(stem("./.config") /= ".config") error stop "stem leading dot filename cwd"
+if(stem(".config.txt") /= ".config") error stop "stem leading dot filename w/ext"
+if(stem("./.config.txt") /= ".config") error stop "stem leading dot filename w/ext and cwd"
+if(stem("../.config.txt") /= ".config") error stop "stem leading dot filename w/ext up"
+
+end subroutine test_stem
+
+
+subroutine test_parent()
+
+type(path_t) :: p1, p2
+
 
 if(parent("") /= ".") error stop "parent empty: " // parent("")
 
@@ -140,10 +180,17 @@ if (p2%parent() /= "a") error stop "parent nest failed" // p1%path()
 p2 = path_t("a")
 if (p2%parent() /= ".") error stop "parent idempotent failed. Expected '.', but got: " // p2%path()
 
-p1 = path_t("a/b/c")
-p2 = path_t("a")
-if (p1%file_name() /= "c") error stop "file_name failed"
-if (p2%file_name() /= "a") error stop "file_name idempotent failed"
+end subroutine test_parent
+
+
+subroutine test_with_suffix()
+
+type(path_t) :: p1, p2
+
+if(with_suffix("", ".h5") /= "") error stop "with_suffix empty"
+if(with_suffix("foo.h5", "") /= "foo") error stop "with_suffix foo.h5 to ''"
+if(with_suffix(".h5", "") /= ".h5") error stop "with_suffix .h5 to .h5"
+if(with_suffix(".h5", ".h5") /= ".h5.h5") error stop "with_suffix .h5.h5"
 
 p1 = path_t("my/file.h5")
 p2 = p1%with_suffix(".hdf5")
@@ -151,7 +198,7 @@ p2 = p1%with_suffix(".hdf5")
 if (p2%path() /= "my/file.hdf5") error stop "%with_suffix failed: " // p2%path()
 if (p2%path() /= with_suffix("my/file.h5", ".hdf5")) error stop "with_suffix() failed: " // p2%path()
 
-end subroutine test_manip
+end subroutine test_with_suffix
 
 
 subroutine test_root()
