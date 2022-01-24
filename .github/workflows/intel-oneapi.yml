@@ -64,10 +64,19 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME} || cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME} --debug-find
+      run: cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME}
 
     - name: example build
       run: cmake --build examples/build
 
     - name: example test
       run: ctest --test-dir examples/build -V
+
+    - name: shared config
+      run: cmake -B builds -DBUILD_SHARED_LIBS:BOOL=on
+
+    - name: shared build
+      run: cmake --build builds
+
+    - name: shared test
+      run: ctest --test-dir builds -V
