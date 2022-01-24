@@ -8,6 +8,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL GNU AND CMAKE_CXX_COMPILER_VERSION VERSION_LES
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL Clang AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0.0)
 # https://releases.llvm.org/9.0.0/projects/libcxx/docs/UsingLibcxx.html#using-filesystem
   # set(libfs c++fs)  # /usr/bin/ld: cannot find -lc++fs  also happens in Meson
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "^Intel" AND CMAKE_SYSTEM_NAME STREQUAL Linux)
+  find_library(pre_gcc9fs NAMES stdc++fs)
+  if(pre_gcc9fs)
+    set(libfs stdc++fs stdc++)
+  else()
+    set(libfs stdc++)
+  endif()
 endif()
 
 set(CMAKE_REQUIRED_LIBRARIES ${libfs})
@@ -26,7 +33,7 @@ if(HAVE_CXX17_FILESYSTEM OR HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
 endif()
 
 # fixes errors about needing -fPIE
-if(CMAKE_SYSTEM_NAME STREQUAL Linux AND CMAKE_CXX_COMPILER_ID STREQUAL Clang)
+if(CMAKE_SYSTEM_NAME STREQUAL Linux AND CMAKE_CXX_COMPILER_ID MATCHES "(Clang|Intel)")
   set(CMAKE_POSITION_INDEPENDENT_CODE true)
 endif()
 
