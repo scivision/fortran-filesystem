@@ -95,15 +95,20 @@ extern "C" size_t parent(const char* path, char* fparent) {
 
 extern "C" size_t suffix(const char* path, char* fsuffix) {
 
-  if( (path[0] == '.') ) {
-    // for experimental::filesystem to work with leading .filename
+  fs::path p(path);
+
+  auto f = p.filename();
+  auto ext = f.extension();
+
+  //std::cout << "TRACE:suffix: filename = " << f << " suffix = " << ext << std::endl;
+
+  // need this filename == suffix lexical equality check for experimental::filesystem to work with leading .filename
+  if (f == ext) {
     fsuffix = NULL;
     return 0;
   }
 
-  fs::path p(path);
-
-  std::strcpy(fsuffix, p.extension().string().c_str());
+  std::strcpy(fsuffix, ext.string().c_str());
   return strlen(fsuffix);
 }
 

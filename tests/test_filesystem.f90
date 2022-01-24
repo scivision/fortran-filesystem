@@ -16,6 +16,9 @@ print *, "OK: test_join"
 call test_filesep()
 print *, "OK: filesystem: filesep"
 
+call test_suffix()
+print *, "OK: filesystem: suffix"
+
 call test_root()
 print *, "OK: filesystem: root"
 
@@ -88,6 +91,29 @@ if(p3%path() /= "/") error stop "as_posix char(92) failed"
 end subroutine test_filesep
 
 
+subroutine test_suffix()
+
+type(path_t) :: p1, p2
+
+if(suffix("") /= "") error stop "suffix empty"
+
+p1 = path_t("hi.a.b")
+
+if (p1%suffix() /= ".b") error stop "suffix failed"
+p2 = path_t(p1%suffix())
+if (p2%suffix() /= "") error stop "suffix nest failed on " // p2%path()
+p2 = path_t(p2%suffix())
+if (p2%suffix() /= "") error stop "suffix idempotent failed"
+
+if(len_trim(suffix(".config")) /= 0) error stop "suffix leading dot filename"
+if(len_trim(suffix("./.config")) /= 0) error stop "suffix leading dot filename cwd"
+if(suffix(".config.txt") /= ".txt") error stop "suffix leading dot filename w/ext"
+if(suffix("./.config.txt") /= ".txt") error stop "suffix leading dot filename w/ext and cwd"
+if(suffix("../.config.txt") /= ".txt") error stop "suffix leading dot filename w/ext up"
+
+end subroutine test_suffix
+
+
 subroutine test_manip()
 
 type(path_t) :: p1, p2
@@ -102,16 +128,6 @@ p2 = path_t(p1%stem())
 if (p2%stem() /= "hi") error stop "stem nest failed"
 p2 = path_t("hi")
 if (p2%stem() /= "hi") error stop "stem idempotent failed"
-
-!> suffix
-
-if(suffix("") /= "") error stop "suffix empty"
-
-if (p1%suffix() /= ".b") error stop "suffix failed"
-p2 = path_t(p1%suffix())
-if (p2%suffix() /= "") error stop "suffix nest failed on " // p2%path()
-p2 = path_t(p2%suffix())
-if (p2%suffix() /= "") error stop "suffix idempotent failed"
 
 !> parent
 
