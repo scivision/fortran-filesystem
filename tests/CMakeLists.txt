@@ -1,3 +1,7 @@
+cmake_minimum_required(VERSION 3.21...3.22)
+
+set_directory_properties(PROPERTIES LABELS unit)
+
 # --- base class
 add_executable(test_filesystem test_filesystem.f90)
 target_link_libraries(test_filesystem PRIVATE filesystem)
@@ -104,4 +108,12 @@ setup_target_for_coverage_gcovr_html(
 NAME coverage
 EXECUTABLE ${CMAKE_CTEST_COMMAND}
 )
+endif()
+
+# --- Windows shared DLLs
+if(WIN32 AND BUILD_SHARED_LIBS)
+  add_custom_command(TARGET test_filesystem POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:test_filesystem> $<TARGET_FILE_DIR:test_filesystem>
+  COMMAND_EXPAND_LISTS
+  )
 endif()

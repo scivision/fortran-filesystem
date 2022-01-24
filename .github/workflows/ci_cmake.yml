@@ -53,13 +53,13 @@ jobs:
       run: ctest --test-dir examples/build -V
 
     - name: shared config
-      run: cmake -B builds -DBUILD_SHARED_LIBS:BOOL=on
+      run: cmake -B examples/builds -S examples/ -DBUILD_SHARED_LIBS:BOOL=on
 
     - name: shared build
-      run: cmake --build builds
+      run: cmake --build examples/builds
 
     - name: shared test
-      run: ctest --test-dir builds -V
+      run: ctest --test-dir examples/builds -V
 
 
   linux-clang:
@@ -104,13 +104,13 @@ jobs:
       run: ctest --test-dir examples/build -V
 
     - name: shared config
-      run: cmake -B builds -DBUILD_SHARED_LIBS:BOOL=on
+      run: cmake -B examples/builds -S examples/ -DBUILD_SHARED_LIBS:BOOL=on
 
     - name: shared build
-      run: cmake --build builds
+      run: cmake --build examples/builds
 
     - name: shared test
-      run: ctest --test-dir builds -V
+      run: ctest --test-dir examples/builds -V
 
 
   valgrind-memory:
@@ -199,13 +199,13 @@ jobs:
       run: ctest --test-dir examples/build -V
 
     - name: shared config
-      run: cmake -B builds -DBUILD_SHARED_LIBS:BOOL=on
+      run: cmake -B examples/builds -S examples/ -DBUILD_SHARED_LIBS:BOOL=on
 
     - name: shared build
-      run: cmake --build builds
+      run: cmake --build examples/builds
 
     - name: shared test
-      run: ctest --test-dir builds -V
+      run: ctest --test-dir examples/builds -V
 
 
   windows:
@@ -252,10 +252,10 @@ jobs:
       run: ctest --test-dir examples/build -V
 
     - name: shared config
-      run: cmake -B builds -DBUILD_SHARED_LIBS:BOOL=on
+      run: cmake -B examples/builds -S examples/ -DBUILD_SHARED_LIBS:BOOL=on
 
     - name: shared build
-      run: cmake --build builds
+      run: cmake --build examples/builds
 
     - name: shared test
-      run: ctest --test-dir builds -V
+      run: ctest --test-dir examples/builds -V

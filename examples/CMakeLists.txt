@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20...3.22)
+cmake_minimum_required(VERSION 3.21...3.22)
 
 project(FilesystemExample
 LANGUAGES C CXX Fortran
@@ -6,45 +6,11 @@ LANGUAGES C CXX Fortran
 
 enable_testing()
 
-include(ExternalProject)
-
-find_package(ffilesystem CONFIG)
-if(NOT ffilesystem_FOUND)
-
-  if(NOT ffilesystem_ROOT)
-    set(ffilesystem_ROOT ${PROJECT_BINARY_DIR})
-  endif()
-
-  if(BUILD_SHARED_LIBS)
-    set(ffilesystem_LIBRARIES ${ffilesystem_ROOT}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}filesystem${CMAKE_SHARED_LIBRARY_SUFFIX})
-  else()
-    set(ffilesystem_LIBRARIES ${ffilesystem_ROOT}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}filesystem${CMAKE_STATIC_LIBRARY_SUFFIX})
-  endif()
-
-  set(ffilesystem_INCLUDE_DIRS ${ffilesystem_ROOT}/include)
-
-  set(ffilesystem_args
-  -DCMAKE_INSTALL_PREFIX=${ffilesystem_ROOT}
-  -DBUILD_TESTING:BOOL=false
-  -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
-  )
-
-  ExternalProject_Add(ffilesystem
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..
-  CMAKE_ARGS ${ffilesystem_args}
-  CONFIGURE_HANDLED_BY_BUILD ON
-  BUILD_BYPRODUCTS ${ffilesystem_LIBRARIES}
-  )
-
-  file(MAKE_DIRECTORY ${ffilesystem_ROOT}/include)
-
-  add_library(ffilesystem::filesystem INTERFACE IMPORTED GLOBAL)
-  target_include_directories(ffilesystem::filesystem INTERFACE "${ffilesystem_INCLUDE_DIRS}")
-  target_link_libraries(ffilesystem::filesystem INTERFACE "${ffilesystem_LIBRARIES}")
-
-  add_dependencies(ffilesystem::filesystem ffilesystem)
-
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR} CACHE PATH "Install top-level directory" FORCE)
 endif()
+
+include(${PROJECT_SOURCE_DIR}/../cmake/ffilesystem.cmake)
 
 # --- example 1
 add_executable(example1 ex1.f90)
@@ -65,3 +31,11 @@ set_tests_properties(Example1 PROPERTIES
 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 TIMEOUT 10
 )
+
+# --- Windows shared DLLs
+if(WIN32 AND BUILD_SHARED_LIBS)
+  add_custom_command(TARGET example1 POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:example1> $<TARGET_FILE_DIR:example1>
+  COMMAND_EXPAND_LISTS
+  )
+endif()

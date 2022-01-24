@@ -1,7 +1,7 @@
 project('ffilesystem', 'c', 'cpp', 'fortran',
-version: '3.2.2',
+version: '3.2.3',
 meson_version: '>= 0.55.0',
-default_options : ['default_library=static', 'cpp_std=c++17'])
+default_options : ['cpp_std=c++17'])
 
 # --- does system work with symlinks
 
@@ -46,7 +46,8 @@ platform_src = configure_file(input : 'src/platform.in.f90', output : 'platform.
 
 filesystem = library('filesystem',
 sources: [platform_src, files('src/filesystem.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90', 'src/fs_cpp.f90', 'src/fs.cpp')],
-dependencies: fs_dep
+dependencies: fs_dep,
+install: true
 )
 
 # --- tests
