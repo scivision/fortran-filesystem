@@ -85,6 +85,8 @@ cmake --build build
 
 The [examples](./examples) directory contains a use pattern from external projects.
 One can either `cmake --install build` or use ExternalProject from the other project.
+[ffilesystem.cmake](./cmake/ffilesystem.cmake) would be included from the other project to find or build Fortran-filesystem automatically.
+It provides the appropriate imported targets for shared or static builds, including Windows DLL handling.
 
 ## Notes
 
