@@ -23,9 +23,15 @@ if(NOT ffilesystem_FOUND)
 
   set(ffilesystem_INCLUDE_DIRS ${ffilesystem_ROOT}/include)
 
+  set(ffilesystem_args
+  --install-prefix=${ffilesystem_ROOT}
+  -DBUILD_TESTING:BOOL=false
+  -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+  )
+
   ExternalProject_Add(ffilesystem
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..
-  CMAKE_ARGS -DBUILD_TESTING:BOOL=false --install-prefix=${ffilesystem_ROOT}
+  CMAKE_ARGS ${ffilesystem_args}
   CONFIGURE_HANDLED_BY_BUILD ON
   BUILD_BYPRODUCTS ${ffilesystem_LIBRARIES}
   )
