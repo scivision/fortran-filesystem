@@ -72,10 +72,10 @@ import c_char
 character(kind=c_char), intent(in) :: target(*), link(*)
 end subroutine cfs_create_directory_symlink
 
-subroutine cfs_create_symlink(target, link) bind(C, name="create_symlink")
-import c_char
+logical(C_BOOL) function cfs_create_symlink(target, link) bind(C, name="create_symlink")
+import
 character(kind=c_char), intent(in) :: target(*), link(*)
-end subroutine cfs_create_symlink
+end function cfs_create_symlink
 
 logical(c_bool) function cfs_create_directories(path) bind(C, name="create_directories")
 import
@@ -376,7 +376,7 @@ character(kind=c_char, len=:), allocatable :: ctgt, clink
 ctgt = tgt // C_NULL_CHAR
 clink = link // C_NULL_CHAR
 
-call cfs_create_symlink(ctgt, clink)
+if(.not. cfs_create_symlink(ctgt, clink)) error stop "filesystem:create_symlink: " // link
 end procedure create_symlink
 
 

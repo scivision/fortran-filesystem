@@ -140,15 +140,15 @@ extern "C" bool is_symlink(const char* path) {
   return fs::is_symlink(path);
 }
 
-extern "C" void create_symlink(const char* target, const char* link) {
+extern "C" bool create_symlink(const char* target, const char* link) {
 
   if(strlen(target) == 0) {
     std::cerr << "filesystem:create_symlink: target path must not be empty" << std::endl;
-    exit(EXIT_FAILURE);
+    return false;
   }
   if(strlen(link) == 0) {
     std::cerr << "filesystem:create_symlink: link path must not be empty" << std::endl;
-    exit(EXIT_FAILURE);
+    return false;
   }
 
   if (is_dir(target)) {
@@ -157,6 +157,8 @@ extern "C" void create_symlink(const char* target, const char* link) {
   else {
     fs::create_symlink(target, link);
   }
+
+  return true;
 }
 
 extern "C" void create_directory_symlink(const char* target, const char* link) {
@@ -167,7 +169,7 @@ extern "C" bool create_directories(const char* path) {
 
   if(strlen(path) == 0) {
     std::cerr << "filesystem:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
-    exit(EXIT_FAILURE);
+    return false;
   }
 
   auto s = fs::status(path);
@@ -176,7 +178,7 @@ extern "C" bool create_directories(const char* path) {
     if(is_dir(path)) return true;
 
     std::cerr << "filesystem:mkdir:create_directories: " << path << " already exists but is not a directory" << std::endl;
-    exit(EXIT_FAILURE);
+    return false;
   }
 
   auto ok = fs::create_directories(path);
@@ -189,7 +191,7 @@ extern "C" bool create_directories(const char* path) {
     else
     {
       std::cerr << "filesystem:mkdir:create_directories: " << path << " could not be created" << std::endl;
-      exit(EXIT_FAILURE);
+      return false;
     }
   }
 
@@ -274,7 +276,7 @@ extern "C" size_t canonical(char* path, bool strict){
 
   if(ec) {
     std::cerr << "ERROR:filesystem:canonical: " << ec.message() << std::endl;
-    exit(EXIT_FAILURE);
+    return 0;
   }
 
   std::strcpy(path, p.string().c_str());
@@ -296,11 +298,11 @@ extern "C" bool copy_file(const char* source, const char* destination, bool over
 
   if(strlen(source) == 0) {
     std::cerr << "filesystem:copy_file: source path must not be empty" << std::endl;
-    exit(EXIT_FAILURE);
+    return false;
   }
   if(strlen(destination) == 0) {
     std::cerr << "filesystem:copy_file: destination path must not be empty" << std::endl;
-    exit(EXIT_FAILURE);
+    return false;
   }
 
   fs::path d(destination);
@@ -343,7 +345,7 @@ extern "C" size_t relative_to(const char* a, const char* b, char* result) {
   r = fs::relative(a1, b1);
 #else
   std::cerr << "filesystem:relative_to: legacy C++17 filesystem does not support relative_to." << std::endl;
-  exit(EXIT_FAILURE);
+  return 0;
 #endif
 
   std::strcpy(result, r.string().c_str());
@@ -355,7 +357,7 @@ extern "C" bool touch(const char* path) {
 
   if(strlen(path) == 0) {
     std::cerr << "filesystem:touch: cannot touch empty file name" << std::endl;
-    exit(EXIT_FAILURE);
+    return false;
   }
 
   fs::path p(path);
@@ -410,7 +412,7 @@ extern "C" uintmax_t file_size(const char* path) {
 
   if (!fs::is_regular_file(p)) {
     std::cerr << "filesystem:file_size: " << p << " is not a regular file" << std::endl;
-    return -1;
+    return 0;
   }
 
   std::error_code ec;
@@ -418,7 +420,7 @@ extern "C" uintmax_t file_size(const char* path) {
 
   if (ec) {
     std::cerr << "ERROR:filesystem:file_size: " << p << " could not get file size: " << ec.message() << std::endl;
-    return -1;
+    return 0;
   }
 
   return fsize;
