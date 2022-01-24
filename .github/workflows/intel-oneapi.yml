@@ -76,7 +76,7 @@ jobs:
       run: cmake -B builds -DBUILD_SHARED_LIBS:BOOL=on
 
     - name: shared build
-      run: cmake --build builds
+      run: cmake --build builds || cmake --build builds -v
 
     - name: shared test
       run: ctest --test-dir builds -V
