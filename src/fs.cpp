@@ -27,6 +27,38 @@ extern "C" size_t get_homedir(char*);
 extern "C" size_t expanduser(const char*, char*);
 
 
+extern "C" bool is_macos(){
+#if __APPLE__
+#include "TargetConditionals.h"
+#if TARGET_OS_MAC
+  return true;
+#endif
+#endif
+  return false;
+}
+
+extern "C" bool is_linux() {
+#ifdef __linux__
+  return true;
+#endif
+  return false;
+}
+
+extern "C" bool is_unix() {
+#ifdef __unix__
+  return true;
+#endif
+  return false;
+}
+
+extern "C" bool is_windows() {
+#ifdef _WIN32
+  return true;
+#endif
+  return false;
+}
+
+
 extern "C" size_t as_posix(char* path){
   // also remove duplicated separators
     std::string s(path);

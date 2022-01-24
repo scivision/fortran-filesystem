@@ -6,8 +6,24 @@ implicit none (type, external)
 
 interface !< fs.cpp
 
+logical(C_BOOL) function cfs_is_macos() bind(C, name="is_macos")
+import C_BOOL
+end function cfs_is_macos
+
+logical(C_BOOL) function cfs_is_windows() bind(C, name="is_windows")
+import C_BOOL
+end function cfs_is_windows
+
+logical(C_BOOL) function cfs_is_linux() bind(C, name="is_linux")
+import C_BOOL
+end function cfs_is_linux
+
+logical(C_BOOL) function cfs_is_unix() bind(C, name="is_unix")
+import C_BOOL
+end function cfs_is_unix
+
 logical(C_BOOL) function cfs_sys_posix() bind(C, name="sys_posix")
-import
+import C_BOOL
 end function cfs_sys_posix
 
 integer(C_SIZE_T) function cfs_filesep(sep) bind(C, name='filesep')
@@ -186,6 +202,23 @@ end interface
 
 
 contains
+
+
+module procedure is_macos
+is_macos = cfs_is_macos()
+end procedure is_macos
+
+module procedure is_windows
+is_windows = cfs_is_windows()
+end procedure is_windows
+
+module procedure is_linux
+is_linux = cfs_is_linux()
+end procedure is_linux
+
+module procedure is_unix
+is_unix = cfs_is_unix()
+end procedure is_unix
 
 
 module procedure sys_posix

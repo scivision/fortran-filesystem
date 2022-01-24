@@ -17,7 +17,7 @@ call get_command_argument(1, fcn, status=i)
 if (i /= 0) error stop "invalid function name: " // trim(fcn)
 
 select case (fcn)
-case ("get_cwd", "homedir", "tempdir")
+case ("get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos")
 case default
   if (command_argument_count() < 2) error stop "usage: ./filesystem_cli <function> <path>"
   call get_command_argument(2, buf, status=i)
@@ -32,6 +32,14 @@ case ("relative_to", "same_file", "with_suffix")
 end select
 
 select case (fcn)
+case ('is_macos')
+  print '(L1)', is_macos()
+case ('is_windows')
+  print '(L1)', is_windows()
+case ('is_linux')
+  print '(L1)', is_linux()
+case ('is_unix')
+  print '(L1)', is_unix()
 case ("as_posix")
   print '(A)', as_posix(buf)
 case ("get_cwd")

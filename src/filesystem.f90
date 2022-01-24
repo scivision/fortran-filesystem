@@ -20,7 +20,8 @@ get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
 sys_posix, touch, create_symlink, &
 remove, get_tempdir, filesep, &
-chmod_exe, chmod_no_exe
+chmod_exe, chmod_no_exe, &
+is_macos, is_windows, is_linux, is_unix
 !! functional API
 
 integer, public, protected :: MAXP = 4096
@@ -305,6 +306,18 @@ end interface
 
 
 interface !< fs_cpp.f90
+
+module logical function is_macos()
+end function is_macos
+
+module logical function is_windows()
+end function is_windows
+
+module logical function is_linux()
+end function is_linux
+
+module logical function is_unix()
+end function is_unix
 
 module logical function filesystem_has_symlink()
 end function filesystem_has_symlink

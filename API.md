@@ -504,3 +504,12 @@ Tell if system is POSIX-like (MacOS, Unix, Linux, BSD, ...) or not (Windows)
 ```fortran
 pure logical function sys_posix()
 ```
+
+```fortran
+! logical based on C++ preprocessor
+
+is_unix()
+is_linux()
+is_windows()
+is_macos()
+```
