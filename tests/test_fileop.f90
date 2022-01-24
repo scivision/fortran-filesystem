@@ -1,6 +1,7 @@
 program test_fileop
 
-use filesystem, only : path_t, copy_file, is_absolute, get_cwd, as_posix, is_dir, mkdir, touch, copy_file
+use filesystem, only : path_t, copy_file, is_absolute, get_cwd, as_posix, is_dir, &
+mkdir, touch, copy_file, assert_is_file
 
 implicit none (type, external)
 
@@ -27,6 +28,7 @@ call touch("test_fileop.h5")
 p = path_t("test_fileop.empty")
 call p%touch()
 if(.not. p%is_file()) error stop "touch failed"
+call assert_is_file(p%path())
 
 end subroutine test_touch
 

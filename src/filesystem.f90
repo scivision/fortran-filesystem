@@ -615,7 +615,9 @@ subroutine assert_is_file(path)
 !! throw error if file does not exist
 character(*), intent(in) :: path
 
-if (.not. is_dir(path)) error stop 'filesystem:assert_is_dir: directory does not exist ' // path
+if (is_file(path)) return
+
+error stop 'filesystem:assert_is_file: file does not exist ' // path
 end subroutine assert_is_file
 
 
@@ -623,7 +625,9 @@ subroutine assert_is_dir(path)
 !! throw error if directory does not exist
 character(*), intent(in) :: path
 
-if (.not. is_file(path)) error stop 'filesystem:assert_is_file: file does not exist ' // path
+if (is_dir(path)) return
+
+error stop 'filesystem:assert_is_dir: directory does not exist ' // path
 end subroutine assert_is_dir
 
 

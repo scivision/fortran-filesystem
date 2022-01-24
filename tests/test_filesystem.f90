@@ -1,7 +1,8 @@
 program test_filesystem
 
 use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
-is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep, parent
+is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep, parent, &
+assert_is_dir
 
 implicit none (type, external)
 
@@ -189,6 +190,7 @@ p1 = path_t(".")
 
 if(.not. p1%is_dir()) error stop "did not detect '.' as directory"
 if(p1%is_file()) error stop "detected '.' as file"
+call assert_is_dir(".")
 
 p2 = path_t('test-filesystem.h5')
 open(newunit=i, file=p2%path(), status='replace')
