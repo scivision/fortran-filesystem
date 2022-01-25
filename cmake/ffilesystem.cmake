@@ -1,11 +1,15 @@
 include(ExternalProject)
 
-find_package(ffilesystem CONFIG QUIET)
+if(NOT ffilesystem_external)
+  find_package(ffilesystem CONFIG QUIET)
 
-if(ffilesystem_FOUND)
-  message(STATUS "Fortran Filesystem found: ${ffilesystem_DIR}")
-  return()
+  if(ffilesystem_FOUND)
+    message(STATUS "Fortran Filesystem found: ${ffilesystem_DIR}")
+    return()
+  endif()
 endif()
+
+set(ffilesystem_external true CACHE BOOL "Fortran Filesystem autobuild")
 
 if(NOT ffilesystem_ROOT)
   set(ffilesystem_ROOT ${CMAKE_INSTALL_PREFIX})
