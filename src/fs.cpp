@@ -279,7 +279,16 @@ extern "C" size_t root(const char* path, char* result) {
 }
 
 extern "C" bool exists(const char* path) {
-  return fs::exists(path);
+  std::error_code ec;
+
+  auto e = fs::exists(path, ec);
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:exists: " << ec.message() << std::endl;
+    return false;
+  }
+
+  return e;
 }
 
 extern "C" bool is_absolute(const char* path) {
@@ -288,7 +297,16 @@ extern "C" bool is_absolute(const char* path) {
 }
 
 extern "C" bool is_file(const char* path) {
-  return fs::is_regular_file(path);
+  std::error_code ec;
+
+  auto e = fs::is_regular_file(path, ec);
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:is_file: " << ec.message() << std::endl;
+    return false;
+  }
+
+  return e;
 }
 
 extern "C" bool is_dir(const char* path) {
@@ -300,11 +318,29 @@ extern "C" bool is_dir(const char* path) {
   if (p.root_name() == p) return true;
 #endif
 
-  return fs::is_directory(p);
+  std::error_code ec;
+
+  auto e = fs::is_directory(p, ec);
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << std::endl;
+    return false;
+  }
+
+return e;
 }
 
 extern "C" bool fs_remove(const char* path) {
-  return fs::remove(path);
+  std::error_code ec;
+
+  auto e = fs::remove(path, ec);
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:remove: " << ec.message() << std::endl;
+    return false;
+  }
+
+  return e;
 }
 
 extern "C" size_t canonical(char* path, bool strict){
@@ -353,10 +389,25 @@ extern "C" bool equivalent(const char* path1, const char* path2) {
   fs::path p1(path1);
   fs::path p2(path2);
 
-  if (! (fs::exists(p1) & fs::exists(p2)) ) return false;
+  std::error_code ec;
 
-  return fs::equivalent(p1, p2);
+  if (! (fs::exists(p1, ec) & fs::exists(p2, ec)) ) return false;
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:equivalent: " << ec.message() << std::endl;
+    return false;
+  }
+
+  auto e = fs::equivalent(p1, p2, ec);
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:equivalent: " << ec.message() << std::endl;
+    return false;
+  }
+
+  return e;
 }
+
 
 extern "C" bool copy_file(const char* source, const char* destination, bool overwrite) {
 
@@ -373,15 +424,29 @@ extern "C" bool copy_file(const char* source, const char* destination, bool over
 
   auto opt = fs::copy_options::none;
 
+  std::error_code ec;
+
   if (overwrite) {
 
 // WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
-  if(fs::exists(d)) fs::remove(d);
+  if(fs::exists(d, ec)) fs::remove(d, ec);
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << std::endl;
+    return false;
+  }
 
   opt |= fs::copy_options::overwrite_existing;
   }
 
-  return fs::copy_file(source, d, opt);
+  auto e = fs::copy_file(source, d, opt, ec);
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << std::endl;
+    return false;
+  }
+
+  return e;
 }
 
 
@@ -405,12 +470,19 @@ extern "C" size_t relative_to(const char* a, const char* b, char* result) {
 
   fs::path r;
 
+  std::error_code ec;
+
 #ifdef __cpp_lib_filesystem
-  r = fs::relative(a1, b1);
+  r = fs::relative(a1, b1, ec);
 #else
   std::cerr << "filesystem:relative_to: legacy C++17 filesystem does not support relative_to." << std::endl;
   return 0;
 #endif
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
+    return 0;
+  }
 
   std::strcpy(result, r.string().c_str());
   return as_posix(result);
@@ -499,8 +571,14 @@ extern "C" size_t get_cwd(char* path) {
 
 extern "C" bool is_exe(const char* path) {
   fs::path p(path);
+  std::error_code ec;
 
-  auto s = fs::status(p);
+  auto s = fs::status(p, ec);
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:is_exe: " << ec.message() << std::endl;
+    return false;
+  }
 
   if (!fs::is_regular_file(s)) {
     std::cerr << "filesystem:is_exe: " << p << " is not a regular file" << std::endl;
@@ -519,9 +597,9 @@ extern "C" bool is_exe(const char* path) {
 extern "C" size_t get_homedir(char* path) {
 
 #ifdef _WIN32
-  std::strcpy(path, fs::path(getenv("USERPROFILE")).string().c_str());
+  std::strcpy(path, fs::path(std::getenv("USERPROFILE")).string().c_str());
 #else
-  std::strcpy(path, fs::path(getenv("HOME")).string().c_str());
+  std::strcpy(path, fs::path(std::getenv("HOME")).string().c_str());
 #endif
 
   return as_posix(path);

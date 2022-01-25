@@ -11,9 +11,9 @@ endif
 CXXFLAGS = -std=c++17
 LDFLAGS = -lstdc++
 
-all: pathlib.a
+all: filesystem.a
 
-FSRC=pathlib.f90 find.f90 io.f90 iter.f90 fs_cpp.f90
+FSRC=filesystem.f90 find.f90 io.f90 iter.f90 fs_cpp.f90
 CXXSRC=fs.cpp
 
 FOBJS = $(FSRC:.f90=.o)
@@ -21,11 +21,8 @@ FOBJS = $(FSRC:.f90=.o)
 fs.o: $(CXXSRC)
 	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-pathlib.a: $(FOBJS) fs.o
+filesystem.a: $(FOBJS) fs.o
 	$(AR) cr $@ *.o
-
-pathlib_cli: cli.f90 pathlib.a
-	$(FC) $(FFLAGS) -o $@ $^ $(LDFLAGS)
 
 %.o %.mod %.smod: %.f90
 	$(FC) $(FFLAGS) -c -o $*.o $< $(LDFLAGS)
@@ -38,4 +35,4 @@ endif
 
 .PHONY: clean
 clean:
-	$(RM) pathlib.a *.o *.mod *.smod
+	$(RM) filesystem.a *.o *.mod *.smod
