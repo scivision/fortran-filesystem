@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "**/*.f90"
+      - "**/*.cpp"
       - "**/CMakeLists.txt"
       - "**/*.cmake"
       - ".github/workflows/ci_cmake.yml"

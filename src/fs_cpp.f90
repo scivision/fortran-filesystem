@@ -79,14 +79,14 @@ character(kind=c_char), intent(out) :: normalized(*)
 end function cfs_normal
 
 logical(c_bool) function cfs_is_symlink(path) bind(C, name="is_symlink")
-import c_bool, c_char
+import
 character(kind=c_char), intent(in) :: path(*)
 end function cfs_is_symlink
 
-subroutine cfs_create_directory_symlink(target, link) bind(C, name="create_directory_symlink")
-import c_char
+logical(C_BOOL) function cfs_create_directory_symlink(target, link) bind(C, name="create_directory_symlink")
+import
 character(kind=c_char), intent(in) :: target(*), link(*)
-end subroutine cfs_create_directory_symlink
+end function cfs_create_directory_symlink
 
 logical(C_BOOL) function cfs_create_symlink(target, link) bind(C, name="create_symlink")
 import

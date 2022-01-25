@@ -201,7 +201,15 @@ extern "C" size_t normal(const char* path, char* normalized) {
 
 
 extern "C" bool is_symlink(const char* path) {
-  return fs::is_symlink(path);
+  std::error_code ec;
+
+  auto e = fs::is_symlink(path, ec);
+  if(ec) {
+    std::cerr << "filesystem:is_symlink: " << ec.message() << std::endl;
+    return false;
+  }
+
+  return e;
 }
 
 extern "C" bool create_symlink(const char* target, const char* link) {
@@ -215,18 +223,32 @@ extern "C" bool create_symlink(const char* target, const char* link) {
     return false;
   }
 
+  std::error_code ec;
+
   if (is_dir(target)) {
-    fs::create_directory_symlink(target, link);
+    fs::create_directory_symlink(target, link, ec);
   }
   else {
-    fs::create_symlink(target, link);
+    fs::create_symlink(target, link, ec);
+  }
+  if(ec) {
+    std::cerr << "filesystem:create_symlink: " << ec.message() << std::endl;
+    return false;
   }
 
   return true;
 }
 
-extern "C" void create_directory_symlink(const char* target, const char* link) {
-  fs::create_directory_symlink(target, link);
+extern "C" bool create_directory_symlink(const char* target, const char* link) {
+  std::error_code ec;
+
+  fs::create_directory_symlink(target, link, ec);
+  if(ec) {
+    std::cerr << "filesystem:create_directory_symlink: " << ec.message() << std::endl;
+    return false;
+  }
+
+  return true;
 }
 
 extern "C" bool create_directories(const char* path) {
@@ -236,7 +258,15 @@ extern "C" bool create_directories(const char* path) {
     return false;
   }
 
-  auto s = fs::status(path);
+  std::error_code ec;
+
+  auto s = fs::status(path, ec);
+  if(s.type() != fs::file_type::not_found){
+    if(ec) {
+      std::cerr << "filesystem:create_directories:status: " << ec.message() << std::endl;
+      return false;
+    }
+  }
 
   if(fs::exists(s)) {
     if(is_dir(path)) return true;
@@ -245,7 +275,11 @@ extern "C" bool create_directories(const char* path) {
     return false;
   }
 
-  auto ok = fs::create_directories(path);
+  auto ok = fs::create_directories(path, ec);
+  if(ec) {
+    std::cerr << "filesystem:create_directories: " << ec.message() << std::endl;
+    return false;
+  }
 
   if( !ok ) {
     // old MacOS return false even if directory was created
@@ -299,14 +333,14 @@ extern "C" bool is_absolute(const char* path) {
 extern "C" bool is_file(const char* path) {
   std::error_code ec;
 
-  auto e = fs::is_regular_file(path, ec);
-
+  auto s = fs::status(path, ec);
+  if (s.type() == fs::file_type::not_found) return false;
   if(ec) {
-    std::cerr << "ERROR:filesystem:is_file: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:is_file:status: " << ec.message() << std::endl;
     return false;
   }
 
-  return e;
+  return fs::is_regular_file(s);
 }
 
 extern "C" bool is_dir(const char* path) {
@@ -320,14 +354,15 @@ extern "C" bool is_dir(const char* path) {
 
   std::error_code ec;
 
-  auto e = fs::is_directory(p, ec);
-
+  auto s = fs::status(path, ec);
+  if (s.type() == fs::file_type::not_found) return false;
   if(ec) {
-    std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:is_dir:status: " << ec.message() << std::endl;
     return false;
   }
 
-return e;
+  return fs::is_directory(s);
+
 }
 
 extern "C" bool fs_remove(const char* path) {
@@ -497,8 +532,15 @@ extern "C" bool touch(const char* path) {
   }
 
   fs::path p(path);
+  std::error_code ec;
 
-  auto s = fs::status(p);
+  auto s = fs::status(p, ec);
+  if(s.type() != fs::file_type::not_found){
+    if(ec) {
+      std::cerr << "filesystem:touch:status: " << ec.message() << std::endl;
+      return false;
+    }
+  }
 
   if (fs::exists(s) & !fs::is_regular_file(s)) return false;
 
@@ -508,20 +550,27 @@ extern "C" bool touch(const char* path) {
     ost.close();
     // ensure user can access file, as default permissions may be mode 600 or such
 #ifdef __cpp_lib_filesystem
-    fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add);
+    fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add, ec);
 #else
-  fs::permissions(p, fs::perms::add_perms | fs::perms::owner_read | fs::perms::owner_write);
+  fs::permissions(p, fs::perms::add_perms | fs::perms::owner_read | fs::perms::owner_write, ec);
 #endif
   }
+  if(ec) {
+    std::cerr << "filesystem:touch:permissions: " << ec.message() << std::endl;
+    return false;
+  }
 
-  if (!fs::is_regular_file(p)) return false;
+  if (!fs::is_regular_file(p, ec)) return false;
   // here p because we want to check the new file
+  if(ec) {
+    std::cerr << "filesystem:touch:is_regular_file: " << ec.message() << std::endl;
+    return false;
+  }
 
-  std::error_code ec;
 
   fs::last_write_time(p, fs::file_time_type::clock::now(), ec);
   if(ec) {
-    std::cerr << "filesystem:touch: " << path << " was created, but modtime was not updated: " << ec.message() << std::endl;
+    std::cerr << "filesystem:touch:last_write_time: " << path << " was created, but modtime was not updated: " << ec.message() << std::endl;
     return false;
   }
 
@@ -535,7 +584,10 @@ extern "C" size_t get_tempdir(char* path) {
   std::error_code ec;
 
   auto t = fs::temp_directory_path(ec);
-  if(ec) std::cerr << "filesystem:get_tempdir: " << ec.message() << std::endl;
+  if(ec) {
+    std::cerr << "filesystem:get_tempdir: " << ec.message() << std::endl;
+    return 0;
+  }
 
   std::strcpy(path, t.string().c_str());
   return as_posix(path);
@@ -545,15 +597,18 @@ extern "C" size_t get_tempdir(char* path) {
 extern "C" uintmax_t file_size(const char* path) {
   // need to check is_regular_file for MSVC/Intel Windows
   fs::path p(path);
+  std::error_code ec;
 
-  if (!fs::is_regular_file(p)) {
+  if (!fs::is_regular_file(p, ec)) {
     std::cerr << "filesystem:file_size: " << p << " is not a regular file" << std::endl;
     return 0;
   }
+  if(ec) {
+    std::cerr << "ERROR:filesystem:file_size: " << ec.message() << std::endl;
+    return 0;
+  }
 
-  std::error_code ec;
   auto fsize = fs::file_size(p, ec);
-
   if (ec) {
     std::cerr << "ERROR:filesystem:file_size: " << p << " could not get file size: " << ec.message() << std::endl;
     return 0;
@@ -564,7 +619,15 @@ extern "C" uintmax_t file_size(const char* path) {
 
 
 extern "C" size_t get_cwd(char* path) {
-  std::strcpy(path, fs::current_path().string().c_str());
+  std::error_code ec;
+
+  auto c = fs::current_path(ec);
+  if(ec) {
+    std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << std::endl;
+    return 0;
+  }
+
+  std::strcpy(path, c.string().c_str());
   return as_posix(path);
 }
 
@@ -574,7 +637,7 @@ extern "C" bool is_exe(const char* path) {
   std::error_code ec;
 
   auto s = fs::status(p, ec);
-
+  if (s.type() == fs::file_type::not_found) return false;
   if(ec) {
     std::cerr << "ERROR:filesystem:is_exe: " << ec.message() << std::endl;
     return false;
@@ -670,13 +733,16 @@ extern "C" bool chmod_exe(const char* path) {
   // make path owner executable, if it's a file
 
   fs::path p(path);
+  std::error_code ec;
 
-  if(!fs::is_regular_file(p)) {
+  if(!fs::is_regular_file(p, ec)) {
     std::cerr << "filesystem:chmod_exe: " << p << " is not a regular file" << std::endl;
     return false;
   }
-
-  std::error_code ec;
+  if(ec) {
+    std::cerr << "ERROR:filesystem:chmod_exe: " << p << ": " << ec.message() << std::endl;
+    return false;
+  }
 
 #ifdef __cpp_lib_filesystem
   fs::permissions(p, fs::perms::owner_exec, fs::perm_options::add, ec);
@@ -697,13 +763,16 @@ extern "C" bool chmod_no_exe(const char* path) {
   // make path not executable, if it's a file
 
   fs::path p(path);
+  std::error_code ec;
 
-  if(!fs::is_regular_file(p)) {
+  if(!fs::is_regular_file(p, ec)) {
     std::cerr << "filesystem:chmod_no_exe: " << p << " is not a regular file" << std::endl;
     return false;
   }
-
-  std::error_code ec;
+  if(ec) {
+    std::cerr << "ERROR:filesystem:chmod_no_exe: " << p << ": " << ec.message() << std::endl;
+    return false;
+  }
 
 #ifdef __cpp_lib_filesystem
   fs::permissions(p, fs::perms::owner_exec, fs::perm_options::remove, ec);
