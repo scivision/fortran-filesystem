@@ -26,12 +26,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: cache install oneAPI
-      id: cache-install
-      uses: actions/cache@v2
-      with:
-        path: C:\Program Files (x86)\Intel\oneAPI
-        key: install-${{ env.WINDOWS_HPCKIT_URL }}-${{ env.WINDOWS_CPP_COMPONENTS }}-${{ env.WINDOWS_FORTRAN_COMPONENTS }}-compiler2
+# oneapi themselves note GA cache is broken for Windows oneapi
+    # - name: cache install oneAPI
+    #   id: cache-install
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: C:\Program Files (x86)\Intel\oneAPI
+    #     key: install-${{ env.WINDOWS_HPCKIT_URL }}-${{ env.WINDOWS_CPP_COMPONENTS }}-${{ env.WINDOWS_FORTRAN_COMPONENTS }}-compiler2
 
     - name: no-cache install oneAPI
       if: steps.cache-install.outputs.cache-hit != 'true'
