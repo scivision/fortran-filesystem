@@ -23,6 +23,7 @@ env:
 on:
   push:
     paths:
+      - "**/*.cpp"
       - "**.f90"
       - "**.F90"
       - "**.cmake"

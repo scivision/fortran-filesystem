@@ -12,6 +12,7 @@ on:
   push:
     paths:
       - "**.bat"
+      - "**/*.cpp"
       - "**.f90"
       - "**.F90"
       - "**.cmake"
