@@ -27,7 +27,7 @@ on:
       - "**.F90"
       - "**.cmake"
       - "**/CMakeLists.txt"
-      - ".github/workflows/intel-oneapi.yml"
+      - ".github/workflows/oneapi-linux.yml"
 
 
 jobs:
@@ -52,13 +52,16 @@ jobs:
       timeout-minutes: 5
       run: |
         .github/workflows/oneapi_setup_apt_repo_linux.sh
-        sudo apt install ninja-build ${{ env.LINUX_CPP_COMPONENTS }} ${{ env.LINUX_FORTRAN_COMPONENTS }}
+        sudo apt install ${{ env.LINUX_CPP_COMPONENTS }} ${{ env.LINUX_FORTRAN_COMPONENTS }}
 
     - name: oneAPI env vars
       run: |
         source /opt/intel/oneapi/setvars.sh
         printenv >> $GITHUB_ENV
 
+    - name: install Ninja
+      run: sudo apt install ninja-build
+# install ninja needs to be own step as not cached by design
 
     - name: Configure CMake
       timeout-minutes: 1
