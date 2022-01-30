@@ -3,10 +3,6 @@ include(CheckCXXSymbolExists)
 include(CheckSourceRuns)
 include(CheckSourceCompiles)
 
-
-set(CXX_STANDARD 17)
-# need this for checks to pass across OS/compiler vendors/versions
-
 # check if Fortran compiler new enough
 check_source_compiles(Fortran "
 module a
@@ -52,6 +48,12 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "^Intel" AND CMAKE_SYSTEM_NAME STREQUAL Lin
 endif()
 
 set(CMAKE_REQUIRED_LIBRARIES ${libfs})
+
+if(MSVC)
+  set(CMAKE_REQUIRED_FLAGS /std:c++17)
+else()
+  set(CMAKE_REQUIRED_FLAGS -std=c++17)
+endif()
 
 check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXXFS_MACRO)
 if(HAVE_CXXFS_MACRO)
