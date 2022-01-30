@@ -18,7 +18,9 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 
 REM Release build
 cmake --build --preset release
-if %errorlevel% neq 0 exit /b %errorlevel%
+if %errorlevel% neq 0 (
+  type build\CMakeFiles\CMakeError.log & exit /b %errorlevel%
+)
 REM Release unit test
 ctest --preset release --schedule-random -V
 if %errorlevel% neq 0 exit /b %errorlevel%
