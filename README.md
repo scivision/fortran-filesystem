@@ -3,6 +3,7 @@
 [![DOI](https://zenodo.org/badge/433875623.svg)](https://zenodo.org/badge/latestdoi/433875623)
 [![ci_cmake](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_cmake.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_cmake.yml)
 [![oneapi-linux](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml)
+[![oneapi-windows](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-windows.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-windows.yml)
 [![ci_meson](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml)
 
 Platform independent (Linux, macOS, Windows), object-oriented Fortran filesystem path manipulation library.

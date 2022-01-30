@@ -8,10 +8,6 @@ REM doesn't work
 @REM call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
 @REM call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
 
-set CC=icx
-set CXX=icx
-set FC=ifx
-
 REM configure
 cmake --preset multi
 if %errorlevel% neq 0 exit /b %errorlevel%
