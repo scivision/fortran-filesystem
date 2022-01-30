@@ -1,4 +1,4 @@
-name: intel-oneapi
+name: oneapi-linux
 
 env:
   CMAKE_BUILD_PARALLEL_LEVEL: 2
