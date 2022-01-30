@@ -24,7 +24,7 @@ endif
 ret_symlink = cpp.run(check_sym, name: 'has_symlink', dependencies: fs_dep, args: fs_ld)
 has_symlink = ret_symlink.returncode() == 0
 
-has_filesys = cpp.check_header('filesystem')
+has_filesys = cpp.has_header_symbol('filesystem', '__cpp_lib_filesystem')
 if not has_filesys
   has_experimental_filesys = cpp.check_header('experimental/filesystem')
 endif

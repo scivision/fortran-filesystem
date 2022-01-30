@@ -55,10 +55,8 @@ else()
   set(CMAKE_REQUIRED_FLAGS -std=c++17)
 endif()
 
-check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXXFS_MACRO)
-if(HAVE_CXXFS_MACRO)
-  check_include_file_cxx(filesystem HAVE_CXX17_FILESYSTEM)
-else()
+check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXX17_FILESYSTEM)
+if(NOT HAVE_CXX17_FILESYSTEM)
   check_include_file_cxx(experimental/filesystem HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
 endif()
 
