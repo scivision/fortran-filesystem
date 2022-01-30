@@ -2,7 +2,7 @@ program test_filesystem
 
 use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
 is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep, parent, &
-assert_is_dir
+assert_is_dir, match
 
 implicit none (type, external)
 
@@ -39,6 +39,9 @@ print *," OK: filesystem: is_dir"
 
 call test_absolute()
 print *, "OK: filesystem: absolute"
+
+call test_match()
+print *, "OK: match"
 
 contains
 
@@ -295,6 +298,22 @@ else
 endif
 
 end subroutine test_absolute
+
+
+subroutine test_match()
+
+type(path_t) :: p
+
+if(.not. match("abc", "abc")) error stop "match exact failed"
+if(.not. match("abc", "a.*")) error stop "match wildcard failed"
+
+if(.not. match("/abc", "a.c")) error stop "match() dot failed"
+p = path_t("/abc")
+if(.not. p%match("a.c")) error stop "%match dot failed"
+
+if(.not. match("abc34v", "a.c\d{2}")) error stop "match decimal failed"
+
+end subroutine test_match
 
 
 end program
