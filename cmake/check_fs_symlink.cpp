@@ -1,3 +1,5 @@
+// Check that filesystem is capable of symbolic links with this compiler.
+
 #include <iostream>
 
 #ifndef __has_include
