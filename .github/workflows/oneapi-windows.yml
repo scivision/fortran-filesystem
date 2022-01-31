@@ -2,6 +2,7 @@ name: oneapi-windows
 
 env:
   CTEST_PARALLEL_LEVEL: 2
+  CMAKE_GENERATOR: Ninja
   WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18497/w_BaseKit_p_2022.1.2.154_offline.exe
   WINDOWS_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18417/w_HPCKit_p_2022.1.0.93_offline.exe
   WINDOWS_CPP_COMPONENTS: intel.oneapi.win.cpp-compiler
@@ -22,6 +23,7 @@ on:
 jobs:
 
   windows-oneapi:
+    timeout-minutes: 30
     runs-on: windows-latest
 
     steps:
@@ -36,6 +38,7 @@ jobs:
     #     key: install-${{ env.WINDOWS_HPCKIT_URL }}-${{ env.WINDOWS_CPP_COMPONENTS }}-${{ env.WINDOWS_FORTRAN_COMPONENTS }}-compiler2
 
     - name: no-cache install oneAPI
+      timeout-minutes: 10
       if: steps.cache-install.outputs.cache-hit != 'true'
       run: ./.github/workflows/oneapi_install_windows.bat ${{ env.WINDOWS_HPCKIT_URL }} "${{ env.WINDOWS_CPP_COMPONENTS }}:${{ env.WINDOWS_FORTRAN_COMPONENTS }}"
 
@@ -44,6 +47,7 @@ jobs:
         python-version: '3.x'
 
     - name: install Ninja
+      timeout-minutes: 1
       run: pip install ninja
 
     - name: "Batch workaround: config, build, test"
