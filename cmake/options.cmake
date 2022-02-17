@@ -2,6 +2,24 @@ option(ENABLE_COVERAGE "Code coverage tests")
 
 option(BUILD_UTILS "Build utils e.g. CLI")
 
+if(CMAKE_GENERATOR STREQUAL "Ninja Multi-Config")
+  set(EXTPROJ_GENERATOR "Ninja")
+else()
+  set(EXTPROJ_GENERATOR ${CMAKE_GENERATOR})
+endif()
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/Modules)
+
+
+# Rpath options necessary for shared library install to work correctly in user projects
+set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
+
+# Necessary for shared library with Visual Studio / Windows oneAPI
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS true)
+
+
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   # will not take effect without FORCE
   # CMAKE_BINARY_DIR in case it's used from FetchContent

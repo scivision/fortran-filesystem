@@ -3,20 +3,12 @@ cmake_minimum_required(VERSION 3.19...3.22)
 
 project(ffilesystem
 LANGUAGES C CXX Fortran
-VERSION 3.2.4
+VERSION 3.2.5
 DESCRIPTION "Platform independent, object-oriented Fortran filesystem path manipulation library"
 HOMEPAGE_URL "https://github.com/scivision/fortran-filesystem"
 )
 
 include(CTest)
-
-if(CMAKE_GENERATOR STREQUAL "Ninja Multi-Config")
-  set(EXTPROJ_GENERATOR "Ninja")
-else()
-  set(EXTPROJ_GENERATOR ${CMAKE_GENERATOR})
-endif()
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
 include(cmake/options.cmake)
 include(cmake/compilers.cmake)
