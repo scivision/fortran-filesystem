@@ -38,19 +38,13 @@ $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 $<INSTALL_INTERFACE:include>
 )
 
-# --- C++17 filesystem OR lstat() symbolic link information
+# --- C++17 filesystem
+add_library(filesystem_cpp OBJECT src/fs.cpp)
+target_compile_features(filesystem_cpp PRIVATE cxx_std_17)
+target_compile_definitions(filesystem_cpp PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
 
-if(HAVE_CXX17_FILESYSTEM OR HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
-  add_library(filesystem_cpp OBJECT src/fs.cpp)
-  target_compile_features(filesystem_cpp PRIVATE cxx_std_17)
-  target_compile_definitions(filesystem_cpp PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
-
-  target_sources(filesystem PRIVATE src/fs_cpp.f90 $<TARGET_OBJECTS:filesystem_cpp>)
-  target_link_libraries(filesystem PUBLIC ${libfs})
-else()
-  message(FATAL_ERROR "C++17 filesystem support is required for Fortran filesystem")
-endif()
-
+target_sources(filesystem PRIVATE src/fs_cpp.f90 $<TARGET_OBJECTS:filesystem_cpp>)
+target_link_libraries(filesystem PUBLIC ${libfs})
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod
 TYPE INCLUDE

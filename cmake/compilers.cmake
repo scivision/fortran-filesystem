@@ -60,6 +60,10 @@ if(NOT HAVE_CXX17_FILESYSTEM)
   check_include_file_cxx(experimental/filesystem HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
 endif()
 
+if(NOT (HAVE_CXX17_FILESYSTEM OR HAVE_CXX17_EXPERIMENTAL_FILESYSTEM))
+  message(FATAL_ERROR "C++17 filesystem support is required, but not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+endif()
+
 # --- C++17 filesystem or C lstat() symbolic link information
 if(HAVE_CXX17_FILESYSTEM OR HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
   file(READ ${CMAKE_CURRENT_LIST_DIR}/check_fs_symlink.cpp symlink_src)
