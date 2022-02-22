@@ -1,5 +1,10 @@
 name: ci_cmake
 
+env:
+    CTEST_PARALLEL_LEVEL: 2
+    CMAKE_BUILD_TYPE: Release
+    HOMEBREW_NO_INSTALL_CLEANUP: 1
+
 on:
   push:
     paths:
