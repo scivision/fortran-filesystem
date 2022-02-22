@@ -19,7 +19,7 @@ jobs:
 
   linux-gcc:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     strategy:
       matrix:
@@ -62,7 +62,7 @@ jobs:
 
   linux-clang:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     strategy:
       matrix:
