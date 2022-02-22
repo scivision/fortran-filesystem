@@ -93,7 +93,7 @@ $<IF:$<BOOL:${WIN32}>,/QxHost,-xHost>
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 
 add_compile_options(
--mtune=native -Wall
+-Wall
 $<$<CONFIG:Debug,RelWithDebInfo>:-Wextra>
 "$<$<COMPILE_LANGUAGE:Fortran>:-fimplicit-none>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug,RelWithDebInfo>>:-fcheck=all;-Werror=array-bounds>"
