@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 if(NOT ffilesystem_external)
-  find_package(ffilesystem CONFIG QUIET)
+  find_package(ffilesystem CONFIG)
 
   if(ffilesystem_FOUND)
     message(STATUS "Fortran Filesystem found: ${ffilesystem_DIR}")
@@ -60,9 +60,12 @@ else()
   add_library(ffilesystem::filesystem STATIC IMPORTED)
 endif()
 
-set_target_properties(ffilesystem::filesystem PROPERTIES IMPORTED_LOCATION ${ffilesystem_LIBRARIES})
-target_include_directories(ffilesystem::filesystem INTERFACE ${ffilesystem_INCLUDE_DIRS})
-set_target_properties(ffilesystem::filesystem PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(ffilesystem::filesystem PROPERTIES
+IMPORTED_LOCATION ${ffilesystem_LIBRARIES}
+INTERFACE_INCLUDE_DIRECTORIES ${ffilesystem_INCLUDE_DIRS}
+LINKER_LANGUAGE CXX
+)
+target_link_libraries(ffilesystem::filesystem INTERFACE ${lib_filesystem})
 
 # target_link_libraries(ffilesystem::filesystem INTERFACE stdc++)  # did not help
 # instead, set linker_langauge CXX for the specific targets linking ffilesystem::filesystem
