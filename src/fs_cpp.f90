@@ -357,7 +357,6 @@ as_posix = trim(buf)
 end procedure as_posix
 
 
-
 module procedure with_suffix
 character(kind=c_char, len=MAXP) :: cpath, csuff, cbuf
 integer(C_SIZE_T) :: N, i
@@ -478,6 +477,7 @@ character(kind=c_char, len=:), allocatable :: cpath
 cpath = path // C_NULL_CHAR
 is_file = cfs_is_file(cpath)
 end procedure is_file
+
 
 module procedure is_dir
 character(kind=c_char, len=:), allocatable :: cpath

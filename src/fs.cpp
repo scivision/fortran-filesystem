@@ -68,7 +68,7 @@ extern "C" size_t as_posix(char* path){
   std::regex r("/{2,}");
   s = std::regex_replace(s, r, "/");
 
-  strcpy(path, s.c_str());
+  std::strcpy(path, s.c_str());
 
   return strlen(path);
 }
@@ -681,7 +681,7 @@ extern "C" size_t expanduser(const char* path, char* result){
   }
 
   if(p.front() != '~') {
-    strcpy(result, path);
+    std::strcpy(result, path);
     return as_posix(result);
   }
 
@@ -693,7 +693,7 @@ extern "C" size_t expanduser(const char* path, char* result){
   // std::cout << "TRACE:expanduser: home: " << s << std::endl;
 
   if( s.length() == 0 ) {
-    strcpy(result, path);
+    std::strcpy(result, path);
     return as_posix(result);
   }
 
@@ -711,18 +711,18 @@ extern "C" size_t expanduser(const char* path, char* result){
 
   if (p.length() == 1) {
     // ~ alone
-    strcpy(result, home.string().c_str());
+    std::strcpy(result, home.string().c_str());
     return as_posix(result);
   }
   else if (p.length() == 2) {
     // ~/ alone
-    strcpy(result, (home.string() + "/").c_str());
+    std::strcpy(result, (home.string() + "/").c_str());
     return as_posix(result);
   }
 
   // std::cout << "TRACE:expanduser: trailing path: " << p1 << std::endl;
 
-  strcpy(result, (home / p.substr(2)).string().c_str());
+  std::strcpy(result, (home / p.substr(2)).string().c_str());
 
   // std::cout << "TRACE:expanduser: result " << result << std::endl;
 
