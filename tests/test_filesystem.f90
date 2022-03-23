@@ -2,7 +2,7 @@ program test_filesystem
 
 use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
 is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep, parent, &
-assert_is_dir, match
+assert_is_dir, match, as_posix
 
 implicit none (type, external)
 
@@ -91,6 +91,7 @@ p1 = path_t("")
 
 p2 = p1%as_posix()
 if (p2%path() /= "") error stop "as_posix empty"
+if (as_posix("") /= "") error stop "as_posix('') empty"
 
 p1 = path_t("/")
 p3 = p1%as_posix()
@@ -107,7 +108,7 @@ subroutine test_filename()
 
 type(path_t) :: p1, p2
 
-if(file_name("") /= "") error stop "filename empty"
+if(file_name("") /= "") error stop "filename empty: " // file_name("")
 
 p1 = path_t("a/b/c")
 p2 = path_t("a")
@@ -150,7 +151,7 @@ subroutine test_stem()
 
 type(path_t) :: p1, p2
 
-if(stem("") /= "") error stop "stem empty"
+if(stem("") /= "") error stop "stem empty: " // stem("")
 
 p1 = path_t("hi.a.b")
 if (p1%stem() /= "hi.a") error stop "stem failed"
@@ -303,6 +304,8 @@ end subroutine test_absolute
 subroutine test_match()
 
 type(path_t) :: p
+
+if(.not. match("", "")) error stop "match empty"
 
 if(.not. match("abc", "abc")) error stop "match exact failed"
 if(.not. match("abc", "a.*")) error stop "match wildcard failed"

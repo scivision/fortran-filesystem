@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <algorithm>
-#include <cstring>
+#include <string>
 #include <fstream>
 #include <regex>
 
@@ -34,43 +34,43 @@ extern "C" bool is_macos(){
   return true;
 #endif
 #endif
-  return false;
+return false;
 }
 
 extern "C" bool is_linux() {
 #ifdef __linux__
   return true;
 #endif
-  return false;
+return false;
 }
 
 extern "C" bool is_unix() {
 #ifdef __unix__
   return true;
 #endif
-  return false;
+return false;
 }
 
 extern "C" bool is_windows() {
 #ifdef _WIN32
   return true;
 #endif
-  return false;
+return false;
 }
 
 
 extern "C" size_t as_posix(char* path){
   // also remove duplicated separators
-    std::string s(path);
+  std::string s(path);
 
-    std::replace(s.begin(), s.end(), '\\', '/');
+  std::replace(s.begin(), s.end(), '\\', '/');
 
-    std::regex r("/{2,}");
-    s = std::regex_replace(s, r, "/");
+  std::regex r("/{2,}");
+  s = std::regex_replace(s, r, "/");
 
-    strcpy(path, s.c_str());
+  strcpy(path, s.c_str());
 
-    return strlen(path);
+  return strlen(path);
 }
 
 
@@ -379,7 +379,7 @@ extern "C" bool fs_remove(const char* path) {
 }
 
 extern "C" size_t canonical(char* path, bool strict){
-  // does NOT expand tilde ~
+  // also expands ~
 
   if( (strlen(path) == 0) ) {
     path = NULL;

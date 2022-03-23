@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21...3.22)
+cmake_minimum_required(VERSION 3.21...3.23)
 
 project(FilesystemExample
 LANGUAGES C CXX Fortran
@@ -24,9 +24,7 @@ else()
   set_target_properties(example1 PROPERTIES LINKER_LANGUAGE CXX)
 endif()
 
-add_test(NAME Example1
-COMMAND $<TARGET_FILE:example1>
-)
+add_test(NAME Example1 COMMAND example1)
 set_tests_properties(Example1 PROPERTIES
 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 TIMEOUT 10
