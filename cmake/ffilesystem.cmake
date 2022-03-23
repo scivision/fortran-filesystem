@@ -15,10 +15,8 @@ if(NOT ffilesystem_ROOT)
   set(ffilesystem_ROOT ${CMAKE_INSTALL_PREFIX})
 endif()
 
-set(ffs_implib)
 if(BUILD_SHARED_LIBS)
   if(WIN32)
-    set(ffs_implib ${ffilesystem_ROOT}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}filesystem${CMAKE_SHARED_LIBRARY_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
     set(ffilesystem_LIBRARIES ${ffilesystem_ROOT}/bin/${CMAKE_SHARED_LIBRARY_PREFIX}filesystem${CMAKE_SHARED_LIBRARY_SUFFIX})
   else()
     set(ffilesystem_LIBRARIES ${ffilesystem_ROOT}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}filesystem${CMAKE_SHARED_LIBRARY_SUFFIX})
@@ -51,22 +49,11 @@ CONFIGURE_HANDLED_BY_BUILD true
 file(MAKE_DIRECTORY ${ffilesystem_INCLUDE_DIRS})
 # avoid generate race condition
 
-if(BUILD_SHARED_LIBS)
-  add_library(ffilesystem::filesystem SHARED IMPORTED)
-  if(WIN32)
-    set_target_properties(ffilesystem::filesystem PROPERTIES IMPORTED_IMPLIB ${ffs_implib})
-  endif()
-else()
-  add_library(ffilesystem::filesystem STATIC IMPORTED)
-endif()
+add_library(ffilesystem::filesystem INTERFACE IMPORTED)
 
-set_target_properties(ffilesystem::filesystem PROPERTIES
-IMPORTED_LOCATION ${ffilesystem_LIBRARIES}
-INTERFACE_INCLUDE_DIRECTORIES ${ffilesystem_INCLUDE_DIRS}
-LINKER_LANGUAGE CXX
-)
-target_link_libraries(ffilesystem::filesystem INTERFACE ${lib_filesystem})
-
+target_link_libraries(ffilesystem::filesystem INTERFACE ${ffilesystem_LIBRARIES} ${lib_filesystem})
+target_include_directories((ffilesystem::filesystem INTERFACE ${ffilesystem_INCLUDE_DIRS})
+set_target_properties(ffilesystem::filesystem PROPERTIES LINKER_LANGUAGE CXX)
 # target_link_libraries(ffilesystem::filesystem INTERFACE stdc++)  # did not help
 # instead, set linker_langauge CXX for the specific targets linking ffilesystem::filesystem
 
