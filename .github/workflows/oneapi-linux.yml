@@ -5,14 +5,9 @@ env:
   CTEST_PARALLEL_LEVEL: 2
   CC: icx
   FC: ifx
-  WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18497/w_BaseKit_p_2022.1.2.154_offline.exe
-  WINDOWS_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18417/w_HPCKit_p_2022.1.0.93_offline.exe
   LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18487/l_BaseKit_p_2022.1.2.146_offline.sh
   LINUX_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18479/l_HPCKit_p_2022.1.2.117_offline.sh
   MACOS_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18341/m_HPCKit_p_2022.1.0.86_offline.dmg
-  WINDOWS_CPP_COMPONENTS: intel.oneapi.win.cpp-compiler
-  WINDOWS_FORTRAN_COMPONENTS: intel.oneapi.win.ifort-compiler
-  WINDOWS_DPCPP_COMPONENTS: intel.oneapi.win.dpcpp-compiler
   LINUX_CPP_COMPONENTS: intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
   LINUX_FORTRAN_COMPONENTS: intel-oneapi-compiler-fortran
   LINUX_DPCPP_COMPONENTS: intel-oneapi-compiler-dpcpp-cpp
@@ -66,7 +61,7 @@ jobs:
 
     - name: Configure CMake
       timeout-minutes: 1
-      run: cmake --preset multi --install-prefix=${HOME}
+      run: cmake --preset multi --install-prefix=${{ runner.temp }}
 
     - name: print config log
       if: ${{ failure() }}
@@ -86,7 +81,7 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME}
+      run: cmake -B examples/build -S examples/ -DCMAKE_PREFIX_PATH=${{ runner.temp }}
 
     - name: example build
       run: cmake --build examples/build

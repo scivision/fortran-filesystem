@@ -39,7 +39,7 @@ jobs:
         sudo apt update
         sudo apt install ninja-build gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }} gfortran-${{ matrix.gcc-version }}
 
-    - run: cmake --preset multi --install-prefix=${HOME} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+    - run: cmake --preset multi --install-prefix=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug -V
@@ -51,7 +51,7 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      run: cmake -B examples/build -S examples/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: example build
       run: cmake --build examples/build
@@ -82,7 +82,7 @@ jobs:
         sudo apt update
         sudo apt install ninja-build clang-${{ matrix.clang-version }}
 
-    - run: cmake --preset multi --install-prefix=${HOME} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+    - run: cmake --preset multi --install-prefix=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug -V
@@ -94,7 +94,7 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      run: cmake -B examples/build -S examples/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: example build
       run: cmake --build examples/build
@@ -169,7 +169,7 @@ jobs:
 
     - run: brew install ninja
 
-    - run: cmake --preset multi --install-prefix=${HOME} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+    - run: cmake --preset multi --install-prefix=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug -V
@@ -181,7 +181,7 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      run: cmake -B examples/build -S examples/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: example build
       run: cmake --build examples/build
@@ -202,22 +202,20 @@ jobs:
     env:
       CMAKE_GENERATOR: Ninja
 
-    defaults:
-      run:
-        shell: msys2 {0}
     steps:
     - uses: msys2/setup-msys2@v2
       with:
         update: true
         install: >-
-          git
-          mingw-w64-x86_64-cmake
           mingw-w64-x86_64-ninja
           mingw-w64-x86_64-gcc-fortran
 
+    - name: Put MSYS2_MinGW64 on PATH
+      run: echo "D:/a/_temp/msys64/mingw64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
     - uses: actions/checkout@v2
 
-    - run: cmake --preset multi --install-prefix=${HOME} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+    - run: cmake --preset multi --install-prefix=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug --schedule-random -V
@@ -229,7 +227,7 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -Dffilesystem_ROOT=${HOME} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      run: cmake -B examples/build -S examples/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: example build
       run: cmake --build examples/build
