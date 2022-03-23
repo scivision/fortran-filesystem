@@ -20,12 +20,7 @@ namespace fs = std::experimental::filesystem;
 #error "No C++17 filesystem support"
 #endif
 
-extern "C" size_t filesep(char*);
-extern "C" size_t as_posix(char*);
-extern "C" bool is_dir(const char*);
-extern "C" size_t get_homedir(char*);
-extern "C" size_t expanduser(const char*, char*);
-
+#include "filesystem.h"
 
 extern "C" bool is_macos(){
 #if __APPLE__

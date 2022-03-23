@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.19...3.23)
 
 project(ffilesystem
 LANGUAGES C CXX Fortran
-VERSION 3.2.6
+VERSION 3.3.0
 DESCRIPTION "Platform independent, object-oriented Fortran filesystem path manipulation library"
 HOMEPAGE_URL "https://github.com/scivision/fortran-filesystem"
 )
@@ -46,7 +46,9 @@ target_compile_definitions(filesystem_cpp PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_
 target_sources(filesystem PRIVATE src/fs_cpp.f90 $<TARGET_OBJECTS:filesystem_cpp>)
 target_link_libraries(filesystem PUBLIC ${libfs})
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod
+install(FILES
+${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod
+${CMAKE_CURRENT_SOURCE_DIR}/src/filesystem.h
 TYPE INCLUDE
 )
 
