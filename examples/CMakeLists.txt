@@ -25,8 +25,16 @@ else()
 endif()
 
 add_test(NAME Example1 COMMAND example1)
-set_tests_properties(Example1 PROPERTIES
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+
+# --- example 2: C++ use of our custom C++ functions
+add_executable(example2 ex2.cpp)
+target_link_libraries(example2 PRIVATE ffilesystem::filesystem)
+
+add_test(NAME CppExample COMMAND example2)
+
+
+# --- test properties
+set_tests_properties(Example1 CppExample PROPERTIES
 TIMEOUT 10
 )
 

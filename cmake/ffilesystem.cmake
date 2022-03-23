@@ -34,7 +34,7 @@ set(ffilesystem_cmake_args
 -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
 )
 
-ExternalProject_Add(FFILESYSTEM
+ExternalProject_Add(ffilesystem
 SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..
 CMAKE_ARGS ${ffilesystem_cmake_args}
 CMAKE_GENERATOR ${EXTPROJ_GENERATOR}
@@ -54,4 +54,4 @@ set_target_properties(ffilesystem::filesystem PROPERTIES LINKER_LANGUAGE CXX)
 # target_link_libraries(ffilesystem::filesystem INTERFACE stdc++)  # did not help
 # instead, set linker_langauge CXX for the specific targets linking ffilesystem::filesystem
 
-add_dependencies(ffilesystem::filesystem FFILESYSTEM)
+add_dependencies(ffilesystem::filesystem ffilesystem)
