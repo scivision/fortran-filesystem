@@ -180,7 +180,6 @@ extern "C" size_t with_suffix(const char* path, const char* new_suffix, char* sw
 }
 
 
-
 extern "C" size_t normal(const char* path, char* normalized) {
 
 #ifdef __cpp_lib_filesystem
@@ -373,7 +372,7 @@ extern "C" bool fs_remove(const char* path) {
   return e;
 }
 
-extern "C" size_t canonical(char* path, bool strict){
+extern "C" size_t canonical(char* path, bool strict) {
   // also expands ~
 
   if( (strlen(path) == 0) ) {

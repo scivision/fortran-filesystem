@@ -1,5 +1,5 @@
 project('ffilesystem', 'c', 'cpp', 'fortran',
-version: '3.2.6',
+version: '3.3.0',
 meson_version: '>= 0.55.0',
 default_options : ['cpp_std=c++17'])
 
@@ -47,8 +47,10 @@ platform_src = configure_file(input : 'src/platform.in.f90', output : 'platform.
 filesystem = library('filesystem',
 sources: [platform_src, files('src/filesystem.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90', 'src/fs_cpp.f90', 'src/fs.cpp')],
 dependencies: fs_dep,
+include_directories: 'src',
 install: true
 )
+install_headers('src/filesystem.h')
 
 # --- tests
 subdir('tests')
