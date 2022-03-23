@@ -13,17 +13,11 @@ target_link_libraries(test_cpp_fs PRIVATE filesystem)
 add_test(NAME CPP_filesystem COMMAND test_cpp_fs)
 
 # --- relative_to
-if(HAVE_CXX17_FILESYSTEM OR HAVE_CXX17_EXPERIMENTAL_FILESYSTEM)
-  add_executable(test_relative_to test_cpp_relative.f90)
-  target_link_libraries(test_relative_to PRIVATE filesystem)
-  add_test(NAME relative_to COMMAND test_relative_to)
-  if(HAVE_CXX17_FILESYSTEM)
-    set_tests_properties(relative_to PROPERTIES PASS_REGULAR_EXPRESSION "OK: relative_to full")
-  endif()
-else()
-  add_executable(test_relative_to test_relative.f90)
-  target_link_libraries(test_relative_to PRIVATE filesystem)
-  add_test(NAME relative_to COMMAND test_relative_to)
+add_executable(test_relative_to test_cpp_relative.f90)
+target_link_libraries(test_relative_to PRIVATE filesystem)
+add_test(NAME relative_to COMMAND test_relative_to)
+if(HAVE_CXX_FILESYSTEM)
+  set_tests_properties(relative_to PROPERTIES PASS_REGULAR_EXPRESSION "OK: relative_to full")
 endif()
 
 # --- file parts
@@ -45,7 +39,7 @@ add_test(NAME symlink COMMAND test_symlink)
 add_executable(test_canonical test_canonical.f90)
 target_link_libraries(test_canonical PRIVATE filesystem)
 add_test(NAME Canonical COMMAND test_canonical)
-if(HAVE_CXX17_FILESYSTEM)
+if(HAVE_CXX_FILESYSTEM)
   set_tests_properties(Canonical PROPERTIES PASS_REGULAR_EXPRESSION "OK: canonical full")
 endif()
 
@@ -82,10 +76,6 @@ target_link_libraries(test_find PRIVATE filesystem)
 add_test(NAME Find COMMAND test_find)
 
 # --- props
-set_tests_properties(CPP_filesystem ExeDetect PROPERTIES
-DISABLED $<NOT:$<OR:$<BOOL:${HAVE_CXX17_FILESYSTEM}>,$<BOOL:${HAVE_CXX17_EXPERIMENTAL_FILESYSTEM}>>>
-)
-
 
 set_target_properties(test_filesystem test_cpp_fs test_find test_rw_text test_filesize
 test_fileops test_exe test_symlink test_expanduser test_canonical test_filesystem_parts
