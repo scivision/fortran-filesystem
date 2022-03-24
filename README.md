@@ -6,6 +6,10 @@
 [![ci_meson](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml)
 
 Platform independent (Linux, macOS, Windows), object-oriented Fortran filesystem path manipulation library.
+The library also provides a header file
+[filesystem.h](./src/filesystem.h)
+that can be used from C and C++ project code--see
+[examples](./examples).
 This Fortran library uses
 [C++17 filesystem](https://en.cppreference.com/w/cpp/filesystem)
 internally.
