@@ -6,7 +6,7 @@
 [![ci_meson](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml)
 
 Platform independent (Linux, macOS, Windows), object-oriented Fortran filesystem path manipulation library.
-The library also provides a header file
+The library also provides header
 [filesystem.h](./src/filesystem.h)
 that can be used from C and C++ project code--see
 [examples](./examples).
@@ -16,7 +16,7 @@ internally.
 Also inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html).
 
-Fortran "filesystem" module contains one Fortran type "path_t" that contains properties and methods.
+Fortran "filesystem" module contains Fortran type "path_t" that contains properties and methods.
 The "path_t" type uses getter and setter procedure to access the path as a string `character(:), allocatable`.
 
 ```fortran
@@ -38,6 +38,7 @@ Full C++17 filesystem support and hence full Fortran-filesystem features are ava
 * GCC &ge; 8
 * Clang &ge; 7
 * Intel oneAPI (icx, ifx, icpc, ifort, icl)
+* Cray (when using GCC backend and libstdc++)
 
 Fortran-filesystem has a large subset of features when used with older compilers that have C++17 "experimental" filesystem support, such as:
 
@@ -47,7 +48,8 @@ Fortran-filesystem has a large subset of features when used with older compilers
 Expected to work with other
 [C++17 compilers](https://en.cppreference.com/w/cpp/compiler_support)
 and Fortran 2008 compilers yet to be tested.
-E.g. Cray, IBM XL, NAG, et al.
+E.g. IBM XL, NAG, et al.
+In particular, the compiler and the libstdc++ must both support filesystem as well as Fortran 2008.
 
 ## Build
 
