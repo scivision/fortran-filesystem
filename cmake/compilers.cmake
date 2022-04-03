@@ -64,7 +64,7 @@ if(NOT (HAVE_CXX_FILESYSTEM OR HAVE_CXX_EXPERIMENTAL_FILESYSTEM))
   message(FATAL_ERROR "C++ filesystem support is required, but not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 endif()
 
-# some compilers e.g. Cray claim to have filesystem, but actually don't have it
+# some compilers e.g. Cray claim to have filesystem, but their libstdc++ doesn't have it.
 check_source_compiles(CXX [=[
 #ifndef __has_include
 #error "Compiler not C++17 compliant"
@@ -80,16 +80,20 @@ namespace fs = std::experimental::filesystem;
 #error "No C++ filesystem support"
 #endif
 
-int main () { return 0; }
+int main () {
+fs::path tgt(".");
+auto h = tgt.has_filename();
+return EXIT_SUCCESS;
+}
 ]=]
-HAVE_FILESYSTEM_NAMESPACE
+HAVE_FILESYSTEM_STDLIB
 )
 
-if(NOT HAVE_FILESYSTEM_NAMESPACE)
-  message(FATAL_ERROR "C++ compiler claimed to have filesystem, but it's not working ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+if(NOT HAVE_FILESYSTEM_STDLIB)
+  message(FATAL_ERROR "C++ compiler has filesystem, but filesystem is missing from libstdc++ ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 endif()
 
-# --- C++17 filesystem or C lstat() symbolic link information
+# --- C++ filesystem or C lstat() symbolic link information
 file(READ ${CMAKE_CURRENT_LIST_DIR}/check_fs_symlink.cpp symlink_src)
 check_source_runs(CXX "${symlink_src}" HAVE_SYMLINK)
 

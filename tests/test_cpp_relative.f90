@@ -18,7 +18,7 @@ subroutine test_normal()
 
 type(path_t) :: p1, p2
 
-if(.not. filesystem_has_normalize()) stop "filesystem: no normalize due to legacy C++17 filesystem"
+if(.not. filesystem_has_normalize()) stop "filesystem: no normalize due to legacy C++ filesystem"
 
 p1 = path_t("a//b/../c")
 p2 = p1%normal()
@@ -32,7 +32,7 @@ subroutine test_relative_to()
 type(path_t) :: p1
 character(:), allocatable :: rel
 
-if(.not. filesystem_has_relative_to()) stop "filesystem: no relative_to due to legacy C++17 filesystem"
+if(.not. filesystem_has_relative_to()) stop "filesystem: no relative_to due to legacy C++ filesystem"
 
 rel = relative_to("/", "")
 if(rel /= "") error stop "empty base should be empty: " // rel

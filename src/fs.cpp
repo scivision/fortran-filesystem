@@ -1,4 +1,4 @@
-// functions from C++17 filesystem
+// functions from C++ filesystem
 
 #include <iostream>
 #include <algorithm>
@@ -17,7 +17,7 @@ namespace fs = std::filesystem;
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 #else
-#error "No C++17 filesystem support"
+#error "No C++ filesystem support"
 #endif
 
 #include "filesystem.h"
@@ -187,7 +187,7 @@ extern "C" size_t normal(const char* path, char* normalized) {
   std::strcpy(normalized, p.lexically_normal().string().c_str());
 #else
   std::strcpy(normalized, path);
-  std::cerr << "filesystem:normal: legacy C++17 experimental filesystem cannot normalize " << normalized << std::endl;
+  std::cerr << "filesystem:normal: legacy C++ experimental filesystem cannot normalize " << normalized << std::endl;
 #endif
 
   return as_posix(normalized);
@@ -504,7 +504,7 @@ extern "C" size_t relative_to(const char* a, const char* b, char* result) {
 #ifdef __cpp_lib_filesystem
   r = fs::relative(a1, b1, ec);
 #else
-  std::cerr << "filesystem:relative_to: legacy C++17 filesystem does not support relative_to." << std::endl;
+  std::cerr << "filesystem:relative_to: legacy C++ filesystem does not support relative_to." << std::endl;
   return 0;
 #endif
 

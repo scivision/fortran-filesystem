@@ -88,7 +88,7 @@ module function relative_to(a, b)
 !! returns b relative to a
 !! if b is not a subpath of a, returns "" empty string
 !!
-!! reference: C++17 filesystem relative
+!! reference: C++ filesystem relative
 !! https://en.cppreference.com/w/cpp/filesystem/relative
 
 character(*), intent(in) :: a, b
@@ -253,7 +253,6 @@ end interface
 
 
 interface !< {posix,windows}/sys.f90
-!! if not C++17 filesystem, fallback system call since C stdlib doesn't have
 module subroutine copy_file(src, dest, overwrite)
 !! copy single file from src to dest
 !! OVERWRITES existing destination file

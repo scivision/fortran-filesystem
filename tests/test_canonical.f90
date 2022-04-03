@@ -55,7 +55,7 @@ if (L2 /= L1) error stop 'up directory was not canonicalized: ~/.. => ' // par%p
 print *, 'OK: canon_dir = ', par%path()
 
 ! -- relative file
-if (.not. filesystem_has_weakly_canonical()) stop "legacy C++17 filesystem does not have weakly_canonical()"
+if (.not. filesystem_has_weakly_canonical()) stop "legacy C++ filesystem does not have weakly_canonical()"
 
 file = path_t('~/../' // dummy)
 file = file%resolve()

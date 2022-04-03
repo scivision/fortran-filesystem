@@ -1,5 +1,5 @@
 program test_cpp_fs
-!! test methods from C++17 filesystem
+!! test methods from C++ filesystem
 
 use filesystem, only : path_t, get_cwd, exists, sys_posix, get_tempdir, get_homedir
 
