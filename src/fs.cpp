@@ -6,10 +6,6 @@
 #include <fstream>
 #include <regex>
 
-#ifndef __has_include
-#error "Compiler not C++17 compliant"
-#endif
-
 #if __has_include(<filesystem>)
 #include <filesystem>
 namespace fs = std::filesystem;

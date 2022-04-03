@@ -55,6 +55,11 @@ else()
   set(CMAKE_REQUIRED_FLAGS -std=c++17)
 endif()
 
+check_cxx_symbol_exists(__has_include "" HAVE_INCLUDE_MACRO)
+if(NOT HAVE_INCLUDE_MACRO)
+  message(FATAL_ERROR "C++ compiler not C++17 capable ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+endif()
+
 check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXX_FILESYSTEM)
 if(NOT HAVE_CXX_FILESYSTEM)
   check_include_file_cxx(experimental/filesystem HAVE_CXX_EXPERIMENTAL_FILESYSTEM)
@@ -66,10 +71,6 @@ endif()
 
 # some compilers e.g. Cray claim to have filesystem, but their libstdc++ doesn't have it.
 check_source_compiles(CXX [=[
-#ifndef __has_include
-#error "Compiler not C++17 compliant"
-#endif
-
 #if __has_include(<filesystem>)
 #include <filesystem>
 namespace fs = std::filesystem;

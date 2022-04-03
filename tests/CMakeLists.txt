@@ -7,7 +7,7 @@ add_executable(test_filesystem test_filesystem.f90)
 target_link_libraries(test_filesystem PRIVATE filesystem)
 add_test(NAME filesystem COMMAND test_filesystem)
 
-# --- C++17 filesystem methods
+# --- C++ filesystem methods
 add_executable(test_cpp_fs test_cpp_fs.f90)
 target_link_libraries(test_cpp_fs PRIVATE filesystem)
 add_test(NAME CPP_filesystem COMMAND test_cpp_fs)
