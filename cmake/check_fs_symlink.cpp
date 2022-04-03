@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 #else
-#error "No C++17 filesystem support"
+#error "No C++ filesystem support"
 #endif
 
 

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.19...3.23)
 
 project(ffilesystem
 LANGUAGES C CXX Fortran
-VERSION 3.3.0
+VERSION 3.3.1
 DESCRIPTION "Platform independent, object-oriented Fortran filesystem path manipulation library"
 HOMEPAGE_URL "https://github.com/scivision/fortran-filesystem"
 )

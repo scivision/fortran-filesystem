@@ -61,7 +61,32 @@ if(NOT HAVE_CXX_FILESYSTEM)
 endif()
 
 if(NOT (HAVE_CXX_FILESYSTEM OR HAVE_CXX_EXPERIMENTAL_FILESYSTEM))
-  message(FATAL_ERROR "C++17 filesystem support is required, but not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+  message(FATAL_ERROR "C++ filesystem support is required, but not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+endif()
+
+# some compilers e.g. Cray claim to have filesystem, but actually don't have it
+check_source_compiles(CXX [=[
+#ifndef __has_include
+#error "Compiler not C++17 compliant"
+#endif
+
+#if __has_include(<filesystem>)
+#include <filesystem>
+namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#else
+#error "No C++ filesystem support"
+#endif
+
+int main () { return 0; }
+]=]
+HAVE_FILESYSTEM_NAMESPACE
+)
+
+if(NOT HAVE_FILESYSTEM_NAMESPACE)
+  message(FATAL_ERROR "C++ compiler claimed to have filesystem, but it's not working ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 endif()
 
 # --- C++17 filesystem or C lstat() symbolic link information
