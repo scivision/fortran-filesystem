@@ -1,13 +1,11 @@
 # loads modules on Cray system and builds with CMake
 # canNOT use from Project CMakeLists.txt
 # it's OK to run again if you're not sure if it was already run.
+#
+# NOTE: to specify install directory, run like:
+#   cmake -DCMAKE_INSTALL_PREFIX=<install_dir> -P cray.cmake
 
 cmake_minimum_required(VERSION 3.20...3.23)
-
-if(NOT CMAKE_INSTALL_PREFIX)
-  message(FATAL_ERROR "Please specify libraries install directory:
-  cmake -DCMAKE_INSTALL_PREFIX=<install_dir> -P ${CMAKE_CURRENT_LIST_FILE}")
-endif()
 
 option(intel "use intel compiler instead of default GCC")
 
