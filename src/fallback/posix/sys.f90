@@ -33,4 +33,24 @@ if (i /= 0 .or. j /= 0) error stop "filesystem:copy_file: could not copy " // s 
 
 end procedure copy_file
 
+
+module procedure mkdir
+!! create a directory, with parents if needed
+
+integer :: i, j
+character(:), allocatable  :: cmd, wk
+
+wk = expanduser(path)  !< not canonical as it trims path part we want to create with mkdir
+if (len_trim(wk) < 1) error stop 'filesystem:mkdir: must specify directory to create'
+
+if(is_dir(wk)) return
+
+cmd = "mkdir -p " // wk
+
+call execute_command_line(cmd, exitstat=i, cmdstat=j)
+if (i /= 0 .or. j /= 0) error stop "filesystem:mkdir: could not make directory " // wk
+
+end procedure mkdir
+
+
 end submodule posix_sys

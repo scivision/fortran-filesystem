@@ -5,11 +5,6 @@ use, intrinsic :: iso_c_binding, only: c_int, c_long, c_char, c_null_char
 implicit none (type, external)
 
 interface
-integer(c_int) function mkdir_c(path) bind (C, name='_mkdir')
-!! https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/mkdir-wmkdir
-import c_int, c_char
-character(kind=c_char), intent(in) :: path(*)
-end function mkdir_c
 
 subroutine fullpath_c(absPath, relPath, maxLength) bind(c, name='_fullpath')
 !! char *_fullpath(char *absPath, const char *relPath, size_t maxLength)
@@ -56,41 +51,6 @@ enddo
 canonical = as_posix(buf(:i-1))
 
 end procedure canonical
-
-
-module procedure mkdir
-!! https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/mkdir-wmkdir
-character(kind=c_char, len=:), allocatable :: wk
-!! must use allocatable buffer, not direct substring to C
-
-integer :: i
-integer(c_int) :: ierr
-character(:), allocatable :: pts(:)
-
-wk = expanduser(path) !< not canonical as it trims path part we want to create with mkdir
-if (len_trim(wk) == 0) error stop 'filesystem:mkdir: must specify directory to create'
-
-!! some systems can't handle leading "." or ".."
-if (wk(1:1) == ".") wk = get_cwd() // "/" // wk
-
-if(is_dir(wk)) return
-
-call file_parts(wk, fparts=pts)
-
-wk = trim(pts(1))
-if(.not.is_dir(wk)) then
-  ierr = mkdir_c(wk // C_NULL_CHAR)
-  if (ierr /= 0) error stop 'filesystem:mkdir: could not create directory: ' // wk // ' from: ' // path
-endif
-do i = 2,size(pts)
-  wk = trim(wk) // "/" // pts(i)
-  if (is_dir(wk)) cycle
-
-  ierr = mkdir_c(wk // C_NULL_CHAR)
-  if (ierr /= 0) error stop 'filesystem:mkdir: could not create directory: ' // wk // ' from: ' // path
-end do
-
-end procedure mkdir
 
 
 end submodule c_windows
