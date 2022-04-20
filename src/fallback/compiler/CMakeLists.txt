@@ -1,4 +1,6 @@
-if(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
+if(CMAKE_Fortran_COMPILER_ID STREQUAL Cray)
+  target_sources(filesystem PRIVATE cray.f90)
+elseif(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
   target_sources(filesystem PRIVATE gcc.f90)
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
   target_sources(filesystem PRIVATE intel.f90)
