@@ -74,7 +74,7 @@ jobs:
     - name: Release build
       run: cmake --build --preset release
     - name: Release unit test
-      run: ctest --preset release -V
+      run: ctest --preset release -V -E Find
 
     - name: debug build
       run: cmake --build --preset debug
