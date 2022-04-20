@@ -1,7 +1,7 @@
 program test_find
 
 use, intrinsic :: iso_fortran_env, only : stderr => error_unit
-use filesystem, only : remove, get_filename, mkdir, make_absolute, sys_posix, touch
+use filesystem, only : remove, get_filename, mkdir, make_absolute, sys_posix, touch, is_file
 
 implicit none (type, external)
 
@@ -25,7 +25,7 @@ if(get_filename(' ') /= '') error stop 'empty 1'
 if(get_filename(' ',' ') /= '') error stop 'empty 2'
 !! " " instead of "" to avoid compile-time glitch error with GCC-10 with -Og
 
-call remove(th5)
+if(is_file(th5)) call remove(th5)
 
 if(len(get_filename(th5)) > 0) error stop 'not exist full 1'
 
@@ -63,7 +63,9 @@ if(get_filename('./' // name, name) /= './' // tnc) error stop 'exist parts 2a'
 call remove(tnc)
 
 call mkdir('temp1/temp2')
-call remove('temp1/temp2/' // th5)
+
+if(is_file('temp1/temp2/' // th5)) call remove('temp1/temp2/' // th5)
+
 fn = get_filename('temp1/temp2', name)
 if (fn /= '') error stop 'non-exist dir'
 open(newunit=i, file='temp1/temp2/' // th5, status='replace')
