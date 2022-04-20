@@ -48,8 +48,6 @@ else()
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL Clang AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0.0)
   # https://releases.llvm.org/9.0.0/projects/libcxx/docs/UsingLibcxx.html#using-filesystem
     # set(libfs c++fs)
-  elseif(CMAKE_CXX_COMPILER_ID MATCHES "^Intel" AND CMAKE_SYSTEM_NAME STREQUAL Linux)
-    set(libfs stdc++)
   endif()
 
   set(CMAKE_REQUIRED_LIBRARIES ${libfs})
