@@ -29,9 +29,8 @@ contains
 module procedure canonical
 
 character(kind=c_char, len=:), allocatable :: wk
-integer(c_long), parameter :: N = 4096
-character(kind=c_char):: c_buf(N)
-character(N) :: buf
+character(kind=c_char):: c_buf(MAXP)
+character(MAXP) :: buf
 integer :: i
 
 if(len_trim(path) == 0) then
@@ -45,11 +44,11 @@ wk = expanduser(path)
 
 if (wk(1:1) == ".") wk = get_cwd() // "/" // wk
 
-if(len(wk) > N) error stop "filesystem:canonical: path too long: " // wk
+if(len(wk) > MAXP) error stop "filesystem:canonical: path too long: " // wk
 
-call fullpath_c(c_buf, wk // c_null_char, N)
+call fullpath_c(c_buf, wk // c_null_char, MAXP)
 
-do i = 1,N
+do i = 1, MAXP
   if (c_buf(i) == c_null_char) exit
   buf(i:i) = c_buf(i)
 enddo
