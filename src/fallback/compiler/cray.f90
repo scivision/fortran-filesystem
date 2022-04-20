@@ -2,7 +2,7 @@ submodule (filesystem) cray_no_cpp_fs
 !! Cray external procedures
 !! Cray Fortran has stat() subroutine but unsure of API.
 
-use, intrinsic :: iso_fortran_env, only : int8
+use, intrinsic :: iso_fortran_env, only : int8, iostat_end
 
 implicit none (type, external)
 
@@ -45,7 +45,7 @@ open(newunit=u, file=wk, action='read', access='stream', status='old', iostat=ie
 is_dir = ierr /= 0
 if(is_dir) return
 read(u, iostat=ierr) x
-is_dir = ierr /= 0
+is_dir = ierr /= 0 .and. ierr /= iostat_end
 close(u)
 
 end procedure is_dir
