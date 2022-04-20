@@ -230,8 +230,7 @@ end function get_homedir
 end interface
 
 
-interface  ! {posix,windows}/crt.f90
-!! C Runtime Library procedures
+interface
 
 module function canonical(path, strict)
 character(:), allocatable :: canonical
@@ -252,7 +251,7 @@ end subroutine utime
 end interface
 
 
-interface !< {posix,windows}/sys.f90
+interface
 module subroutine copy_file(src, dest, overwrite)
 !! copy single file from src to dest
 !! OVERWRITES existing destination file
@@ -262,7 +261,7 @@ end subroutine copy_file
 end interface
 
 
-interface  !< {posix,windows}/path.f90
+interface
 module logical function is_absolute(path)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. filesystem
@@ -281,7 +280,7 @@ end function sys_posix
 end interface
 
 
-interface !< compiler/{intel,gcc}.f90
+interface
 
 module logical function is_dir(path)
 !! .true.: "path" is a directory OR symlink pointing to a directory

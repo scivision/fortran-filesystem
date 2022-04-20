@@ -1,6 +1,7 @@
 program test_cpp_fs
 !! test methods from C++ filesystem
 
+use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use filesystem, only : path_t, get_cwd, exists, sys_posix, get_tempdir, get_homedir
 
 implicit none (type, external)
@@ -8,8 +9,14 @@ implicit none (type, external)
 call test_exists()
 print *, "OK fs: exists"
 
-call test_tempdir()
-print *, "OK: tempdir, homedir"
+if (len_trim(get_homedir()) == 0) error stop "get_homedir failed"
+print *, "OK: get_homedir"
+
+if (len_trim(get_tempdir()) == 0) then
+  write(stderr,*) "get_tempdir failed"
+else
+  print *, "OK: get_tempdir"
+endif
 
 contains
 
@@ -26,20 +33,6 @@ if(.not. p1%exists()) error stop "%exists() failed"
 if(.not. exists(get_cwd())) error stop "exists(get_cwd) failed"
 
 end subroutine test_exists
-
-
-subroutine test_tempdir()
-
-character(:), allocatable :: temp, home
-
-
-home = get_homedir()
-if (len_trim(home) == 0) error stop "get_homedir failed"
-
-temp = get_tempdir()
-if (len_trim(temp) == 0) error stop "get_tempdir failed"
-
-end subroutine test_tempdir
 
 
 end program

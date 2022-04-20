@@ -32,6 +32,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    strategy:
+      matrix:
+        fallback: [true, false]
+
     steps:
     - uses: actions/checkout@v2
 
@@ -61,7 +65,7 @@ jobs:
 
     - name: Configure CMake
       timeout-minutes: 1
-      run: cmake --preset multi --install-prefix=${{ runner.temp }}
+      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dfallback:BOOL=${{ matrix.fallback }}
 
     - name: print config log
       if: ${{ failure() }}
@@ -70,12 +74,12 @@ jobs:
     - name: Release build
       run: cmake --build --preset release
     - name: Release unit test
-      run: ctest --preset release --schedule-random -V
+      run: ctest --preset release -V
 
     - name: debug build
       run: cmake --build --preset debug
     - name: debug unit test
-      run: ctest --preset debug --schedule-random -V
+      run: ctest --preset debug -V
 
     - name: install package
       run: cmake --install build

@@ -1,0 +1,24 @@
+add_library(filesystem filesystem.f90 general.f90
+${CMAKE_CURRENT_SOURCE_DIR}/../find.f90
+${CMAKE_CURRENT_SOURCE_DIR}/../iter.f90
+)
+set_target_properties(filesystem PROPERTIES
+Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include
+RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+)
+target_include_directories(filesystem PUBLIC
+$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+$<INSTALL_INTERFACE:include>
+)
+
+if(WIN32)
+  add_subdirectory(windows)
+else()
+  add_subdirectory(posix)
+endif()
+
+# --- OS-agnostic compiler depedent
+
+add_subdirectory(compiler)

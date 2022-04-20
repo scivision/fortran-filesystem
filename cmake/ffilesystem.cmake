@@ -1,17 +1,5 @@
 include(ExternalProject)
 
-if(NOT ffilesystem_external)
-  find_package(ffilesystem CONFIG)
-
-  if(ffilesystem_FOUND)
-    message(STATUS "Fortran Filesystem found: ${ffilesystem_DIR}")
-    return()
-  endif()
-endif()
-
-set(ffilesystem_external true CACHE BOOL "Fortran Filesystem autobuild")
-
-
 if(BUILD_SHARED_LIBS)
   if(WIN32)
     set(ffilesystem_LIBRARIES ${CMAKE_INSTALL_PREFIX}/bin/${CMAKE_SHARED_LIBRARY_PREFIX}filesystem${CMAKE_SHARED_LIBRARY_SUFFIX})
@@ -37,9 +25,7 @@ set(ffilesystem_cmake_args
 ExternalProject_Add(ffilesystem
 SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..
 CMAKE_ARGS ${ffilesystem_cmake_args}
-CMAKE_GENERATOR ${EXTPROJ_GENERATOR}
 BUILD_BYPRODUCTS ${ffilesystem_LIBRARIES}
-INACTIVITY_TIMEOUT 15
 CONFIGURE_HANDLED_BY_BUILD true
 )
 
@@ -48,7 +34,7 @@ file(MAKE_DIRECTORY ${ffilesystem_INCLUDE_DIRS})
 
 add_library(ffilesystem::filesystem INTERFACE IMPORTED)
 
-target_link_libraries(ffilesystem::filesystem INTERFACE ${ffilesystem_LIBRARIES} ${lib_filesystem})
+target_link_libraries(ffilesystem::filesystem INTERFACE ${ffilesystem_LIBRARIES})
 target_include_directories(ffilesystem::filesystem INTERFACE ${ffilesystem_INCLUDE_DIRS})
 set_target_properties(ffilesystem::filesystem PROPERTIES LINKER_LANGUAGE CXX)
 # target_link_libraries(ffilesystem::filesystem INTERFACE stdc++)  # did not help

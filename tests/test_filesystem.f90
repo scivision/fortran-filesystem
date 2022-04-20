@@ -2,7 +2,7 @@ program test_filesystem
 
 use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
 is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep, parent, &
-assert_is_dir, match, as_posix
+assert_is_dir, as_posix
 
 implicit none (type, external)
 
@@ -35,13 +35,10 @@ call test_root()
 print *, "OK: filesystem: root"
 
 call test_is_dir()
-print *," OK: filesystem: is_dir"
+print *, "OK: filesystem: is_dir"
 
 call test_absolute()
 print *, "OK: filesystem: absolute"
-
-call test_match()
-print *, "OK: match"
 
 contains
 
@@ -115,11 +112,11 @@ p2 = path_t("a")
 if (p1%file_name() /= "c") error stop "file_name failed"
 if (p2%file_name() /= "a") error stop "file_name idempotent failed"
 
-if(file_name(".config") /= ".config") error stop "file_name leading dot filename"
-if(file_name("./.config") /= ".config") error stop "file_name leading dot filename cwd"
-if(file_name(".config.txt") /= ".config.txt") error stop "file_name leading dot filename w/ext"
-if(file_name("./.config.txt") /= ".config.txt") error stop "file_name leading dot filename w/ext and cwd"
-if(file_name("../.config.txt") /= ".config.txt") error stop "file_name leading dot filename w/ext up"
+if(file_name("file_name") /= "file_name") error stop "file_name leading dot filename"
+if(file_name("./file_name") /= "file_name") error stop "file_name leading dot filename cwd"
+if(file_name("file_name.txt") /= "file_name.txt") error stop "file_name leading dot filename w/ext"
+if(file_name("./file_name.txt") /= "file_name.txt") error stop "file_name leading dot filename w/ext and cwd"
+if(file_name("../file_name.txt") /= "file_name.txt") error stop "file_name leading dot filename w/ext up"
 
 end subroutine test_filename
 
@@ -130,7 +127,7 @@ type(path_t) :: p1, p2
 
 if(suffix("") /= "") error stop "suffix empty"
 
-p1 = path_t("hi.a.b")
+p1 = path_t("suffix_name.a.b")
 
 if (p1%suffix() /= ".b") error stop "suffix failed"
 p2 = path_t(p1%suffix())
@@ -138,11 +135,11 @@ if (p2%suffix() /= "") error stop "suffix nest failed on " // p2%path()
 p2 = path_t(p2%suffix())
 if (p2%suffix() /= "") error stop "suffix idempotent failed"
 
-if(len_trim(suffix(".config")) /= 0) error stop "suffix leading dot filename"
-if(len_trim(suffix("./.config")) /= 0) error stop "suffix leading dot filename cwd"
-if(suffix(".config.txt") /= ".txt") error stop "suffix leading dot filename w/ext"
-if(suffix("./.config.txt") /= ".txt") error stop "suffix leading dot filename w/ext and cwd"
-if(suffix("../.config.txt") /= ".txt") error stop "suffix leading dot filename w/ext up"
+if(len_trim(suffix(".suffix")) /= 0) error stop "suffix leading dot filename: " // suffix(".suffix")
+if(len_trim(suffix("./.suffix")) /= 0) error stop "suffix leading dot filename cwd: " // suffix("./.suffix")
+if(suffix(".suffix.txt") /= ".txt") error stop "suffix leading dot filename w/ext"
+if(suffix("./.suffix.txt") /= ".txt") error stop "suffix leading dot filename w/ext and cwd"
+if(suffix("../.suffix.txt") /= ".txt") error stop "suffix leading dot filename w/ext up"
 
 end subroutine test_suffix
 
@@ -153,19 +150,18 @@ type(path_t) :: p1, p2
 
 if(stem("") /= "") error stop "stem empty: " // stem("")
 
-p1 = path_t("hi.a.b")
-if (p1%stem() /= "hi.a") error stop "stem failed"
+p1 = path_t("stem.a.b")
+if (p1%stem() /= "stem.a") error stop "stem failed"
 p2 = path_t(p1%stem())
-if (p2%stem() /= "hi") error stop "stem nest failed"
+if (p2%stem() /= "stem") error stop "stem nest failed"
 
-print *, stem("hi")
-if (stem("hi") /= "hi") error stop "stem idempotent failed: " // stem("hi")
+if (stem("stem") /= "stem") error stop "stem idempotent failed: " // stem("stem")
 
-if(stem(".config") /= ".config") error stop "stem leading dot filename"
-if(stem("./.config") /= ".config") error stop "stem leading dot filename cwd"
-if(stem(".config.txt") /= ".config") error stop "stem leading dot filename w/ext"
-if(stem("./.config.txt") /= ".config") error stop "stem leading dot filename w/ext and cwd"
-if(stem("../.config.txt") /= ".config") error stop "stem leading dot filename w/ext up"
+if(stem(".stem") /= ".stem") error stop "stem leading dot filename idempotent: " // stem(".stem")
+if(stem("./.stem") /= ".stem") error stop "stem leading dot filename cwd"
+if(stem(".stem.txt") /= ".stem") error stop "stem leading dot filename w/ext"
+if(stem("./.stem.txt") /= ".stem") error stop "stem leading dot filename w/ext and cwd"
+if(stem("../.stem.txt") /= ".stem") error stop "stem leading dot filename w/ext up"
 
 end subroutine test_stem
 
@@ -184,10 +180,10 @@ if (p2%parent() /= "a") error stop "parent nest failed" // p1%path()
 p2 = path_t("a")
 if (p2%parent() /= ".") error stop "parent idempotent failed. Expected '.', but got: " // p2%path()
 
-if(parent("./.config") /= ".") error stop "parent leading dot filename cwd"
-if(parent(".config.txt") /= ".") error stop "parent leading dot filename w/ext"
-if(parent("./.config.txt") /= ".") error stop "parent leading dot filename w/ext and cwd"
-if(parent("../../.config.txt") /= "../..") error stop "parent leading dot filename w/ext up"
+if(parent("./.parent") /= ".") error stop "parent leading dot filename cwd"
+if(parent(".parent.txt") /= ".") error stop "parent leading dot filename w/ext"
+if(parent("./.parent.txt") /= ".") error stop "parent leading dot filename w/ext and cwd"
+if(parent("../../.parent.txt") /= "../..") error stop "parent leading dot filename w/ext up"
 
 end subroutine test_parent
 
@@ -196,7 +192,7 @@ subroutine test_with_suffix()
 
 type(path_t) :: p1, p2
 
-if(with_suffix("", ".h5") /= "") error stop "with_suffix empty"
+if(with_suffix("", ".h5") /= "") error stop "with_suffix empty: " // with_suffix("", ".h5")
 if(with_suffix("foo.h5", "") /= "foo") error stop "with_suffix foo.h5 to ''"
 if(with_suffix(".h5", "") /= ".h5") error stop "with_suffix .h5 to .h5"
 if(with_suffix(".h5", ".h5") /= ".h5.h5") error stop "with_suffix .h5.h5"
@@ -254,7 +250,7 @@ if(sys_posix()) then
   if(.not. is_dir("/")) error stop "is_dir('/') failed"
 else
   r = root(get_cwd())
-  print *, "root drive: ", r
+  ! print *, "test_is_dir: root drive: ", r
   if(.not. is_dir(r)) error stop "is_dir('" // r // "') failed"
 endif
 
@@ -299,24 +295,6 @@ else
 endif
 
 end subroutine test_absolute
-
-
-subroutine test_match()
-
-type(path_t) :: p
-
-if(.not. match("", "")) error stop "match empty"
-
-if(.not. match("abc", "abc")) error stop "match exact failed"
-if(.not. match("abc", "a.*")) error stop "match wildcard failed"
-
-if(.not. match("/abc", "a.c")) error stop "match() dot failed"
-p = path_t("/abc")
-if(.not. p%match("a.c")) error stop "%match dot failed"
-
-if(.not. match("abc34v", "a.c\d{2}")) error stop "match decimal failed"
-
-end subroutine test_match
 
 
 end program

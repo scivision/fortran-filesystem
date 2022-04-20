@@ -11,7 +11,7 @@ The library also provides header
 that can be used from C and C++ project code--see
 [examples](./examples).
 This Fortran library uses
-[C++17 filesystem](https://en.cppreference.com/w/cpp/filesystem)
+[C++ stdlib filesystem](https://en.cppreference.com/w/cpp/filesystem)
 internally.
 Also inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html).
@@ -33,14 +33,14 @@ Due to compiler limitations, currently Fortran-filesystem only officially suppor
 
 ## Compiler support
 
-Full C++17 filesystem support and hence full Fortran-filesystem features are available with any of these compilers:
+Full C++ filesystem support and hence full Fortran-filesystem features are available with any of these compilers:
 
 * GCC &ge; 8
 * Clang &ge; 7
 * Intel oneAPI (icx, ifx, icpc, ifort, icl)
 * Cray (when using GCC backend and libstdc++)
 
-Fortran-filesystem has a large subset of features when used with older compilers that have C++17 "experimental" filesystem support, such as:
+Fortran-filesystem has a large subset of features when used with older compilers that have C++ "experimental/filesystem" support, such as:
 
 * GCC 7
 * Clang 6
@@ -50,6 +50,17 @@ Expected to work with other
 and Fortran 2008 compilers yet to be tested.
 E.g. IBM XL, NAG, et al.
 In particular, the compiler and the libstdc++ must both support filesystem as well as Fortran 2008.
+
+Certain systems may have old or broken libstdc++.
+We provide a limited fallback set of filesystem features using the C runtime library and our own Fortran routines.
+This fallback should be enabled automatically when C++ filesystem is not available.
+To force enable the fallback routines, for example for testing:
+
+```sh
+cmake -B build -Dfallback=on
+```
+
+The installed CMake package provides BOOL CMake variable `ffilesystem_fallback` that can be used to check if the fallback routines are enabled.
 
 ## Build
 
@@ -116,5 +127,5 @@ At this time, these compilers aren't supported for reasons including:
 #### Nvidia HPC-SDK
 
 nvfortran 22.1 does not support `character(:), allocatable` from Fortran 2003, which is used everywhere in filesystem.
-nvc++ 22.1 does not support C++17 filesystem, which is essential for filesystem.
+nvc++ 22.1 does not support C++ filesystem, which is essential for filesystem.
 New Fortran language standard features aren't being added to nvfortran until the Flang f18 LLVM project is ready to use. I would estimate this as being in a couple years from now.

@@ -13,11 +13,20 @@ target_link_libraries(test_cpp_fs PRIVATE filesystem)
 add_test(NAME CPP_filesystem COMMAND test_cpp_fs)
 
 # --- relative_to
+if(NOT fallback)
 add_executable(test_relative_to test_cpp_relative.f90)
 target_link_libraries(test_relative_to PRIVATE filesystem)
 add_test(NAME relative_to COMMAND test_relative_to)
 if(HAVE_CXX_FILESYSTEM)
   set_tests_properties(relative_to PROPERTIES PASS_REGULAR_EXPRESSION "OK: relative_to full")
+endif()
+endif()
+
+# --- regex
+if(NOT fallback)
+add_executable(test_match test_match.f90)
+target_link_libraries(test_match PRIVATE filesystem)
+add_test(NAME match COMMAND test_match)
 endif()
 
 # --- file parts
@@ -31,9 +40,11 @@ target_link_libraries(test_expanduser PRIVATE filesystem)
 add_test(NAME Expanduser COMMAND test_expanduser)
 
 # -- symlink
+if(NOT fallback)
 add_executable(test_symlink test_symlink.f90)
 target_link_libraries(test_symlink PRIVATE filesystem)
 add_test(NAME symlink COMMAND test_symlink)
+endif()
 
 # --- canonical
 add_executable(test_canonical test_canonical.f90)
@@ -49,9 +60,11 @@ target_link_libraries(test_filesize PRIVATE filesystem)
 add_test(NAME FileSize COMMAND test_filesize)
 
 # --- exe detect
+if(NOT fallback)
 add_executable(test_exe test_exe.f90)
 target_link_libraries(test_exe PRIVATE filesystem)
 add_test(NAME ExeDetect COMMAND test_exe)
+endif()
 
 # --- file ops
 add_executable(test_fileops test_fileop.f90)
@@ -64,11 +77,13 @@ WORKING_DIRECTORY $<TARGET_FILE_DIR:test_fileops>
 # workdir avoids test state being shared between tests
 
 # --- read/write text file
+if(NOT fallback)
 add_executable(test_rw_text test_rw_text.f90)
 target_link_libraries(test_rw_text PRIVATE filesystem)
 add_test(NAME ReadWriteText
 COMMAND test_rw_text ${CMAKE_CURRENT_BINARY_DIR}/test_rw_text.txt
 )
+endif()
 
 # --- find
 add_executable(test_find test_find.f90)
@@ -77,19 +92,13 @@ add_test(NAME Find COMMAND test_find)
 
 # --- props
 
-set_target_properties(test_filesystem test_cpp_fs test_find test_rw_text test_filesize
-test_fileops test_exe test_symlink test_expanduser test_canonical test_filesystem_parts
-test_relative_to
-PROPERTIES
-LINKER_LANGUAGE Fortran
-)
+get_property(test_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
+set_target_properties(${test_targets} PROPERTIES LINKER_LANGUAGE Fortran)
 # for Intel compiler
 
-set_tests_properties(filesystem Canonical FileOps FileParts Find ExeDetect FileSize Expanduser ReadWriteText symlink
-PROPERTIES
-TIMEOUT 20
-RUN_SERIAL true  # tests run much faster, especially on Windows
-)
+get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
+set_tests_properties(${test_names} PROPERTIES RUN_SERIAL true)
+# tests run much faster in serial, especially on Windows
 
 # --- coverage
 

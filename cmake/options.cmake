@@ -1,12 +1,7 @@
+option(fallback "Don't use C++ filesystem, limited functionality")
 option(ENABLE_COVERAGE "Code coverage tests")
-
 option(BUILD_UTILS "Build utils e.g. CLI")
 
-if(CMAKE_GENERATOR STREQUAL "Ninja Multi-Config")
-  set(EXTPROJ_GENERATOR "Ninja")
-else()
-  set(EXTPROJ_GENERATOR ${CMAKE_GENERATOR})
-endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/Modules)
 

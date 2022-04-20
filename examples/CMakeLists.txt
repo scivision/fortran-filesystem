@@ -6,11 +6,7 @@ LANGUAGES C CXX Fortran
 
 enable_testing()
 
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR} CACHE PATH "Install top-level directory" FORCE)
-endif()
-
-include(${PROJECT_SOURCE_DIR}/../cmake/ffilesystem.cmake)
+find_package(ffilesystem CONFIG REQUIRED)
 
 # --- Fortran use of our custom C++ functions
 add_executable(ex_fortran ex1.f90)
@@ -26,6 +22,7 @@ endif()
 
 add_test(NAME ExFortran COMMAND ex_fortran)
 
+if(NOT ffilesystem_fallback)
 # --- C++ use of our custom C++ functions
 add_executable(ex_cpp ex2.cpp)
 target_link_libraries(ex_cpp PRIVATE ffilesystem::filesystem)
@@ -38,11 +35,11 @@ target_link_libraries(ex_c PRIVATE ffilesystem::filesystem)
 set_target_properties(ex_c PROPERTIES LINKER_LANGUAGE CXX)
 
 add_test(NAME ExC COMMAND ex_c)
+endif()
 
 # --- test properties
-set_tests_properties(ExFortran ExCpp ExC PROPERTIES
-TIMEOUT 10
-)
+get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
+set_tests_properties(${test_names} PROPERTIES TIMEOUT 10)
 
 # --- Windows shared DLLs
 if(WIN32 AND BUILD_SHARED_LIBS)
