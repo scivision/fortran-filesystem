@@ -12,11 +12,20 @@ option(intel "use intel compiler instead of default GCC")
 # the module commands only affect the current process, not the parent shell
 if(intel)
   cmake_path(SET BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build-intel)
-  set(CXXFLAGS --gcc-toolchain=/opt/cray/pe/gcc/11.2.0/snos)
+  if(NOT DEFINED ENV{CXXFLAGS})
+    set(ENV{CXXFLAGS} --gcc-toolchain=/opt/cray/pe/gcc/11.2.0/snos)
+  endif()
   # GCC >= 9.1 must be used for C++17 filesystem
 else()
   cmake_path(SET BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build)
 endif()
+
+set(cmake_args)
+if(CMAKE_INSTALL_PREFIX)
+  list(APPEND cmake_args -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX})
+endif()
+
+# --- modules
 
 find_package(EnvModules REQUIRED)
 
@@ -51,11 +60,7 @@ if(NOT intel)
 endif()
 
 execute_process(
-COMMAND ${CMAKE_COMMAND}
-  -S${CMAKE_CURRENT_LIST_DIR}
-  -B${BINARY_DIR}
-  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
-  -DCMAKE_CXX_FLAGS=${CXXFLAGS}
+COMMAND ${CMAKE_COMMAND} -S${CMAKE_CURRENT_LIST_DIR} -B${BINARY_DIR} ${cmake_args}
 COMMAND_ERROR_IS_FATAL ANY
 )
 
