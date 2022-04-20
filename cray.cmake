@@ -2,6 +2,8 @@
 # canNOT use from Project CMakeLists.txt
 # it's OK to run again if you're not sure if it was already run.
 #
+# NOTE: your system may have different versions/paths, treat this like a template.
+#
 # NOTE: to specify install directory, run like:
 #   cmake -DCMAKE_INSTALL_PREFIX=<install_dir> -P cray.cmake
 
