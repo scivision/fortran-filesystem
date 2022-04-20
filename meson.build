@@ -1,5 +1,5 @@
 project('ffilesystem', 'c', 'cpp', 'fortran',
-version: '3.3.0',
+version: '3.4.0',
 meson_version: '>= 0.55.0',
 default_options : ['cpp_std=c++17'])
 
@@ -25,8 +25,13 @@ ret_symlink = cpp.run(check_sym, name: 'has_symlink', dependencies: fs_dep, args
 has_symlink = ret_symlink.returncode() == 0
 
 has_filesys = cpp.has_header_symbol('filesystem', '__cpp_lib_filesystem')
-if not has_filesys
+if has_filesys
+  has_experimental_filesys = false
+else
   has_experimental_filesys = cpp.check_header('experimental/filesystem')
+endif
+if not (has_filesys or has_experimental_filesys)
+  error('C++ filesystem stdlib support not found')
 endif
 
 # --- filesystem binary
