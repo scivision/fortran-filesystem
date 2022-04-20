@@ -51,16 +51,37 @@ and Fortran 2008 compilers yet to be tested.
 E.g. IBM XL, NAG, et al.
 In particular, the compiler and the libstdc++ must both support filesystem as well as Fortran 2008.
 
-Certain systems may have old or broken libstdc++.
-We provide a limited fallback set of filesystem features using the C runtime library and our own Fortran routines.
+For compilers without functioning C++ filesystem, we provide a limited fallback set of filesystem features using the C runtime library and our own Fortran routines.
 This fallback should be enabled automatically when C++ filesystem is not available.
+The installed CMake package provides BOOL CMake variable `ffilesystem_fallback` that can be used to check if the fallback routines are enabled.
 To force enable the fallback routines, for example for testing:
 
 ```sh
 cmake -B build -Dfallback=on
 ```
 
-The installed CMake package provides BOOL CMake variable `ffilesystem_fallback` that can be used to check if the fallback routines are enabled.
+### libstdc++
+
+Some systems have broken, obsolete, or incompatible libstdc++.
+
+**Intel**: If Intel compiler linker errors use GCC >= 9.1.
+This can be done by setting environment variable CXXFLAGS to the top level GCC >= 9.1 directory.
+Set environment variable CXXFLAGS for
+[Intel GCC toolchain](https://www.intel.com/content/www/us/en/develop/documentation/oneapi-dpcpp-cpp-compiler-dev-guide-and-reference/top/compiler-reference/compiler-options/compiler-option-details/compatibility-options/gcc-toolchain.html)
+like:
+
+```sh
+export CXXFLAGS=--gcc-toolchain=/opt/rh/gcc-toolset-10/root/usr/
+```
+
+which can be determined like:
+
+```sh
+scl enable gcc-toolset-10 "which g++"
+```
+
+**Cray PE** works with GCC or Intel backends.
+The Cray compiler itself works with the non-C++ fallback.
 
 ## Build
 

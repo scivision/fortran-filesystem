@@ -49,8 +49,6 @@ else()
   # https://releases.llvm.org/9.0.0/projects/libcxx/docs/UsingLibcxx.html#using-filesystem
     # set(libfs c++fs)
   elseif(CMAKE_CXX_COMPILER_ID MATCHES "^Intel" AND CMAKE_SYSTEM_NAME STREQUAL Linux)
-    # NOTE: Intel compiler must use GCC >= 9 else you get linker errors, even with -lstdc++fs
-    # e.g. on CentOS / RHEL use gcc-toolset-9 or similar
     set(libfs stdc++)
   endif()
 
@@ -137,7 +135,6 @@ endif()
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
 
 add_compile_options(
-$<IF:$<BOOL:${WIN32}>,/QxHost,-xHost>
 "$<$<COMPILE_LANGUAGE:Fortran>:-warn;-heap-arrays>"
 "$<$<COMPILE_LANGUAGE:C,CXX>:-Wall>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug,RelWithDebInfo>>:-traceback;-check;-debug>"
