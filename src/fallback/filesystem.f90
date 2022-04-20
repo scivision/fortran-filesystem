@@ -216,7 +216,7 @@ module integer(int64) function file_size(path)
 character(*), intent(in) :: path
 end function file_size
 
-module logical function root(path)
+module function root(path)
 !! returns root of path
 character(*), intent(in) :: path
 character(:), allocatable :: root

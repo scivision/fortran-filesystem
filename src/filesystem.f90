@@ -268,7 +268,7 @@ module logical function is_absolute(path)
 character(*), intent(in) :: path
 end function is_absolute
 
-module logical function root(path)
+module function root(path)
 !! returns root of path
 character(*), intent(in) :: path
 character(:), allocatable :: root
