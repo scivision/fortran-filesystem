@@ -53,22 +53,39 @@ character(:), allocatable :: path_str
 
 contains
 
-procedure, public :: path=>get_path, &
-length, join=>fs_join, parts=>fs_parts, relative_to=>fs_relative_to, &
-normal=>fs_normal, &
-exists=>fs_exists, match=>fs_match, &
-is_file=>fs_is_file, is_dir=>fs_is_dir, is_absolute=>fs_is_absolute, &
-is_symlink=>fs_is_symlink, create_symlink=>fs_create_symlink, &
-copy_file=>fs_copy_file, mkdir=>fs_mkdir, &
-touch=>fs_touch, &
-parent=>fs_parent, file_name=>fs_file_name, stem=>fs_stem, &
-root=>fs_root, suffix=>fs_suffix, &
-as_posix=>fs_as_posix, expanduser=>fs_expanduser, &
-with_suffix=>fs_with_suffix, &
-resolve=>fs_resolve, same_file=>fs_same_file, is_exe=>fs_is_exe, &
-remove=>fs_unlink, file_size=>fs_file_size, &
-read_text=>fs_read_text, write_text=>fs_write_text, &
-chmod_exe=>fs_chmod_exe, chmod_no_exe=>fs_chmod_no_exe
+procedure, public :: path=>get_path
+procedure, public :: length
+procedure, public :: join=>fs_join
+procedure, public :: parts=>fs_parts
+procedure, public :: relative_to=>fs_relative_to
+procedure, public :: normal=>fs_normal
+procedure, public :: exists=>fs_exists
+procedure, public :: match=>fs_match
+procedure, public :: is_file=>fs_is_file
+procedure, public :: is_dir=>fs_is_dir
+procedure, public :: is_absolute=>fs_is_absolute
+procedure, public :: is_symlink=>fs_is_symlink
+procedure, public :: create_symlink=>fs_create_symlink
+procedure, public :: copy_file=>fs_copy_file
+procedure, public :: mkdir=>fs_mkdir
+procedure, public :: touch=>fs_touch
+procedure, public :: parent=>fs_parent
+procedure, public :: file_name=>fs_file_name
+procedure, public :: stem=>fs_stem
+procedure, public :: root=>fs_root
+procedure, public :: suffix=>fs_suffix
+procedure, public :: as_posix=>fs_as_posix
+procedure, public :: expanduser=>fs_expanduser
+procedure, public :: with_suffix=>fs_with_suffix
+procedure, public :: resolve=>fs_resolve
+procedure, public :: same_file=>fs_same_file
+procedure, public :: is_exe=>fs_is_exe
+procedure, public :: remove=>fs_unlink
+procedure, public :: file_size=>fs_file_size
+procedure, public :: read_text=>fs_read_text
+procedure, public :: write_text=>fs_write_text
+procedure, public :: chmod_exe=>fs_chmod_exe
+procedure, public :: chmod_no_exe=>fs_chmod_no_exe
 
 end type path_t
 

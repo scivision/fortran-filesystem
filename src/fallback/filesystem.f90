@@ -48,18 +48,30 @@ character(:), allocatable :: path_str
 
 contains
 
-procedure, public :: path=>get_path, &
-length, join=>fs_join, parts=>fs_parts, relative_to=>fs_relative_to, &
-exists=>fs_exists, &
-is_file=>fs_is_file, is_dir=>fs_is_dir, is_absolute=>fs_is_absolute, &
-copy_file=>fs_copy_file, mkdir=>fs_mkdir, &
-touch=>fs_touch, &
-parent=>fs_parent, file_name=>fs_file_name, stem=>fs_stem, &
-root=>fs_root, suffix=>fs_suffix, &
-as_posix=>fs_as_posix, expanduser=>fs_expanduser, &
-with_suffix=>fs_with_suffix, &
-resolve=>fs_resolve, same_file=>fs_same_file, &
-remove=>fs_unlink, file_size=>fs_file_size
+procedure, public :: path=>get_path
+procedure, public :: length
+procedure, public :: join=>fs_join
+procedure, public :: parts=>fs_parts
+procedure, public :: relative_to=>fs_relative_to
+procedure, public :: exists=>fs_exists
+procedure, public :: is_file=>fs_is_file
+procedure, public :: is_dir=>fs_is_dir
+procedure, public :: is_absolute=>fs_is_absolute
+procedure, public :: copy_file=>fs_copy_file
+procedure, public :: mkdir=>fs_mkdir
+procedure, public :: touch=>fs_touch
+procedure, public :: parent=>fs_parent
+procedure, public :: file_name=>fs_file_name
+procedure, public :: stem=>fs_stem
+procedure, public :: root=>fs_root
+procedure, public :: suffix=>fs_suffix
+procedure, public :: as_posix=>fs_as_posix
+procedure, public :: expanduser=>fs_expanduser
+procedure, public :: with_suffix=>fs_with_suffix
+procedure, public :: resolve=>fs_resolve
+procedure, public :: same_file=>fs_same_file
+procedure, public :: remove=>fs_unlink
+procedure, public :: file_size=>fs_file_size
 
 end type path_t
 
