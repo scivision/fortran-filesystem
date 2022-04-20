@@ -12,7 +12,7 @@ error stop "filesystem: is_dir " // tail
 end procedure is_dir
 
 module procedure get_cwd
-get_cwd = .false.
+get_cwd = ""
 error stop "filesystem: get_cwd() " // tail
 end procedure get_cwd
 
