@@ -1,4 +1,10 @@
 option(fallback "Don't use C++ filesystem, limited functionality")
+option(fallback_auto "enable ability to fallback (default off to prevent unintended missing features)")
+if(fallback)
+  # user requested, don't force them to set both options
+  set(fallback_auto true)
+endif()
+
 option(ENABLE_COVERAGE "Code coverage tests")
 option(BUILD_UTILS "Build utils e.g. CLI")
 

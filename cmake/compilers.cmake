@@ -75,10 +75,13 @@ if(HAVE_CXX_FILESYSTEM)
 elseif(HAVE_CXX_EXPERIMENTAL_FILESYSTEM)
   message(STATUS "Using deprecated experimental/filesystem, some functionality is limited.")
 else()
-  message(STATUS "C++ filesystem support is not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}
-  enabling fallback filesystem library with limited functionality."
+  message(STATUS "C++ filesystem support is not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}"
   )
   set(fallback true)
+endif()
+
+if(fallback AND NOT fallback_auto)
+  message(FATAL_ERROR "filesystem C++ fallback was requested, but not auto-enabled")
 endif()
 
 if(NOT fallback)

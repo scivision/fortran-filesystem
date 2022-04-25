@@ -60,6 +60,13 @@ To force enable the fallback routines, for example for testing:
 cmake -B build -Dfallback=on
 ```
 
+Note: to avoid end users missing features inadvertently, by default the fallback is disabled unless requested or enabled.
+To allow automatic fallback, set:
+
+```sh
+cmake -B build -Dfallback_auto=on
+```
+
 ### libstdc++
 
 Some systems have broken, obsolete, or incompatible libstdc++.
