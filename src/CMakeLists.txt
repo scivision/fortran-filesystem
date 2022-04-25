@@ -32,4 +32,4 @@ target_compile_features(filesystem_cpp PRIVATE cxx_std_17)
 target_compile_definitions(filesystem_cpp PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
 
 target_sources(filesystem PRIVATE fs_cpp.f90 $<TARGET_OBJECTS:filesystem_cpp>)
-target_link_libraries(filesystem PUBLIC ${libfs})
+target_link_libraries(filesystem INTERFACE ${CMAKE_REQUIRED_LIBRARIES})

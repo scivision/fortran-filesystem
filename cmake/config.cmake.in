@@ -9,4 +9,8 @@ else()
   set(ffilesystem_fallback true)
 endif()
 
+target_link_libraries(ffilesystem::filesystem INTERFACE
+$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:${CMAKE_CXX_COMPILER_VERSION},9.1.0>>:stdc++fs>
+)
+
 check_required_components(@PROJECT_NAME@)
