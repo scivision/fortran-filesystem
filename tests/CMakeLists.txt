@@ -96,8 +96,14 @@ add_test(NAME Find COMMAND test_find)
 # --- props
 
 get_property(test_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
-set_target_properties(${test_targets} PROPERTIES LINKER_LANGUAGE Fortran)
-# for Intel compiler
+if(CMAKE_CXX_COMPILER_ID MATCHES "^Intel")
+  # Intel needs linker_language fortran else error "undefined reference to `main'"
+  set_target_properties(${test_targets} PROPERTIES LINKER_LANGUAGE Fortran)
+else()
+  # setting linker language ensures stdc++ is linked, else hundreds of linker errors
+  set_target_properties(${test_targets} PROPERTIES LINKER_LANGUAGE CXX)
+endif()
+
 
 get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
 set_tests_properties(${test_names} PROPERTIES RUN_SERIAL true)
