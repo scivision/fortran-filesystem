@@ -25,6 +25,8 @@ add_test(NAME ExFortran COMMAND ex_fortran)
 if(NOT ffilesystem_fallback)
 # --- C++ use of our custom C++ functions
 add_executable(ex_cpp ex2.cpp)
+target_compile_features(ex_cpp PRIVATE cxx_std_17)
+set_target_properties(ex_cpp PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(ex_cpp PRIVATE ffilesystem::filesystem)
 
 add_test(NAME ExCpp COMMAND ex_cpp)
