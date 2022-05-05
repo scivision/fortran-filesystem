@@ -8,9 +8,9 @@ target_link_libraries(test_filesystem PRIVATE filesystem)
 add_test(NAME filesystem COMMAND test_filesystem)
 
 # --- C++ filesystem methods
-add_executable(test_cpp_fs test_cpp_fs.f90)
-target_link_libraries(test_cpp_fs PRIVATE filesystem)
-add_test(NAME CPP_filesystem COMMAND test_cpp_fs)
+add_executable(test_core_fs test_cpp_fs.f90)
+target_link_libraries(test_core_fs PRIVATE filesystem)
+add_test(NAME core COMMAND test_core_fs)
 
 # --- relative_to
 if(NOT fallback)
@@ -93,17 +93,37 @@ add_executable(test_find test_find.f90)
 target_link_libraries(test_find PRIVATE filesystem)
 add_test(NAME Find COMMAND test_find)
 
+# --- C / C++ interface
+if(NOT fallback)
+add_executable(test_cpp_ifc test_cpp_ifc.cpp)
+target_compile_features(test_cpp_ifc PRIVATE cxx_std_17)
+target_link_libraries(test_cpp_ifc PRIVATE filesystem ${CMAKE_REQUIRED_LIBRARIES})
+target_include_directories(test_cpp_ifc PRIVATE ${PROJECT_SOURCE_DIR}/src)
+set_target_properties(test_cpp_ifc PROPERTIES
+LABELS cpp
+LINKER_LANGUAGE CXX
+)
+add_test(NAME CPP_interface COMMAND test_cpp_ifc)
+endif()
 # --- props
 
 get_property(test_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
-if(CMAKE_CXX_COMPILER_ID MATCHES "^Intel")
-  # Intel needs linker_language fortran else error "undefined reference to `main'"
-  set_target_properties(${test_targets} PROPERTIES LINKER_LANGUAGE Fortran)
-else()
-  # setting linker language ensures stdc++ is linked, else hundreds of linker errors
-  set_target_properties(${test_targets} PROPERTIES LINKER_LANGUAGE CXX)
-endif()
+foreach(t IN LISTS test_targets)
+  get_target_property(tlbl ${t} LABELS)
+  if("cpp" IN_LIST tlbl)
+    get_target_property(tlang ${t} LINKER_LANGUAGE)
+    message(VERBOSE "link_language: ${tlang} ${t}")
+    continue()
+  endif()
 
+  if(CMAKE_CXX_COMPILER_ID MATCHES "^Intel")
+    # Intel needs linker_language fortran else error "undefined reference to `main'"
+    set_target_properties(${t} PROPERTIES LINKER_LANGUAGE Fortran)
+  else()
+    # setting linker language ensures stdc++ is linked, else hundreds of linker errors
+    set_target_properties(${t} PROPERTIES LINKER_LANGUAGE CXX)
+  endif()
+endforeach()
 
 get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
 set_tests_properties(${test_names} PROPERTIES RUN_SERIAL true)
