@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19...3.23)
+cmake_minimum_required(VERSION 3.19)
 # 3.19 for CONFIG:list genex
 
 project(ffilesystem

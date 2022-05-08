@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21...3.23)
+cmake_minimum_required(VERSION 3.20)
 
 project(FilesystemExample
 LANGUAGES C CXX Fortran

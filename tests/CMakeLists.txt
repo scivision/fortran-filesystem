@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.21...3.22)
-
 set_directory_properties(PROPERTIES LABELS unit)
 
 # --- base class
