@@ -5,7 +5,7 @@
 [![oneapi-linux](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml)
 [![ci_meson](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml)
 
-Platform independent (Linux, macOS, Windows), object-oriented Fortran filesystem path manipulation library.
+Platform independent (Linux, macOS, Windows, Cygwin, WSL, ...), object-oriented Fortran filesystem path manipulation library.
 The library also provides header
 [filesystem.h](./src/filesystem.h)
 that can be used from C and C++ project code--see
