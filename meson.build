@@ -1,5 +1,5 @@
 project('ffilesystem', 'c', 'cpp', 'fortran',
-version: '3.4.0',
+version: '3.4.3',
 meson_version: '>= 0.55.0',
 default_options : ['cpp_std=c++17'])
 
@@ -10,18 +10,11 @@ cpp = meson.get_compiler('cpp')
 
 if cpp.get_id() == 'gcc' and cpp.version().version_compare('<9.1.0')
   fs_dep = cpp.find_library('stdc++fs', required : true)
-  fs_ld = []
-elif cpp.get_id() == 'clang' and cpp.version().version_compare('<9.0.0')
-# https://releases.llvm.org/9.0.0/projects/libcxx/docs/UsingLibcxx.html#using-filesystem
-  fs_dep = []
-  fs_ld = []
-  # '-lc++fs' /usr/bin/ld c++fs not found with clang 7 or 8, works without flag on Linux despite docs. Maybe due to G++ being newer?
 else
   fs_dep = []
-  fs_ld = []
 endif
 
-ret_symlink = cpp.run(check_sym, name: 'has_symlink', dependencies: fs_dep, args: fs_ld)
+ret_symlink = cpp.run(check_sym, name: 'has_symlink', dependencies: fs_dep)
 has_symlink = ret_symlink.returncode() == 0
 
 has_filesys = cpp.has_header_symbol('filesystem', '__cpp_lib_filesystem')

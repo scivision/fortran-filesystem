@@ -4,7 +4,13 @@ test('base', test_filesystem)
 
 # --- C++17 filesystem methods
 test_cpp_fs = executable('test_cpp_fs', 'test_cpp_fs.f90', link_with: filesystem)
-test('CPP_filesystem', test_cpp_fs)
+test('ffilesystem core', test_cpp_fs)
+
+test_relto = executable('test_relto', 'test_cpp_relative.f90', link_with: filesystem)
+test('relative to', test_relto)
+
+test_match = executable('test_match', 'test_match.f90', link_with: filesystem)
+test('match', test_match)
 
 # --- file parts
 test_filesystem_parts = executable('test_filesystem_parts', 'test_parts.f90', link_with: filesystem)
@@ -41,3 +47,10 @@ test('ReadWriteText', test_rw_text, args: [meson.current_build_dir() / 'test_rw_
 # --- find
 test_find = executable('test_find', 'test_find.f90', link_with: filesystem)
 test('Find', test_find)
+
+# --- test C++ interface
+test_cpp = executable('test_cpp', 'test_cpp_ifc.cpp',
+include_directories: '../src',
+link_with: filesystem
+)
+test('C++ interface', test_cpp, timeout: 10)
