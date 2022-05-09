@@ -416,7 +416,7 @@ extern "C" bool equivalent(const char* path1, const char* path2) {
 
   std::error_code ec;
 
-  if (! (fs::exists(p1, ec) & fs::exists(p2, ec)) ) return false;
+  if (! (fs::exists(p1, ec) && fs::exists(p2, ec)) ) return false;
 
   if(ec) {
     std::cerr << "ERROR:filesystem:equivalent: " << ec.message() << std::endl;
@@ -478,7 +478,7 @@ extern "C" bool copy_file(const char* source, const char* destination, bool over
 extern "C" size_t relative_to(const char* a, const char* b, char* result) {
 
   // library bug handling
-  if( (strlen(a) == 0) | (strlen(b) == 0) ) {
+  if( (strlen(a) == 0) || (strlen(b) == 0) ) {
     // undefined case, avoid bugs with MacOS
     result = NULL;
     return 0;
@@ -532,7 +532,7 @@ extern "C" bool touch(const char* path) {
     }
   }
 
-  if (fs::exists(s) & !fs::is_regular_file(s)) return false;
+  if (fs::exists(s) && !fs::is_regular_file(s)) return false;
 
   if(!fs::is_regular_file(s)) {
     std::ofstream ost;
