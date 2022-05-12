@@ -243,6 +243,7 @@ character(:), allocatable :: r
 integer :: i
 
 type(path_t) :: p1,p2,p3
+character(:), allocatable :: iwa
 
 if(is_dir("")) error stop "is_dir empty should be false"
 
@@ -260,8 +261,9 @@ if(.not. p1%is_dir()) error stop "did not detect '.' as directory"
 if(p1%is_file()) error stop "detected '.' as file"
 call assert_is_dir(".")
 
-p2 = path_t('test-filesystem.h5')
-open(newunit=i, file=p2%path(), status='replace')
+iwa = 'test-filesystem.h5'
+p2 = path_t(iwa)
+open(newunit=i, file=iwa, status='replace')
 close(i)
 
 if (p2%is_dir()) error stop "detected file as directory"

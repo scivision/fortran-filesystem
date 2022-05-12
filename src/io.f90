@@ -9,8 +9,11 @@ contains
 module procedure write_text
 
 integer :: u
+character(:), allocatable :: iwa
 
-open(newunit=u, file=expanduser(filename), status='unknown', action='write')
+iwa = expanduser(filename)
+
+open(newunit=u, file=iwa, status='unknown', action='write')
 write(u,'(A)') text
 close(u)
 
@@ -27,8 +30,11 @@ if(present(max_length)) L = max_length
 block
 integer :: u
 character(L) :: buf
+character(:), allocatable :: iwa
 
-open(newunit=u, file=expanduser(filename), status='old', action='read')
+iwa = expanduser(filename)
+
+open(newunit=u, file=iwa, status='old', action='read')
 read(u,'(A)') buf
 close(u)
 

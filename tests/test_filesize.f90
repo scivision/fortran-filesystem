@@ -6,12 +6,15 @@ implicit none (type, external)
 
 integer :: u, d(10)
 type(path_t) :: p1
+character(:), allocatable :: iwa
+
+iwa = "test_size.bin"
 
 d = 0
 
-p1 = path_t("test_size.bin")
+p1 = path_t(iwa)
 
-open(newunit=u, file=p1%path(), status="replace", action="write", access="stream")
+open(newunit=u, file=iwa, status="replace", action="write", access="stream")
 ! writing text made OS-specific newlines that could not be suppressed
 write(u) d
 close(u)
