@@ -102,7 +102,20 @@ LABELS cpp
 LINKER_LANGUAGE CXX
 )
 add_test(NAME CPP_interface COMMAND test_cpp_ifc)
-endif()
+
+add_executable(test_c_ifc test_c_ifc.c)
+set_target_properties(test_c_ifc PROPERTIES
+LABELS cpp
+LINKER_LANGUAGE C
+)
+target_link_libraries(test_c_ifc PRIVATE filesystem ${CMAKE_REQUIRED_LIBRARIES})
+target_include_directories(test_c_ifc PRIVATE ${PROJECT_SOURCE_DIR}/src)
+add_test(NAME C_interface COMMAND test_c_ifc)
+
+endif(NOT fallback)
+
+
+
 # --- props
 
 get_property(test_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
