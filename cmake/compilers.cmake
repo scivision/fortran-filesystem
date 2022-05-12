@@ -128,13 +128,19 @@ endif()
 
 # --- flags
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-Wall;-Wextra>")
+endif()
+
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
 
 add_compile_options(
-"$<$<COMPILE_LANGUAGE:Fortran>:-warn;-heap-arrays>"
-"$<$<COMPILE_LANGUAGE:C,CXX>:-Wall>"
+$<$<COMPILE_LANGUAGE:Fortran>:-warn>
+"$<$<COMPILE_LANGUAGE:C,CXX>:-Wall;-Wextra>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug,RelWithDebInfo>>:-traceback;-check;-debug>"
 )
+
+# -heap-arrays
 
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 
