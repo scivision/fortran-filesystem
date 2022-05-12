@@ -106,7 +106,7 @@ add_test(NAME CPP_interface COMMAND test_cpp_ifc)
 add_executable(test_c_ifc test_c_ifc.c)
 set_target_properties(test_c_ifc PROPERTIES
 LABELS cpp
-LINKER_LANGUAGE C
+LINKER_LANGUAGE CXX
 )
 target_link_libraries(test_c_ifc PRIVATE filesystem ${CMAKE_REQUIRED_LIBRARIES})
 target_include_directories(test_c_ifc PRIVATE ${PROJECT_SOURCE_DIR}/src)
