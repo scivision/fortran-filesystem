@@ -10,10 +10,12 @@
 
 #include "filesystem.h"
 
+#define N 4096
+
 int main() {
 
-  size_t N = 4096;
-  char fpath[N], cpath[N];
+  char fpath[N];
+  char cpath[N];
 
   get_cwd(fpath);
   printf("Fortran: current working dir %s\n", fpath);

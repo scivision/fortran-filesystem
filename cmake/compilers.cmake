@@ -128,15 +128,16 @@ endif()
 
 # --- flags
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "(Clang|Intel)")
   add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-Wall;-Wextra>")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+  add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/W3>")
 endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
 
 add_compile_options(
-$<$<COMPILE_LANGUAGE:Fortran>:-warn>
-"$<$<COMPILE_LANGUAGE:C,CXX>:-Wall;-Wextra>"
+"$<$<COMPILE_LANGUAGE:Fortran>:-warn>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug,RelWithDebInfo>>:-traceback;-check;-debug>"
 )
 
