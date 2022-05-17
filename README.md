@@ -38,6 +38,7 @@ Full C++ filesystem support and hence full Fortran-filesystem features are avail
 * GCC &ge; 8
 * Clang &ge; 7
 * Intel oneAPI (icx, ifx, icpc, ifort, icl)
+* Visual Studio (C++) + oneAPI (Fortran)
 * Cray (when using GCC backend and libstdc++)
 
 Fortran-filesystem has a large subset of features when used with older compilers that have C++ "experimental/filesystem" support, such as:
