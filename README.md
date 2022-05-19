@@ -94,7 +94,7 @@ The Cray compiler itself works with the non-C++ fallback.
 
 ## Build
 
-Fortran-filesystem can be built with CMake or Meson.
+Fortran-filesystem can be built with CMake, Fortran Package Manager (FPM), or Meson.
 
 [lib]filesystem.a is the library binary built that contains the Fortran "filesystem" module--it is the only binary you need to use in your project.
 
@@ -107,6 +107,15 @@ cmake -B build
 cmake --build build
 # optional
 ctest --test-dir build
+```
+
+Fortran Package Manager (fallback functions):
+
+```sh
+fpm build
+
+# if on Windows
+fpm build --flag -D_WIN32
 ```
 
 Meson:
