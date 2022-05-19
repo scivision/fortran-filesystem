@@ -1,6 +1,6 @@
 # --- base class
-test_filesystem = executable('test_filesystem', 'test_filesystem.f90', link_with: filesystem)
-test('base', test_filesystem)
+test_core = executable('test_core', 'test_core.f90', link_with: filesystem)
+test('base', test_core)
 
 # --- C++17 filesystem methods
 test_cpp_fs = executable('test_cpp_fs', 'test_cpp_fs.f90', link_with: filesystem)

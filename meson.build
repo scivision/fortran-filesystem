@@ -51,9 +51,9 @@ install: true
 install_headers('src/filesystem.h')
 
 # --- tests
-subdir('tests')
+subdir('test')
 
 # --- CLI
 if get_option('BUILD_UTILS')
-  cli = executable('filesystem_cli', files('app/main.f90'), link_with: filesystem)
+  cli = executable('filesystem_cli', files('apps/main.f90'), link_with: filesystem)
 endif

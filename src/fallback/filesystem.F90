@@ -549,3 +549,22 @@ exists = (is_dir(path) .or. is_file(path))
 end function exists
 
 end module filesystem
+
+
+!> switchyard for OS-specific procedures
+#ifdef _WIN32
+include "windows/crt.inc"
+include "windows/path.inc"
+include "windows/sys.inc"
+#else
+include "posix/crt.inc"
+include "posix/path.inc"
+include "posix/sys.inc"
+#endif
+
+!> switchyard for compiler-specific procedures
+#ifdef __GFORTRAN__
+include "compiler/gcc.inc"
+#elif defined(__INTEL_LLVM_COMPILER) || defined(__INTEL_COMPILER)
+include "compiler/intel.inc"
+#endif

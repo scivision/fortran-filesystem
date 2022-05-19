@@ -27,7 +27,7 @@ install(TARGETS filesystem EXPORT ${PROJECT_NAME}-targets)
 # --- CLI
 
 if(BUILD_UTILS AND NOT fallback)
-  add_executable(filesystem_cli app/main.f90)
+  add_executable(filesystem_cli apps/main.f90)
   target_link_libraries(filesystem_cli PRIVATE filesystem)
 
   install(TARGETS filesystem_cli EXPORT ${PROJECT_NAME}-targets)
@@ -35,7 +35,7 @@ endif()
 
 # --- Tests
 if(BUILD_TESTING)
-  add_subdirectory(tests)
+  add_subdirectory(test)
 endif()
 
 include(cmake/install.cmake)

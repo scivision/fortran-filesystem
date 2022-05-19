@@ -1,0 +1,21 @@
+name = "filesystem"
+description = "Lightweight filesystem and path manipulations"
+categories = "io"
+version = "3.4.5"
+
+[build]
+auto-examples = false
+auto-executables = false
+auto-tests = false
+
+[install]
+library = true
+
+
+[library]
+source-dir = "src/fallback"
+
+
+[[test]]
+name = "core"
+main = "test_core.f90"

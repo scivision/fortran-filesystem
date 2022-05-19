@@ -1,9 +1,9 @@
 set_directory_properties(PROPERTIES LABELS unit)
 
 # --- base class
-add_executable(test_filesystem test_filesystem.f90)
-target_link_libraries(test_filesystem PRIVATE filesystem)
-add_test(NAME filesystem COMMAND test_filesystem)
+add_executable(test_core test_core.f90)
+target_link_libraries(test_core PRIVATE filesystem)
+add_test(NAME filesystem_core COMMAND test_core)
 
 # --- C++ filesystem methods
 add_executable(test_core_fs test_cpp_fs.f90)
@@ -151,8 +151,8 @@ endif()
 
 # --- Windows shared DLLs
 if(WIN32 AND BUILD_SHARED_LIBS)
-  add_custom_command(TARGET test_filesystem POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:test_filesystem> $<TARGET_FILE_DIR:test_filesystem>
+  add_custom_command(TARGET test_core POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:test_core> $<TARGET_FILE_DIR:test_core>
   COMMAND_EXPAND_LISTS
   )
 endif()
