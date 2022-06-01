@@ -13,6 +13,7 @@ on:
       - "**/CMakeLists.txt"
       - "**/*.cmake"
       - ".github/workflows/ci_cmake.yml"
+      - "!cray.cmake"
 
 
 jobs:
@@ -216,7 +217,7 @@ jobs:
           mingw-w64-x86_64-gcc-fortran
 
     - name: Put MSYS2_MinGW64 on PATH
-      run: echo "D:/a/_temp/msys64/mingw64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      run: echo "${{ runner.temp }}/msys64/mingw64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
     - uses: actions/checkout@v2
 

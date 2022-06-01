@@ -1,18 +1,14 @@
 name: oneapi-linux
 
 env:
-  CMAKE_BUILD_PARALLEL_LEVEL: 2
   CTEST_PARALLEL_LEVEL: 2
   CC: icx
+  CXX: icpx
   FC: ifx
-  LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18487/l_BaseKit_p_2022.1.2.146_offline.sh
-  LINUX_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18479/l_HPCKit_p_2022.1.2.117_offline.sh
-  MACOS_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18341/m_HPCKit_p_2022.1.0.86_offline.dmg
+  LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18673/l_BaseKit_p_2022.2.0.262_offline.sh
+  LINUX_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18679/l_HPCKit_p_2022.2.0.191_offline.sh
   LINUX_CPP_COMPONENTS: intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
   LINUX_FORTRAN_COMPONENTS: intel-oneapi-compiler-fortran
-  LINUX_DPCPP_COMPONENTS: intel-oneapi-compiler-dpcpp-cpp
-  MACOS_CPP_COMPONENTS: intel.oneapi.mac.cpp-compiler
-  MACOS_FORTRAN_COMPONENTS: intel.oneapi.mac.ifort-compiler
 # https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
 
 on:
@@ -24,7 +20,7 @@ on:
       - "**.cmake"
       - "**/CMakeLists.txt"
       - ".github/workflows/oneapi-linux.yml"
-
+      - "!cray.cmake"
 
 jobs:
 
