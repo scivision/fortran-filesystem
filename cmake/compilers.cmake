@@ -75,9 +75,6 @@ else()
   set(fallback true)
 endif()
 
-if(fallback AND NOT fallback_auto)
-  message(FATAL_ERROR "filesystem C++ fallback was requested, but not auto-enabled")
-endif()
 
 if(NOT fallback)
   # some compilers e.g. Cray claim to have filesystem, but their libstdc++ doesn't have it.
@@ -108,6 +105,12 @@ if(NOT fallback)
   endif()
 
 endif()
+
+
+if(fallback AND NOT fallback_auto)
+  message(FATAL_ERROR "filesystem C++ fallback was requested, but not auto-enabled")
+endif()
+
 
 if(NOT fallback)
 
