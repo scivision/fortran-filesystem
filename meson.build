@@ -9,11 +9,10 @@ check_sym = files('cmake/check_fs_symlink.cpp')
 cpp = meson.get_compiler('cpp')
 fc = meson.get_compiler('fortran')
 
+fs_dep = []
 if cpp.get_id() == 'gcc'
   if cpp.version().version_compare('<9.1.0')
     fs_dep = cpp.find_library('stdc++fs', required : true)
-  else
-    fs_dep = []
   endif
 endif
 
