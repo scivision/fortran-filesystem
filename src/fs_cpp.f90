@@ -250,129 +250,87 @@ end procedure match
 
 module procedure file_name
 character(kind=c_char, len=MAXP) :: cpath, cbuf
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 
 cpath = path // C_NULL_CHAR
 
 N = cfs_file_name(cpath, cbuf)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cbuf(i:i)
-end do
-
-file_name = trim(buf)
+file_name = trim(cbuf(:N))
 
 end procedure file_name
 
 
 module procedure stem
 character(kind=c_char, len=MAXP) :: cpath, cbuf
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 
 cpath = path // C_NULL_CHAR
 
 N = cfs_stem(cpath, cbuf)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cbuf(i:i)
-end do
-
-stem = trim(buf)
+stem = trim(cbuf(:N))
 end procedure stem
 
 
 module procedure parent
 character(kind=c_char, len=MAXP) :: cpath, cbuf
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 
 cpath = path // C_NULL_CHAR
 
 N = cfs_parent(cpath, cbuf)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cbuf(i:i)
-end do
-
-parent = trim(buf)
+parent = trim(cbuf(:N))
 end procedure parent
 
 
 module procedure suffix
 character(kind=c_char, len=MAXP) :: cpath, cbuf
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 
 cpath = path // C_NULL_CHAR
 
 N = cfs_suffix(cpath, cbuf)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cbuf(i:i)
-end do
-
-suffix = trim(buf)
+suffix = trim(cbuf(:N))
 end procedure suffix
 
 
 module procedure normal
 character(kind=c_char, len=MAXP) :: cpath, cbuf
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 
 cpath = path // C_NULL_CHAR
 
 N = cfs_normal(cpath, cbuf)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cbuf(i:i)
-end do
-
-normal = trim(buf)
+normal = trim(cbuf(:N))
 end procedure normal
 
 
 module procedure as_posix
 character(kind=c_char, len=MAXP) :: cbuf
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 
 cbuf = path // C_NULL_CHAR
 
 N = cfs_as_posix(cbuf)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cbuf(i:i)
-end do
-
-as_posix = trim(buf)
+as_posix = trim(cbuf(:N))
 end procedure as_posix
 
 
 module procedure with_suffix
 character(kind=c_char, len=MAXP) :: cpath, csuff, cbuf
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 
 cpath = path // C_NULL_CHAR
 csuff = new // C_NULL_CHAR
 
 N = cfs_with_suffix(cpath, csuff, cbuf)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cbuf(i:i)
-end do
-
-with_suffix = trim(buf)
+with_suffix = trim(cbuf(:N))
 end procedure with_suffix
 
 
@@ -423,8 +381,7 @@ end procedure mkdir
 
 module procedure canonical
 character(kind=c_char, len=MAXP) :: cpath
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 logical(c_bool) :: s
 
 s = .false.
@@ -434,31 +391,20 @@ cpath = path // C_NULL_CHAR
 
 N = cfs_canonical(cpath, s)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cpath(i:i)
-end do
-
-canonical = trim(buf)
+canonical = trim(cpath(:N))
 
 end procedure canonical
 
 
 module procedure root
 character(kind=c_char, len=MAXP) :: cpath, cbuf
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 
 cpath = path // C_NULL_CHAR
 
 N = cfs_root(cpath, cbuf)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cbuf(i:i)
-end do
-
-root = trim(buf)
+root = trim(cbuf(:N))
 
 end procedure root
 
@@ -573,49 +519,31 @@ end procedure expanduser
 
 module procedure get_homedir
 character(kind=c_char, len=MAXP) :: cpath
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 
 N = cfs_get_homedir(cpath)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cpath(i:i)
-end do
-
-get_homedir = trim(buf)
+get_homedir = trim(cpath(:N))
 end procedure get_homedir
 
 
 module procedure get_tempdir
 character(kind=c_char, len=MAXP) :: cpath
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 
 N = cfs_get_tempdir(cpath)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cpath(i:i)
-end do
-
-get_tempdir = trim(buf)
+get_tempdir = trim(cpath(:N))
 end procedure get_tempdir
 
 
 module procedure get_cwd
 character(kind=c_char, len=MAXP) :: cpath
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+integer(C_SIZE_T) :: N
 
 N = cfs_get_cwd(cpath)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cpath(i:i)
-end do
-
-get_cwd = trim(buf)
+get_cwd = trim(cpath(:N))
 end procedure get_cwd
 
 
