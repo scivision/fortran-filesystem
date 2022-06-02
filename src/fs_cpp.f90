@@ -173,7 +173,7 @@ import
 character(kind=c_char), intent(in) :: path(*)
 end function cfs_chmod_exe
 
-logical(c_bool) function cfs_chmod_no_exe(path) bind(C, name="chmod_exe")
+logical(c_bool) function cfs_chmod_no_exe(path) bind(C, name="chmod_no_exe")
 import
 character(kind=c_char), intent(in) :: path(*)
 end function cfs_chmod_no_exe
