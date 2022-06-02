@@ -1,6 +1,6 @@
 submodule (filesystem) posix_crt
 
-use, intrinsic :: iso_c_binding, only: c_int, c_char, c_null_char
+use, intrinsic :: iso_c_binding, only: c_int
 
 implicit none (type, external)
 

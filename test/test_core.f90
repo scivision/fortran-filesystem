@@ -79,9 +79,9 @@ subroutine test_filesep()
 type(path_t) :: p1, p2, p3
 
 if(sys_posix()) then
-  if (filesep() /= "/") error stop "filesep posix"
+  if (filesep() /= "/") error stop "filesep posix: " // filesep()
 else
-  if(filesep() /= char(92)) error stop "filesep windows"
+  if(filesep() /= char(92)) error stop "filesep windows: " // filesep()
 endif
 
 p1 = path_t("")
@@ -221,7 +221,7 @@ if(sys_posix()) then
   if(r /= "/") error stop "unix %root failed 1: " // r
 
   r = p2%root()
-  if(r /= "") error stop "unix %root failed 2: " // r
+  if(r /= "") error stop "unix %root empty: " // r
 
   r = root("/etc")
   if(r /= "/") error stop "unix root() failed: " // r
@@ -229,7 +229,7 @@ else
   if(p1%root() == "/") error stop "windows %root failed"
 
   r = p2%root()
-  if( r/= "c:") error stop "windows %root failed 2: " // r
+  if( r/= "c:") error stop "windows %root drive: " // r
   if(root("c:/etc") /= "c:") error stop "windows root() failed"
 endif
 

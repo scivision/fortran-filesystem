@@ -6,172 +6,172 @@ implicit none (type, external)
 
 interface !< fs.cpp
 
-integer(C_SIZE_T) function cfs_filesep(sep) bind(C, name='filesep')
+subroutine cfs_filesep(sep) bind(C, name='filesep')
 import
 character(kind=c_char), intent(out) :: sep(*)
-end function cfs_filesep
+end subroutine
 
 logical(C_BOOL) function cfs_match(path, pattern) bind(C, name='match')
 import
 character(kind=c_char), intent(in) :: path, pattern
-end function cfs_match
+end function
 
 integer(C_SIZE_T) function cfs_as_posix(path) bind(C, name="as_posix")
 import
 character(kind=c_char), intent(inout) :: path(*)
-end function cfs_as_posix
+end function
 
 integer(C_SIZE_T) function cfs_file_name(path, filename) bind(C, name="file_name")
 import
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: filename(*)
-end function cfs_file_name
+end function
 
 integer(C_SIZE_T) function cfs_stem(path, fstem) bind(C, name="stem")
 import
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: fstem(*)
-end function cfs_stem
+end function
 
 integer(C_SIZE_T) function cfs_parent(path, fparent) bind(C, name="parent")
 import
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: fparent(*)
-end function cfs_parent
+end function
 
 integer(C_SIZE_T) function cfs_suffix(path, fsuffix) bind(C, name="suffix")
 import
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: fsuffix(*)
-end function cfs_suffix
+end function
 
 integer(C_SIZE_T) function cfs_with_suffix(path, new_suffix, swapped) bind(C, name="with_suffix")
 import
 character(kind=c_char), intent(in) :: path(*), new_suffix
 character(kind=c_char), intent(out) :: swapped(*)
-end function cfs_with_suffix
+end function
 
 
 integer(C_SIZE_T) function cfs_normal(path, normalized) bind(C, name="normal")
 import
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: normalized(*)
-end function cfs_normal
+end function
 
 logical(c_bool) function cfs_is_symlink(path) bind(C, name="is_symlink")
 import
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_is_symlink
+end function
 
 integer(C_INT) function cfs_create_symlink(target, link) bind(C, name="create_symlink")
 import
 character(kind=c_char), intent(in) :: target(*), link(*)
-end function cfs_create_symlink
+end function
 
 logical(C_BOOL) function cfs_create_directories(path) bind(C, name="create_directories")
 import
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_create_directories
+end function
 
 integer(C_SIZE_T) function cfs_canonical(path, strict) bind(C, name="canonical")
 import
 character(kind=c_char), intent(inout) :: path(*)
 logical(c_bool), intent(in), value :: strict
-end function cfs_canonical
+end function
 
 logical(c_bool) function cfs_remove(path) bind(C, name="fs_remove")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_remove
+end function
 
 logical(c_bool) function cfs_exists(path) bind(C, name="exists")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_exists
+end function
 
 logical(c_bool) function cfs_is_file(path) bind(C, name="is_file")
 import
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_is_file
+end function
 
 logical(c_bool) function cfs_is_dir(path) bind(C, name="is_dir")
 import
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_is_dir
+end function
 
 logical(c_bool) function cfs_equivalent(path1, path2) bind(C, name="equivalent")
 import c_bool, c_char
 character(kind=c_char), intent(in) :: path1(*), path2(*)
-end function cfs_equivalent
+end function
 
 logical(c_bool) function cfs_copy_file(source, dest, overwrite) bind(C, name="copy_file")
 import
 character(kind=c_char), intent(in) :: source(*), dest(*)
 logical(c_bool), intent(in), value :: overwrite
-end function cfs_copy_file
+end function
 
 integer(C_SIZE_T) function cfs_relative_to(path, base, result) bind(C, name="relative_to")
 import
 character(kind=c_char), intent(in) :: path(*), base(*)
 character(kind=c_char), intent(out) :: result(*)
-end function cfs_relative_to
+end function
 
 logical(c_bool) function cfs_touch(path) bind(C, name="touch")
 import
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_touch
+end function
 
 integer(C_SIZE_T) function cfs_expanduser(path, result) bind(C, name="expanduser")
 import
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: result(*)
-end function cfs_expanduser
+end function
 
 integer(C_SIZE_T) function cfs_get_homedir(path) bind(C, name="get_homedir")
 import
 character(kind=c_char), intent(out) :: path(*)
-end function cfs_get_homedir
+end function
 
 integer(C_SIZE_T) function cfs_get_tempdir(path) bind(C, name="get_tempdir")
 import
 character(kind=c_char), intent(out) :: path(*)
-end function cfs_get_tempdir
+end function
 
 integer(C_SIZE_T) function cfs_get_cwd(path) bind(C, name="get_cwd")
 import
 character(kind=c_char), intent(out) :: path(*)
-end function cfs_get_cwd
+end function
 
 integer(C_SIZE_T) function cfs_root(path, result) bind(C, name="root")
 import
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: result(*)
-end function cfs_root
+end function
 
 integer(C_SIZE_T) function cfs_file_size(path) bind(C, name="file_size")
 import
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_file_size
+end function
 
 logical(c_bool) function cfs_is_exe(path) bind(C, name="is_exe")
 import
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_is_exe
+end function
 
 logical(c_bool) function cfs_is_absolute(path) bind(C, name="is_absolute")
 import
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_is_absolute
+end function
 
 logical(c_bool) function cfs_chmod_exe(path) bind(C, name="chmod_exe")
 import
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_chmod_exe
+end function
 
 logical(c_bool) function cfs_chmod_no_exe(path) bind(C, name="chmod_no_exe")
 import
 character(kind=c_char), intent(in) :: path(*)
-end function cfs_chmod_no_exe
+end function
 
 end interface
 
@@ -180,11 +180,9 @@ contains
 
 
 module procedure filesep
-character(kind=c_char) :: cbuf(3)
-integer(c_size_t) :: N
+character(kind=c_char) :: cbuf(2)
 
-N = cfs_filesep(cbuf)
-if (cbuf(2) /= C_NULL_CHAR) write(stderr,'(a)') "filesystem:filesep: expected single null terminated char, got: " // cbuf(2)
+call cfs_filesep(cbuf)
 
 filesep = cbuf(1)
 

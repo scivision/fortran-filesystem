@@ -1,6 +1,6 @@
 module filesystem
 
-use, intrinsic:: iso_c_binding, only: C_BOOL
+use, intrinsic:: iso_c_binding, only: C_BOOL, C_CHAR, C_NULL_CHAR
 use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 
 implicit none (type, external)
@@ -178,7 +178,7 @@ end function
 end interface
 
 
-interface !< fs.c
+interface !< filesystem.c
 
 logical(C_BOOL) function is_macos() bind(C)
 import C_BOOL
@@ -193,6 +193,10 @@ import C_BOOL
 end function
 
 logical(C_BOOL) function is_unix() bind(C)
+import C_BOOL
+end function
+
+logical(C_BOOL) function sys_posix() bind(C)
 import C_BOOL
 end function
 
@@ -275,8 +279,6 @@ character(:), allocatable, intent(out) :: fparts(:)
 !! allocatable, intent(out) because we do want to implicitly deallocate first
 end subroutine
 
-module logical function sys_posix()
-end function
 
 end interface
 

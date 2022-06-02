@@ -316,7 +316,7 @@ end function
 
 end interface
 
-interface !< fs.cpp
+interface !< filesystem.cpp
 
 logical(C_BOOL) function is_macos() bind(C)
 import C_BOOL

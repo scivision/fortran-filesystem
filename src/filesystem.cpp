@@ -70,11 +70,10 @@ bool sys_posix() {
   return sep[0] == '/';
 }
 
-size_t filesep(char* sep) {
+void filesep(char* sep) {
   fs::path p("/");
 
   std::strcpy(sep, p.make_preferred().string().c_str());
-  return strlen(sep);
 }
 
 
