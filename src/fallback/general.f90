@@ -54,7 +54,10 @@ end function
 
 
 module procedure is_file
-inquire(file=expanduser(path), exist=is_file)
+character(:), allocatable :: iwa
+
+iwa = expanduser(path)
+inquire(file=iwa, exist=is_file)
 if(is_file) then
   if (is_dir(path)) is_file = .false.
 endif

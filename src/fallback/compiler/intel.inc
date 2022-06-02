@@ -28,7 +28,10 @@ end procedure get_cwd
 
 
 module procedure is_dir
-inquire(directory=expanduser(path), exist=is_dir)
+character(:), allocatable :: iwa
+
+iwa = expanduser(path)
+inquire(directory=iwa, exist=is_dir)
 end procedure is_dir
 
 
