@@ -9,7 +9,6 @@ public :: path_t  !< base class
 public :: get_cwd !< utility procedures
 public :: as_posix, expanduser, &
 is_absolute, is_dir, is_file, exists, get_homedir, get_tempdir, &
-filesystem_has_symlink, filesystem_has_normalize, filesystem_has_relative_to, filesystem_has_weakly_canonical, &
 join, filesep, &
 copy_file, mkdir, &
 file_parts, relative_to, resolve, root, same_file, file_size, &
@@ -18,7 +17,7 @@ assert_is_file, assert_is_dir, &
 sys_posix, touch, &
 remove, get_filename, make_absolute, &
 is_macos, is_linux, is_unix, is_windows, &
-is_symlink, is_exe, normal
+is_symlink, create_symlink, is_exe, normal
 !! functional API
 
 integer, public, protected :: MAXP = 4096
@@ -75,6 +74,8 @@ procedure, public :: resolve=>fs_resolve
 procedure, public :: same_file=>fs_same_file
 procedure, public :: remove=>fs_unlink
 procedure, public :: file_size=>fs_file_size
+procedure, public :: is_symlink=>fs_is_symlink
+procedure, public :: create_symlink=>fs_create_symlink
 
 end type path_t
 
@@ -112,19 +113,6 @@ end function
 end interface
 
 interface !< general.f90
-
-
-module logical function filesystem_has_symlink()
-end function
-
-module logical function filesystem_has_weakly_canonical()
-end function
-
-module logical function filesystem_has_normalize()
-end function
-
-module logical function filesystem_has_relative_to()
-end function
 
 module function get_homedir()
 !! returns home directory, or empty string if not found
@@ -318,10 +306,35 @@ contains
 
 !> non-existent
 
+logical function fs_is_symlink(self)
+class(path_t), intent(in) :: self
+fs_is_symlink = is_symlink(self%path_str)
+end function
+
 logical function is_symlink(path)
 character(*), intent(in) :: path
-error stop "filesystem:fallback doesn't have is_symlink"
+write(stderr,'(a)') "WARNING:filesystem:fallback doesn't have is_symlink"
+is_symlink = .false.
 end function
+
+
+subroutine fs_create_symlink(self, target, status)
+class(path_t), intent(in) :: self
+character(*), intent(in) :: target
+integer, intent(out), optional :: status
+call create_symlink(self%path_str, target, status)
+end subroutine fs_create_symlink
+
+subroutine create_symlink(tgt, link, status)
+character(*), intent(in) :: tgt, link
+integer, intent(out), optional :: status
+if (present(status)) then
+  status = -1
+  return
+endif
+error stop "filesystem:fallback doesn't have create_symlink"
+end subroutine
+
 
 logical function is_exe(path)
 character(*), intent(in) :: path

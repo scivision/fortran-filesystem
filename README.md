@@ -40,12 +40,7 @@ Full C++ filesystem support and hence full Fortran-filesystem features are avail
 * Clang &ge; 7
 * Intel oneAPI (icx, ifx, icpc, ifort, icl)
 * Visual Studio (C++) + oneAPI (Fortran)
-* Cray (when using GCC backend and libstdc++)
-
-Fortran-filesystem has a large subset of features when used with older compilers that have C++ "experimental/filesystem" support, such as:
-
-* GCC 7
-* Clang 6
+* Cray (when using GCC or Intel backend and libstdc++)
 
 Expected to work with other
 [C++17 compilers](https://en.cppreference.com/w/cpp/compiler_support)
@@ -53,8 +48,8 @@ and Fortran 2008 compilers yet to be tested.
 E.g. IBM XL, NAG, et al.
 In particular, the compiler and the libstdc++ must both support filesystem as well as Fortran 2008.
 
-For compilers without functioning C++ filesystem, we provide a limited fallback set of filesystem features using the C runtime library and our own Fortran routines.
-This fallback should be enabled automatically when C++ filesystem is not available.
+For compilers without functioning C++ filesystem, we provide a fallback set of filesystem features using the C runtime library and our own Fortran routines.
+This fallback is enabled automatically when C++ filesystem is not available when CMake option `-Dfallback_auto=yes` is specified.
 The installed CMake package provides BOOL CMake variable `ffilesystem_fallback` that can be used to check if the fallback routines are enabled.
 To force enable the fallback routines, for example for testing:
 

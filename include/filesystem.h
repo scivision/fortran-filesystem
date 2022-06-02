@@ -29,8 +29,8 @@ extern size_t with_suffix(const char*, const char*, char*);
 extern size_t normal(const char*, char*);
 
 extern bool is_symlink(const char*);
-extern bool create_symlink(const char*, const char*);
-extern bool create_directory_symlink(const char*, const char*);
+extern int create_symlink(const char*, const char*);
+
 extern bool create_directories(const char*);
 extern bool exists(const char*);
 extern bool is_absolute(const char*);
@@ -55,9 +55,6 @@ extern size_t get_tempdir(char*);
 extern size_t expanduser(const char*, char*);
 
 extern uintmax_t file_size(const char*);
-
-extern bool create_symlink(const char*, const char*);
-extern bool copy_file(const char*, const char*, bool);
 
 #ifdef __cplusplus
 }

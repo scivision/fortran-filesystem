@@ -1,4 +1,3 @@
-include(CheckIncludeFileCXX)
 include(CheckCXXSymbolExists)
 include(CheckSourceRuns)
 include(CheckSourceCompiles)
@@ -40,7 +39,6 @@ unset(CMAKE_REQUIRED_LIBRARIES)
 if(fallback)
 
   unset(HAVE_CXX_FILESYSTEM CACHE)
-  unset(HAVE_CXX_EXPERIMENTAL_FILESYSTEM CACHE)
 
 else()
   if(CMAKE_CXX_COMPILER_ID STREQUAL GNU AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1.0)
@@ -59,16 +57,11 @@ else()
   endif()
 
   check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXX_FILESYSTEM)
-  if(NOT HAVE_CXX_FILESYSTEM)
-    check_include_file_cxx(experimental/filesystem HAVE_CXX_EXPERIMENTAL_FILESYSTEM)
-  endif()
 
 endif()
 
 if(HAVE_CXX_FILESYSTEM)
   message(STATUS "C++ filesystem support enabled.")
-elseif(HAVE_CXX_EXPERIMENTAL_FILESYSTEM)
-  message(STATUS "Using deprecated experimental/filesystem, some functionality is limited.")
 else()
   message(STATUS "C++ filesystem support is not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}"
   )
@@ -82,9 +75,6 @@ if(NOT fallback)
   #if __has_include(<filesystem>)
   #include <filesystem>
   namespace fs = std::filesystem;
-  #elif __has_include(<experimental/filesystem>)
-  #include <experimental/filesystem>
-  namespace fs = std::experimental::filesystem;
   #else
   #error "No C++ filesystem support"
   #endif

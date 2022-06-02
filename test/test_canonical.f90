@@ -1,6 +1,6 @@
 program test_canon
 
-use filesystem, only : path_t, get_cwd, same_file, resolve, mkdir, is_dir, is_file, filesystem_has_weakly_canonical
+use filesystem, only : path_t, get_cwd, same_file, resolve, mkdir, is_dir, is_file
 
 implicit none (type, external)
 
@@ -55,8 +55,6 @@ if (L2 /= L1) error stop 'up directory was not canonicalized: ~/.. => ' // par%p
 print *, 'OK: canon_dir = ', par%path()
 
 ! -- relative file
-if (.not. filesystem_has_weakly_canonical()) stop "legacy C++ filesystem does not have weakly_canonical()"
-
 file = path_t('~/../' // dummy)
 file = file%resolve()
 L3 = file%length()

@@ -1,6 +1,6 @@
 submodule (filesystem) fs_cpp
 
-use, intrinsic :: iso_c_binding, only : c_char, c_ptr, C_NULL_CHAR, C_SIZE_T
+use, intrinsic :: iso_c_binding, only : c_char, c_ptr, C_INT, C_NULL_CHAR, C_SIZE_T
 
 implicit none (type, external)
 
@@ -63,17 +63,12 @@ import
 character(kind=c_char), intent(in) :: path(*)
 end function cfs_is_symlink
 
-logical(C_BOOL) function cfs_create_directory_symlink(target, link) bind(C, name="create_directory_symlink")
-import
-character(kind=c_char), intent(in) :: target(*), link(*)
-end function cfs_create_directory_symlink
-
-logical(C_BOOL) function cfs_create_symlink(target, link) bind(C, name="create_symlink")
+integer(C_INT) function cfs_create_symlink(target, link) bind(C, name="create_symlink")
 import
 character(kind=c_char), intent(in) :: target(*), link(*)
 end function cfs_create_symlink
 
-logical(c_bool) function cfs_create_directories(path) bind(C, name="create_directories")
+logical(C_BOOL) function cfs_create_directories(path) bind(C, name="create_directories")
 import
 character(kind=c_char), intent(in) :: path(*)
 end function cfs_create_directories
@@ -291,7 +286,18 @@ end procedure is_symlink
 
 
 module procedure create_symlink
-if(.not. cfs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)) error stop "filesystem:create_symlink: " // link
+integer :: ierr
+
+ierr = cfs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)
+if(present(status)) then
+  status = ierr
+elseif (ierr < 0) then
+  error stop "ERROR:filesystem:create_symlink: platform is not capable of symlinks."
+elseif (ierr == 0) then
+  ! OK
+else
+  error stop "ERROR:filesystem:create_symlink: " // link
+endif
 end procedure create_symlink
 
 

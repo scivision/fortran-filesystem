@@ -9,7 +9,6 @@ public :: path_t  !< base class
 public :: get_homedir, canonical, get_cwd !< utility procedures
 public :: as_posix, normal, expanduser, &
 is_absolute, is_dir, is_file, is_exe, &
-filesystem_has_symlink, filesystem_has_normalize, filesystem_has_relative_to, filesystem_has_weakly_canonical, &
 is_symlink, &
 exists, match, &
 join, &
@@ -345,26 +344,16 @@ end interface
 
 interface !< fs_cpp.f90
 
-module logical function filesystem_has_symlink()
-end function
-
-module logical function filesystem_has_weakly_canonical()
-end function
-
-module logical function filesystem_has_normalize()
-end function
-
-module logical function filesystem_has_relative_to()
-end function
-
 module logical function is_symlink(path)
 !! .true.: "path" is a symbolic link
-!! .false.: "path" is not a symbolic link, or does not exist
+!! .false.: "path" is not a symbolic link, or does not exist,
+!!           or platform/drive not capable of symlinks
 character(*), intent(in) :: path
 end function
 
-module subroutine create_symlink(tgt, link)
+module subroutine create_symlink(tgt, link, status)
 character(*), intent(in) :: tgt, link
+integer, intent(out), optional :: status
 end subroutine
 
 module logical function exists(path)
@@ -593,11 +582,12 @@ fs_is_symlink = is_symlink(self%path_str)
 end function fs_is_symlink
 
 
-subroutine fs_create_symlink(self, link)
+subroutine fs_create_symlink(self, link, status)
 class(path_t), intent(in) :: self
 character(*), intent(in) :: link
+integer, intent(out), optional :: status
 
-call create_symlink(self%path_str, link)
+call create_symlink(self%path_str, link, status)
 end subroutine fs_create_symlink
 
 

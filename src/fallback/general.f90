@@ -5,22 +5,6 @@ implicit none (type, external)
 
 contains
 
-module procedure filesystem_has_symlink
-filesystem_has_symlink = .false.
-end procedure filesystem_has_symlink
-
-module procedure filesystem_has_normalize
-filesystem_has_normalize = .true.
-end procedure filesystem_has_normalize
-
-module procedure filesystem_has_relative_to
-filesystem_has_relative_to = .false.
-end procedure filesystem_has_relative_to
-
-module procedure filesystem_has_weakly_canonical
-filesystem_has_weakly_canonical = .false.
-end procedure filesystem_has_weakly_canonical
-
 
 module procedure as_posix
 

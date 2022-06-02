@@ -1,6 +1,7 @@
 program test_symlink
 
-use filesystem, only : path_t, is_symlink, is_file, parent, create_symlink, remove, filesystem_has_symlink
+use, intrinsic:: iso_fortran_env, only : stderr=>error_unit
+use filesystem, only : path_t, is_symlink, is_file, parent, create_symlink, remove
 
 implicit none (type, external)
 
@@ -9,8 +10,6 @@ type(path_t) :: p_sym, p_tgt
 character(4096) :: buf
 
 character(:), allocatable :: tgt, link, linko
-
-if(.not. filesystem_has_symlink()) stop "filesystem on this system does not support symlinks"
 
 call get_command_argument(0, buf, status=i, length=L)
 if(i /= 0 .or. L == 0) error stop "could not get own exe name"
@@ -30,7 +29,11 @@ if (is_symlink(link)) then
   print *, "deleting old symlink " // link
   call remove(link)
 endif
-call create_symlink(tgt, link)
+call create_symlink(tgt, link, status=i)
+if(i < 0) then
+  write(stderr,'(a)') "platform does not support symlinks"
+  stop 77
+endif
 
 if (p_sym%is_symlink()) then
   print *, "deleting old symlink " // p_sym%path()

@@ -4,6 +4,8 @@ target_include_directories(fs_c PRIVATE ${PROJECT_SOURCE_DIR}/include)
 add_library(filesystem filesystem.F90 general.f90 $<TARGET_OBJECTS:fs_c>)
 target_compile_definitions(filesystem PRIVATE $<$<BOOL:${WIN32}>:_WIN32>)
 # Gfortran preprocessor fails to define C/C++ expected macros
+target_compile_options(filesystem PRIVATE
+"$<$<Fortran_COMPILER_ID:GNU>:-Wno-unused-dummy-argument;-Wno-return-type>")
 
 set_target_properties(filesystem PROPERTIES
 Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include

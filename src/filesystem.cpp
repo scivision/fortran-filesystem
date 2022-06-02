@@ -10,9 +10,6 @@
 #if __has_include(<filesystem>)
 #include <filesystem>
 namespace fs = std::filesystem;
-#elif __has_include(<experimental/filesystem>)
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
 #else
 #error "No C++ filesystem support"
 #endif
@@ -103,11 +100,6 @@ size_t stem(const char* path, char* fstem) {
 
   // std::cout << "TRACE:suffix: filename = " << fn << " stem = " << s << std::endl;
 
-#ifndef __cpp_lib_filesystem
-  // experimental::filesystem with leading .filename
-  if (fn == fn.extension()) s = fn;
-#endif
-
   std::strcpy(fstem, s.string().c_str());
   return strlen(fstem);
 }
@@ -136,14 +128,6 @@ size_t suffix(const char* path, char* fsuffix) {
 
   //std::cout << "TRACE:suffix: filename = " << f << " suffix = " << ext << std::endl;
 
-#ifndef __cpp_lib_filesystem
-  // experimental::filesystem with leading .filename
-  if (f == ext) {
-    fsuffix = NULL;
-    return 0;
-  }
-#endif
-
   std::strcpy(fsuffix, ext.string().c_str());
   return strlen(fsuffix);
 }
@@ -158,20 +142,7 @@ size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
 
   fs::path p(path);
 
-#ifndef __cpp_lib_filesystem
-  auto f = p.filename();
-  auto ext = f.extension();
-  // experimental::filesystem with leading .filename
-  if (f == ext) {
-    p += new_suffix;
-    std::strcpy(swapped, p.string().c_str());
-  }
-  else{
-    std::strcpy(swapped, p.replace_extension(new_suffix).string().c_str());
-  }
-#else
   std::strcpy(swapped, p.replace_extension(new_suffix).string().c_str());
-#endif
 
   return strlen(swapped);
 }
@@ -179,13 +150,8 @@ size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
 
 size_t normal(const char* path, char* normalized) {
 
-#ifdef __cpp_lib_filesystem
   fs::path p(path);
   std::strcpy(normalized, p.lexically_normal().string().c_str());
-#else
-  std::strcpy(normalized, path);
-  std::cerr << "filesystem:normal: legacy C++ experimental filesystem cannot normalize " << normalized << std::endl;
-#endif
 
   return as_posix(normalized);
 }
@@ -203,15 +169,20 @@ bool is_symlink(const char* path) {
   return e;
 }
 
-bool create_symlink(const char* target, const char* link) {
+int create_symlink(const char* target, const char* link) {
+
+#ifndef HAVE_SYMLINK
+  std::cerr << "ERROR:filesystem:create_symlink: symlink not supported for this platform." << std::endl;
+  return -1;
+#endif
 
   if(strlen(target) == 0) {
-    std::cerr << "filesystem:create_symlink: target path must not be empty" << std::endl;
-    return false;
+    std::cerr << "ERROR:filesystem:create_symlink: target path must not be empty" << std::endl;
+    return 1;
   }
   if(strlen(link) == 0) {
-    std::cerr << "filesystem:create_symlink: link path must not be empty" << std::endl;
-    return false;
+    std::cerr << "ERROR:filesystem:create_symlink: link path must not be empty" << std::endl;
+    return 1;
   }
 
   std::error_code ec;
@@ -223,23 +194,11 @@ bool create_symlink(const char* target, const char* link) {
     fs::create_symlink(target, link, ec);
   }
   if(ec) {
-    std::cerr << "filesystem:create_symlink: " << ec.message() << std::endl;
-    return false;
+    std::cerr << "ERROR:filesystem:create_symlink: " << ec.message() << " " << ec.value() << std::endl;
+    return 1;
   }
 
-  return true;
-}
-
-bool create_directory_symlink(const char* target, const char* link) {
-  std::error_code ec;
-
-  fs::create_directory_symlink(target, link, ec);
-  if(ec) {
-    std::cerr << "filesystem:create_directory_symlink: " << ec.message() << std::endl;
-    return false;
-  }
-
-  return true;
+  return 0;
 }
 
 bool create_directories(const char* path) {
@@ -390,11 +349,7 @@ size_t canonical(char* path, bool strict) {
   }
   else {
 
-#ifdef __cpp_lib_filesystem
-    p = fs::weakly_canonical(ex, ec);
-#else
-    p = fs::canonical(ex, ec);
-#endif
+  p = fs::weakly_canonical(ex, ec);
 
   }
 
@@ -498,12 +453,7 @@ size_t relative_to(const char* a, const char* b, char* result) {
 
   std::error_code ec;
 
-#ifdef __cpp_lib_filesystem
   r = fs::relative(a1, b1, ec);
-#else
-  std::cerr << "filesystem:relative_to: legacy C++ filesystem does not support relative_to." << std::endl;
-  return 0;
-#endif
 
   if(ec) {
     std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
@@ -540,11 +490,7 @@ bool touch(const char* path) {
     ost.open(p);
     ost.close();
     // ensure user can access file, as default permissions may be mode 600 or such
-#ifdef __cpp_lib_filesystem
     fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add, ec);
-#else
-  fs::permissions(p, fs::perms::add_perms | fs::perms::owner_read | fs::perms::owner_write, ec);
-#endif
   }
   if(ec) {
     std::cerr << "filesystem:touch:permissions: " << ec.message() << std::endl;
@@ -735,11 +681,7 @@ bool chmod_exe(const char* path) {
     return false;
   }
 
-#ifdef __cpp_lib_filesystem
   fs::permissions(p, fs::perms::owner_exec, fs::perm_options::add, ec);
-#else
-  fs::permissions(p, fs::perms::add_perms | fs::perms::owner_exec, ec);
-#endif
 
   if(ec) {
     std::cerr << "ERROR:filesystem:chmod_exe: " << p << ": " << ec.message() << std::endl;
@@ -765,11 +707,7 @@ bool chmod_no_exe(const char* path) {
     return false;
   }
 
-#ifdef __cpp_lib_filesystem
   fs::permissions(p, fs::perms::owner_exec, fs::perm_options::remove, ec);
-#else
-  fs::permissions(p, fs::perms::remove_perms | fs::perms::owner_exec, ec);
-#endif
 
   if(ec) {
     std::cerr << "ERROR:filesystem:chmod_no_exe: " << p << ": " << ec.message() << std::endl;

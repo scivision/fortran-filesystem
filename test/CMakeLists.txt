@@ -38,11 +38,12 @@ target_link_libraries(test_expanduser PRIVATE filesystem)
 add_test(NAME Expanduser COMMAND test_expanduser)
 
 # -- symlink
-if(NOT fallback)
 add_executable(test_symlink test_symlink.f90)
 target_link_libraries(test_symlink PRIVATE filesystem)
 add_test(NAME symlink COMMAND test_symlink)
-endif()
+set_tests_properties(symlink PROPERTIES
+SKIP_RETURN_CODE 77
+)
 
 # --- canonical
 add_executable(test_canonical test_canonical.f90)

@@ -1,6 +1,6 @@
 program cpp_relative_to
 
-use filesystem, only : path_t, relative_to, sys_posix, filesystem_has_normalize, filesystem_has_relative_to
+use filesystem, only : path_t, relative_to, sys_posix
 
 implicit none (type, external)
 
@@ -18,8 +18,6 @@ subroutine test_normal()
 
 type(path_t) :: p1, p2
 
-if(.not. filesystem_has_normalize()) stop "filesystem: no normalize due to legacy C++ filesystem"
-
 p1 = path_t("a//b/../c")
 p2 = p1%normal()
 if (p2%path() /= "a/c") error stop "normalize failed: " // p2%path()
@@ -31,8 +29,6 @@ subroutine test_relative_to()
 
 type(path_t) :: p1
 character(:), allocatable :: rel
-
-if(.not. filesystem_has_relative_to()) stop "filesystem: no relative_to due to legacy C++ filesystem"
 
 rel = relative_to("/", "")
 if(rel /= "") error stop "empty base should be empty: " // rel

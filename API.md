@@ -32,20 +32,20 @@ If this fixed buffer length becomes an issue, we may be able to make the length 
 
 ## System capabilities
 
-Not every system is capable of every filesystem feature.
-For example, older compilers with the legacy experimental C++17 filesystem have most but not all standard C++17 filesystem features.
-Another limitation applies to Windows MinGW GCC with symbolic (soft) links.
-We provide the status of each feature via `logical function filesystem_has_*()` to avoid user program errors--check if filesystem has a feature before using the feature.
-
-`filesystem_has_normalize()`, `filesystem_has_relative_to()`, `filesystem_has_weakly_canonical()` are for legacy C++17 experimental filesystem on old compilers, and work similar to the example below.
-
-The `filesystem_has_symlink()` function does NOT tell if a particular drive is capable of symlinks.
+Not every system is capable of every filesystem feature; for example Windows MinGW GCC is missing symbolic (soft) links.
+The optional argument in `create_symlink(..., status)` tells if the symlink was created.
 
 ```fortran
-use filesystem
+integer :: ierr
 
-if (filesystem_has_symlink()) then
-  call create_symlink("my/path", "my/symlink")
+call create_symlink("my/path", "my/symlink", status=ierr)
+
+if(ierr == 0) then
+! OK
+elseif(ierr < 0) then
+  error stop "create_symlink not possible on this system"
+else
+  error stop "create_symlink failed"
 endif
 ```
 
