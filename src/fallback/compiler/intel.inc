@@ -27,14 +27,6 @@ get_cwd = as_posix(work)
 end procedure get_cwd
 
 
-module procedure is_dir
-character(:), allocatable :: iwa
-
-iwa = expanduser(path)
-inquire(directory=iwa, exist=is_dir)
-end procedure is_dir
-
-
 module procedure file_size
 use ifport, only : stat
 

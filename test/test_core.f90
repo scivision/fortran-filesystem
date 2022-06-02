@@ -250,8 +250,7 @@ if(is_dir("")) error stop "is_dir empty should be false"
 if(sys_posix()) then
   if(.not. is_dir("/")) error stop "is_dir('/') failed"
 else
-  r = root(get_cwd())
-  ! print *, "test_is_dir: root drive: ", r
+  r = root(get_cwd()) // "/"
   if(.not. is_dir(r)) error stop "is_dir('" // r // "') failed"
 endif
 

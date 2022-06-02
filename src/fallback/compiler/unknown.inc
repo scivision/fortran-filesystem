@@ -6,10 +6,6 @@ implicit none (type, external)
 character(*), parameter :: tail = " not supported on this compiler / system."
 
 contains
-module procedure is_dir
-is_dir = .false.
-error stop "filesystem: is_dir " // tail
-end procedure is_dir
 
 module procedure get_cwd
 get_cwd = ""

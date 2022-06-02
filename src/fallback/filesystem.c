@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <sys/stat.h>
 
 #include "filesystem.h"
 
@@ -49,6 +50,22 @@ void filesep(char* sep) {
   strcpy(sep, "/");
 #endif
 }
+
+
+
+bool is_dir(const char* path){
+  struct stat s;
+
+  int i = stat(path, &s);
+
+#ifdef _WIN32
+  // NOTE: root() e.g. "C:" needs a trailing slash
+  return i == 0 && (s.st_mode & S_IFDIR);
+#else
+  return i == 0 && S_ISDIR(s.st_mode);
+#endif
+}
+
 
 size_t root(const char* path, char* r) {
 
