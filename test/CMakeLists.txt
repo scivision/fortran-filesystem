@@ -61,9 +61,6 @@ endif()
 add_executable(test_filesize test_filesize.f90)
 target_link_libraries(test_filesize PRIVATE filesystem)
 add_test(NAME FileSize COMMAND test_filesize)
-if(fallback AND CMAKE_Fortran_COMPILER_ID STREQUAL Cray)
-  set_tests_properties(FileSize PROPERTIES DISABLED 1)
-endif()
 
 # --- exe detect
 if(NOT fallback)
