@@ -50,14 +50,14 @@ test('Find', test_find, timeout: 10)
 
 # --- test C++ interface
 test_cpp = executable('test_cpp', 'test_cpp_ifc.cpp',
-include_directories: '../src',
+include_directories: '../include',
 link_with: filesystem
 )
 test('C++ interface', test_cpp, timeout: 10)
 
 # --- test C interface
 test_c = executable('test_c', 'test_c_ifc.c',
-include_directories: '../src',
+include_directories: '../include',
 link_with: filesystem
 )
 test('C interface', test_c, timeout: 10)

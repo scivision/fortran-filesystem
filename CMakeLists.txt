@@ -17,7 +17,7 @@ if(fallback)
   add_subdirectory(src/fallback)
 else()
   add_subdirectory(src)
-  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/filesystem.h TYPE INCLUDE)
+  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/filesystem.h TYPE INCLUDE)
 endif()
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod TYPE INCLUDE)

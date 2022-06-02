@@ -23,11 +23,13 @@ LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
 )
 target_include_directories(filesystem PUBLIC
 $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 $<INSTALL_INTERFACE:include>
 )
 
 # --- C++17 filesystem
 add_library(filesystem_cpp OBJECT fs.cpp)
+target_include_directories(filesystem_cpp PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_compile_features(filesystem_cpp PRIVATE cxx_std_17)
 target_compile_definitions(filesystem_cpp PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
 

@@ -7,11 +7,18 @@ default_options : ['cpp_std=c++17'])
 
 check_sym = files('cmake/check_fs_symlink.cpp')
 cpp = meson.get_compiler('cpp')
+fc = meson.get_compiler('fortran')
 
-if cpp.get_id() == 'gcc' and cpp.version().version_compare('<9.1.0')
-  fs_dep = cpp.find_library('stdc++fs', required : true)
-else
-  fs_dep = []
+if cpp.get_id() == 'gcc'
+  if cpp.version().version_compare('<9.1.0')
+    fs_dep = cpp.find_library('stdc++fs', required : true)
+  else
+    fs_dep = []
+  endif
+endif
+
+if fc.get_id() == 'gcc'
+  add_project_arguments(['-Wno-maybe-uninitialized', '-Wno-uninitialized'], language: 'fortran')
 endif
 
 ret_symlink = cpp.run(check_sym, name: 'has_symlink', dependencies: fs_dep)
@@ -45,15 +52,13 @@ platform_src = configure_file(input : 'src/platform.in.f90', output : 'platform.
 filesystem = library('filesystem',
 sources: [platform_src, files('src/filesystem.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90', 'src/fs_cpp.f90', 'src/fs.cpp')],
 dependencies: fs_dep,
-include_directories: 'src',
+include_directories: 'include',
 install: true
 )
-install_headers('src/filesystem.h')
+install_headers('include/filesystem.h')
 
 # --- tests
 subdir('test')
 
 # --- CLI
-if get_option('BUILD_UTILS')
-  cli = executable('filesystem_cli', files('apps/main.f90'), link_with: filesystem)
-endif
+cli = executable('filesystem_cli', files('app/main.f90'), link_with: filesystem)

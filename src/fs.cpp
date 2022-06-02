@@ -19,7 +19,7 @@ namespace fs = std::experimental::filesystem;
 
 #include "filesystem.h"
 
-extern "C" bool is_macos(){
+bool is_macos(){
 #if __APPLE__
 #include "TargetConditionals.h"
 #if TARGET_OS_MAC
@@ -29,21 +29,21 @@ extern "C" bool is_macos(){
 return false;
 }
 
-extern "C" bool is_linux() {
+bool is_linux() {
 #ifdef __linux__
   return true;
 #endif
 return false;
 }
 
-extern "C" bool is_unix() {
+bool is_unix() {
 #ifdef __unix__
   return true;
 #endif
 return false;
 }
 
-extern "C" bool is_windows() {
+bool is_windows() {
 #ifdef _WIN32
   return true;
 #endif
@@ -51,7 +51,7 @@ return false;
 }
 
 
-extern "C" size_t as_posix(char* path){
+size_t as_posix(char* path){
   // also remove duplicated separators
   std::string s(path);
 
@@ -66,14 +66,14 @@ extern "C" size_t as_posix(char* path){
 }
 
 
-extern "C" bool sys_posix() {
+bool sys_posix() {
   char sep[2];
 
   filesep(sep);
   return sep[0] == '/';
 }
 
-extern "C" size_t filesep(char* sep) {
+size_t filesep(char* sep) {
   fs::path p("/");
 
   std::strcpy(sep, p.make_preferred().string().c_str());
@@ -81,13 +81,13 @@ extern "C" size_t filesep(char* sep) {
 }
 
 
-extern "C" bool match(const char* path, const char* pattern) {
+bool match(const char* path, const char* pattern) {
   std::regex r(pattern);
   return std::regex_search(path, r);
 }
 
 
-extern "C" size_t file_name(const char* path, char* filename) {
+size_t file_name(const char* path, char* filename) {
   fs::path p(path);
 
   std::strcpy(filename, p.filename().string().c_str());
@@ -95,7 +95,7 @@ extern "C" size_t file_name(const char* path, char* filename) {
 }
 
 
-extern "C" size_t stem(const char* path, char* fstem) {
+size_t stem(const char* path, char* fstem) {
   fs::path p(path);
 
   auto fn = p.filename();
@@ -113,7 +113,7 @@ extern "C" size_t stem(const char* path, char* fstem) {
 }
 
 
-extern "C" size_t parent(const char* path, char* fparent) {
+size_t parent(const char* path, char* fparent) {
   fs::path p(path);
 
   if(p.has_parent_path()){
@@ -127,7 +127,7 @@ extern "C" size_t parent(const char* path, char* fparent) {
 }
 
 
-extern "C" size_t suffix(const char* path, char* fsuffix) {
+size_t suffix(const char* path, char* fsuffix) {
 
   fs::path p(path);
 
@@ -149,7 +149,7 @@ extern "C" size_t suffix(const char* path, char* fsuffix) {
 }
 
 
-extern "C" size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
+size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
 
   if( (strlen(path) == 0) ) {
     swapped = NULL;
@@ -177,7 +177,7 @@ extern "C" size_t with_suffix(const char* path, const char* new_suffix, char* sw
 }
 
 
-extern "C" size_t normal(const char* path, char* normalized) {
+size_t normal(const char* path, char* normalized) {
 
 #ifdef __cpp_lib_filesystem
   fs::path p(path);
@@ -191,7 +191,7 @@ extern "C" size_t normal(const char* path, char* normalized) {
 }
 
 
-extern "C" bool is_symlink(const char* path) {
+bool is_symlink(const char* path) {
   std::error_code ec;
 
   auto e = fs::is_symlink(path, ec);
@@ -203,7 +203,7 @@ extern "C" bool is_symlink(const char* path) {
   return e;
 }
 
-extern "C" bool create_symlink(const char* target, const char* link) {
+bool create_symlink(const char* target, const char* link) {
 
   if(strlen(target) == 0) {
     std::cerr << "filesystem:create_symlink: target path must not be empty" << std::endl;
@@ -230,7 +230,7 @@ extern "C" bool create_symlink(const char* target, const char* link) {
   return true;
 }
 
-extern "C" bool create_directory_symlink(const char* target, const char* link) {
+bool create_directory_symlink(const char* target, const char* link) {
   std::error_code ec;
 
   fs::create_directory_symlink(target, link, ec);
@@ -242,7 +242,7 @@ extern "C" bool create_directory_symlink(const char* target, const char* link) {
   return true;
 }
 
-extern "C" bool create_directories(const char* path) {
+bool create_directories(const char* path) {
 
   if(strlen(path) == 0) {
     std::cerr << "filesystem:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
@@ -288,7 +288,7 @@ extern "C" bool create_directories(const char* path) {
 }
 
 
-extern "C" size_t root(const char* path, char* result) {
+size_t root(const char* path, char* result) {
   fs::path p(path);
   fs::path r;
 
@@ -303,7 +303,7 @@ extern "C" size_t root(const char* path, char* result) {
   return strlen(result);
 }
 
-extern "C" bool exists(const char* path) {
+bool exists(const char* path) {
   std::error_code ec;
 
   auto e = fs::exists(path, ec);
@@ -316,12 +316,12 @@ extern "C" bool exists(const char* path) {
   return e;
 }
 
-extern "C" bool is_absolute(const char* path) {
+bool is_absolute(const char* path) {
   fs::path p(path);
   return p.is_absolute();
 }
 
-extern "C" bool is_file(const char* path) {
+bool is_file(const char* path) {
   std::error_code ec;
 
   auto s = fs::status(path, ec);
@@ -334,7 +334,7 @@ extern "C" bool is_file(const char* path) {
   return fs::is_regular_file(s);
 }
 
-extern "C" bool is_dir(const char* path) {
+bool is_dir(const char* path) {
   if(std::strlen(path) == 0) return false;
 
   fs::path p(path);
@@ -356,7 +356,7 @@ extern "C" bool is_dir(const char* path) {
 
 }
 
-extern "C" bool fs_remove(const char* path) {
+bool fs_remove(const char* path) {
   std::error_code ec;
 
   auto e = fs::remove(path, ec);
@@ -369,7 +369,7 @@ extern "C" bool fs_remove(const char* path) {
   return e;
 }
 
-extern "C" size_t canonical(char* path, bool strict) {
+size_t canonical(char* path, bool strict) {
   // also expands ~
 
   if( (strlen(path) == 0) ) {
@@ -410,7 +410,7 @@ extern "C" size_t canonical(char* path, bool strict) {
 }
 
 
-extern "C" bool equivalent(const char* path1, const char* path2) {
+bool equivalent(const char* path1, const char* path2) {
   // check existance to avoid error if not exist
   fs::path p1(path1);
   fs::path p2(path2);
@@ -435,7 +435,7 @@ extern "C" bool equivalent(const char* path1, const char* path2) {
 }
 
 
-extern "C" bool copy_file(const char* source, const char* destination, bool overwrite) {
+bool copy_file(const char* source, const char* destination, bool overwrite) {
 
   if(strlen(source) == 0) {
     std::cerr << "filesystem:copy_file: source path must not be empty" << std::endl;
@@ -476,7 +476,7 @@ extern "C" bool copy_file(const char* source, const char* destination, bool over
 }
 
 
-extern "C" size_t relative_to(const char* a, const char* b, char* result) {
+size_t relative_to(const char* a, const char* b, char* result) {
 
   // library bug handling
   if( (strlen(a) == 0) || (strlen(b) == 0) ) {
@@ -515,7 +515,7 @@ extern "C" size_t relative_to(const char* a, const char* b, char* result) {
 }
 
 
-extern "C" bool touch(const char* path) {
+bool touch(const char* path) {
 
   if(strlen(path) == 0) {
     std::cerr << "filesystem:touch: cannot touch empty file name" << std::endl;
@@ -570,7 +570,7 @@ extern "C" bool touch(const char* path) {
 }
 
 
-extern "C" size_t get_tempdir(char* path) {
+size_t get_tempdir(char* path) {
 
   std::error_code ec;
 
@@ -585,7 +585,7 @@ extern "C" size_t get_tempdir(char* path) {
 }
 
 
-extern "C" uintmax_t file_size(const char* path) {
+uintmax_t file_size(const char* path) {
   // need to check is_regular_file for MSVC/Intel Windows
   fs::path p(path);
   std::error_code ec;
@@ -609,7 +609,7 @@ extern "C" uintmax_t file_size(const char* path) {
 }
 
 
-extern "C" size_t get_cwd(char* path) {
+size_t get_cwd(char* path) {
   std::error_code ec;
 
   auto c = fs::current_path(ec);
@@ -623,7 +623,7 @@ extern "C" size_t get_cwd(char* path) {
 }
 
 
-extern "C" bool is_exe(const char* path) {
+bool is_exe(const char* path) {
   fs::path p(path);
   std::error_code ec;
 
@@ -648,7 +648,7 @@ extern "C" bool is_exe(const char* path) {
 }
 
 
-extern "C" size_t get_homedir(char* path) {
+size_t get_homedir(char* path) {
 
 #ifdef _WIN32
   std::strcpy(path, fs::path(std::getenv("USERPROFILE")).string().c_str());
@@ -660,7 +660,7 @@ extern "C" size_t get_homedir(char* path) {
 }
 
 
-extern "C" size_t expanduser(const char* path, char* result){
+size_t expanduser(const char* path, char* result){
 
   std::string p(path);
 
@@ -720,7 +720,7 @@ extern "C" size_t expanduser(const char* path, char* result){
   return as_posix(result);
 }
 
-extern "C" bool chmod_exe(const char* path) {
+bool chmod_exe(const char* path) {
   // make path owner executable, if it's a file
 
   fs::path p(path);
@@ -750,7 +750,7 @@ extern "C" bool chmod_exe(const char* path) {
 
 }
 
-extern "C" bool chmod_no_exe(const char* path) {
+bool chmod_no_exe(const char* path) {
   // make path not executable, if it's a file
 
   fs::path p(path);

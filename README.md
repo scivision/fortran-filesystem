@@ -8,7 +8,7 @@
 
 Platform independent (Linux, macOS, Windows, Cygwin, WSL, ...), object-oriented Fortran filesystem path manipulation library.
 The library also provides header
-[filesystem.h](./src/filesystem.h)
+[filesystem.h](./include/filesystem.h)
 that can be used from C and C++ project code--see
 [examples](./examples).
 This Fortran library uses
