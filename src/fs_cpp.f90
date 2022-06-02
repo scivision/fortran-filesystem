@@ -480,40 +480,28 @@ end procedure copy_file
 
 module procedure relative_to
 character(kind=c_char, len=:), allocatable :: s1, s2
-character(kind=c_char) :: rel(MAXP)
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+character(kind=c_char, len=MAXP) :: rel
+integer(C_SIZE_T) :: N
 
 s1 = a // C_NULL_CHAR
 s2 = b // C_NULL_CHAR
 
 N = cfs_relative_to(s1, s2, rel)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = rel(i)
-end do
-
-relative_to = trim(buf)
+relative_to = trim(rel(:N))
 end procedure relative_to
 
 
 module procedure expanduser
 character(kind=c_char, len=:), allocatable :: s1
-character(kind=c_char) :: cbuf(MAXP)
-integer(C_SIZE_T) :: N, i
-character(MAXP) :: buf
+character(kind=c_char, len=MAXP) :: cbuf
+integer(C_SIZE_T) :: N
 
 s1 = trim(path) // C_NULL_CHAR
 
 N = cfs_expanduser(s1, cbuf)
 
-buf = ""
-do i = 1, N
-  buf(i:i) = cbuf(i)
-end do
-
-expanduser = trim(buf)
+expanduser = trim(cbuf(:N))
 end procedure expanduser
 
 
