@@ -12,9 +12,5 @@ get_cwd = ""
 error stop "filesystem: get_cwd() " // tail
 end procedure get_cwd
 
-module procedure file_size
-file_size = 0
-error stop "filesystem: %file_size() " // tail
-end procedure file_size
 
 end submodule compiler_unknown

@@ -27,29 +27,4 @@ get_cwd = as_posix(work)
 end procedure get_cwd
 
 
-module procedure file_size
-use ifport, only : stat
-
-character(:), allocatable :: wk
-integer :: s(12), i
-
-file_size = -1
-wk = expanduser(path)
-
-i = stat(wk, s)
-if(i /= 0) then
-  write(stderr,*) "file_size: could not stat file: ", wk
-  return
-endif
-
-if (iand(s(3), O'0040000') == 16384) then
-  write(stderr,*) "file_size: is a directory: ", wk
-  return
-endif
-
-file_size = s(8)
-
-end procedure file_size
-
-
 end submodule intel_no_cpp_fs

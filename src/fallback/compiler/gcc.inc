@@ -24,34 +24,4 @@ get_cwd = as_posix(work)
 end procedure get_cwd
 
 
-module procedure file_size
-
-character(:), allocatable :: wk
-integer :: ftmode, s(13), i
-
-file_size = -1
-
-wk = expanduser(path)
-if(len_trim(wk) == 0) return
-
-i = stat(wk, s)
-if(i /= 0) then
-  write(stderr,*) "file_size: could not stat file: ", wk
-  return
-endif
-
-ftmode = iand(s(3), O'0170000') !< file type mode
-! print '(a,O8)', "TRACE:file_size stat(3) file type octal: ", ftmode
-
-if (iand(ftmode, O'0040000') == 16384) then
-  write(stderr,*) "file_size: is a directory: ", wk
-  return
-endif
-
-file_size = s(8)
-
-end procedure file_size
-
-
-
 end submodule gcc_no_cpp_fs

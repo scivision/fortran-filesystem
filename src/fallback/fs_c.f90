@@ -8,6 +8,11 @@ import
 character(kind=C_CHAR), intent(out) :: sep(*)
 end subroutine
 
+integer(C_SIZE_T) function cfs_file_size(path) bind(C, name="file_size")
+import
+character(kind=c_char), intent(in) :: path(*)
+end function
+
 logical(C_BOOL) function cfs_is_absolute(path) bind(C, name='is_absolute')
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -42,6 +47,11 @@ call cfs_filesep(cbuf)
 filesep = cbuf(1)
 
 end procedure filesep
+
+
+module procedure file_size
+file_size = cfs_file_size(trim(path) // C_NULL_CHAR)
+end procedure file_size
 
 
 module procedure is_absolute

@@ -51,6 +51,15 @@ void filesep(char* sep) {
 #endif
 }
 
+uintmax_t file_size(const char* path) {
+  struct stat s;
+
+  if (is_dir(path)) return 0;
+
+  if (stat(path, &s) == 0) return s.st_size;
+
+  return 0;
+}
 
 
 bool is_dir(const char* path){

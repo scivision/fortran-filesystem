@@ -25,11 +25,4 @@ get_cwd = trim(work)
 end procedure get_cwd
 
 
-module procedure file_size
-file_size = 0
-error stop "filesystem: %file_size() is not yet a feature for Cray"
-end procedure file_size
-
-
-
 end submodule cray_no_cpp_fs
