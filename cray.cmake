@@ -15,68 +15,75 @@ option(intel "use intel compiler instead of default GCC")
 
 # --- module names (may be different on your system)
 
-set(gcc gcc)
-set(oneapi intel-oneapi)
+set(gcc_mod gcc)
 set(pecray PrgEnv-cray)
 set(pegnu PrgEnv-gnu)
 set(peintel PrgEnv-intel)
 
 # --- main script
 
-# the module commands only affect the current process, not the parent shell
+# propagate options
 if(intel)
-  cmake_path(SET BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build-intel)
-  # if(NOT DEFINED ENV{CXXFLAGS})
-  #   set(ENV{CXXFLAGS} --gcc-toolchain=${gcc_dir})
-  # endif()
+  set(ENV{_toolintel} ${intel})
 else()
-  cmake_path(SET BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build)
+  set(intel "$ENV{_toolintel}")
 endif()
-
-if(CMAKE_INSTALL_PREFIX)
-  set(cmake_args -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX})
-endif()
-
-# --- modules
 
 find_package(EnvModules REQUIRED)
 
-if(intel)
-  env_module(load ${gcc} OUTPUT_VARIABLE out RESULT_VARIABLE ret)
-  if(ret)
-    message(STATUS "load ${gcc} error ${ret}: ${out}")
-  endif()
+function(gcc_toolchain)
 
-  execute_process(COMMAND gcc -dumpversion
-  OUTPUT_VARIABLE gcc_vers
-  COMMAND_ERROR_IS_FATAL ANY
-  )
-  if(gcc_vers VERSION_LESS 9.1)
-    message(WARNING "GCC >= 9.1 is required")
-  endif()
-
-  env_module(load ${oneapi} OUTPUT_VARIABLE out RESULT_VARIABLE ret)
-  message(STATUS "load ${oneapi}:  ${out}  ${ret}")
-
-  env_module_swap(${pecray} ${peintel} OUTPUT_VARIABLE out RESULT_VARIABLE ret)
-else()
-  env_module_swap(${pecray} ${pegnu} OUTPUT_VARIABLE out RESULT_VARIABLE ret)
+set(CXXFLAGS $ENV{CXXFLAGS})
+if(CXXFLAGS MATCHES "--gcc-toolchain")
+  return()
 endif()
-message(STATUS "swap PrgEnv: ${out}   ${ret}")
 
-execute_process(
-COMMAND ${CMAKE_COMMAND} -S${CMAKE_CURRENT_LIST_DIR} -B${BINARY_DIR} ${cmake_args}
+env_module(load ${gcc_mod} OUTPUT_VARIABLE out RESULT_VARIABLE ret)
+message(STATUS "load ${gcc_mod}:    ${out}  ${ret}")
+
+find_program(cc NAMES gcc REQUIRED)
+
+execute_process(COMMAND ${cc} -dumpversion
+OUTPUT_VARIABLE gcc_vers
+COMMAND_ERROR_IS_FATAL ANY
+)
+if(gcc_vers VERSION_LESS 9.1)
+  message(FATAL_ERROR "GCC toolchain >= 9.1 is required for oneAPI")
+endif()
+
+execute_process(COMMAND ${cc} -v
+OUTPUT_VARIABLE gcc_verb
+ERROR_VARIABLE gcc_verb
 COMMAND_ERROR_IS_FATAL ANY
 )
 
-execute_process(
-COMMAND ${CMAKE_COMMAND} --build ${BINARY_DIR}
-COMMAND_ERROR_IS_FATAL ANY
-)
+set(pat "--prefix=([/a-zA-Z0-9_\\-\\.]+)")
+string(REGEX MATCH "${pat}" gcc_prefix "${gcc_verb}")
 
-if(CMAKE_INSTALL_PREFIX)
-  execute_process(
-  COMMAND ${CMAKE_COMMAND} --install ${BINARY_DIR}
-  COMMAND_ERROR_IS_FATAL ANY
-  )
+if(CMAKE_MATCH_1)
+  string(APPEND CXXFLAGS " --gcc-toolchain=${CMAKE_MATCH_1}")
+  set(ENV{CXXFLAGS} ${CXXFLAGS})
+else()
+  message(WARNING "GCC toolchain not found")
+endif()
+
+endfunction(gcc_toolchain)
+
+# the module commands only affect the current process, not the parent shell
+env_module_list(mods)
+
+if(intel)
+  cmake_path(SET BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build-intel)
+
+  if(NOT mods MATCHES "${peintel}")
+    message(FATAL_ERROR "Cray Intel programming environment ${peintel} isn't loaded.")
+  endif()
+  # need new enough GCC toolchain
+  gcc_toolchain()
+else()
+  cmake_path(SET BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build)
+
+  if(NOT mods MATCHES "${pegnu}")
+    message(FATAL_ERROR "Cray GCC programming environment ${pegnu} isn't loaded.")
+  endif()
 endif()
