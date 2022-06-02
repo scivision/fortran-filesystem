@@ -322,7 +322,7 @@ end procedure canonical
 
 
 module procedure root
-character(kind=c_char, len=MAXP) :: cbuf
+character(kind=c_char, len=3) :: cbuf
 integer(C_SIZE_T) :: N
 
 N = cfs_root(trim(path) // C_NULL_CHAR, cbuf)
