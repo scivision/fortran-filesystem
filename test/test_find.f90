@@ -62,7 +62,13 @@ if(get_filename('./' // name, name) /= './' // tnc) error stop 'exist parts 2a'
 
 call remove(tnc)
 
-call mkdir('temp1/temp2')
+call mkdir('temp1/temp2', status=i)
+if(i < 0) then
+  write(stderr,*) "WARNING: platform doesn't have mkdir"
+  return
+elseif(i /= 0) then
+  error stop 'mkdir failed'
+endif
 
 if(is_file('temp1/temp2/' // th5)) call remove('temp1/temp2/' // th5)
 

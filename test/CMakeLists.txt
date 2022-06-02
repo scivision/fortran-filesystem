@@ -76,10 +76,13 @@ endif()
 add_executable(test_fileops test_fileop.f90)
 target_link_libraries(test_fileops PRIVATE filesystem)
 
-add_test(NAME FileOps
-COMMAND test_fileops
+add_test(NAME FileOps COMMAND test_fileops)
+set_tests_properties(FileOps PROPERTIES
 WORKING_DIRECTORY $<TARGET_FILE_DIR:test_fileops>
+SKIP_RETURN_CODE 77
+FIXTURES_SETUP ops_fxt
 )
+
 # workdir avoids test state being shared between tests
 
 # --- read/write text file
@@ -95,6 +98,9 @@ endif()
 add_executable(test_find test_find.f90)
 target_link_libraries(test_find PRIVATE filesystem)
 add_test(NAME Find COMMAND test_find)
+set_tests_properties(Find PROPERTIES
+FIXTURES_REQUIRED ops_fxt
+)
 
 # --- C / C++ interface
 if(NOT fallback)

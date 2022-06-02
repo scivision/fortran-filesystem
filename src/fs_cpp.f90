@@ -68,7 +68,7 @@ import
 character(kind=c_char), intent(in) :: target(*), link(*)
 end function
 
-logical(C_BOOL) function cfs_create_directories(path) bind(C, name="create_directories")
+integer(C_INT) function cfs_create_directories(path) bind(C, name="create_directories")
 import
 character(kind=c_char), intent(in) :: path(*)
 end function
@@ -104,7 +104,7 @@ import c_bool, c_char
 character(kind=c_char), intent(in) :: path1(*), path2(*)
 end function
 
-logical(c_bool) function cfs_copy_file(source, dest, overwrite) bind(C, name="copy_file")
+integer(C_INT) function cfs_copy_file(source, dest, overwrite) bind(C, name="copy_file")
 import
 character(kind=c_char), intent(in) :: source(*), dest(*)
 logical(c_bool), intent(in), value :: overwrite
@@ -284,23 +284,28 @@ end procedure is_symlink
 
 
 module procedure create_symlink
-integer :: ierr
+integer(C_INT) :: ierr
 
 ierr = cfs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)
 if(present(status)) then
   status = ierr
 elseif (ierr < 0) then
   error stop "ERROR:filesystem:create_symlink: platform is not capable of symlinks."
-elseif (ierr == 0) then
-  ! OK
-else
+elseif (ierr /= 0) then
   error stop "ERROR:filesystem:create_symlink: " // link
 endif
 end procedure create_symlink
 
 
 module procedure mkdir
-if (.not. cfs_create_directories(trim(path) // C_NULL_CHAR)) error stop "filesystem:mkdir: failed to create directory: " // path
+integer :: ierr
+
+ierr = cfs_create_directories(trim(path) // C_NULL_CHAR)
+if(present(status)) then
+  status = ierr
+elseif (ierr /= 0) then
+  error stop "ERROR:filesystem:mkdir: failed to create directory: " // path
+endif
 end procedure mkdir
 
 
@@ -366,13 +371,19 @@ end procedure f_unlink
 
 
 module procedure copy_file
-logical(c_bool) :: e, ow
+logical(c_bool) :: ow
+integer(C_INT) :: ierr
 
 ow = .false.
 if(present(overwrite)) ow = overwrite
 
-e = cfs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
-if (.not. e) error stop "failed to copy file: " // src // " to " // dest
+ierr = cfs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
+if (present(status)) then
+  status = ierr
+elseif(ierr /= 0) then
+  error stop "failed to copy file: " // src // " to " // dest
+endif
+
 end procedure copy_file
 
 

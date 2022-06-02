@@ -1,5 +1,7 @@
 program test_canon
 
+use, intrinsic:: iso_fortran_env, only : stderr=>error_unit
+
 use filesystem, only : path_t, get_cwd, same_file, resolve, mkdir, is_dir, is_file
 
 implicit none (type, external)
@@ -68,8 +70,14 @@ end subroutine test_canonical
 subroutine test_same_file()
 
 type(path_t) :: p1, p2
+integer :: i
 
-call mkdir("test-a/b/")
+call mkdir("test-a/b/", status=i)
+if(i < 0) then
+  write(stderr,'(A)') "mkdir not supported on this platform"
+  return
+endif
+
 if(.not. is_dir("test-a/b")) error stop "mkdir test-a/b failed"
 
 p1 = path_t("test-a/c")

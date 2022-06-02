@@ -33,6 +33,8 @@ call create_symlink(tgt, link, status=i)
 if(i < 0) then
   write(stderr,'(a)') "platform does not support symlinks"
   stop 77
+elseif(i /= 0) then
+  error stop "could not create symlink " // link
 endif
 
 if (p_sym%is_symlink()) then

@@ -255,9 +255,10 @@ character(*), intent(in) :: path
 logical, intent(in), optional :: strict
 end function
 
-module subroutine mkdir(path)
+module subroutine mkdir(path, status)
 !! create a directory, with parents if needed
 character(*), intent(in) :: path
+integer, intent(out), optional :: status
 end subroutine
 
 module subroutine utime(filename)
@@ -269,11 +270,12 @@ end interface
 
 
 interface
-module subroutine copy_file(src, dest, overwrite)
+module subroutine copy_file(src, dest, overwrite, status)
 !! copy single file from src to dest
 !! OVERWRITES existing destination file
 character(*), intent(in) :: src, dest
 logical, intent(in), optional :: overwrite
+integer, intent(out), optional :: status
 end subroutine
 end interface
 

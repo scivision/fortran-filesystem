@@ -194,17 +194,17 @@ int create_symlink(const char* target, const char* link) {
   }
   if(ec) {
     std::cerr << "ERROR:filesystem:create_symlink: " << ec.message() << " " << ec.value() << std::endl;
-    return 1;
+    return ec.value();
   }
 
   return 0;
 }
 
-bool create_directories(const char* path) {
+int create_directories(const char* path) {
 
   if(strlen(path) == 0) {
-    std::cerr << "filesystem:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
-    return false;
+    std::cerr << "ERROR:filesystem:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
+    return 1;
   }
 
   std::error_code ec;
@@ -212,37 +212,37 @@ bool create_directories(const char* path) {
   auto s = fs::status(path, ec);
   if(s.type() != fs::file_type::not_found){
     if(ec) {
-      std::cerr << "filesystem:create_directories:status: " << ec.message() << std::endl;
-      return false;
+      std::cerr << "ERROR:filesystem:create_directories:status: " << ec.message() << std::endl;
+      return ec.value();
     }
   }
 
   if(fs::exists(s)) {
-    if(is_dir(path)) return true;
+    if(is_dir(path)) return 0;
 
-    std::cerr << "filesystem:mkdir:create_directories: " << path << " already exists but is not a directory" << std::endl;
-    return false;
+    std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " already exists but is not a directory" << std::endl;
+    return 1;
   }
 
   auto ok = fs::create_directories(path, ec);
   if(ec) {
-    std::cerr << "filesystem:create_directories: " << ec.message() << std::endl;
-    return false;
+    std::cerr << "ERROR:filesystem:create_directories: " << ec.message() << std::endl;
+    return ec.value();
   }
 
   if( !ok ) {
-    // old MacOS return false even if directory was created
+    // old MacOS return != 0 even if directory was created
     if(is_dir(path)) {
-      return true;
+      return 0;
     }
     else
     {
-      std::cerr << "filesystem:mkdir:create_directories: " << path << " could not be created" << std::endl;
-      return false;
+      std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " could not be created" << std::endl;
+      return 1;
     }
   }
 
-  return ok;
+  return 0;
 }
 
 
@@ -389,15 +389,15 @@ bool equivalent(const char* path1, const char* path2) {
 }
 
 
-bool copy_file(const char* source, const char* destination, bool overwrite) {
+int copy_file(const char* source, const char* destination, bool overwrite) {
 
   if(strlen(source) == 0) {
     std::cerr << "filesystem:copy_file: source path must not be empty" << std::endl;
-    return false;
+    return 1;
   }
   if(strlen(destination) == 0) {
     std::cerr << "filesystem:copy_file: destination path must not be empty" << std::endl;
-    return false;
+    return 1;
   }
 
   fs::path d(destination);
@@ -413,20 +413,31 @@ bool copy_file(const char* source, const char* destination, bool overwrite) {
 
   if(ec) {
     std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << std::endl;
-    return false;
+    return ec.value();
   }
 
   opt |= fs::copy_options::overwrite_existing;
   }
 
-  auto e = fs::copy_file(source, d, opt, ec);
+  auto ok = fs::copy_file(source, d, opt, ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << std::endl;
-    return false;
+    return ec.value();
   }
 
-  return e;
+  if( !ok ) {
+    if(is_file(destination)) {
+      return 0;
+    }
+    else
+    {
+      std::cerr << "ERROR:filesystem:copy_file: " << destination << " could not be created" << std::endl;
+      return 1;
+    }
+  }
+
+  return 0;
 }
 
 

@@ -31,7 +31,7 @@ extern size_t normal(const char*, char*);
 extern bool is_symlink(const char*);
 extern int create_symlink(const char*, const char*);
 
-extern bool create_directories(const char*);
+extern int create_directories(const char*);
 extern bool exists(const char*);
 extern bool is_absolute(const char*);
 extern bool is_dir(const char*);
@@ -44,7 +44,7 @@ extern bool chmod_no_exe(const char*);
 extern bool fs_remove(const char*);
 extern size_t canonical(char*, bool);
 extern bool equivalent(const char*, const char*);
-extern bool copy_file(const char*, const char*, bool);
+extern int copy_file(const char*, const char*, bool);
 extern size_t relative_to(const char*, const char*, char*);
 extern bool touch(const char*);
 

@@ -108,9 +108,6 @@ Fortran Package Manager (fallback functions):
 
 ```sh
 fpm build
-
-# if on Windows
-fpm build --flag -D_WIN32
 ```
 
 Meson:

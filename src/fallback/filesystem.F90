@@ -268,11 +268,6 @@ character(*), intent(in) :: path
 logical, intent(in), optional :: strict
 end function
 
-module subroutine mkdir(path)
-!! create a directory, with parents if needed
-character(*), intent(in) :: path
-end subroutine
-
 module subroutine file_parts(path, fparts)
 !! split path into up to 1000 parts (arbitrary limit)
 !! all path separators are discarded, except the leftmost if present
@@ -282,16 +277,6 @@ character(:), allocatable, intent(out) :: fparts(:)
 end subroutine
 
 
-end interface
-
-
-interface !< {posix,windows}/sys.f90
-module subroutine copy_file(src, dest, overwrite)
-!! copy single file from src to dest
-!! OVERWRITES existing destination file
-character(*), intent(in) :: src, dest
-logical, intent(in), optional :: overwrite
-end subroutine
 end interface
 
 
@@ -309,6 +294,34 @@ end interface
 contains
 
 !> non-existent
+
+subroutine copy_file(src, dest, overwrite, status)
+!! copy single file from src to dest
+!! OVERWRITES existing destination file
+character(*), intent(in) :: src, dest
+logical, intent(in), optional :: overwrite
+integer, intent(out), optional :: status
+
+if(present(status)) then
+  status = -1
+  return
+endif
+
+error stop "ERROR:filesystem:fallback doesn't have copy_file"
+end subroutine
+
+subroutine mkdir(path, status)
+!! create a directory, with parents if needed
+character(*), intent(in) :: path
+integer, intent(out), optional :: status
+
+if(present(status)) then
+  status = -1
+  return
+endif
+
+error stop "ERROR:filesystem:fallback doesn't have mkdir"
+end subroutine
 
 logical function fs_is_symlink(self)
 class(path_t), intent(in) :: self
@@ -616,14 +629,6 @@ exists = (is_dir(path) .or. is_file(path))
 end function exists
 
 end module filesystem
-
-
-!> switchyard for OS-specific procedures
-#ifdef _WIN32
-include "windows/sys.inc"
-#else
-include "posix/sys.inc"
-#endif
 
 !> switchyard for compiler-specific procedures
 #ifdef __GFORTRAN__
