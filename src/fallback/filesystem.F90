@@ -635,6 +635,10 @@ end module filesystem
 include "compiler/gcc.inc"
 #elif defined(__INTEL_LLVM_COMPILER) || defined(__INTEL_COMPILER)
 include "compiler/intel.inc"
+#elif defined(_CRAYFTN)
+include "compiler/cray.inc"
+#else
+include "compiler/unknown.inc"
 #endif
 
 !> procedures from main filesystem
