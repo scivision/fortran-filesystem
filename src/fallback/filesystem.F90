@@ -608,11 +608,9 @@ end module filesystem
 
 !> switchyard for OS-specific procedures
 #ifdef _WIN32
-include "windows/crt.inc"
 include "windows/path.inc"
 include "windows/sys.inc"
 #else
-include "posix/crt.inc"
 include "posix/path.inc"
 include "posix/sys.inc"
 #endif

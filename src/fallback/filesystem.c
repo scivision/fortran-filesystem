@@ -1,3 +1,6 @@
+#include <string.h>
+#include <stdlib.h>
+
 #include "filesystem.h"
 
 bool is_macos(){
@@ -30,3 +33,9 @@ bool is_windows() {
 #endif
 return false;
 }
+
+#ifdef _WIN32
+extern void realpath(const char* path, char* rpath){
+  _fullpath(rpath, path, _MAX_PATH);
+}
+#endif

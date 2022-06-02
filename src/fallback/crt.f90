@@ -46,7 +46,7 @@ do i = 1, MAXP
   buf(i:i) = c_buf(i)
 enddo
 
-canonical = trim(buf(:i-1))
+canonical = as_posix(buf(:i-1))
 
 end procedure canonical
 
