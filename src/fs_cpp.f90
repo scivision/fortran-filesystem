@@ -239,12 +239,7 @@ end procedure filesep
 
 
 module procedure match
-character(kind=c_char, len=:), allocatable :: cpath, cpattern
-
-cpath = path // C_NULL_CHAR
-cpattern = pattern // C_NULL_CHAR
-
-match = cfs_match(cpath, cpattern)
+match = cfs_match(trim(path) // C_NULL_CHAR, trim(pattern) // C_NULL_CHAR)
 end procedure match
 
 
@@ -335,47 +330,28 @@ end procedure with_suffix
 
 
 module procedure touch
-character(kind=c_char, len=:), allocatable :: cpath
-
-cpath = path // C_NULL_CHAR
-
-if(.not. cfs_touch(cpath)) error stop "filesystem:touch: " // path
+if(.not. cfs_touch(trim(path) // C_NULL_CHAR)) error stop "filesystem:touch: " // path
 end procedure touch
 
 
 module procedure is_absolute
 !! no expanduser to be consistent with Python filesystem etc.
-character(kind=c_char, len=:), allocatable :: cpath
-
-cpath = path // C_NULL_CHAR
-is_absolute = cfs_is_absolute(cpath)
+is_absolute = cfs_is_absolute(trim(path) // C_NULL_CHAR)
 end procedure is_absolute
 
 
 module procedure is_symlink
-character(kind=c_char, len=:), allocatable :: cpath
-
-cpath = path // C_NULL_CHAR
-is_symlink = cfs_is_symlink(cpath)
+is_symlink = cfs_is_symlink(trim(path) // C_NULL_CHAR)
 end procedure is_symlink
 
 
 module procedure create_symlink
-character(kind=c_char, len=:), allocatable :: ctgt, clink
-
-ctgt = tgt // C_NULL_CHAR
-clink = link // C_NULL_CHAR
-
-if(.not. cfs_create_symlink(ctgt, clink)) error stop "filesystem:create_symlink: " // link
+if(.not. cfs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)) error stop "filesystem:create_symlink: " // link
 end procedure create_symlink
 
 
 module procedure mkdir
-character(kind=c_char, len=:), allocatable :: cpath
-
-cpath = path // C_NULL_CHAR
-
-if (.not. cfs_create_directories(cpath)) error stop "filesystem:mkdir: failed to create directory: " // path
+if (.not. cfs_create_directories(trim(path) // C_NULL_CHAR)) error stop "filesystem:mkdir: failed to create directory: " // path
 end procedure mkdir
 
 
@@ -410,96 +386,64 @@ end procedure root
 
 
 module procedure exists
-character(kind=c_char, len=:), allocatable :: cpath
-
-cpath = path // C_NULL_CHAR
-exists = cfs_exists(cpath)
+exists = cfs_exists(trim(path) // C_NULL_CHAR)
 end procedure exists
 
 
 module procedure is_file
-character(kind=c_char, len=:), allocatable :: cpath
-
-cpath = path // C_NULL_CHAR
-is_file = cfs_is_file(cpath)
+is_file = cfs_is_file(trim(path) // C_NULL_CHAR)
 end procedure is_file
 
 
 module procedure is_dir
-character(kind=c_char, len=:), allocatable :: cpath
-
-cpath = path // C_NULL_CHAR
-is_dir = cfs_is_dir(cpath)
+is_dir = cfs_is_dir(trim(path) // C_NULL_CHAR)
 end procedure is_dir
 
 
 module procedure is_exe
-character(kind=c_char, len=:), allocatable :: cpath
-
-cpath = path // C_NULL_CHAR
-is_exe = cfs_is_exe(cpath)
+is_exe = cfs_is_exe(trim(path) // C_NULL_CHAR)
 end procedure is_exe
 
 
 module procedure same_file
-character(kind=c_char, len=:), allocatable :: c1, c2
-
-c1 = path1 // C_NULL_CHAR
-c2 = path2 // C_NULL_CHAR
-
-same_file = cfs_equivalent(c1, c2)
+same_file = cfs_equivalent(trim(path1) // C_NULL_CHAR, trim(path2) // C_NULL_CHAR)
 end procedure same_file
 
 
 module procedure f_unlink
-character(kind=c_char, len=:), allocatable :: cpath
-
 logical(c_bool) :: e
 
-cpath = path // C_NULL_CHAR
-e = cfs_remove(cpath)
+e = cfs_remove(trim(path) // C_NULL_CHAR)
 if (.not. e) write(stderr, '(a)') "filesystem:unlink: " // path // " did not exist."
 end procedure f_unlink
 
 
 module procedure copy_file
-character(kind=c_char, len=:), allocatable :: csrc, cdest
-
 logical(c_bool) :: e, ow
 
 ow = .false.
 if(present(overwrite)) ow = overwrite
 
-csrc = src // C_NULL_CHAR
-cdest = dest // C_NULL_CHAR
-
-e = cfs_copy_file(csrc, cdest, ow)
+e = cfs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
 if (.not. e) error stop "failed to copy file: " // src // " to " // dest
 end procedure copy_file
 
 
 module procedure relative_to
-character(kind=c_char, len=:), allocatable :: s1, s2
 character(kind=c_char, len=MAXP) :: rel
 integer(C_SIZE_T) :: N
 
-s1 = a // C_NULL_CHAR
-s2 = b // C_NULL_CHAR
-
-N = cfs_relative_to(s1, s2, rel)
+N = cfs_relative_to(trim(a) // C_NULL_CHAR, trim(b) // C_NULL_CHAR, rel)
 
 relative_to = trim(rel(:N))
 end procedure relative_to
 
 
 module procedure expanduser
-character(kind=c_char, len=:), allocatable :: s1
 character(kind=c_char, len=MAXP) :: cbuf
 integer(C_SIZE_T) :: N
 
-s1 = trim(path) // C_NULL_CHAR
-
-N = cfs_expanduser(s1, cbuf)
+N = cfs_expanduser(trim(path) // C_NULL_CHAR, cbuf)
 
 expanduser = trim(cbuf(:N))
 end procedure expanduser
@@ -536,32 +480,22 @@ end procedure get_cwd
 
 
 module procedure file_size
-character(kind=c_char, len=:), allocatable :: cpath
-
-cpath = path // C_NULL_CHAR
-
-file_size = cfs_file_size(cpath)
+file_size = cfs_file_size(trim(path) // C_NULL_CHAR)
 end procedure file_size
 
 
 module procedure chmod_exe
-character(kind=c_char, len=:), allocatable :: cpath
 logical :: s
 
-cpath = path // C_NULL_CHAR
-
-s = cfs_chmod_exe(cpath)
+s = cfs_chmod_exe(trim(path) // C_NULL_CHAR)
 if(present(ok)) ok = s
 end procedure chmod_exe
 
 
 module procedure chmod_no_exe
-character(kind=c_char, len=:), allocatable :: cpath
 logical :: s
 
-cpath = path // C_NULL_CHAR
-
-s = cfs_chmod_no_exe(cpath)
+s = cfs_chmod_no_exe(trim(path) // C_NULL_CHAR)
 if(present(ok)) ok = s
 end procedure chmod_no_exe
 
