@@ -74,8 +74,10 @@ procedure, public :: resolve=>fs_resolve
 procedure, public :: same_file=>fs_same_file
 procedure, public :: remove=>fs_unlink
 procedure, public :: file_size=>fs_file_size
+
 procedure, public :: is_symlink=>fs_is_symlink
 procedure, public :: create_symlink=>fs_create_symlink
+procedure, public :: normal=>fs_normal
 
 end type path_t
 
@@ -341,6 +343,14 @@ end subroutine
 logical function is_exe(path)
 character(*), intent(in) :: path
 error stop "filesystem:fallback doesn't have is_exe"
+end function
+
+function fs_normal(self)
+!! lexically normalize path
+class(path_t), intent(in) :: self
+type(path_t) :: fs_normal
+
+fs_normal%path_str = normal(self%path_str)
 end function
 
 function normal(path)

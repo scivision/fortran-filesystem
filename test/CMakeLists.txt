@@ -4,20 +4,24 @@ set_directory_properties(PROPERTIES LABELS unit)
 add_executable(test_core test_core.f90)
 target_link_libraries(test_core PRIVATE filesystem)
 add_test(NAME filesystem_core COMMAND test_core)
+set_tests_properties(filesystem_core PROPERTIES
+FIXTURES_SETUP core_fxt
+)
 
 # --- C++ filesystem methods
-add_executable(test_core_fs test_cpp_fs.f90)
-target_link_libraries(test_core_fs PRIVATE filesystem)
-add_test(NAME core COMMAND test_core_fs)
+add_executable(test_env test_cpp_fs.f90)
+target_link_libraries(test_env PRIVATE filesystem)
+add_test(NAME environment COMMAND test_env)
 
 # --- relative_to
-if(NOT fallback)
 add_executable(test_relative_to test_cpp_relative.f90)
 target_link_libraries(test_relative_to PRIVATE filesystem)
 add_test(NAME relative_to COMMAND test_relative_to)
+set_tests_properties(relative_to PROPERTIES
+DISABLED $<BOOL:${fallback}>
+)
 if(HAVE_CXX_FILESYSTEM)
   set_tests_properties(relative_to PROPERTIES PASS_REGULAR_EXPRESSION "OK: relative_to full")
-endif()
 endif()
 
 # --- regex
@@ -119,6 +123,10 @@ endif(NOT fallback)
 
 # --- props
 
+set_tests_properties(relative_to Canonical FileSize PROPERTIES
+FIXTURES_REQUIRED core_fxt
+)
+
 get_property(test_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
 foreach(t IN LISTS test_targets)
   get_target_property(tlbl ${t} LABELS)
@@ -138,7 +146,10 @@ foreach(t IN LISTS test_targets)
 endforeach()
 
 get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
-set_tests_properties(${test_names} PROPERTIES RUN_SERIAL true)
+set_tests_properties(${test_names} PROPERTIES
+RUN_SERIAL true
+TIMEOUT 15
+)
 # tests run much faster in serial, especially on Windows
 
 # --- coverage
