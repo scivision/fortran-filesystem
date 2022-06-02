@@ -1,11 +1,10 @@
 name = "filesystem"
 description = "Lightweight filesystem and path manipulations"
 categories = "io"
-version = "3.4.5"
+version = "3.5.0"
 
 [build]
 auto-examples = false
-auto-executables = false
 auto-tests = false
 
 [install]

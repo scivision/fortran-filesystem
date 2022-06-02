@@ -1,5 +1,6 @@
 module filesystem
 
+use, intrinsic:: iso_c_binding, only: C_BOOL
 use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 
 implicit none (type, external)
@@ -15,7 +16,9 @@ file_parts, relative_to, resolve, root, same_file, file_size, &
 file_name, parent, stem, suffix, with_suffix, &
 assert_is_file, assert_is_dir, &
 sys_posix, touch, &
-remove, get_filename, make_absolute
+remove, get_filename, make_absolute, &
+is_macos, is_linux, is_unix, is_windows, &
+is_symlink, is_exe, normal
 !! functional API
 
 integer, public, protected :: MAXP = 4096
@@ -94,7 +97,7 @@ module function get_filename(path, name, suffixes)
 character(*), intent(in) :: path
 character(*), intent(in), optional :: name, suffixes(:)
 character(:), allocatable :: get_filename
-end function get_filename
+end function
 
 module function make_absolute(path, top_path)
 !! if path is absolute, return expanded path
@@ -104,7 +107,7 @@ module function make_absolute(path, top_path)
 
 character(:), allocatable :: make_absolute
 character(*), intent(in) :: path, top_path
-end function make_absolute
+end function
 
 end interface
 
@@ -112,29 +115,29 @@ interface !< general.f90
 
 
 module logical function filesystem_has_symlink()
-end function filesystem_has_symlink
+end function
 
 module logical function filesystem_has_weakly_canonical()
-end function filesystem_has_weakly_canonical
+end function
 
 module logical function filesystem_has_normalize()
-end function filesystem_has_normalize
+end function
 
 module logical function filesystem_has_relative_to()
-end function filesystem_has_relative_to
+end function
 
 module function get_homedir()
 !! returns home directory, or empty string if not found
 !!
 !! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
 character(:), allocatable :: get_homedir
-end function get_homedir
+end function
 
 module function get_tempdir()
 !! returns temp directory, or empty string if not found
 !!
 character(:), allocatable :: get_tempdir
-end function get_tempdir
+end function
 
 module function relative_to(a, b)
 !! returns b relative to a
@@ -145,44 +148,65 @@ module function relative_to(a, b)
 
 character(*), intent(in) :: a, b
 character(:), allocatable :: relative_to
-end function relative_to
+end function
 
 module subroutine touch(path)
 character(*), intent(in) :: path
-end subroutine touch
+end subroutine
 
 module logical function same_file(path1, path2)
 character(*), intent(in) :: path1, path2
-end function same_file
+end function
 
 module function file_name(path)
 !! returns file name without path
 character(*), intent(in) :: path
 character(:), allocatable :: file_name
-end function file_name
+end function
 
 module function stem(path)
 character(*), intent(in) :: path
 character(:), allocatable :: stem
-end function stem
+end function
 
 module function parent(path)
 !! returns parent directory of path
 character(*), intent(in) :: path
 character(:), allocatable :: parent
-end function parent
+end function
 
 module function suffix(path)
 !! extracts path suffix, including the final "." dot
 character(*), intent(in) :: path
 character(:), allocatable :: suffix
-end function suffix
+end function
 
 module function with_suffix(path, new)
 !! replace file suffix with new suffix
 character(*), intent(in) :: path,new
 character(:), allocatable :: with_suffix
-end function with_suffix
+end function
+
+end interface
+
+
+interface !< fs.c
+
+logical(C_BOOL) function is_macos() bind(C)
+import C_BOOL
+end function
+
+logical(C_BOOL) function is_windows() bind(C)
+import C_BOOL
+end function
+
+logical(C_BOOL) function is_linux() bind(C)
+import C_BOOL
+end function
+
+logical(C_BOOL) function is_unix() bind(C)
+import C_BOOL
+end function
 
 end interface
 
@@ -194,49 +218,49 @@ module function as_posix(path)
 
 character(:), allocatable :: as_posix
 character(*), intent(in) :: path
-end function as_posix
+end function
 
 module logical function is_dir(path)
 !! .true.: "path" is a directory OR symlink pointing to a directory
 !! .false.: "path" is a broken symlink, does not exist, or is some other type of filesystem entity
 character(*), intent(in) :: path
-end function is_dir
+end function
 
 module logical function is_file(path)
 !! .true.: "path" is a file OR symlink pointing to a file
 !! .false.: "path" is a directory, broken symlink, or does not exist
 character(*), intent(in) :: path
-end function is_file
+end function
 
 module function expanduser(path)
 !! resolve home directory as Fortran does not understand tilde
 !! works for Linux, Mac, Windows, ...
 character(:), allocatable :: expanduser
 character(*), intent(in) :: path
-end function expanduser
+end function
 
 module function get_cwd()
 character(:), allocatable :: get_cwd
-end function get_cwd
+end function
 
 module subroutine f_unlink(path)
 !! delete the file, symbolic link, or empty directory
 character(*), intent(in) :: path
-end subroutine f_unlink
+end subroutine
 
 module integer(int64) function file_size(path)
 character(*), intent(in) :: path
-end function file_size
+end function
 
 module function root(path)
 !! returns root of path
 character(*), intent(in) :: path
 character(:), allocatable :: root
-end function root
+end function
 
 module character function filesep()
 !! get system file separator
-end function filesep
+end function
 
 end interface
 
@@ -248,12 +272,12 @@ module function canonical(path, strict)
 character(:), allocatable :: canonical
 character(*), intent(in) :: path
 logical, intent(in), optional :: strict
-end function canonical
+end function
 
 module subroutine mkdir(path)
 !! create a directory, with parents if needed
 character(*), intent(in) :: path
-end subroutine mkdir
+end subroutine
 
 module subroutine file_parts(path, fparts)
 !! split path into up to 1000 parts (arbitrary limit)
@@ -261,10 +285,10 @@ module subroutine file_parts(path, fparts)
 character(*), intent(in) :: path
 character(:), allocatable, intent(out) :: fparts(:)
 !! allocatable, intent(out) because we do want to implicitly deallocate first
-end subroutine file_parts
+end subroutine
 
 module logical function sys_posix()
-end function sys_posix
+end function
 
 end interface
 
@@ -275,7 +299,7 @@ module subroutine copy_file(src, dest, overwrite)
 !! OVERWRITES existing destination file
 character(*), intent(in) :: src, dest
 logical, intent(in), optional :: overwrite
-end subroutine copy_file
+end subroutine
 end interface
 
 
@@ -285,12 +309,30 @@ module logical function is_absolute(path)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. filesystem
 character(*), intent(in) :: path
-end function is_absolute
+end function
 
 end interface
 
 
 contains
+
+!> non-existent
+
+logical function is_symlink(path)
+character(*), intent(in) :: path
+error stop "filesystem:fallback doesn't have is_symlink"
+end function
+
+logical function is_exe(path)
+character(*), intent(in) :: path
+error stop "filesystem:fallback doesn't have is_exe"
+end function
+
+function normal(path)
+character(*), intent(in) :: path
+character(:), allocatable :: normal
+error stop "filesystem:fallback doesn't have normal"
+end function
 
 !> one-liner methods calling actual procedures
 
@@ -391,7 +433,7 @@ subroutine fs_unlink(self)
 class(path_t), intent(in) :: self
 
 call f_unlink(self%path_str)
-end subroutine fs_unlink
+end subroutine
 
 
 logical function fs_exists(self)
@@ -441,7 +483,7 @@ subroutine fs_mkdir(self)
 class(path_t), intent(in) :: self
 
 call mkdir(self%path_str)
-end subroutine fs_mkdir
+end subroutine
 
 
 subroutine fs_copy_file(self, dest, overwrite)
@@ -452,7 +494,7 @@ character(*), intent(in) :: dest
 logical, intent(in), optional :: overwrite
 
 call copy_file(self%path_str, dest, overwrite)
-end subroutine fs_copy_file
+end subroutine
 
 
 function fs_expanduser(self)
@@ -478,7 +520,7 @@ subroutine fs_touch(self)
 class(path_t), intent(in) :: self
 
 call touch(self%path_str)
-end subroutine fs_touch
+end subroutine
 
 !! non-functional API
 
@@ -568,3 +610,7 @@ include "compiler/gcc.inc"
 #elif defined(__INTEL_LLVM_COMPILER) || defined(__INTEL_COMPILER)
 include "compiler/intel.inc"
 #endif
+
+!> procedures from main filesystem
+include "../iter.f90"
+include "../find.f90"

@@ -141,13 +141,13 @@ module function normal(path)
 !! lexically normalize path
 character(*), intent(in) :: path
 character(:), allocatable :: normal
-end function normal
+end function
 
 module function with_suffix(path, new)
 !! replace file suffix with new suffix
 character(*), intent(in) :: path,new
 character(:), allocatable :: with_suffix
-end function with_suffix
+end function
 
 end interface !< pure.f90
 
@@ -160,7 +160,7 @@ module subroutine file_parts(path, fparts)
 character(*), intent(in) :: path
 character(:), allocatable, intent(out) :: fparts(:)
 !! allocatable, intent(out) because we do want to implicitly deallocate first
-end subroutine file_parts
+end subroutine
 
 end interface
 
@@ -168,20 +168,20 @@ end interface
 interface !< impure.f90
 module logical function same_file(path1, path2)
 character(*), intent(in) :: path1, path2
-end function same_file
+end function
 
 module logical function is_file(path)
 !! .true.: "path" is a file OR symlink pointing to a file
 !! .false.: "path" is a directory, broken symlink, or does not exist
 character(*), intent(in) :: path
-end function is_file
+end function
 
 module function expanduser(path)
 !! resolve home directory as Fortran does not understand tilde
 !! works for Linux, Mac, Windows, ...
 character(:), allocatable :: expanduser
 character(*), intent(in) :: path
-end function expanduser
+end function
 
 end interface  !< impure.f90
 
@@ -200,7 +200,7 @@ module function get_filename(path, name, suffixes)
 character(*), intent(in) :: path
 character(*), intent(in), optional :: name, suffixes(:)
 character(:), allocatable :: get_filename
-end function get_filename
+end function
 
 module function make_absolute(path, top_path)
 !! if path is absolute, return expanded path
@@ -210,7 +210,7 @@ module function make_absolute(path, top_path)
 
 character(:), allocatable :: make_absolute
 character(*), intent(in) :: path, top_path
-end function make_absolute
+end function
 
 end interface
 
@@ -219,19 +219,19 @@ interface !< io.f90
 
 module subroutine touch(path)
 character(*), intent(in) :: path
-end subroutine touch
+end subroutine
 
 module function read_text(filename, max_length)
 !! read text file
 character(*), intent(in) :: filename
 character(:), allocatable :: read_text
 integer, optional :: max_length
-end function read_text
+end function
 
 module subroutine write_text(filename, text)
 !! create or overwrite file with text
 character(*), intent(in) :: filename, text
-end subroutine write_text
+end subroutine
 
 end interface
 
@@ -242,7 +242,7 @@ module function get_homedir()
 !!
 !! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
 character(:), allocatable :: get_homedir
-end function get_homedir
+end function
 
 
 end interface
@@ -254,17 +254,17 @@ module function canonical(path, strict)
 character(:), allocatable :: canonical
 character(*), intent(in) :: path
 logical, intent(in), optional :: strict
-end function canonical
+end function
 
 module subroutine mkdir(path)
 !! create a directory, with parents if needed
 character(*), intent(in) :: path
-end subroutine mkdir
+end subroutine
 
 module subroutine utime(filename)
 !! like C utime(), update file modification time
 character(*), intent(in) :: filename
-end subroutine utime
+end subroutine
 
 end interface
 
@@ -275,7 +275,7 @@ module subroutine copy_file(src, dest, overwrite)
 !! OVERWRITES existing destination file
 character(*), intent(in) :: src, dest
 logical, intent(in), optional :: overwrite
-end subroutine copy_file
+end subroutine
 end interface
 
 
@@ -284,13 +284,13 @@ module logical function is_absolute(path)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. filesystem
 character(*), intent(in) :: path
-end function is_absolute
+end function
 
 module function root(path)
 !! returns root of path
 character(*), intent(in) :: path
 character(:), allocatable :: root
-end function root
+end function
 
 end interface
 
@@ -301,19 +301,19 @@ module logical function is_dir(path)
 !! .true.: "path" is a directory OR symlink pointing to a directory
 !! .false.: "path" is a broken symlink, does not exist, or is some other type of filesystem entity
 character(*), intent(in) :: path
-end function is_dir
+end function
 
 module integer(int64) function file_size(path)
 character(*), intent(in) :: path
-end function file_size
+end function
 
 module logical function is_exe(path)
 character(*), intent(in) :: path
-end function is_exe
+end function
 
 module function get_cwd()
 character(:), allocatable :: get_cwd
-end function get_cwd
+end function
 
 end interface
 
@@ -346,65 +346,65 @@ end interface
 interface !< fs_cpp.f90
 
 module logical function filesystem_has_symlink()
-end function filesystem_has_symlink
+end function
 
 module logical function filesystem_has_weakly_canonical()
-end function filesystem_has_weakly_canonical
+end function
 
 module logical function filesystem_has_normalize()
-end function filesystem_has_normalize
+end function
 
 module logical function filesystem_has_relative_to()
-end function filesystem_has_relative_to
+end function
 
 module logical function is_symlink(path)
 !! .true.: "path" is a symbolic link
 !! .false.: "path" is not a symbolic link, or does not exist
 character(*), intent(in) :: path
-end function is_symlink
+end function
 
 module subroutine create_symlink(tgt, link)
 character(*), intent(in) :: tgt, link
-end subroutine create_symlink
+end subroutine
 
 module logical function exists(path)
 !! a file or directory exists
 character(*), intent(in) :: path
-end function exists
+end function
 
 
 module logical function match(path, pattern)
 !! does any substring of path match the pattern
 !! pattern uses C++ regex_search() syntax
 character(*), intent(in) :: path, pattern
-end function match
+end function
 
 
 module subroutine f_unlink(path)
 !! delete the file, symbolic link, or empty directory
 character(*), intent(in) :: path
-end subroutine f_unlink
+end subroutine
 
 module function get_tempdir()
 !! get system temporary directory
 character(:), allocatable :: get_tempdir
-end function get_tempdir
+end function
 
 module character function filesep()
 !! get system file separator
-end function filesep
+end function
 
 module subroutine chmod_exe(path, ok)
 !! set owner executable bit for regular file
 character(*), intent(in) :: path
 logical, intent(out), optional :: ok
-end subroutine chmod_exe
+end subroutine
 
 module subroutine chmod_no_exe(path, ok)
 !! set owner non-executable bit for regular file
 character(*), intent(in) :: path
 logical, intent(out), optional :: ok
-end subroutine chmod_no_exe
+end subroutine
 
 
 end interface
