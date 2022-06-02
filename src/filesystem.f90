@@ -1,5 +1,6 @@
 module filesystem
 
+use, intrinsic:: iso_c_binding, only: C_BOOL
 use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 
 implicit none (type, external)
@@ -291,9 +292,6 @@ character(*), intent(in) :: path
 character(:), allocatable :: root
 end function root
 
-module logical function sys_posix()
-end function sys_posix
-
 end interface
 
 
@@ -319,20 +317,33 @@ end function get_cwd
 
 end interface
 
+interface !< fs.cpp
+
+logical(C_BOOL) function is_macos() bind(C)
+import C_BOOL
+end function
+
+logical(C_BOOL) function is_windows() bind(C)
+import C_BOOL
+end function
+
+logical(C_BOOL) function is_linux() bind(C)
+import C_BOOL
+end function
+
+logical(C_BOOL) function is_unix() bind(C)
+import C_BOOL
+end function
+
+logical(C_BOOL) function sys_posix() bind(C)
+import C_BOOL
+end function
+
+
+end interface
+
 
 interface !< fs_cpp.f90
-
-module logical function is_macos()
-end function is_macos
-
-module logical function is_windows()
-end function is_windows
-
-module logical function is_linux()
-end function is_linux
-
-module logical function is_unix()
-end function is_unix
 
 module logical function filesystem_has_symlink()
 end function filesystem_has_symlink

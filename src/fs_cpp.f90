@@ -1,30 +1,10 @@
 submodule (filesystem) fs_cpp
 
-use, intrinsic :: iso_c_binding, only : c_bool, c_char, c_ptr, C_NULL_CHAR, C_SIZE_T
+use, intrinsic :: iso_c_binding, only : c_char, c_ptr, C_NULL_CHAR, C_SIZE_T
 
 implicit none (type, external)
 
 interface !< fs.cpp
-
-logical(C_BOOL) function cfs_is_macos() bind(C, name="is_macos")
-import C_BOOL
-end function cfs_is_macos
-
-logical(C_BOOL) function cfs_is_windows() bind(C, name="is_windows")
-import C_BOOL
-end function cfs_is_windows
-
-logical(C_BOOL) function cfs_is_linux() bind(C, name="is_linux")
-import C_BOOL
-end function cfs_is_linux
-
-logical(C_BOOL) function cfs_is_unix() bind(C, name="is_unix")
-import C_BOOL
-end function cfs_is_unix
-
-logical(C_BOOL) function cfs_sys_posix() bind(C, name="sys_posix")
-import C_BOOL
-end function cfs_sys_posix
 
 integer(C_SIZE_T) function cfs_filesep(sep) bind(C, name='filesep')
 import
@@ -204,28 +184,6 @@ end interface
 contains
 
 
-module procedure is_macos
-is_macos = cfs_is_macos()
-end procedure is_macos
-
-module procedure is_windows
-is_windows = cfs_is_windows()
-end procedure is_windows
-
-module procedure is_linux
-is_linux = cfs_is_linux()
-end procedure is_linux
-
-module procedure is_unix
-is_unix = cfs_is_unix()
-end procedure is_unix
-
-
-module procedure sys_posix
-sys_posix = cfs_sys_posix()
-end procedure sys_posix
-
-
 module procedure filesep
 character(kind=c_char) :: cbuf(3)
 integer(c_size_t) :: N
@@ -244,12 +202,10 @@ end procedure match
 
 
 module procedure file_name
-character(kind=c_char, len=MAXP) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cbuf
 integer(C_SIZE_T) :: N
 
-cpath = path // C_NULL_CHAR
-
-N = cfs_file_name(cpath, cbuf)
+N = cfs_file_name(trim(path) // C_NULL_CHAR, cbuf)
 
 file_name = trim(cbuf(:N))
 
@@ -257,48 +213,40 @@ end procedure file_name
 
 
 module procedure stem
-character(kind=c_char, len=MAXP) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cbuf
 integer(C_SIZE_T) :: N
 
-cpath = path // C_NULL_CHAR
-
-N = cfs_stem(cpath, cbuf)
+N = cfs_stem(trim(path) // C_NULL_CHAR, cbuf)
 
 stem = trim(cbuf(:N))
 end procedure stem
 
 
 module procedure parent
-character(kind=c_char, len=MAXP) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cbuf
 integer(C_SIZE_T) :: N
 
-cpath = path // C_NULL_CHAR
-
-N = cfs_parent(cpath, cbuf)
+N = cfs_parent(trim(path) // C_NULL_CHAR, cbuf)
 
 parent = trim(cbuf(:N))
 end procedure parent
 
 
 module procedure suffix
-character(kind=c_char, len=MAXP) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cbuf
 integer(C_SIZE_T) :: N
 
-cpath = path // C_NULL_CHAR
-
-N = cfs_suffix(cpath, cbuf)
+N = cfs_suffix(trim(path) // C_NULL_CHAR, cbuf)
 
 suffix = trim(cbuf(:N))
 end procedure suffix
 
 
 module procedure normal
-character(kind=c_char, len=MAXP) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cbuf
 integer(C_SIZE_T) :: N
 
-cpath = path // C_NULL_CHAR
-
-N = cfs_normal(cpath, cbuf)
+N = cfs_normal(trim(path) // C_NULL_CHAR, cbuf)
 
 normal = trim(cbuf(:N))
 end procedure normal
@@ -317,13 +265,10 @@ end procedure as_posix
 
 
 module procedure with_suffix
-character(kind=c_char, len=MAXP) :: cpath, csuff, cbuf
+character(kind=c_char, len=MAXP) :: cbuf
 integer(C_SIZE_T) :: N
 
-cpath = path // C_NULL_CHAR
-csuff = new // C_NULL_CHAR
-
-N = cfs_with_suffix(cpath, csuff, cbuf)
+N = cfs_with_suffix(trim(path) // C_NULL_CHAR, trim(new) // C_NULL_CHAR, cbuf)
 
 with_suffix = trim(cbuf(:N))
 end procedure with_suffix
@@ -373,12 +318,10 @@ end procedure canonical
 
 
 module procedure root
-character(kind=c_char, len=MAXP) :: cpath, cbuf
+character(kind=c_char, len=MAXP) :: cbuf
 integer(C_SIZE_T) :: N
 
-cpath = path // C_NULL_CHAR
-
-N = cfs_root(cpath, cbuf)
+N = cfs_root(trim(path) // C_NULL_CHAR, cbuf)
 
 root = trim(cbuf(:N))
 
