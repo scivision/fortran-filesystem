@@ -4,7 +4,6 @@ categories = "io"
 version = "3.5.0"
 
 [build]
-auto-examples = false
 auto-tests = false
 
 [install]

@@ -10,7 +10,7 @@ Platform independent (Linux, macOS, Windows, Cygwin, WSL, ...), object-oriented 
 The library also provides header
 [filesystem.h](./include/filesystem.h)
 that can be used from C and C++ project code--see
-[examples](./examples).
+[example](./example).
 This Fortran library uses
 [C++ stdlib filesystem](https://en.cppreference.com/w/cpp/filesystem)
 internally.
@@ -139,7 +139,7 @@ cmake --build build
 
 ## Usage from other projects
 
-The [examples](./examples) directory contains a use pattern from external projects.
+The [example](./example) directory contains a use pattern from external projects.
 One can either `cmake --install build` or use ExternalProject from the other project.
 [ffilesystem.cmake](./cmake/ffilesystem.cmake) would be included from the other project to find or build Fortran-filesystem automatically.
 It provides the appropriate imported targets for shared or static builds, including Windows DLL handling.

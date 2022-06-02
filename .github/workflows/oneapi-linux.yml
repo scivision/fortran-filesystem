@@ -81,13 +81,13 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+      run: cmake -B example/build -S example/ -DCMAKE_PREFIX_PATH=${{ runner.temp }}
 
     - name: example build
-      run: cmake --build examples/build
+      run: cmake --build example/build
 
     - name: example test
-      run: ctest --test-dir examples/build -V
+      run: ctest --test-dir example/build -V
 
 # NOTE: as with any C++ / Fortran program with Intel compiler,
 # need to have GCC environment carefully set

@@ -53,13 +53,13 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      run: cmake -B example/build -S example/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: example build
-      run: cmake --build examples/build
+      run: cmake --build example/build
 
     - name: example test
-      run: ctest --test-dir examples/build -V
+      run: ctest --test-dir example/build -V
 
 
   linux-clang:
@@ -97,13 +97,13 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      run: cmake -B example/build -S example/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: example build
-      run: cmake --build examples/build
+      run: cmake --build example/build
 
     - name: example test
-      run: ctest --test-dir examples/build -V
+      run: ctest --test-dir example/build -V
 
 
   valgrind-memory:
@@ -186,13 +186,13 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      run: cmake -B example/build -S example/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: example build
-      run: cmake --build examples/build
+      run: cmake --build example/build
 
     - name: example test
-      run: ctest --test-dir examples/build -V
+      run: ctest --test-dir example/build -V
 
 
   windows:
@@ -233,10 +233,10 @@ jobs:
       run: cmake --install build
 
     - name: example config
-      run: cmake -B examples/build -S examples/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      run: cmake -B example/build -S example/ -DCMAKE_PREFIX_PATH=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: example build
-      run: cmake --build examples/build
+      run: cmake --build example/build
 
     - name: example test
-      run: ctest --test-dir examples/build -V
+      run: ctest --test-dir example/build -V
