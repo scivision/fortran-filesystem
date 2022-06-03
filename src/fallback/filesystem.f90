@@ -17,7 +17,8 @@ assert_is_file, assert_is_dir, &
 sys_posix, touch, &
 remove, get_filename, make_absolute, &
 is_macos, is_linux, is_unix, is_windows, &
-is_symlink, create_symlink, is_exe, normal
+is_symlink, create_symlink, is_exe, normal, &
+chmod_exe, chmod_no_exe, match, read_text, write_text
 !! functional API
 
 integer, public, protected :: MAXP = 4096
@@ -77,6 +78,9 @@ procedure, public :: file_size=>fs_file_size
 procedure, public :: is_exe=>fs_is_exe
 procedure, public :: chmod_exe=>fs_chmod_exe
 procedure, public :: chmod_no_exe=>fs_chmod_no_exe
+procedure, public :: match=>fs_match
+procedure, public :: read_text=>fs_read_text
+procedure, public :: write_text=>fs_write_text
 
 procedure, public :: is_symlink=>fs_is_symlink
 procedure, public :: create_symlink=>fs_create_symlink
@@ -275,11 +279,6 @@ character(:), allocatable, intent(out) :: fparts(:)
 end subroutine
 
 
-end interface
-
-
-interface !< {posix,windows}/path.f90
-
 module logical function is_absolute(path)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. filesystem
@@ -379,6 +378,54 @@ character(*), intent(in) :: path
 logical, intent(out), optional :: ok
 error stop "filesystem:fallback doesn't have chmod_no_exe"
 end subroutine
+
+
+function read_text(filename, max_length)
+!! read text file
+character(*), intent(in) :: filename
+character(:), allocatable :: read_text
+integer, optional :: max_length
+error stop "filesystem:fallback doesn't have read_text"
+end function
+
+function fs_read_text(self, max_length)
+!! read text file
+class(path_t), intent(in) :: self
+character(:), allocatable :: fs_read_text
+integer, optional :: max_length
+
+fs_read_text = read_text(self%path_str, max_length)
+end function fs_read_text
+
+subroutine write_text(filename, text)
+!! create or overwrite file with text
+character(*), intent(in) :: filename, text
+error stop "filesystem:fallback doesn't have write_text"
+end subroutine
+
+subroutine fs_write_text(self, text)
+!! create or overwrite file with text
+class(path_t), intent(in) :: self
+character(*), intent(in) :: text
+
+call write_text(self%path_str, text)
+end subroutine fs_write_text
+
+logical function match(path, pattern)
+!! does any substring of path match the pattern
+!! pattern uses C++ regex_search() syntax
+character(*), intent(in) :: path, pattern
+error stop "filesystem:fallback doesn't have match"
+end function
+
+logical function fs_match(self, pattern)
+!! does any substring of path match the pattern
+!! pattern uses C++ regex_search() syntax
+class(path_t), intent(in) :: self
+character(*), intent(in) :: pattern
+
+fs_match = match(self%path_str, pattern)
+end function fs_match
 
 function fs_normal(self)
 !! lexically normalize path
