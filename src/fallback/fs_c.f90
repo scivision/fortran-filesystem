@@ -13,6 +13,11 @@ import
 character(kind=c_char), intent(in) :: path(*)
 end function
 
+integer(C_SIZE_T) function cfs_get_cwd(path) bind(C, name="get_cwd")
+import
+character(kind=c_char), intent(out) :: path(*)
+end function
+
 logical(C_BOOL) function cfs_is_absolute(path) bind(C, name='is_absolute')
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -52,6 +57,16 @@ end procedure filesep
 module procedure file_size
 file_size = cfs_file_size(trim(path) // C_NULL_CHAR)
 end procedure file_size
+
+
+module procedure get_cwd
+character(kind=c_char, len=MAXP) :: cpath
+integer(C_SIZE_T) :: N
+
+N = cfs_get_cwd(cpath)
+
+get_cwd = as_posix(cpath(:N))
+end procedure get_cwd
 
 
 module procedure is_absolute

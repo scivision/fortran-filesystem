@@ -25,11 +25,10 @@ if(HAVE_CXX_FILESYSTEM)
 endif()
 
 # --- regex
-if(NOT fallback)
 add_executable(test_match test_match.f90)
 target_link_libraries(test_match PRIVATE filesystem)
 add_test(NAME match COMMAND test_match)
-endif()
+set_tests_properties(match PROPERTIES DISABLED $<BOOL:${fallback}>)
 
 # --- file parts
 add_executable(test_filesystem_parts test_parts.f90)
@@ -63,11 +62,10 @@ target_link_libraries(test_filesize PRIVATE filesystem)
 add_test(NAME FileSize COMMAND test_filesize)
 
 # --- exe detect
-if(NOT fallback)
 add_executable(test_exe test_exe.f90)
 target_link_libraries(test_exe PRIVATE filesystem)
 add_test(NAME ExeDetect COMMAND test_exe)
-endif()
+set_tests_properties(ExeDetect PROPERTIES DISABLED $<BOOL:${fallback}>)
 
 # --- file ops
 add_executable(test_fileops test_fileop.f90)
@@ -83,13 +81,12 @@ FIXTURES_SETUP ops_fxt
 # workdir avoids test state being shared between tests
 
 # --- read/write text file
-if(NOT fallback)
 add_executable(test_rw_text test_rw_text.f90)
 target_link_libraries(test_rw_text PRIVATE filesystem)
 add_test(NAME ReadWriteText
 COMMAND test_rw_text ${CMAKE_CURRENT_BINARY_DIR}/test_rw_text.txt
 )
-endif()
+set_tests_properties(ReadWriteText PROPERTIES DISABLED $<BOOL:${fallback}>)
 
 # --- find
 add_executable(test_find test_find.f90)
@@ -100,29 +97,24 @@ FIXTURES_REQUIRED ops_fxt
 )
 
 # --- C / C++ interface
-if(NOT fallback)
-add_executable(test_cpp_ifc test_cpp_ifc.cpp)
+add_executable(test_cpp_ifc test_ifc.cpp)
 target_compile_features(test_cpp_ifc PRIVATE cxx_std_17)
 target_link_libraries(test_cpp_ifc PRIVATE filesystem ${CMAKE_REQUIRED_LIBRARIES})
-target_include_directories(test_cpp_ifc PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_include_directories(test_cpp_ifc PRIVATE ${PROJECT_SOURCE_DIR}/include)
 set_target_properties(test_cpp_ifc PROPERTIES
 LABELS cpp
 LINKER_LANGUAGE CXX
 )
 add_test(NAME CPP_interface COMMAND test_cpp_ifc)
 
-add_executable(test_c_ifc test_c_ifc.c)
+add_executable(test_c_ifc test_ifc.c)
 set_target_properties(test_c_ifc PROPERTIES
 LABELS cpp
 LINKER_LANGUAGE CXX
 )
 target_link_libraries(test_c_ifc PRIVATE filesystem ${CMAKE_REQUIRED_LIBRARIES})
-target_include_directories(test_c_ifc PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_include_directories(test_c_ifc PRIVATE ${PROJECT_SOURCE_DIR}/include)
 add_test(NAME C_interface COMMAND test_c_ifc)
-
-endif(NOT fallback)
-
-
 
 # --- props
 

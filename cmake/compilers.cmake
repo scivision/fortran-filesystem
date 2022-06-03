@@ -121,8 +121,10 @@ endif()
 
 # --- flags
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "(Clang|Intel)")
-  add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-Wall;-Wextra>")
+if(CMAKE_CXX_COMPILER_ID STREQUAL GNU)
+  add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Werror=implicit-function-declaration>)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "(Clang|Intel)")
+  add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-Wall;-Wextra;-Werror=implicit-function-declaration>")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/W3>")
 endif()

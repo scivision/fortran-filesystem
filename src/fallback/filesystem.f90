@@ -237,11 +237,6 @@ module function get_cwd()
 character(:), allocatable :: get_cwd
 end function
 
-module subroutine f_unlink(path)
-!! delete the file, symbolic link, or empty directory
-character(*), intent(in) :: path
-end subroutine
-
 module integer(int64) function file_size(path)
 character(*), intent(in) :: path
 end function
@@ -292,6 +287,16 @@ end interface
 
 
 contains
+
+
+subroutine f_unlink(path)
+!! delete the file, symbolic link, or empty directory
+character(*), intent(in) :: path
+
+integer :: u
+open(newunit=u, file=path, status='old')
+close(u, status='delete')
+end subroutine f_unlink
 
 !> non-existent
 
@@ -629,17 +634,6 @@ exists = (is_dir(path) .or. is_file(path))
 end function exists
 
 end module filesystem
-
-!> switchyard for compiler-specific procedures
-#ifdef __GFORTRAN__
-include "compiler/gcc.inc"
-#elif defined(__INTEL_LLVM_COMPILER) || defined(__INTEL_COMPILER)
-include "compiler/intel.inc"
-#elif defined(_CRAYFTN)
-include "compiler/cray.inc"
-#else
-include "compiler/unknown.inc"
-#endif
 
 !> procedures from main filesystem
 include "../iter.f90"

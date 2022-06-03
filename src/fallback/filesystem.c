@@ -3,6 +3,13 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <limits.h>
+#include <unistd.h>
+#endif
+
 #include "filesystem.h"
 
 bool is_macos(){
@@ -113,6 +120,18 @@ bool is_absolute(const char* path){
   return path[0] == '/';
 }
 
+
+size_t get_cwd(char* path) {
+
+#ifdef _WIN32
+  if (_getcwd(path, _MAX_PATH) == NULL) return 0;
+#else
+  if (getcwd(path, PATH_MAX) == NULL) return 0;
+#endif
+
+  return strlen(path);
+
+}
 
 #ifdef _WIN32
 extern void realpath(const char* path, char* rpath){
