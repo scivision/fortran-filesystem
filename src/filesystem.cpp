@@ -175,11 +175,11 @@ int create_symlink(const char* target, const char* link) {
   return -1;
 #endif
 
-  if(strlen(target) == 0) {
+  if(target == NULL || strlen(target) == 0) {
     std::cerr << "ERROR:filesystem:create_symlink: target path must not be empty" << std::endl;
     return 1;
   }
-  if(strlen(link) == 0) {
+  if(link == NULL || strlen(link) == 0) {
     std::cerr << "ERROR:filesystem:create_symlink: link path must not be empty" << std::endl;
     return 1;
   }
@@ -202,7 +202,7 @@ int create_symlink(const char* target, const char* link) {
 
 int create_directories(const char* path) {
 
-  if(strlen(path) == 0) {
+  if(path == NULL || strlen(path) == 0) {
     std::cerr << "ERROR:filesystem:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
     return 1;
   }
@@ -391,12 +391,12 @@ bool equivalent(const char* path1, const char* path2) {
 
 int copy_file(const char* source, const char* destination, bool overwrite) {
 
-  if(strlen(source) == 0) {
-    std::cerr << "filesystem:copy_file: source path must not be empty" << std::endl;
+  if(source == NULL || strlen(source) == 0) {
+    std::cerr << "ERROR:filesystem:copy_file: source path must not be empty" << std::endl;
     return 1;
   }
-  if(strlen(destination) == 0) {
-    std::cerr << "filesystem:copy_file: destination path must not be empty" << std::endl;
+  if(destination == NULL || strlen(destination) == 0) {
+    std::cerr << "ERROR:filesystem:copy_file: destination path must not be empty" << std::endl;
     return 1;
   }
 
@@ -477,8 +477,8 @@ size_t relative_to(const char* a, const char* b, char* result) {
 
 bool touch(const char* path) {
 
-  if(strlen(path) == 0) {
-    std::cerr << "filesystem:touch: cannot touch empty file name" << std::endl;
+  if(path == NULL || strlen(path) == 0) {
+    std::cerr << "ERROR:filesystem:touch: cannot touch empty file name" << std::endl;
     return false;
   }
 

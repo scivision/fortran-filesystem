@@ -279,6 +279,24 @@ character(:), allocatable, intent(out) :: fparts(:)
 end subroutine
 
 
+end interface
+
+
+interface
+module subroutine copy_file(src, dest, overwrite, status)
+!! copy single file from src to dest
+!! OVERWRITES existing destination file
+character(*), intent(in) :: src, dest
+logical, intent(in), optional :: overwrite
+integer, intent(out), optional :: status
+end subroutine
+
+module subroutine mkdir(path, status)
+!! create a directory, with parents if needed
+character(*), intent(in) :: path
+integer, intent(out), optional :: status
+end subroutine
+
 module logical function is_absolute(path)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. filesystem
@@ -301,34 +319,6 @@ close(u, status='delete')
 end subroutine f_unlink
 
 !> non-existent
-
-subroutine copy_file(src, dest, overwrite, status)
-!! copy single file from src to dest
-!! OVERWRITES existing destination file
-character(*), intent(in) :: src, dest
-logical, intent(in), optional :: overwrite
-integer, intent(out), optional :: status
-
-if(present(status)) then
-  status = -1
-  return
-endif
-
-error stop "ERROR:filesystem:fallback doesn't have copy_file"
-end subroutine
-
-subroutine mkdir(path, status)
-!! create a directory, with parents if needed
-character(*), intent(in) :: path
-integer, intent(out), optional :: status
-
-if(present(status)) then
-  status = -1
-  return
-endif
-
-error stop "ERROR:filesystem:fallback doesn't have mkdir"
-end subroutine
 
 logical function fs_is_symlink(self)
 class(path_t), intent(in) :: self
