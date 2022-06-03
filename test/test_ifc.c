@@ -21,7 +21,6 @@ int main(void) {
   char cpath[N];
 
   get_cwd(fpath);
-  printf("Fortran: current working dir %s\n", fpath);
 
 #ifdef _MSC_VER
   _getcwd(cpath, N);
@@ -29,7 +28,16 @@ int main(void) {
   getcwd(cpath, N);
 #endif
 
-  printf("C: current working dir %s\n", cpath);
+#ifdef _WIN32
+  as_posix(cpath);
+#endif
+
+  printf("%s\n%s\n", fpath, cpath);
+
+  if (strcmp(fpath, cpath) != 0) {
+    fprintf(stderr, "C cwd %s != Fortran cwd %s\n", cpath, fpath);
+    return 1;
+  }
 
   return 0;
 }

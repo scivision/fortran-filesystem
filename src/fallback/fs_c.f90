@@ -8,6 +8,11 @@ import
 character(kind=C_CHAR), intent(out) :: sep(*)
 end subroutine
 
+integer(C_SIZE_T) function cfs_as_posix(path) bind(C, name="as_posix")
+import
+character(kind=c_char), intent(inout) :: path(*)
+end function
+
 integer(C_SIZE_T) function cfs_file_size(path) bind(C, name="file_size")
 import
 character(kind=c_char), intent(in) :: path(*)
@@ -52,6 +57,17 @@ call cfs_filesep(cbuf)
 filesep = cbuf(1)
 
 end procedure filesep
+
+module procedure as_posix
+character(kind=c_char, len=MAXP) :: cbuf
+integer(C_SIZE_T) :: N
+
+cbuf = path // C_NULL_CHAR
+
+N = cfs_as_posix(cbuf)
+
+as_posix = trim(cbuf(:N))
+end procedure as_posix
 
 
 module procedure file_size

@@ -20,15 +20,18 @@ int main() {
   char cpath[N];
 
   get_cwd(fpath);
-  std::cout << "Fortran: current working dir " << fpath << std::endl;
 
 #ifdef _MSC_VER
-    _getcwd(cpath, N);
+  _getcwd(cpath, N);
 #else
-    getcwd(cpath, N);
+  getcwd(cpath, N);
 #endif
+  as_posix(cpath);
 
-  std::cout << "C++: current working dir " << cpath << std::endl;
+  if (strcmp(fpath, cpath) != 0) {
+    fprintf(stderr, "C cwd %s != Fortran cwd %s\n", cpath, fpath);
+    return 1;
+  }
 
   return EXIT_SUCCESS;
 }

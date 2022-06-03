@@ -58,6 +58,38 @@ void filesep(char* sep) {
 #endif
 }
 
+
+size_t as_posix(char* path){
+
+  size_t L = strlen(path);
+
+  for (size_t i = 0; i < L; i++) {
+    if (path[i] == '\\') {
+      path[i] = '/';
+    }
+  }
+
+  // drop duplicated separators
+  size_t k=0;
+
+  for(size_t i=0; i < (L-k); i++)
+  {
+    if(path[i] == '/' && path[i+1] == '/')
+    {
+      for(size_t j=i; j < (L-k); j++)
+        path[j] = path[j+1];
+      k++;
+      path[L-k] = '\0';
+    }
+    else
+    {
+      i++;
+    }
+  }
+
+  return L;
+}
+
 uintmax_t file_size(const char* path) {
   struct stat s;
 
@@ -129,7 +161,7 @@ size_t get_cwd(char* path) {
   if (getcwd(path, PATH_MAX) == NULL) return 0;
 #endif
 
-  return strlen(path);
+  return as_posix(path);
 
 }
 
