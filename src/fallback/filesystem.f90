@@ -74,6 +74,9 @@ procedure, public :: resolve=>fs_resolve
 procedure, public :: same_file=>fs_same_file
 procedure, public :: remove=>fs_unlink
 procedure, public :: file_size=>fs_file_size
+procedure, public :: is_exe=>fs_is_exe
+procedure, public :: chmod_exe=>fs_chmod_exe
+procedure, public :: chmod_no_exe=>fs_chmod_no_exe
 
 procedure, public :: is_symlink=>fs_is_symlink
 procedure, public :: create_symlink=>fs_create_symlink
@@ -363,6 +366,20 @@ character(*), intent(in) :: path
 error stop "filesystem:fallback doesn't have is_exe"
 end function
 
+subroutine chmod_exe(path, ok)
+!! set owner executable bit for regular file
+character(*), intent(in) :: path
+logical, intent(out), optional :: ok
+error stop "filesystem:fallback doesn't have chmod_exe"
+end subroutine
+
+subroutine chmod_no_exe(path, ok)
+!! set owner non-executable bit for regular file
+character(*), intent(in) :: path
+logical, intent(out), optional :: ok
+error stop "filesystem:fallback doesn't have chmod_no_exe"
+end subroutine
+
 function fs_normal(self)
 !! lexically normalize path
 class(path_t), intent(in) :: self
@@ -521,6 +538,13 @@ fs_file_size = file_size(self%path_str)
 end function fs_file_size
 
 
+logical function fs_is_exe(self)
+class(path_t), intent(in) :: self
+
+fs_is_exe = is_exe(self%path_str)
+end function fs_is_exe
+
+
 subroutine fs_mkdir(self)
 !! create a directory, with parents if needed
 class(path_t), intent(in) :: self
@@ -564,6 +588,19 @@ class(path_t), intent(in) :: self
 
 call touch(self%path_str)
 end subroutine
+
+subroutine fs_chmod_exe(self)
+class(path_t), intent(in) :: self
+
+call chmod_exe(self%path_str)
+end subroutine fs_chmod_exe
+
+
+subroutine fs_chmod_no_exe(self)
+class(path_t), intent(in) :: self
+
+call chmod_no_exe(self%path_str)
+end subroutine fs_chmod_no_exe
 
 !! non-functional API
 
