@@ -15,7 +15,7 @@
 
 #include "filesystem.h"
 
-int main() {
+int main(void) {
 
   char fpath[N];
   char cpath[N];

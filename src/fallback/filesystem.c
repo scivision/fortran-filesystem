@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <direct.h>
 #else
 #include <limits.h>
@@ -74,7 +74,7 @@ bool is_dir(const char* path){
 
   int i = stat(path, &s);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   // NOTE: root() e.g. "C:" needs a trailing slash
   return i == 0 && (s.st_mode & S_IFDIR);
 #else
@@ -123,7 +123,7 @@ bool is_absolute(const char* path){
 
 size_t get_cwd(char* path) {
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   if (_getcwd(path, _MAX_PATH) == NULL) return 0;
 #else
   if (getcwd(path, PATH_MAX) == NULL) return 0;

@@ -5,8 +5,6 @@ target_compile_definitions(filesystem_c PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO
 add_library(filesystem filesystem.f90 general.f90 crt.f90
 fs_c.f90 $<TARGET_OBJECTS:filesystem_c>
 )
-target_compile_definitions(filesystem PRIVATE $<$<BOOL:${WIN32}>:_WIN32>)
-# Gfortran preprocessor fails to define C/C++ expected macros
 target_compile_options(filesystem PRIVATE
 "$<$<Fortran_COMPILER_ID:GNU>:-Wno-unused-dummy-argument;-Wno-return-type>"
 "$<$<Fortran_COMPILER_ID:Intel,IntelLLVM>:$<IF:$<BOOL:${WIN32}>,/Qdiag-disable:6178$<COMMA>7712,-diag-disable=6178$<COMMA>7712>>"
