@@ -1,4 +1,4 @@
-# loads modules on Cray system and builds with CMake
+# loads modules on Cray system
 # canNOT use from Project CMakeLists.txt
 # it's OK to run again if you're not sure if it was already run.
 #
