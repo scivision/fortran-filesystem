@@ -37,7 +37,7 @@ jobs:
       FC: gfortran-${{ matrix.gcc-version }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: install compilers
       run: |
@@ -84,7 +84,7 @@ jobs:
       FC: gfortran
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: install compilers
       run: |
@@ -118,7 +118,7 @@ jobs:
     timeout-minutes: 10
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: install valgrind
       run: |
@@ -139,7 +139,7 @@ jobs:
   #   timeout-minutes: 10
 
   #   steps:
-  #   - uses: actions/checkout@v2
+  #   - uses: actions/checkout@v3
   #   - uses: actions/setup-python@v2
   #     with:
   #       python-version: '3.9'
@@ -176,7 +176,7 @@ jobs:
       CXX: ${{ matrix.compiler.cpp }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - run: brew install ninja
 
@@ -225,7 +225,7 @@ jobs:
     - name: Put MSYS2_MinGW64 on PATH
       run: echo "${{ runner.temp }}/msys64/mingw64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dfallback:BOOL=${{ matrix.fallback }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
