@@ -29,7 +29,7 @@ install(TARGETS filesystem EXPORT ${PROJECT_NAME}-targets)
 if(BUILD_UTILS)
   add_executable(filesystem_cli app/main.f90)
   target_link_libraries(filesystem_cli PRIVATE filesystem)
-  set_target_properties(filesystem_cli PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  set_property(TARGET filesystem_cli PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
   install(TARGETS filesystem_cli EXPORT ${PROJECT_NAME}-targets)
 endif()

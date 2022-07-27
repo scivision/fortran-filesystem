@@ -36,7 +36,7 @@ add_library(ffilesystem::filesystem INTERFACE IMPORTED)
 
 target_link_libraries(ffilesystem::filesystem INTERFACE ${ffilesystem_LIBRARIES})
 target_include_directories(ffilesystem::filesystem INTERFACE ${ffilesystem_INCLUDE_DIRS})
-set_target_properties(ffilesystem::filesystem PROPERTIES LINKER_LANGUAGE CXX)
+set_property(TARGET ffilesystem::filesystem PROPERTY LINKER_LANGUAGE CXX)
 # target_link_libraries(ffilesystem::filesystem INTERFACE stdc++)  # did not help
 # instead, set linker_langauge CXX for the specific targets linking ffilesystem::filesystem
 
