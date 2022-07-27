@@ -6,7 +6,7 @@
 
 int main(void) {
 
-  char d[4096];
+  char d[MAXP];
 
   get_cwd(d);
   printf("current working dir %s\n", d);

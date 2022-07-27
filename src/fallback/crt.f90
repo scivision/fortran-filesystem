@@ -22,9 +22,14 @@ contains
 module procedure canonical
 
 character(kind=c_char, len=:), allocatable :: wk
-character(kind=c_char):: c_buf(MAXP)
-character(MAXP) :: buf
-integer :: i
+character(kind=c_char), allocatable :: c_buf(:)
+character(:), allocatable :: buf
+integer :: i, L
+
+L = get_max_path()
+
+allocate(character(L) :: buf)
+allocate(c_buf(L))
 
 if(len_trim(path) == 0) then
   canonical = ""
@@ -37,11 +42,11 @@ wk = expanduser(path)
 
 if (wk(1:1) == ".") wk = get_cwd() // "/" // wk
 
-if(len(wk) > MAXP) error stop "filesystem:canonical: path too long: " // wk
+if(len(wk) > L) error stop "filesystem:canonical: path too long: " // wk
 
 call realpath_c(wk // C_NULL_CHAR, c_buf)
 
-do i = 1, MAXP
+do i = 1, L
   if (c_buf(i) == C_NULL_CHAR) exit
   buf(i:i) = c_buf(i)
 enddo

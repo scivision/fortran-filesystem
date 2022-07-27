@@ -199,8 +199,10 @@ module procedure get_homedir
 !!
 !! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
 
-character(MAXP) :: buf
+character(:), allocatable :: buf
 integer :: istat
+
+allocate(character(get_max_path()) :: buf)
 
 if(sys_posix()) then
   call get_environment_variable("HOME", buf, status=istat)
@@ -220,8 +222,10 @@ module procedure get_tempdir
 !!
 !! https://en.wikipedia.org/wiki/TMPDIR
 
-character(MAXP) :: buf
+character(:), allocatable :: buf
 integer :: istat
+
+allocate(character(get_max_path()) :: buf)
 
 if(sys_posix()) then
   call get_environment_variable("TMPDIR", buf, status=istat)

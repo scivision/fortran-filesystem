@@ -47,12 +47,18 @@ bool is_windows() {
 return false;
 }
 
+int get_maxp(){
+return MAXP;
+}
+
 
 size_t as_posix(char* path){
   // also remove duplicated separators
   std::string s(path);
 
   std::replace(s.begin(), s.end(), '\\', '/');
+
+  // std::cout << "TRACE: as_posix: " << s << " " << path <<  std::endl;
 
   std::regex r("/{2,}");
   s = std::regex_replace(s, r, "/");
@@ -327,7 +333,7 @@ bool fs_remove(const char* path) {
   return e;
 }
 
-size_t canonical(char* path, bool strict) {
+size_t canonical(const char* path, bool strict, char* result) {
   // also expands ~
 
   if( (strlen(path) == 0) ) {
@@ -335,7 +341,7 @@ size_t canonical(char* path, bool strict) {
     return 0;
   }
 
-  char ex[4096];
+  char ex[MAXP];
   expanduser(path, ex);
 
   // std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
@@ -347,9 +353,7 @@ size_t canonical(char* path, bool strict) {
     p = fs::canonical(ex, ec);
   }
   else {
-
-  p = fs::weakly_canonical(ex, ec);
-
+    p = fs::weakly_canonical(ex, ec);
   }
 
   // std::cout << "TRACE:canonical: " << p << std::endl;
@@ -359,8 +363,8 @@ size_t canonical(char* path, bool strict) {
     return 0;
   }
 
-  std::strcpy(path, p.string().c_str());
-  return as_posix(path);
+  std::strcpy(result, p.string().c_str());
+  return as_posix(result);
 }
 
 
@@ -632,7 +636,7 @@ size_t expanduser(const char* path, char* result){
     return as_posix(result);
   }
 
-  char h[4096];
+  char h[MAXP];
   get_homedir(h);
 
   std::string s(h);

@@ -24,11 +24,14 @@ p%path(2) !< character index 2:end
 In all the examples, we assume "p" is path_t.
 
 C++17 filesystem is used extensively within Fortran-filesystem to implement functions in a platform-agnostic and robust way.
-For the interchange of character strings between Fortran and C++, a fixed buffer length is used.
-This buffer length is defined as MAXP in src/filesystem.f90.
-Currently, MAXP = 4096; that is, 4096 ASCII characters is the maximum path length.
-The operating system and filesystem may have stricter limits.
-If this fixed buffer length becomes an issue, we may be able to make the length dynamic.
+For the interchange of character strings between Fortran and C++, the buffer length is determined at compile time as seen by parameter MAXP in
+[filesystem.h](./include/filesystem.h).
+MAXP can be introspected in user programs by:
+
+```fortran
+integer :: m
+m = get_max_path()
+```
 
 ## System capabilities
 

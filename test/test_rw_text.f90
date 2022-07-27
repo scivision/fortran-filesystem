@@ -4,7 +4,7 @@ use filesystem, only : path_t, read_text, write_text
 
 implicit none (type, external)
 
-character(4096) :: filename
+character(1000) :: filename
 character(:), allocatable :: text, rtext
 integer :: L, i
 type(path_t) :: p1

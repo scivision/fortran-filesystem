@@ -1,8 +1,14 @@
 submodule (filesystem) fs_c_int
 
+use, intrinsic :: iso_c_binding, only : C_INT
+
 implicit none (type,external)
 
 interface
+
+integer(C_INT) function max_path() bind(C, name="get_maxp")
+import C_INT
+end function
 subroutine cfs_filesep(sep) bind(C, name='filesep')
 import
 character(kind=C_CHAR), intent(out) :: sep(*)
@@ -34,10 +40,14 @@ character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: result(*)
 end function
 
-
 end interface
 
+
 contains
+
+module procedure get_max_path
+get_max_path = int(max_path())
+end procedure
 
 
 module procedure is_dir
@@ -60,12 +70,14 @@ end procedure file_size
 
 
 module procedure get_cwd
-character(kind=c_char, len=MAXP) :: cpath
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 
-N = cfs_get_cwd(cpath)
+allocate(character(max_path()) :: cbuf)
 
-get_cwd = as_posix(cpath(:N))
+N = cfs_get_cwd(cbuf)
+
+get_cwd = as_posix(cbuf(:N))
 end procedure get_cwd
 
 

@@ -5,8 +5,6 @@ on:
     paths:
       - "fpm.toml"
       - ".github/workflows/ci_fpm.yml"
-  release:
-    types: [published]
 
 
 jobs:

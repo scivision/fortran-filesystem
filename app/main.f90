@@ -8,7 +8,7 @@ use filesystem
 implicit none (type, external)
 
 integer :: i
-character(4096) :: buf, buf2
+character(1000) :: buf, buf2
 character(16) :: fcn
 
 if (command_argument_count() < 1) error stop "usage: ./filesystem_cli <function> [<path> ...]"
@@ -17,7 +17,7 @@ call get_command_argument(1, fcn, status=i)
 if (i /= 0) error stop "invalid function name: " // trim(fcn)
 
 select case (fcn)
-case ("get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos")
+case ("get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos", "max_path")
 case default
   if (command_argument_count() < 2) error stop "usage: ./filesystem_cli <function> <path>"
   call get_command_argument(2, buf, status=i)
@@ -83,6 +83,8 @@ case ("tempdir")
   print '(A)', get_tempdir()
 case ("with_suffix")
   print '(A)', with_suffix(buf, buf2)
+case ("max_path")
+  print '(i0)', get_max_path()
 case default
   error stop "unknown function> " // trim(fcn)
 end select

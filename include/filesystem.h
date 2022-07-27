@@ -1,6 +1,27 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
+#if defined (__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#include <sys/syslimits.h>
+#define MAXP PATH_MAX
+#elif defined (_MSC_VER)
+#include <stdlib.h>
+#define MAXP _MAX_PATH
+#else
+#include <limits.h>
+#ifdef PATH_MAX
+#define MAXP PATH_MAX
+#endif
+#endif
+
+#if !defined(MAXP)
+#if defined (_POSIX_PATH_MAX)
+#define MAXP _POSIX_PATH_MAX
+#else
+#define MAXP 256
+#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #else
@@ -13,6 +34,8 @@ extern bool is_macos();
 extern bool is_linux();
 extern bool is_unix();
 extern bool is_windows();
+
+extern int get_maxp();
 
 extern size_t as_posix(char*);
 extern bool sys_posix();
@@ -42,7 +65,7 @@ extern bool chmod_exe(const char*);
 extern bool chmod_no_exe(const char*);
 
 extern bool fs_remove(const char*);
-extern size_t canonical(char*, bool);
+extern size_t canonical(const char*, bool, char*);
 extern bool equivalent(const char*, const char*);
 extern int copy_file(const char*, const char*, bool);
 extern size_t relative_to(const char*, const char*, char*);

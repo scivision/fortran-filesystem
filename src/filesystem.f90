@@ -21,22 +21,18 @@ assert_is_file, assert_is_dir, &
 sys_posix, touch, create_symlink, &
 remove, get_tempdir, filesep, &
 chmod_exe, chmod_no_exe, &
-is_macos, is_windows, is_linux, is_unix
+is_macos, is_windows, is_linux, is_unix, &
+get_max_path
 !! functional API
 
-integer, public, protected :: MAXP = 4096
-!! arbitrary maximum path length.
-!! We use a fixed length to ease sending data to/from C/C++.
-!! We could make this dynamic if this fixed length becomes an issue.
+!! Maximum path length is dynamically determined for this computer.
+!! A fixed length eases sending data to/from C/C++.
 !!
 !! Physical filesystem maximum filename and path lengths are OS and config dependent.
 !! Notional limits:
-!! MacOS: 1024
-!! Linux: 4096
-!! https://www.ibm.com/docs/en/spectrum-protect/8.1.13?topic=parameters-file-specification-syntax
-!! Windows: 32767
-!! https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd
-
+!! MacOS: 1024 from sys/syslimits.h PATH_MAX
+!! Linux: 4096 from https://www.ibm.com/docs/en/spectrum-protect/8.1.13?topic=parameters-file-specification-syntax
+!! Windows: 32767 from https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd
 interface remove
   module procedure f_unlink
 end interface remove
@@ -94,7 +90,12 @@ interface path_t
 end interface
 
 
-interface  !< pure.f90
+interface  !< fs_cpp.f90
+
+integer module function get_max_path()
+!! returns dynamic MAX_PATH for this computer
+end function
+
 module function parent(path)
 !! returns parent directory of path
 character(*), intent(in) :: path
@@ -148,11 +149,6 @@ character(*), intent(in) :: path,new
 character(:), allocatable :: with_suffix
 end function
 
-end interface !< pure.f90
-
-
-interface  !< pure_iter.f90
-
 module subroutine file_parts(path, fparts)
 !! split path into up to 1000 parts (arbitrary limit)
 !! all path separators are discarded, except the leftmost if present
@@ -161,10 +157,6 @@ character(:), allocatable, intent(out) :: fparts(:)
 !! allocatable, intent(out) because we do want to implicitly deallocate first
 end subroutine
 
-end interface
-
-
-interface !< impure.f90
 module logical function same_file(path1, path2)
 character(*), intent(in) :: path1, path2
 end function
@@ -182,7 +174,7 @@ character(:), allocatable :: expanduser
 character(*), intent(in) :: path
 end function
 
-end interface  !< impure.f90
+end interface
 
 
 interface !< find.f90
@@ -266,10 +258,6 @@ module subroutine utime(filename)
 character(*), intent(in) :: filename
 end subroutine
 
-end interface
-
-
-interface
 module subroutine copy_file(src, dest, overwrite, status)
 !! copy single file from src to dest
 !! OVERWRITES existing destination file
@@ -277,10 +265,7 @@ character(*), intent(in) :: src, dest
 logical, intent(in), optional :: overwrite
 integer, intent(out), optional :: status
 end subroutine
-end interface
 
-
-interface
 module logical function is_absolute(path)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. filesystem

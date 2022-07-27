@@ -6,7 +6,7 @@
 
 int main() {
 
-  char d[4096];
+  char d[MAXP];
 
   get_cwd(d);
   std::cout << "current working dir " << d << std::endl;

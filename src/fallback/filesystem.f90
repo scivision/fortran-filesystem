@@ -18,21 +18,9 @@ sys_posix, touch, &
 remove, get_filename, make_absolute, &
 is_macos, is_linux, is_unix, is_windows, &
 is_symlink, create_symlink, is_exe, normal, &
-chmod_exe, chmod_no_exe, match, read_text, write_text
+chmod_exe, chmod_no_exe, match, read_text, write_text, &
+get_max_path
 !! functional API
-
-integer, public, protected :: MAXP = 4096
-!! arbitrary maximum path length.
-!! We use a fixed length to ease sending data to/from C/C++.
-!! We could make this dynamic if this fixed length becomes an issue.
-!!
-!! Physical filesystem maximum filename and path lengths are OS and config dependent.
-!! Notional limits:
-!! MacOS: 1024
-!! Linux: 4096
-!! https://www.ibm.com/docs/en/spectrum-protect/8.1.13?topic=parameters-file-specification-syntax
-!! Windows: 32767
-!! https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd
 
 interface remove
   module procedure f_unlink
@@ -188,6 +176,10 @@ end interface
 
 
 interface !< filesystem.c
+
+integer module function get_max_path()
+!! returns dynamic MAX_PATH for this computer
+end function
 
 logical(C_BOOL) function is_macos() bind(C)
 import C_BOOL

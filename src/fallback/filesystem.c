@@ -4,9 +4,9 @@
 #include <sys/stat.h>
 
 #ifdef _MSC_VER
+#include <stdlib.h>
 #include <direct.h>
 #else
-#include <limits.h>
 #include <unistd.h>
 #endif
 
@@ -41,6 +41,10 @@ bool is_windows() {
   return true;
 #endif
 return false;
+}
+
+int get_maxp(){
+return MAXP;
 }
 
 bool sys_posix() {

@@ -6,6 +6,10 @@ implicit none (type, external)
 
 interface !< fs.cpp
 
+integer(C_INT) function max_path() bind(C, name="get_maxp")
+import C_INT
+end function
+
 subroutine cfs_filesep(sep) bind(C, name='filesep')
 import
 character(kind=c_char), intent(out) :: sep(*)
@@ -73,10 +77,11 @@ import
 character(kind=c_char), intent(in) :: path(*)
 end function
 
-integer(C_SIZE_T) function cfs_canonical(path, strict) bind(C, name="canonical")
+integer(C_SIZE_T) function cfs_canonical(path, strict, canonicalized) bind(C, name="canonical")
 import
-character(kind=c_char), intent(inout) :: path(*)
+character(kind=c_char), intent(in) :: path(*)
 logical(c_bool), intent(in), value :: strict
+character(kind=c_char), intent(out) :: canonicalized(*)
 end function
 
 logical(c_bool) function cfs_remove(path) bind(C, name="fs_remove")
@@ -179,6 +184,11 @@ end interface
 contains
 
 
+module procedure get_max_path
+get_max_path = int(max_path())
+end procedure
+
+
 module procedure filesep
 character(kind=c_char) :: cbuf(2)
 
@@ -195,8 +205,10 @@ end procedure match
 
 
 module procedure file_name
-character(kind=c_char, len=MAXP) :: cbuf
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
+
+allocate(character(max_path()) :: cbuf)
 
 N = cfs_file_name(trim(path) // C_NULL_CHAR, cbuf)
 
@@ -206,8 +218,10 @@ end procedure file_name
 
 
 module procedure stem
-character(kind=c_char, len=MAXP) :: cbuf
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
+
+allocate(character(max_path()) :: cbuf)
 
 N = cfs_stem(trim(path) // C_NULL_CHAR, cbuf)
 
@@ -216,8 +230,10 @@ end procedure stem
 
 
 module procedure parent
-character(kind=c_char, len=MAXP) :: cbuf
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
+
+allocate(character(max_path()) :: cbuf)
 
 N = cfs_parent(trim(path) // C_NULL_CHAR, cbuf)
 
@@ -226,8 +242,10 @@ end procedure parent
 
 
 module procedure suffix
-character(kind=c_char, len=MAXP) :: cbuf
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
+
+allocate(character(max_path()) :: cbuf)
 
 N = cfs_suffix(trim(path) // C_NULL_CHAR, cbuf)
 
@@ -236,8 +254,10 @@ end procedure suffix
 
 
 module procedure normal
-character(kind=c_char, len=MAXP) :: cbuf
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
+
+allocate(character(max_path()) :: cbuf)
 
 N = cfs_normal(trim(path) // C_NULL_CHAR, cbuf)
 
@@ -246,10 +266,12 @@ end procedure normal
 
 
 module procedure as_posix
-character(kind=c_char, len=MAXP) :: cbuf
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 
-cbuf = path // C_NULL_CHAR
+allocate(character(max_path()) :: cbuf)
+
+cbuf = trim(path) // C_NULL_CHAR
 
 N = cfs_as_posix(cbuf)
 
@@ -258,8 +280,10 @@ end procedure as_posix
 
 
 module procedure with_suffix
-character(kind=c_char, len=MAXP) :: cbuf
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
+
+allocate(character(max_path()) :: cbuf)
 
 N = cfs_with_suffix(trim(path) // C_NULL_CHAR, trim(new) // C_NULL_CHAR, cbuf)
 
@@ -310,18 +334,18 @@ end procedure mkdir
 
 
 module procedure canonical
-character(kind=c_char, len=MAXP) :: cpath
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 logical(c_bool) :: s
+
+allocate(character(max_path()) :: cbuf)
 
 s = .false.
 if(present(strict)) s = strict
 
-cpath = path // C_NULL_CHAR
+N = cfs_canonical(trim(path) // C_NULL_CHAR, s, cbuf)
 
-N = cfs_canonical(cpath, s)
-
-canonical = trim(cpath(:N))
+canonical = trim(cbuf(:N))
 
 end procedure canonical
 
@@ -388,18 +412,22 @@ end procedure copy_file
 
 
 module procedure relative_to
-character(kind=c_char, len=MAXP) :: rel
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 
-N = cfs_relative_to(trim(a) // C_NULL_CHAR, trim(b) // C_NULL_CHAR, rel)
+allocate(character(max_path()) :: cbuf)
 
-relative_to = trim(rel(:N))
+N = cfs_relative_to(trim(a) // C_NULL_CHAR, trim(b) // C_NULL_CHAR, cbuf)
+
+relative_to = trim(cbuf(:N))
 end procedure relative_to
 
 
 module procedure expanduser
-character(kind=c_char, len=MAXP) :: cbuf
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
+
+allocate(character(max_path()) :: cbuf)
 
 N = cfs_expanduser(trim(path) // C_NULL_CHAR, cbuf)
 
@@ -408,32 +436,38 @@ end procedure expanduser
 
 
 module procedure get_homedir
-character(kind=c_char, len=MAXP) :: cpath
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 
-N = cfs_get_homedir(cpath)
+allocate(character(max_path()) :: cbuf)
 
-get_homedir = trim(cpath(:N))
+N = cfs_get_homedir(cbuf)
+
+get_homedir = trim(cbuf(:N))
 end procedure get_homedir
 
 
 module procedure get_tempdir
-character(kind=c_char, len=MAXP) :: cpath
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 
-N = cfs_get_tempdir(cpath)
+allocate(character(max_path()) :: cbuf)
 
-get_tempdir = trim(cpath(:N))
+N = cfs_get_tempdir(cbuf)
+
+get_tempdir = trim(cbuf(:N))
 end procedure get_tempdir
 
 
 module procedure get_cwd
-character(kind=c_char, len=MAXP) :: cpath
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 
-N = cfs_get_cwd(cpath)
+allocate(character(max_path()) :: cbuf)
 
-get_cwd = trim(cpath(:N))
+N = cfs_get_cwd(cbuf)
+
+get_cwd = trim(cbuf(:N))
 end procedure get_cwd
 
 
