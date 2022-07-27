@@ -3,7 +3,7 @@
 name: oneapi-windows
 
 env:
-  CMAKE_GENERATOR: Ninja
+  CMAKE_GENERATOR: "MinGW Makefiles"
   WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/18674/w_BaseKit_p_2022.2.0.252_offline.exe
   WINDOWS_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/18680/w_HPCKit_p_2022.2.0.173_offline.exe
   WINDOWS_CPP_COMPONENTS: intel.oneapi.win.cpp-compiler
@@ -13,6 +13,8 @@ env:
   CC: icx
   CXX: icx
   FC: ifx
+  CMAKE_BUILD_TYPE: Release
+  # Release is necessary to avoid ITERATOR_DEBUG_LEVEL mismatch with libstdc++
 
 on:
   push:
@@ -26,6 +28,7 @@ on:
       - ".github/workflows/oneapi-windows.yml"
       - ".github/workflows/oneapi_install_windows.bat"
       - ".github/workflows/oneapi_run_windows.bat"
+      - ".github/workflows/oneapi_cache_exclude_windows.bat"
 
 jobs:
 
@@ -42,6 +45,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
+          C:\Program Files (x86)\Intel\oneAPI\setvars.bat
           C:\Program Files (x86)\Intel\oneAPI\setvars-vcvarsall.bat
           C:\Program Files (x86)\Intel\oneAPI\compiler
         key: install-${{ env.WINDOWS_HPCKIT_URL }}-${{ env.WINDOWS_CPP_COMPONENTS }}-${{ env.WINDOWS_FORTRAN_COMPONENTS }}
@@ -50,15 +54,6 @@ jobs:
       timeout-minutes: 40
       if: steps.cache-install.outputs.cache-hit != 'true'
       run: ./.github/workflows/oneapi_install_windows.bat ${{ env.WINDOWS_HPCKIT_URL }} "${{ env.WINDOWS_CPP_COMPONENTS }}:${{ env.WINDOWS_FORTRAN_COMPONENTS }}"
-
-    - name: Python to install Ninja
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-
-    - name: install Ninja
-      timeout-minutes: 1
-      run: pip install ninja
 
     - name: "Batch workaround: config, build, test"
       shell: cmd

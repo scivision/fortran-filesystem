@@ -13,4 +13,5 @@ if "%COMPONENTS%"=="" (
 ) else (
   webimage_extracted\bootstrapper.exe -s --action install --components=%COMPONENTS% --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=.
 )
+if %errorlevel% neq 0 exit /b %errorlevel%
 rd /s/q "webimage_extracted"
