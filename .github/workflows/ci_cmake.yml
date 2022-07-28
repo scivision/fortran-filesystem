@@ -8,10 +8,11 @@ env:
 on:
   push:
     paths:
-      - "**/*.f90"
-      - "**/*.cpp"
+      - "**.f90"
+      - "**.c"
+      - "**.cpp"
       - "**/CMakeLists.txt"
-      - "**/*.cmake"
+      - "**.cmake"
       - ".github/workflows/ci_cmake.yml"
       - "!cray.cmake"
 
