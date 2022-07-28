@@ -92,10 +92,10 @@ size_t root(const char* path, char* r) {
 if (is_absolute(path)){
 
 #ifdef _WIN32
-  memcpy(r, &path[0], 2);
+  strncpy(r, &path[0], 2);
   r[2] = '\0';
 #else
-  memcpy(r, &path[0], 1);
+  strncpy(r, &path[0], 1);
   r[1] = '\0';
 #endif
 

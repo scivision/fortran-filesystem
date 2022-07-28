@@ -37,7 +37,6 @@ extern bool is_windows();
 
 extern int get_maxp();
 
-extern size_t as_posix(char*);
 extern bool sys_posix();
 extern void filesep(char*);
 extern bool match(const char*, const char*);
