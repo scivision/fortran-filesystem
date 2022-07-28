@@ -7,7 +7,7 @@ implicit none (type, external)
 private
 public :: path_t  !< base class
 public :: get_cwd !< utility procedures
-public :: as_posix, expanduser, &
+public :: expanduser, &
 is_absolute, is_dir, is_file, exists, get_homedir, get_tempdir, &
 join, filesep, &
 copy_file, mkdir, &
@@ -56,7 +56,6 @@ procedure, public :: file_name=>fs_file_name
 procedure, public :: stem=>fs_stem
 procedure, public :: root=>fs_root
 procedure, public :: suffix=>fs_suffix
-procedure, public :: as_posix=>fs_as_posix
 procedure, public :: expanduser=>fs_expanduser
 procedure, public :: with_suffix=>fs_with_suffix
 procedure, public :: resolve=>fs_resolve
@@ -430,7 +429,7 @@ end function
 function normal(path)
 character(*), intent(in) :: path
 character(:), allocatable :: normal
-error stop "filesystem:fallback doesn't have normal"
+normal = as_posix(path)
 end function
 
 !> one-liner methods calling actual procedures
@@ -506,15 +505,6 @@ character(:), allocatable :: fs_root
 
 fs_root = root(self%path_str)
 end function fs_root
-
-
-function fs_as_posix(self)
-!! '\' => '/', dropping redundant separators
-class(path_t), intent(in) :: self
-type(path_t) :: fs_as_posix
-
-fs_as_posix%path_str = as_posix(self%path_str)
-end function fs_as_posix
 
 
 function fs_join(self, other)
@@ -680,7 +670,7 @@ function join(path, other)
 character(:), allocatable :: join
 character(*), intent(in) :: path, other
 
-join = as_posix(path // "/" // other)
+join = normal(path // "/" // other)
 end function join
 
 

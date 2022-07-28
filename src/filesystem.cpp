@@ -52,20 +52,20 @@ return MAXP;
 }
 
 
-size_t as_posix(char* path){
-  // also remove duplicated separators
-  std::string s(path);
+size_t normal(const char* path, char* normalized) {
+  // normalize path
+  fs::path p(path);
+
+  auto s = p.lexically_normal().string();
 
   std::replace(s.begin(), s.end(), '\\', '/');
+  // Windows separator to Unix separator
 
-  // std::cout << "TRACE: as_posix: " << s << " " << path <<  std::endl;
+  // std::cout << "TRACE: normal: " << path << " => " << s << std::endl;
 
-  std::regex r("/{2,}");
-  s = std::regex_replace(s, r, "/");
+  std::strcpy(normalized, s.c_str());
 
-  std::strcpy(path, s.c_str());
-
-  return strlen(path);
+  return strlen(normalized);
 }
 
 
@@ -150,15 +150,6 @@ size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
   std::strcpy(swapped, p.replace_extension(new_suffix).string().c_str());
 
   return strlen(swapped);
-}
-
-
-size_t normal(const char* path, char* normalized) {
-
-  fs::path p(path);
-  std::strcpy(normalized, p.lexically_normal().string().c_str());
-
-  return as_posix(normalized);
 }
 
 
@@ -363,8 +354,7 @@ size_t canonical(const char* path, bool strict, char* result) {
     return 0;
   }
 
-  std::strcpy(result, p.string().c_str());
-  return as_posix(result);
+  return normal(p.string().c_str(), result);
 }
 
 
@@ -474,8 +464,7 @@ size_t relative_to(const char* a, const char* b, char* result) {
     return 0;
   }
 
-  std::strcpy(result, r.string().c_str());
-  return as_posix(result);
+  return normal(r.string().c_str(), result);
 }
 
 
@@ -530,7 +519,7 @@ bool touch(const char* path) {
 }
 
 
-size_t get_tempdir(char* path) {
+size_t get_tempdir(char* result) {
 
   std::error_code ec;
 
@@ -540,8 +529,7 @@ size_t get_tempdir(char* path) {
     return 0;
   }
 
-  std::strcpy(path, t.string().c_str());
-  return as_posix(path);
+  return normal(t.string().c_str(), result);
 }
 
 
@@ -569,7 +557,7 @@ uintmax_t file_size(const char* path) {
 }
 
 
-size_t get_cwd(char* path) {
+size_t get_cwd(char* result) {
   std::error_code ec;
 
   auto c = fs::current_path(ec);
@@ -578,8 +566,7 @@ size_t get_cwd(char* path) {
     return 0;
   }
 
-  std::strcpy(path, c.string().c_str());
-  return as_posix(path);
+  return normal(c.string().c_str(), result);
 }
 
 
@@ -608,7 +595,9 @@ bool is_exe(const char* path) {
 }
 
 
-size_t get_homedir(char* path) {
+size_t get_homedir(char* result) {
+
+char path[MAXP];
 
 #ifdef _WIN32
   std::strcpy(path, fs::path(std::getenv("USERPROFILE")).string().c_str());
@@ -616,7 +605,7 @@ size_t get_homedir(char* path) {
   std::strcpy(path, fs::path(std::getenv("HOME")).string().c_str());
 #endif
 
-  return as_posix(path);
+  return normal(path, result);
 }
 
 
@@ -632,8 +621,7 @@ size_t expanduser(const char* path, char* result){
   }
 
   if(p.front() != '~') {
-    std::strcpy(result, path);
-    return as_posix(result);
+    return normal(path, result);
   }
 
   char h[MAXP];
@@ -644,8 +632,7 @@ size_t expanduser(const char* path, char* result){
   // std::cout << "TRACE:expanduser: home: " << s << std::endl;
 
   if( s.length() == 0 ) {
-    std::strcpy(result, path);
-    return as_posix(result);
+    return normal(path, result);
   }
 
   fs::path home(s);
@@ -662,22 +649,16 @@ size_t expanduser(const char* path, char* result){
 
   if (p.length() == 1) {
     // ~ alone
-    std::strcpy(result, home.string().c_str());
-    return as_posix(result);
+    return normal(home.string().c_str(), result);
   }
   else if (p.length() == 2) {
     // ~/ alone
-    std::strcpy(result, (home.string() + "/").c_str());
-    return as_posix(result);
+    return normal((home.string() + "/").c_str(), result);
   }
 
   // std::cout << "TRACE:expanduser: trailing path: " << p1 << std::endl;
 
-  std::strcpy(result, (home / p.substr(2)).string().c_str());
-
-  // std::cout << "TRACE:expanduser: result " << result << std::endl;
-
-  return as_posix(result);
+  return normal((home / p.substr(2)).string().c_str(), result);
 }
 
 bool chmod_exe(const char* path) {

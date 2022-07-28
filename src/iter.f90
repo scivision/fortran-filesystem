@@ -23,7 +23,7 @@ if (len_trim(path) == 0) then
   return
 endif
 
-wk = as_posix(path)
+wk = normal(path)
 j = len_trim(wk)
 
 if(j == 1 .and. wk(1:1) == "/") then

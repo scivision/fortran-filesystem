@@ -7,7 +7,7 @@ implicit none (type, external)
 private
 public :: path_t  !< base class
 public :: get_homedir, canonical, get_cwd !< utility procedures
-public :: as_posix, normal, expanduser, &
+public :: normal, expanduser, &
 is_absolute, is_dir, is_file, is_exe, &
 is_symlink, &
 exists, match, &
@@ -70,7 +70,6 @@ procedure, public :: file_name=>fs_file_name
 procedure, public :: stem=>fs_stem
 procedure, public :: root=>fs_root
 procedure, public :: suffix=>fs_suffix
-procedure, public :: as_posix=>fs_as_posix
 procedure, public :: expanduser=>fs_expanduser
 procedure, public :: with_suffix=>fs_with_suffix
 procedure, public :: resolve=>fs_resolve
@@ -129,13 +128,6 @@ module function suffix(path)
 character(*), intent(in) :: path
 character(:), allocatable :: suffix
 end function suffix
-
-module function as_posix(path)
-!! '\' => '/', dropping redundant separators
-
-character(:), allocatable :: as_posix
-character(*), intent(in) :: path
-end function as_posix
 
 module function normal(path)
 !! lexically normalize path
@@ -495,16 +487,6 @@ character(:), allocatable :: fs_root
 fs_root = root(self%path_str)
 end function fs_root
 
-
-function fs_as_posix(self)
-!! '\' => '/', dropping redundant separators
-class(path_t), intent(in) :: self
-type(path_t) :: fs_as_posix
-
-fs_as_posix%path_str = as_posix(self%path_str)
-end function fs_as_posix
-
-
 logical function fs_match(self, pattern)
 !! does any substring of path match the pattern
 !! pattern uses C++ regex_search() syntax
@@ -696,7 +678,7 @@ function join(path, other)
 character(:), allocatable :: join
 character(*), intent(in) :: path, other
 
-join = as_posix(path // "/" // other)
+join = normal(path // "/" // other)
 end function join
 
 

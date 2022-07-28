@@ -145,12 +145,6 @@ p = p%resolve()
 p%path() == "<absolute path of current working directory>/b"
 ```
 
-'\\' => '/' for Unix paths, dropping redundant file separators "//"
-
-```fortran
-p = p%as_posix()
-```
-
 Swap file suffix
 
 ```fortran
@@ -167,7 +161,7 @@ The path need not exist.
 ```fortran
 p = p%normal()
 ! or
-normal("./my/path/../b")  !< "my/b"
+normal("./my//path/../b")  !< "my/b"
 ```
 
 Join path_t with other path string using posix separators.
@@ -314,12 +308,6 @@ call chmod_not_exe("my/file.exe")
 ## character(:), allocatable
 
 These procedures emit a string.
-
-'\\' => '/' for Unix paths, dropping redundant file separators "//"
-
-```fortran
-as_posix("my\path")
-```
 
 Split path_t into path components.
 Path separators are discarded.

@@ -20,11 +20,6 @@ import
 character(kind=c_char), intent(in) :: path, pattern
 end function
 
-integer(C_SIZE_T) function cfs_as_posix(path) bind(C, name="as_posix")
-import
-character(kind=c_char), intent(inout) :: path(*)
-end function
-
 integer(C_SIZE_T) function cfs_file_name(path, filename) bind(C, name="file_name")
 import
 character(kind=c_char), intent(in) :: path(*)
@@ -263,20 +258,6 @@ N = cfs_normal(trim(path) // C_NULL_CHAR, cbuf)
 
 normal = trim(cbuf(:N))
 end procedure normal
-
-
-module procedure as_posix
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-
-allocate(character(max_path()) :: cbuf)
-
-cbuf = trim(path) // C_NULL_CHAR
-
-N = cfs_as_posix(cbuf)
-
-as_posix = trim(cbuf(:N))
-end procedure as_posix
 
 
 module procedure with_suffix

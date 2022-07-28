@@ -2,7 +2,7 @@ program test_fileop
 
 use, intrinsic:: iso_fortran_env, only : stderr=>error_unit
 
-use filesystem, only : path_t, copy_file, is_absolute, get_cwd, as_posix, is_dir, &
+use filesystem, only : path_t, copy_file, is_absolute, get_cwd, normal, is_dir, &
 mkdir, touch, copy_file, assert_is_file
 
 implicit none (type, external)
@@ -59,7 +59,7 @@ p = path_t("test-filesystem-dir/hello")
 call p%mkdir()
 if(.not.p%is_dir()) error stop "mkdir: single: " // p%path()
 
-p2 = as_posix(pwd // "/test-filesystem-dir2/hello_posix")
+p2 = normal(pwd // "/test-filesystem-dir2/hello_posix")
 print *, "mkdir: testing " // p2
 call mkdir(p2)
 if(.not. is_dir(p2)) error stop "mkdir: full_posix: " // p2

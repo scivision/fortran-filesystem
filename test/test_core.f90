@@ -2,7 +2,7 @@ program test_filesystem
 
 use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
 is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep, parent, &
-assert_is_dir, as_posix
+assert_is_dir, normal
 
 implicit none (type, external)
 
@@ -86,17 +86,17 @@ endif
 
 p1 = path_t("")
 
-p2 = p1%as_posix()
-if (p2%path() /= "") error stop "as_posix empty"
-if (as_posix("") /= "") error stop "as_posix('') empty"
+p2 = p1%normal()
+if (p2%path() /= "") error stop "%normal: empty"
+if (normal("") /= "") error stop "normal('') empty"
 
 p1 = path_t("/")
-p3 = p1%as_posix()
-if(p3%path() /= "/") error stop "as_posix '/' failed"
+p3 = p1%normal()
+if(p3%path() /= "/") error stop "%normal '/' failed"
 
 p2 = path_t(char(92))
-p3 = p2%as_posix()
-if(p3%path() /= "/") error stop "as_posix char(92) failed"
+p3 = p2%normal()
+if(p3%path() /= "/") error stop "normal char(92) failed: " // p3%path()
 
 end subroutine test_filesep
 
