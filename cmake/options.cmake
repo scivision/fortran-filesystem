@@ -1,3 +1,5 @@
+message(STATUS "${PROJECT_NAME} ${PROJECT_VERSION}  CMake ${CMAKE_VERSION}")
+
 option(fallback "Don't use C++ filesystem, limited functionality")
 option(fallback_auto "enable ability to fallback (default off to prevent unintended missing features)")
 if(fallback)
@@ -20,11 +22,15 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
 # Necessary for shared library with Visual Studio / Windows oneAPI
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS true)
 
-
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   # will not take effect without FORCE
-  # CMAKE_BINARY_DIR in case it's used from FetchContent
+  # CMAKE_BINARY_DIR for use from FetchContent
   set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR} CACHE PATH "Install top-level directory" FORCE)
+endif()
+
+# allow CMAKE_PREFIX_PATH with ~ expand
+if(CMAKE_PREFIX_PATH)
+  get_filename_component(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ABSOLUTE)
 endif()
 
 # --- auto-ignore build directory
