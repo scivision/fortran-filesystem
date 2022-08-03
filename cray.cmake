@@ -1,17 +1,13 @@
 # loads modules on Cray system
-# canNOT use from Project CMakeLists.txt
-# it's OK to run again if you're not sure if it was already run.
+# canNOT use from Project CMakeLists.txt.
+# To propagate to ExternalProject, cannot use any "-D" variables or set(ENV{}) in this file.
 #
 # NOTE: your Cray system may have different versions/paths, treat this like a template.
 #
-# NOTE: to specify install directory, run like:
-#   cmake -DCMAKE_INSTALL_PREFIX=<install_dir> -P cray.cmake
+# Copy this file to a convenient location like ~ directory, and use with any project on Cray like:
+#  cmake --toolchain ~/cray.cmake -B build
 
-cmake_minimum_required(VERSION 3.20)
-
-# --- user options
-
-option(intel "use intel compiler instead of default GCC")
+cmake_minimum_required(VERSION 3.20.2)
 
 # --- module names (may be different on your system)
 
@@ -21,13 +17,6 @@ set(pegnu PrgEnv-gnu)
 set(peintel PrgEnv-intel)
 
 # --- main script
-
-# propagate options
-if(intel)
-  set(ENV{_toolintel} ${intel})
-else()
-  set(intel "$ENV{_toolintel}")
-endif()
 
 find_package(EnvModules REQUIRED)
 
@@ -72,18 +61,19 @@ endfunction(gcc_toolchain)
 # the module commands only affect the current process, not the parent shell
 env_module_list(mods)
 
-if(intel)
-  cmake_path(SET BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build-intel)
+cmake_host_system_information(RESULT host QUERY HOSTNAME)
 
-  if(NOT mods MATCHES "${peintel}")
-    message(FATAL_ERROR "Cray Intel programming environment ${peintel} isn't loaded.")
-  endif()
-  # need new enough GCC toolchain
+if(mods MATCHES "${peintel}")
+  # check GCC toolchain for Intel compiler
   gcc_toolchain()
+  message(STATUS "Using ${peintel} program environment on ${host}")
+elseif(mods MATCHES "${pegnu}")
+  message(STATUS "Using ${pegnu} program environment on ${host}")
+elseif(mods MATCHES "${pecray}")
+  message(WARNING "${pecray} PE may not work with this project on ${host}. Try command like this first:
+  module swap ${pecray} ${pegnu}
+  OR
+  module swap ${pecray} ${peintel}")
 else()
-  cmake_path(SET BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/build)
-
-  if(NOT mods MATCHES "${pegnu}")
-    message(FATAL_ERROR "Cray GCC programming environment ${pegnu} isn't loaded.")
-  endif()
+  message(WARNING "Unknown toolchain program environment on ${host}")
 endif()

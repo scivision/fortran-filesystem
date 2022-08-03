@@ -40,7 +40,7 @@ Full C++ filesystem support and hence full Fortran-filesystem features are avail
 * Clang &ge; 7
 * Intel oneAPI (icx, ifx, icpc, ifort, icl)
 * Visual Studio (C++) + oneAPI (Fortran)
-* Cray (when using GCC or Intel backend and libstdc++)
+* Cray (when using GCC or Intel backend with cray.cmake toolchain)
 
 Expected to work with other
 [C++17 compilers](https://en.cppreference.com/w/cpp/compiler_support)
@@ -86,6 +86,11 @@ scl enable gcc-toolset-10 "which g++"
 
 **Cray PE** works with GCC or Intel backends.
 The Cray compiler itself works with the non-C++ fallback.
+On Cray, we suggest using the toolchain file like:
+
+```sh
+cmake --toolchain cray.cmake -B build
+```
 
 ## Build
 
