@@ -7,12 +7,14 @@ if(fallback)
   set(fallback_auto true)
 endif()
 
+option(BUILD_TESTING "CMake version to use" on)
 option(ENABLE_COVERAGE "Code coverage tests")
 option(BUILD_UTILS "Build utils e.g. CLI")
 
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/Modules)
+include(GNUInstallDirs)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/Modules)
 
 # Rpath options necessary for shared library install to work correctly in user projects
 set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)

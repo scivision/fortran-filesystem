@@ -1,18 +1,3 @@
-# --- filesystem binary
-
-add_library(filesystem filesystem.f90 iter.f90 io.f90 find.f90)
-
-set_property(TARGET filesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
-set_property(TARGET filesystem PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set_property(TARGET filesystem PROPERTY ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set_property(TARGET filesystem PROPERTY LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-
-target_include_directories(filesystem PUBLIC
-$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-$<INSTALL_INTERFACE:include>
-)
-
 # --- C++17 filesystem
 add_library(filesystem_cpp OBJECT filesystem.cpp)
 target_include_directories(filesystem_cpp PRIVATE ${PROJECT_SOURCE_DIR}/include)
@@ -22,5 +7,9 @@ $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
 $<$<BOOL:${HAVE_SYMLINK}>:HAVE_SYMLINK>
 )
 
-target_sources(filesystem PRIVATE fs_cpp.f90 $<TARGET_OBJECTS:filesystem_cpp>)
-target_link_libraries(filesystem INTERFACE ${CMAKE_REQUIRED_LIBRARIES})
+set(s ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_sources(filesystem PRIVATE
+${s}/filesystem.f90 ${s}/iter.f90 ${s}/io.f90 ${s}/find.f90 ${s}/fs_cpp.f90
+$<TARGET_OBJECTS:filesystem_cpp>
+)

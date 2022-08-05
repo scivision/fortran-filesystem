@@ -1,6 +1,7 @@
 include(CheckCXXSymbolExists)
-include(CheckSourceRuns)
-include(CheckSourceCompiles)
+include(CheckFortranSourceCompiles)
+include(CheckCXXSourceCompiles)
+include(CheckCXXSourceRuns)
 
 # --- abi check
 
@@ -27,7 +28,7 @@ if(NOT abi_ok)
 endif()
 
 # check if Fortran compiler new enough
-check_source_compiles(Fortran "
+check_fortran_source_compiles("
 module a
 implicit none (type, external)
 
@@ -51,6 +52,7 @@ error stop e
 end program
 "
 HAS_Fortran_2018
+SRC_EXT f90
 )
 if(NOT HAS_Fortran_2018)
   message(FATAL_ERROR "Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION} does not support Fortran 2018 syntax")
@@ -95,7 +97,7 @@ endif()
 
 if(NOT fallback)
   # some compilers e.g. Cray claim to have filesystem, but their libstdc++ doesn't have it.
-  check_source_compiles(CXX [=[
+  check_cxx_source_compiles([=[
   #if __has_include(<filesystem>)
   #include <filesystem>
   namespace fs = std::filesystem;
@@ -130,7 +132,7 @@ if(NOT fallback)
 
   # C++ filesystem or C lstat() symbolic link information
   file(READ ${CMAKE_CURRENT_LIST_DIR}/check_fs_symlink.cpp symlink_src)
-  check_source_runs(CXX "${symlink_src}" HAVE_SYMLINK)
+  check_cxx_source_runs("${symlink_src}" HAVE_SYMLINK)
 
 endif()
 
@@ -160,7 +162,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
 
 add_compile_options(
 "$<$<COMPILE_LANGUAGE:Fortran>:-warn>"
-"$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug,RelWithDebInfo>>:-traceback;-check;-debug>"
+"$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug>>:-traceback;-check;-debug>"
 )
 
 # -heap-arrays
@@ -169,9 +171,9 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 
 add_compile_options(
 -Wall
-$<$<CONFIG:Debug,RelWithDebInfo>:-Wextra>
+$<$<CONFIG:Debug>:-Wextra>
 "$<$<COMPILE_LANGUAGE:Fortran>:-fimplicit-none>"
-"$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug,RelWithDebInfo>>:-fcheck=all;-Werror=array-bounds>"
+"$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug>>:-fcheck=all;-Werror=array-bounds>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Release>>:-fno-backtrace>"
 )
 

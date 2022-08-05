@@ -3,6 +3,7 @@
 include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake)
 
 get_target_property(ffilesystem_INCLUDE_DIR ffilesystem::filesystem INTERFACE_INCLUDE_DIRECTORIES)
+list(GET ffilesystem_INCLUDE_DIR 0 ffilesystem_INCLUDE_DIR)
 if(EXISTS ${ffilesystem_INCLUDE_DIR}/filesystem.h)
   set(ffilesystem_fallback false)
 else()

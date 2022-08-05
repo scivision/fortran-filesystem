@@ -1,28 +1,45 @@
-cmake_minimum_required(VERSION 3.19...3.24)
-# 3.19 for CONFIG:list genex
+cmake_minimum_required(VERSION 3.8...3.25)
 
 project(ffilesystem
 LANGUAGES C CXX Fortran
 VERSION 3.6.1
-DESCRIPTION "Platform independent, object-oriented Fortran filesystem path manipulation library"
-HOMEPAGE_URL "https://github.com/scivision/fortran-filesystem"
 )
 
-include(CTest)
+enable_testing()
 
 include(cmake/options.cmake)
 include(cmake/compilers.cmake)
+
+
+add_library(filesystem)
 
 if(fallback)
   add_subdirectory(src/fallback)
 else()
   add_subdirectory(src)
-  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/filesystem.h TYPE INCLUDE)
+  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/filesystem.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod TYPE INCLUDE)
+set_property(TARGET filesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
+set_property(TARGET filesystem PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+set_property(TARGET filesystem PROPERTY ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+set_property(TARGET filesystem PROPERTY LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
-install(TARGETS filesystem EXPORT ${PROJECT_NAME}-targets)
+target_include_directories(filesystem PUBLIC
+$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+target_link_libraries(filesystem INTERFACE ${CMAKE_REQUIRED_LIBRARIES})
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(TARGETS filesystem EXPORT ${PROJECT_NAME}-targets
+LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
 
 # --- CLI
 

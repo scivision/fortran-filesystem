@@ -7,8 +7,6 @@
 # Copy this file to a convenient location like ~ directory, and use with any project on Cray like:
 #  cmake --toolchain ~/cray.cmake -B build
 
-cmake_minimum_required(VERSION 3.20.2)
-
 # --- module names (may be different on your system)
 
 set(gcc_mod gcc)
