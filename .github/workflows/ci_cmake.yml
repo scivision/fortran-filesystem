@@ -29,6 +29,8 @@ jobs:
         exclude:
         - fallback: false
           gcc-version: 7
+        - fallback: true
+          shared: true
 
     env:
       CC: gcc-${{ matrix.gcc-version }}
@@ -77,6 +79,8 @@ jobs:
         exclude:
         - fallback: false
           clang-version: "6.0"
+        - fallback: true
+          shared: true
 
     env:
       CC: clang-${{ matrix.clang-version }}
