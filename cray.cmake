@@ -1,4 +1,4 @@
-# loads modules on Cray system
+# toolchain for Intel oneAPI and/or GCC compilers on Cray system
 # canNOT use from Project CMakeLists.txt.
 # To propagate to ExternalProject, cannot use any "-D" variables or set(ENV{}) in this file.
 #
@@ -26,23 +26,36 @@ if(CXXFLAGS MATCHES "--gcc-toolchain")
 endif()
 
 env_module(load ${gcc_mod} OUTPUT_VARIABLE out RESULT_VARIABLE ret)
-message(STATUS "load ${gcc_mod}:    ${out}  ${ret}")
+if(NOT ret EQUAL 0)
+  message(WARNING "failed to load ${gcc_mod}:    ${out}  ${ret}")
+endif()
 
 find_program(cc NAMES gcc REQUIRED)
 
 execute_process(COMMAND ${cc} -dumpversion
 OUTPUT_VARIABLE gcc_vers
-COMMAND_ERROR_IS_FATAL ANY
+RESULT_VARIABLE ret
+TIMEOUT 10
 )
+if(NOT ret EQUAL 0)
+  message(WARNING "ERROR: failed to get ${gcc_mod} version: ${ret}")
+  return()
+endif()
 if(gcc_vers VERSION_LESS 9.1)
-  message(FATAL_ERROR "GCC toolchain >= 9.1 is required for oneAPI")
+  message(WARNING "GCC toolchain >= 9.1 is required for oneAPI")
+  return()
 endif()
 
 execute_process(COMMAND ${cc} -v
 OUTPUT_VARIABLE gcc_verb
 ERROR_VARIABLE gcc_verb
-COMMAND_ERROR_IS_FATAL ANY
+RESULT_VARIABLE ret
+TIMEOUT 10
 )
+if(NOT ret EQUAL 0)
+  message(WARNING "ERROR: failed to get ${gcc_mod} build details: ${ret}")
+  return()
+endif()
 
 set(pat "--prefix=([/a-zA-Z0-9_\\-\\.]+)")
 string(REGEX MATCH "${pat}" gcc_prefix "${gcc_verb}")
@@ -73,5 +86,7 @@ elseif(mods MATCHES "${pecray}")
   OR
   module swap ${pecray} ${peintel}")
 else()
-  message(WARNING "Unknown toolchain program environment on ${host}")
+  message(WARNING "Unknown toolchain program environment on ${host}.
+  Check that module names are set for this system in ${CMAKE_CURRENT_LIST_FILE}:
+  ${pegnu} ${peintel} ${pecray}")
 endif()
