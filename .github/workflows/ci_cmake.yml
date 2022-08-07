@@ -170,6 +170,10 @@ jobs:
         compiler: [ {cpp: g++-11, c: gcc-11}, {cpp: clang++, c: clang} ]
         shared: [true, false]
         fallback: [true, false]
+        exclude:
+        # just saving CI resources
+        - fallback: true
+          shared: true
 
     env:
       CC: ${{ matrix.compiler.c }}
@@ -213,6 +217,10 @@ jobs:
       matrix:
         shared: [true, false]
         fallback: [true, false]
+        exclude:
+        # just saving CI resources
+        - fallback: true
+          shared: true
 
     env:
       CMAKE_GENERATOR: Ninja
