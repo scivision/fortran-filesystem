@@ -124,7 +124,7 @@ jobs:
     - name: install valgrind
       run: |
         sudo apt update
-        sudo apt install valgrind
+        sudo apt install --no-install-recommends valgrind
 
     - run: cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug
     - run: cmake --build build --parallel
@@ -178,7 +178,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - run: brew install ninja
+    - run: |
+        brew install ninja
+        brew reinstall gcc
 
     - name: config fallback=${{ matrix.fallback }} shared=${{ matrix.shared }}
       run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dfallback:BOOL=${{ matrix.fallback }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
