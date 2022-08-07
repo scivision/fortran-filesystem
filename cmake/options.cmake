@@ -7,7 +7,6 @@ if(fallback)
   set(fallback_auto true)
 endif()
 
-option(BUILD_TESTING "CMake version to use" on)
 option(ENABLE_COVERAGE "Code coverage tests")
 option(BUILD_UTILS "Build utils e.g. CLI")
 

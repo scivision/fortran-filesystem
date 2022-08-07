@@ -5,7 +5,7 @@ LANGUAGES C CXX Fortran
 VERSION 3.6.1
 )
 
-enable_testing()
+include(CTest) # needed for "ctest -T memcheck"
 
 include(cmake/options.cmake)
 include(cmake/compilers.cmake)
