@@ -86,11 +86,6 @@ scl enable gcc-toolset-10 "which g++"
 
 **Cray PE** works with GCC or Intel backends.
 The Cray compiler itself works with the non-C++ fallback.
-On Cray, we suggest using the toolchain file like:
-
-```sh
-cmake --toolchain cray.cmake -B build
-```
 
 ## Build
 
