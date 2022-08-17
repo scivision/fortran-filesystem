@@ -179,9 +179,10 @@ jobs:
         shared: [true, false]
         fallback: [true, false]
         exclude:
-        # just saving CI resources
-        - fallback: true
-          shared: true
+        - shared: true
+          fallback: true
+        - shared: true
+          compiler: {cpp: g++-11, c: gcc-11}
 
     env:
       CC: ${{ matrix.compiler.c }}
