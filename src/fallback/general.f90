@@ -49,7 +49,7 @@ end procedure is_file
 
 
 module procedure same_file
-same_file = resolve(path1) == resolve(path2)
+same_file = canonical(path1) == canonical(path2)
 end procedure same_file
 
 

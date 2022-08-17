@@ -2,7 +2,7 @@ program test_canon
 
 use, intrinsic:: iso_fortran_env, only : stderr=>error_unit
 
-use filesystem, only : path_t, get_cwd, same_file, resolve, mkdir, is_dir, is_file
+use filesystem, only : path_t, get_cwd, same_file, canonical, mkdir, is_dir, is_file
 
 implicit none
 
@@ -23,7 +23,7 @@ character(*), parameter :: dummy = "nobody.txt"
 integer :: L1, L2, L3
 
 !> empty
-if(resolve("") /= "") error stop "resolve('') /= ''"
+if(canonical("") /= "") error stop "resolve('') /= ''"
 
 ! -- current directory  -- old MacOS doesn't handle "." or ".." alone
 cur = path_t(".")
@@ -38,7 +38,7 @@ print *, "OK: current dir = ", cur%path()
 p1 = path_t("~")
 p1 = p1%resolve()
 if (p1%path(1,1) == "~") error stop "%resolve ~ did not expanduser: " // p1%path()
-if (resolve("~") == "~") error stop "resolve('~') should not be '~'"
+if (canonical("~") == "~") error stop "resolve('~') should not be '~'"
 print *, "OK: home dir = ", p1%path()
 
 p2 = path_t(p1%parent())

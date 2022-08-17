@@ -13,7 +13,7 @@ is_symlink, &
 exists, match, &
 join, &
 copy_file, mkdir, &
-file_parts, relative_to, resolve, root, same_file, file_size, &
+file_parts, relative_to, root, same_file, file_size, &
 file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
 get_filename, make_absolute, &
@@ -33,13 +33,6 @@ get_max_path
 !! MacOS: 1024 from sys/syslimits.h PATH_MAX
 !! Linux: 4096 from https://www.ibm.com/docs/en/spectrum-protect/8.1.13?topic=parameters-file-specification-syntax
 !! Windows: 32767 from https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd
-interface remove
-  module procedure f_unlink
-end interface remove
-
-interface resolve
-  module procedure canonical
-end interface resolve
 
 type :: path_t
 
@@ -348,7 +341,7 @@ character(*), intent(in) :: path, pattern
 end function
 
 
-module subroutine f_unlink(path)
+module subroutine remove(path)
 !! delete the file, symbolic link, or empty directory
 character(*), intent(in) :: path
 end subroutine
@@ -511,7 +504,7 @@ subroutine fs_unlink(self)
 !! delete the file
 class(path_t), intent(in) :: self
 
-call f_unlink(self%path_str)
+call remove(self%path_str)
 end subroutine fs_unlink
 
 
@@ -526,7 +519,7 @@ function fs_resolve(self)
 class(path_t), intent(in) :: self
 type(path_t) :: fs_resolve
 
-fs_resolve%path_str = resolve(self%path_str)
+fs_resolve%path_str = canonical(self%path_str)
 end function fs_resolve
 
 

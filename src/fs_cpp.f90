@@ -367,12 +367,12 @@ same_file = cfs_equivalent(trim(path1) // C_NULL_CHAR, trim(path2) // C_NULL_CHA
 end procedure same_file
 
 
-module procedure f_unlink
+module procedure remove
 logical(c_bool) :: e
 
 e = cfs_remove(trim(path) // C_NULL_CHAR)
 if (.not. e) write(stderr, '(a)') "filesystem:unlink: " // path // " did not exist."
-end procedure f_unlink
+end procedure remove
 
 
 module procedure copy_file

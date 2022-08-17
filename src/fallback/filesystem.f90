@@ -10,8 +10,8 @@ public :: get_cwd !< utility procedures
 public :: expanduser, &
 is_absolute, is_dir, is_file, exists, get_homedir, get_tempdir, &
 join, filesep, &
-copy_file, mkdir, &
-file_parts, relative_to, resolve, root, same_file, file_size, &
+copy_file, mkdir, canonical, &
+file_parts, relative_to, root, same_file, file_size, &
 file_name, parent, stem, suffix, with_suffix, &
 assert_is_file, assert_is_dir, &
 sys_posix, touch, &
@@ -21,15 +21,6 @@ is_symlink, create_symlink, is_exe, normal, &
 chmod_exe, chmod_no_exe, match, read_text, write_text, &
 get_max_path
 !! functional API
-
-interface remove
-  module procedure f_unlink
-end interface remove
-
-interface resolve
-  module procedure canonical
-end interface resolve
-
 
 type :: path_t
 
@@ -282,14 +273,14 @@ end interface
 contains
 
 
-subroutine f_unlink(path)
+subroutine remove(path)
 !! delete the file, symbolic link, or empty directory
 character(*), intent(in) :: path
 
 integer :: u
 open(newunit=u, file=path, status='old')
 close(u, status='delete')
-end subroutine f_unlink
+end subroutine remove
 
 !> non-existent
 
@@ -521,7 +512,7 @@ subroutine fs_unlink(self)
 !! delete the file
 class(path_t), intent(in) :: self
 
-call f_unlink(self%path_str)
+call remove(self%path_str)
 end subroutine
 
 
@@ -536,7 +527,7 @@ function fs_resolve(self)
 class(path_t), intent(in) :: self
 type(path_t) :: fs_resolve
 
-fs_resolve%path_str = resolve(self%path_str)
+fs_resolve%path_str = canonical(self%path_str)
 end function fs_resolve
 
 
