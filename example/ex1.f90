@@ -2,7 +2,7 @@ program ex1
 
 use filesystem
 
-implicit none (type, external)
+implicit none
 
 print '(a)', "current working dir " // get_cwd()
 

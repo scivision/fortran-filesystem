@@ -2,7 +2,7 @@ program cpp_relative_to
 
 use filesystem, only : path_t, relative_to, sys_posix
 
-implicit none (type, external)
+implicit none
 
 
 call test_normal()

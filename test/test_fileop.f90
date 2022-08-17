@@ -5,7 +5,7 @@ use, intrinsic:: iso_fortran_env, only : stderr=>error_unit
 use filesystem, only : path_t, copy_file, is_absolute, get_cwd, normal, is_dir, &
 mkdir, touch, copy_file, assert_is_file
 
-implicit none (type, external)
+implicit none
 
 call test_touch()
 print *, "OK: touch"

@@ -4,7 +4,7 @@ use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
 is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep, parent, &
 assert_is_dir, normal
 
-implicit none (type, external)
+implicit none
 
 
 call test_setter_getter()

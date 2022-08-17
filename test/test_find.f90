@@ -3,7 +3,7 @@ program test_find
 use, intrinsic :: iso_fortran_env, only : stderr => error_unit
 use filesystem, only : remove, get_filename, mkdir, make_absolute, sys_posix, touch, is_file
 
-implicit none (type, external)
+implicit none
 
 call test_get_filename()
 print *, "OK: get_filename"

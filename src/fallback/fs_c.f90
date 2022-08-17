@@ -2,7 +2,7 @@ submodule (filesystem) fs_c_int
 
 use, intrinsic :: iso_c_binding, only : C_INT
 
-implicit none (type,external)
+implicit none
 
 interface
 

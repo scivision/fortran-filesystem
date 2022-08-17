@@ -2,7 +2,7 @@ program test_matching
 
 use filesystem, only : match, path_t
 
-implicit none (type, external)
+implicit none
 
 call test_match()
 print *, "OK: match"

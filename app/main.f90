@@ -5,7 +5,7 @@ program cli
 
 use filesystem
 
-implicit none (type, external)
+implicit none
 
 integer :: i
 character(1000) :: buf, buf2

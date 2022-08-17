@@ -1,7 +1,7 @@
 submodule (filesystem) no_cpp_fs
 !! all compilers without non-C++17 filesystem
 
-implicit none (type, external)
+implicit none
 
 contains
 

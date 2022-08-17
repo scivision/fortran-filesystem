@@ -2,7 +2,7 @@ submodule (filesystem) fs_cpp
 
 use, intrinsic :: iso_c_binding, only : c_char, c_ptr, C_INT, C_NULL_CHAR, C_SIZE_T
 
-implicit none (type, external)
+implicit none
 
 interface !< fs.cpp
 

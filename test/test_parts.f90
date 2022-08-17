@@ -3,7 +3,7 @@ program test_parts
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use filesystem, only : path_t, file_parts
 
-implicit none (type, external)
+implicit none
 
 type(path_t) :: p1
 

@@ -3,7 +3,7 @@ module filesystem
 use, intrinsic:: iso_c_binding, only: C_BOOL
 use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 
-implicit none (type, external)
+implicit none
 private
 public :: path_t  !< base class
 public :: get_homedir, canonical, get_cwd !< utility procedures

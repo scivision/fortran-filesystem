@@ -2,7 +2,7 @@ program test_filesize
 
 use filesystem, only : path_t, file_size
 
-implicit none (type, external)
+implicit none
 
 integer :: u, d(10)
 type(path_t) :: p1

@@ -1,7 +1,7 @@
 submodule (filesystem) find_filesystem
 !! procedures that find files
 
-implicit none (type, external)
+implicit none
 
 contains
 

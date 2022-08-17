@@ -2,7 +2,7 @@ program test_exe
 
 use filesystem, only : path_t, is_exe
 
-implicit none (type, external)
+implicit none
 
 type(path_t) :: p1, p2
 

@@ -4,7 +4,7 @@ program test_cpp_fs
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use filesystem, only : path_t, get_cwd, exists, sys_posix, get_tempdir, get_homedir
 
-implicit none (type, external)
+implicit none
 
 call test_exists()
 print *, "OK fs: exists"

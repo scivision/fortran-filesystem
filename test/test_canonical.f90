@@ -4,7 +4,7 @@ use, intrinsic:: iso_fortran_env, only : stderr=>error_unit
 
 use filesystem, only : path_t, get_cwd, same_file, resolve, mkdir, is_dir, is_file
 
-implicit none (type, external)
+implicit none
 
 
 call test_same_file()

@@ -2,7 +2,7 @@ program test_rw_text
 
 use filesystem, only : path_t, read_text, write_text
 
-implicit none (type, external)
+implicit none
 
 character(1000) :: filename
 character(:), allocatable :: text, rtext

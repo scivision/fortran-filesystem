@@ -1,7 +1,7 @@
 submodule (filesystem) io_filesystem
 !! procedures that read/write file data
 
-implicit none (type, external)
+implicit none
 
 contains
 
