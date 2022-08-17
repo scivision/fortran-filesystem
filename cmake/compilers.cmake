@@ -30,7 +30,7 @@ endif()
 # check if Fortran compiler new enough
 check_fortran_source_compiles("
 module a
-implicit none (type, external)
+implicit none
 
 interface
 module subroutine d()
@@ -67,7 +67,9 @@ if(fallback)
   unset(HAVE_CXX_FILESYSTEM CACHE)
 
 else()
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1.0)
+
+  if((CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1.0) OR
+      CMAKE_CXX_COMPILER_ID STREQUAL "NVHPC")
     set(CMAKE_REQUIRED_LIBRARIES stdc++fs)
   endif()
 
