@@ -11,14 +11,8 @@ find_package(ffilesystem CONFIG REQUIRED)
 # --- Fortran use of our custom C++ functions
 add_executable(ex_fortran ex1.f90)
 target_link_libraries(ex_fortran PRIVATE ffilesystem::filesystem)
-if(CMAKE_CXX_COMPILER_ID MATCHES "^Intel")
-  # Intel needs linker_language fortran else error "undefined reference to `main'"
-  set_property(TARGET ex_fortran PROPERTY LINKER_LANGUAGE Fortran)
-else()
-  # setting linker language ensures stdc++ is linked, else
-  # get hundreds of linker errors
-  set_property(TARGET ex_fortran PROPERTY LINKER_LANGUAGE CXX)
-endif()
+set_property(TARGET ex_fortran PROPERTY LINKER_LANGUAGE Fortran)
+# Intel needs linker_language fortran else error "undefined reference to `main'"
 
 add_test(NAME ExFortran COMMAND ex_fortran)
 
@@ -26,7 +20,6 @@ if(NOT ffilesystem_fallback)
 # --- C++ use of our custom C++ functions
 add_executable(ex_cpp ex2.cpp)
 target_compile_features(ex_cpp PRIVATE cxx_std_17)
-set_property(TARGET ex_cpp PROPERTY LINKER_LANGUAGE CXX)
 target_link_libraries(ex_cpp PRIVATE ffilesystem::filesystem)
 
 add_test(NAME ExCpp COMMAND ex_cpp)

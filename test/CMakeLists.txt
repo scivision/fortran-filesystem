@@ -89,17 +89,13 @@ set_property(TEST Find PROPERTY FIXTURES_REQUIRED ops_fxt)
 # --- C / C++ interface
 add_executable(test_cpp_ifc test_ifc.cpp)
 target_compile_features(test_cpp_ifc PRIVATE cxx_std_17)
-target_link_libraries(test_cpp_ifc PRIVATE filesystem ${CMAKE_REQUIRED_LIBRARIES})
-target_include_directories(test_cpp_ifc PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(test_cpp_ifc PRIVATE filesystem)
 set_property(TARGET test_cpp_ifc PROPERTY LABELS cpp)
-set_property(TARGET test_cpp_ifc PROPERTY LINKER_LANGUAGE CXX)
 add_test(NAME CPP_interface COMMAND test_cpp_ifc)
 
 add_executable(test_c_ifc test_ifc.c)
 set_property(TARGET test_c_ifc PROPERTY LABELS cpp)
-set_property(TARGET test_c_ifc PROPERTY LINKER_LANGUAGE CXX)
-target_link_libraries(test_c_ifc PRIVATE filesystem ${CMAKE_REQUIRED_LIBRARIES})
-target_include_directories(test_c_ifc PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(test_c_ifc PRIVATE filesystem)
 add_test(NAME C_interface COMMAND test_c_ifc)
 
 # --- props
@@ -115,13 +111,8 @@ foreach(t IN LISTS test_targets)
     continue()
   endif()
 
-  if(CMAKE_CXX_COMPILER_ID MATCHES "^Intel")
-    # Intel needs linker_language fortran else error "undefined reference to `main'"
-    set_property(TARGET ${t} PROPERTY LINKER_LANGUAGE Fortran)
-  else()
-    # setting linker language ensures stdc++ is linked, else hundreds of linker errors
-    set_property(TARGET ${t} PROPERTY LINKER_LANGUAGE CXX)
-  endif()
+  # Intel needs linker_language fortran else error "undefined reference to `main'"
+  set_property(TARGET ${t} PROPERTY LINKER_LANGUAGE Fortran)
 endforeach()
 
 get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
