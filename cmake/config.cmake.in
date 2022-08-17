@@ -2,13 +2,7 @@
 
 include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake)
 
-get_target_property(ffilesystem_INCLUDE_DIR ffilesystem::filesystem INTERFACE_INCLUDE_DIRECTORIES)
-list(GET ffilesystem_INCLUDE_DIR 0 ffilesystem_INCLUDE_DIR)
-if(EXISTS ${ffilesystem_INCLUDE_DIR}/filesystem.h)
-  set(ffilesystem_fallback false)
-else()
-  set(ffilesystem_fallback true)
-endif()
+set(ffilesystem_fallback @fallback@)
 
 target_link_libraries(ffilesystem::filesystem INTERFACE
 $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:${CMAKE_CXX_COMPILER_VERSION},9.1.0>>:stdc++fs>
