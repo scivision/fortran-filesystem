@@ -23,14 +23,18 @@ jobs:
 
     strategy:
       matrix:
-        gcc-version: [7, 8, 9, 10, 11]
+        gcc-version: [8, 9, 10, 11]
         shared: [true, false]
         fallback: [true, false]
         exclude:
-        - fallback: false
-          gcc-version: 7
         - fallback: true
           shared: true
+        - gcc-version: 8
+          shared: true
+        include:
+        - gcc-version: 7
+          fallback: true
+          shared: false
 
     env:
       CC: gcc-${{ matrix.gcc-version }}
