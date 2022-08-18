@@ -11,13 +11,18 @@ module procedure get_filename
 character(:), allocatable :: path1, suff(:)
 integer :: i
 
+allocate(character(get_max_path()) :: get_filename)
+
 if(present(suffixes)) then
+  allocate(character(len(suffixes)) :: suff(size(suffixes)))
   suff = suffixes
 else
+  allocate(character(4) :: suff(3))
   suff = [character(4) :: '.h5', '.nc', '.dat']
 endif
 
-get_filename = trim(path)  !< first to avoid undefined return
+get_filename = path
+!! avoid undefined return
 
 if(len(get_filename) == 0) return
 
@@ -34,6 +39,7 @@ endif
 
 if(is_file(get_filename)) return
 
+allocate(character(get_max_path()) :: path1)
 path1 = get_filename
 
 do i = 1, size(suff)
@@ -54,6 +60,9 @@ end procedure get_filename
 module procedure make_absolute
 
 character(:), allocatable :: p
+
+allocate(character(get_max_path()) :: p)
+allocate(character(get_max_path()) :: make_absolute)
 
 p = expanduser(path)
 if (is_absolute(p)) then

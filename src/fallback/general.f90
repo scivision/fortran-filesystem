@@ -111,11 +111,15 @@ end procedure suffix
 
 
 module procedure with_suffix
+
+allocate(character(get_max_path()) :: with_suffix)
+
 if(len_trim(path) > 0) then
   with_suffix = path(1:len_trim(path) - len(suffix(path))) // trim(new)
 else
   with_suffix = ""
 endif
+
 end procedure with_suffix
 
 
@@ -210,9 +214,13 @@ else
   call get_environment_variable("USERPROFILE", buf, status=istat)
 endif
 
-if (istat /= 0) get_homedir = ""
+allocate(character(get_max_path()) :: get_homedir)
 
-get_homedir = as_posix(buf)
+if (istat == 0) then
+  get_homedir = as_posix(buf)
+else
+  get_homedir = ""
+endif
 
 end procedure get_homedir
 

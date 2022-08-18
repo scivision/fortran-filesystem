@@ -77,7 +77,9 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_get_cwd(cbuf)
 
+allocate(character(N) :: get_cwd)
 get_cwd = as_posix(cbuf(:N))
+
 end procedure get_cwd
 
 
@@ -92,7 +94,8 @@ integer(C_SIZE_T) :: N
 
 N = cfs_root(trim(path) // C_NULL_CHAR, cbuf)
 
-root = trim(cbuf(:N))
+allocate(character(N) :: root)
+root = cbuf(:N)
 
 end procedure root
 
