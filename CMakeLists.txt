@@ -41,6 +41,16 @@ RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
+add_library(ffilesystem::filesystem INTERFACE IMPORTED)
+
+target_link_libraries(ffilesystem::filesystem INTERFACE filesystem)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.19)
+  set_property(TARGET ffilesystem::filesystem PROPERTY IMPORTED_LINK_INTERFACE_LANGUAGE CXX)
+  # https://cmake.org/cmake/help/latest/prop_tgt/IMPORTED_LINK_INTERFACE_LANGUAGES.html
+  # imported targets use above instead of LINKER_LANGUAGE
+  # target_link_libraries(ffilesystem::filesystem INTERFACE stdc++)  # did not help
+endif()
+
 # --- CLI
 
 if(BUILD_UTILS)
@@ -48,7 +58,12 @@ if(BUILD_UTILS)
   target_link_libraries(filesystem_cli PRIVATE filesystem)
   set_property(TARGET filesystem_cli PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-  install(TARGETS filesystem_cli EXPORT ${PROJECT_NAME}-targets)
+  install(TARGETS filesystem_cli EXPORT ${PROJECT_NAME}-targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  )
 endif()
 
 # --- Tests

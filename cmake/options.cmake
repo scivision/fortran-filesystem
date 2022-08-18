@@ -1,4 +1,4 @@
-message(STATUS "${PROJECT_NAME} ${PROJECT_VERSION}  CMake ${CMAKE_VERSION}")
+message(STATUS "${PROJECT_NAME} CMake ${CMAKE_VERSION} Toolchain ${CMAKE_TOOLCHAIN_FILE}")
 
 option(fallback "Don't use C++ filesystem, limited functionality")
 option(fallback_auto "enable ability to fallback (default off to prevent unintended missing features)")
