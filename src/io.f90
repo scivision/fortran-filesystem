@@ -22,24 +22,19 @@ end procedure write_text
 
 module procedure read_text
 
-integer :: L
+integer :: L,u
+character(:), allocatable :: iwa
 
 L = 16384
 if(present(max_length)) L = max_length
 
-block
-integer :: u
-character(L) :: buf
-character(:), allocatable :: iwa
-
 iwa = expanduser(filename)
 
-open(newunit=u, file=iwa, status='old', action='read')
-read(u,'(A)') buf
-close(u)
+allocate(character(L) :: read_text)
 
-read_text = trim(buf)
-end block
+open(newunit=u, file=iwa, status='old', action='read')
+read(u,'(A)') read_text
+close(u)
 
 end procedure read_text
 
