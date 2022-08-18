@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8...3.25)
 
 project(ffilesystem
 LANGUAGES C CXX Fortran
-VERSION 4.0.0
+VERSION 3.7.0
 )
 
 include(CTest) # needed for "ctest -T memcheck"
