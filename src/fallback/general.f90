@@ -10,7 +10,9 @@ module procedure as_posix
 
 integer :: i
 
-as_posix = trim(path)
+allocate(character(len(path)) :: as_posix)
+as_posix = path
+
 i = index(as_posix, char(92))
 do while (i > 0)
   as_posix(i:i) = '/'
@@ -28,7 +30,9 @@ character(:), allocatable :: drop_sep
 
 integer :: i
 
-drop_sep = trim(path)
+allocate(character(len(path)) :: drop_sep)
+drop_sep = path
+
 i = index(drop_sep, "//")
 do while (i > 0)
   drop_sep(i:) = drop_sep(i+1:)
@@ -55,16 +59,26 @@ end procedure same_file
 
 module procedure file_name
 character(:), allocatable :: wk
+integer :: i
 
 wk = as_posix(path)
-file_name = trim(wk(index(wk, "/", back=.true.) + 1:))
+
+i = index(wk, "/", back=.true.) + 1
+
+allocate(character(len_trim(wk(i:))) :: file_name)
+
+file_name = wk(i:)
+
 !print *, "TRACE:file_name: in: " // wk // " out: " // file_name
+
 end procedure file_name
 
 
 module procedure stem
 character(len_trim(path)) :: wk
 integer :: i
+
+allocate(character(get_max_path()) :: stem)
 
 wk = file_name(path)
 
@@ -82,6 +96,8 @@ module procedure parent
 character(:), allocatable :: wk
 integer :: i
 
+allocate(character(get_max_path()) :: parent)
+
 wk = as_posix(path)
 
 i = index(wk, "/", back=.true.)
@@ -97,12 +113,14 @@ module procedure suffix
 character(:), allocatable :: wk
 integer :: i
 
+allocate(character(get_max_path()) :: suffix)
+
 wk = file_name(path)
 
 i = index(wk, '.', back=.true.)
 
 if (i > 1) then
-  suffix = trim(wk(i:))
+  suffix = wk(i:)
 else
   suffix = ''
 end if
@@ -115,7 +133,7 @@ module procedure with_suffix
 allocate(character(get_max_path()) :: with_suffix)
 
 if(len_trim(path) > 0) then
-  with_suffix = path(1:len_trim(path) - len(suffix(path))) // trim(new)
+  with_suffix = path(:len_trim(path) - len(suffix(path))) // new
 else
   with_suffix = ""
 endif
@@ -149,6 +167,8 @@ module procedure relative_to
 character(:), dimension(:), allocatable :: p1_pts, p2_pts
 character(:), allocatable :: s1, s2
 integer :: i, N1, N2
+
+allocate(character(get_max_path()) :: relative_to)
 
 s1 = as_posix(a)
 s2 = as_posix(b)
@@ -204,17 +224,17 @@ module procedure get_homedir
 !! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
 
 character(:), allocatable :: buf
-integer :: istat
+integer :: istat, L
 
 allocate(character(get_max_path()) :: buf)
 
 if(sys_posix()) then
-  call get_environment_variable("HOME", buf, status=istat)
+  call get_environment_variable("HOME", buf, length=L, status=istat)
 else
-  call get_environment_variable("USERPROFILE", buf, status=istat)
+  call get_environment_variable("USERPROFILE", buf, length=L, status=istat)
 endif
 
-allocate(character(get_max_path()) :: get_homedir)
+allocate(character(L) :: get_homedir)
 
 if (istat == 0) then
   get_homedir = as_posix(buf)
@@ -231,19 +251,23 @@ module procedure get_tempdir
 !! https://en.wikipedia.org/wiki/TMPDIR
 
 character(:), allocatable :: buf
-integer :: istat
+integer :: istat, L
 
 allocate(character(get_max_path()) :: buf)
 
 if(sys_posix()) then
-  call get_environment_variable("TMPDIR", buf, status=istat)
+  call get_environment_variable("TMPDIR", buf, length=L, status=istat)
 else
-  call get_environment_variable("TMP", buf, status=istat)
+  call get_environment_variable("TMP", buf, length=L, status=istat)
 endif
 
-if (istat /= 0) get_tempdir = ""
+allocate(character(L) :: get_tempdir)
 
-get_tempdir = as_posix(buf)
+if (istat == 0) then
+  get_tempdir = as_posix(buf)
+else
+  get_tempdir = ""
+endif
 
 end procedure get_tempdir
 
@@ -251,12 +275,14 @@ end procedure get_tempdir
 module procedure expanduser
 character(:), allocatable :: home
 
-expanduser = trim(adjustl(path))
+allocate(character(get_max_path()) :: expanduser)
+
+expanduser = adjustl(path)
 
 if (len_trim(expanduser) == 0) return
 if(expanduser(1:1) /= '~') return
 
-home = get_homedir()
+home = trim(get_homedir())
 if (len_trim(home) == 0) return
 
 if (len_trim(expanduser) < 2) then

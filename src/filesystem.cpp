@@ -600,10 +600,12 @@ size_t get_homedir(char* result) {
 char path[MAXP];
 
 #ifdef _WIN32
-  std::strcpy(path, fs::path(std::getenv("USERPROFILE")).string().c_str());
+  auto k = "USERPROFILE";
 #else
-  std::strcpy(path, fs::path(std::getenv("HOME")).string().c_str());
+  auto k = "HOME";
 #endif
+
+  std::strcpy(path, fs::path(std::getenv(k)).string().c_str());
 
   return normal(path, result);
 }

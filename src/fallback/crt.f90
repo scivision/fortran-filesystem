@@ -36,11 +36,11 @@ if(len_trim(path) == 0) then
   return
 endif
 
-wk = expanduser(path)
+wk = trim(expanduser(path))
 
 !! some systems can't handle leading "." or ".."
 
-if (wk(1:1) == ".") wk = get_cwd() // "/" // wk
+if (wk(1:1) == ".") wk = trim(get_cwd()) // "/" // wk
 
 if(len(wk) > L) error stop "filesystem:canonical: path too long: " // wk
 
