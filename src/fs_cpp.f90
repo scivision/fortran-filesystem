@@ -207,7 +207,8 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_file_name(trim(path) // C_NULL_CHAR, cbuf)
 
-file_name = trim(cbuf(:N))
+allocate(character(N) :: file_name)
+file_name = cbuf(:N)
 
 end procedure file_name
 
@@ -220,7 +221,9 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_stem(trim(path) // C_NULL_CHAR, cbuf)
 
-stem = trim(cbuf(:N))
+allocate(character(N) :: stem)
+stem = cbuf(:N)
+
 end procedure stem
 
 
@@ -232,7 +235,9 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_parent(trim(path) // C_NULL_CHAR, cbuf)
 
-parent = trim(cbuf(:N))
+allocate(character(N) :: parent)
+parent = cbuf(:N)
+
 end procedure parent
 
 
@@ -244,7 +249,9 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_suffix(trim(path) // C_NULL_CHAR, cbuf)
 
-suffix = trim(cbuf(:N))
+allocate(character(N) :: suffix)
+suffix = cbuf(:N)
+
 end procedure suffix
 
 
@@ -256,7 +263,9 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_normal(trim(path) // C_NULL_CHAR, cbuf)
 
-normal = trim(cbuf(:N))
+allocate(character(N) :: normal)
+normal = cbuf(:N)
+
 end procedure normal
 
 
@@ -268,7 +277,9 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_with_suffix(trim(path) // C_NULL_CHAR, trim(new) // C_NULL_CHAR, cbuf)
 
-with_suffix = trim(cbuf(:N))
+allocate(character(N) :: with_suffix)
+with_suffix = cbuf(:N)
+
 end procedure with_suffix
 
 
@@ -326,7 +337,8 @@ if(present(strict)) s = strict
 
 N = cfs_canonical(trim(path) // C_NULL_CHAR, s, cbuf)
 
-canonical = trim(cbuf(:N))
+allocate(character(N) :: canonical)
+canonical = cbuf(:N)
 
 end procedure canonical
 
@@ -337,7 +349,8 @@ integer(C_SIZE_T) :: N
 
 N = cfs_root(trim(path) // C_NULL_CHAR, cbuf)
 
-root = trim(cbuf(:N))
+allocate(character(N) :: root)
+root = cbuf(:N)
 
 end procedure root
 
@@ -400,7 +413,9 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_relative_to(trim(a) // C_NULL_CHAR, trim(b) // C_NULL_CHAR, cbuf)
 
-relative_to = trim(cbuf(:N))
+allocate(character(N) :: relative_to)
+relative_to = cbuf(:N)
+
 end procedure relative_to
 
 
@@ -412,7 +427,8 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_expanduser(trim(path) // C_NULL_CHAR, cbuf)
 
-expanduser = trim(cbuf(:N))
+allocate(character(N) :: expanduser)
+expanduser = cbuf(:N)
 end procedure expanduser
 
 
@@ -424,7 +440,9 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_get_homedir(cbuf)
 
-get_homedir = trim(cbuf(:N))
+allocate(character(N) :: get_homedir)
+get_homedir = cbuf(:N)
+
 end procedure get_homedir
 
 
@@ -436,7 +454,9 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_get_tempdir(cbuf)
 
-get_tempdir = trim(cbuf(:N))
+allocate(character(N) :: get_tempdir)
+get_tempdir = cbuf(:N)
+
 end procedure get_tempdir
 
 
@@ -448,7 +468,9 @@ allocate(character(max_path()) :: cbuf)
 
 N = cfs_get_cwd(cbuf)
 
-get_cwd = trim(cbuf(:N))
+allocate(character(N) :: get_cwd)
+get_cwd = cbuf(:N)
+
 end procedure get_cwd
 
 
