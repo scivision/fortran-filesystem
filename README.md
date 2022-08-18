@@ -36,9 +36,10 @@ Due to compiler limitations, currently Fortran-filesystem only officially suppor
 
 Full C++ filesystem support and hence full Fortran-filesystem features are available with any of these compilers:
 
-* GCC &ge; 8
-* Clang &ge; 7
+* GCC &ge; 8 (g++, gfortran)
+* LLVM Clang &ge; 7 (clang++, flang or gfortran)
 * Intel oneAPI (icx, ifx, icpc, ifort, icl)
+* Flang
 * NVidia HPC SDK (nvc++, nvfortran)
 * AOCC AMD Optimizing Compilers (clang++, flang)
 * Visual Studio (C++) + oneAPI (Fortran)
