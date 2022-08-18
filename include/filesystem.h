@@ -1,33 +1,48 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#if defined (__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
-#include <sys/syslimits.h>
-#define MAXP PATH_MAX
-#elif defined (_MSC_VER)
-#include <stdlib.h>
-#define MAXP _MAX_PATH
-#else
-#include <limits.h>
-#ifdef PATH_MAX
-#define MAXP PATH_MAX
+#define PATH_LIMIT 4096  // absolute maximum, in case a system has ill-defined maximum path length
+
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
 #endif
 #endif
 
-#if !defined(MAXP)
-#if defined (_POSIX_PATH_MAX)
-#define MAXP _POSIX_PATH_MAX
+#if defined (__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#include <sys/syslimits.h>
+#define PMAX PATH_MAX
+#elif defined (_MSC_VER)
+#include <stdlib.h>
+#define PMAX _MAX_PATH
 #else
-#define MAXP 256
+#include <limits.h>
+#ifdef PATH_MAX
+#define PMAX PATH_MAX
 #endif
 #endif
+
+#if !defined(PMAX)
+#if defined (_POSIX_PATH_MAX)
+#define PMAX _POSIX_PATH_MAX
+#else
+#define PMAX 256
+#endif
+#endif
+
+#ifndef min
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+#define MAXP min(PMAX, PATH_LIMIT)
 
 #ifdef __cplusplus
 extern "C" {
 #else
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
 #endif
 
 extern bool is_macos();
