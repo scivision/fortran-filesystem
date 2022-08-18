@@ -36,8 +36,9 @@ add_library(ffilesystem::filesystem INTERFACE IMPORTED)
 
 target_link_libraries(ffilesystem::filesystem INTERFACE ${ffilesystem_LIBRARIES})
 target_include_directories(ffilesystem::filesystem INTERFACE ${ffilesystem_INCLUDE_DIRS})
-set_property(TARGET ffilesystem::filesystem PROPERTY LINKER_LANGUAGE CXX)
+set_property(TARGET ffilesystem::filesystem PROPERTY IMPORTED_LINK_INTERFACE_LANGUAGES CXX)
+# https://cmake.org/cmake/help/latest/prop_tgt/IMPORTED_LINK_INTERFACE_LANGUAGES.html
+# imported targets use above instead of LINKER_LANGUAGE
 # target_link_libraries(ffilesystem::filesystem INTERFACE stdc++)  # did not help
-# instead, set linker_langauge CXX for the specific targets linking ffilesystem::filesystem
 
 add_dependencies(ffilesystem::filesystem ffilesystem)

@@ -84,7 +84,7 @@ jobs:
       run: cmake -B example/build -S example/ -DCMAKE_PREFIX_PATH=${{ runner.temp }}
 
     - name: example build
-      run: cmake --build example/build
+      run: cmake --build example/build --parallel || cmake --build example/build -v
 
     - name: example test
       run: ctest --test-dir example/build -V

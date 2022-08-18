@@ -13,7 +13,6 @@ add_executable(ex_fortran ex1.f90)
 target_link_libraries(ex_fortran PRIVATE ffilesystem::filesystem)
 set_property(TARGET ex_fortran PROPERTY LINKER_LANGUAGE Fortran)
 # Intel needs linker_language fortran else error "undefined reference to `main'"
-
 add_test(NAME ExFortran COMMAND ex_fortran)
 
 if(NOT ffilesystem_fallback)
@@ -27,7 +26,6 @@ add_test(NAME ExCpp COMMAND ex_cpp)
 # --- C use of our custom C++ functions
 add_executable(ex_c ex3.c)
 target_link_libraries(ex_c PRIVATE ffilesystem::filesystem)
-set_property(TARGET ex_c PROPERTY LINKER_LANGUAGE CXX)
 
 add_test(NAME ExC COMMAND ex_c)
 endif()
