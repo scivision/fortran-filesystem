@@ -1,10 +1,18 @@
 // Check that filesystem is capable of symbolic links with this compiler.
-
+// note: fs::status(lnk) with is_symlink is bugged on Windows--use fs::is_symlink(lnk) on path instead
 #include <iostream>
+#include <cstdlib>
+
+#ifndef __has_include
+#error "Compiler not C++17 compliant"
+#endif
 
 #if __has_include(<filesystem>)
 #include <filesystem>
 namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
 #else
 #error "No C++ filesystem support"
 #endif
@@ -26,7 +34,12 @@ if(!fs::exists(lnk)) {
   std::cout << "created symlink: " << lnk << std::endl;
 }
 
-if(fs::exists(lnk) & fs::is_symlink(lnk)) {
+if(!fs::exists(lnk)) {
+  std::cerr << "symlink not created: " << lnk << std::endl;
+  return EXIT_FAILURE;
+}
+
+if(fs::is_symlink(lnk)) {
   std::cout << lnk << " is a symlink" << std::endl;
   return EXIT_SUCCESS;
 }
