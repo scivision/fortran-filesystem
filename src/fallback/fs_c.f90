@@ -49,6 +49,11 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+logical(c_bool) function cfs_is_file(path) bind(C, name="is_file")
+import
+character(kind=c_char), intent(in) :: path(*)
+end function
+
 integer(C_SIZE_T) function cfs_root(path, result) bind(C, name="root")
 import
 character(kind=c_char), intent(in) :: path(*)
@@ -88,6 +93,10 @@ end procedure
 module procedure is_dir
 is_dir = cfs_is_dir(trim(path) // C_NULL_CHAR)
 end procedure is_dir
+
+module procedure is_file
+is_file = cfs_is_file(trim(path) // C_NULL_CHAR)
+end procedure is_file
 
 
 module procedure is_exe

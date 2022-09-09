@@ -294,14 +294,9 @@ bool is_absolute(const char* path) {
 bool is_file(const char* path) {
   std::error_code ec;
 
-  auto s = fs::status(path, ec);
-  if (s.type() == fs::file_type::not_found) return false;
-  if(ec) {
-    std::cerr << "ERROR:filesystem:is_file:status: " << ec.message() << std::endl;
-    return false;
-  }
+  if (!exists(path)) return false;
 
-  return fs::is_regular_file(s);
+  return fs::is_regular_file(path);
 }
 
 bool is_dir(const char* path) {

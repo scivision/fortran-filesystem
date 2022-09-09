@@ -41,17 +41,6 @@ end do
 end function
 
 
-module procedure is_file
-character(:), allocatable :: iwa
-
-iwa = expanduser(path)
-inquire(file=iwa, exist=is_file)
-if(is_file) then
-  if (is_dir(path)) is_file = .false.
-endif
-end procedure is_file
-
-
 module procedure same_file
 same_file = canonical(path1) == canonical(path2)
 end procedure same_file

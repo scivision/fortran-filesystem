@@ -72,7 +72,7 @@ void filesep(char* sep) {
 uintmax_t file_size(const char* path) {
   struct stat s;
 
-  if (is_dir(path)) return 0;
+  if (!is_file(path)) return 0;
 
   if (stat(path, &s) == 0) return s.st_size;
 
@@ -87,6 +87,16 @@ bool is_dir(const char* path){
 
   // NOTE: root() e.g. "C:" needs a trailing slash
   return i == 0 && (s.st_mode & S_IFDIR);
+}
+
+
+bool is_file(const char* path){
+  struct stat s;
+
+  int i = stat(path, &s);
+
+  // NOTE: root() e.g. "C:" needs a trailing slash
+  return i == 0 && (s.st_mode & S_IFREG);
 }
 
 
@@ -179,9 +189,7 @@ int create_symlink(const char* target, const char* link) {
       SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
   }
 #else
-  symlink(target, link);
-  // return value not supported on macOS
-  return 0;
+  return symlink(target, link);
 #endif
 
 }
