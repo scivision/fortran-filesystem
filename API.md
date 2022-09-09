@@ -442,6 +442,14 @@ character(:), allocatable :: home
 home = get_homedir()
 ```
 
+Get full path of main executable, regardless of current working directory
+
+```fortran
+character(:), allocatable :: exe
+
+exe = exe_path()
+```
+
 Get current working directory
 
 ```fortran

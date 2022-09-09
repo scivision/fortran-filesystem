@@ -19,7 +19,7 @@ remove, get_filename, make_absolute, &
 is_macos, is_linux, is_unix, is_windows, &
 is_symlink, create_symlink, is_exe, normal, &
 chmod_exe, chmod_no_exe, match, read_text, write_text, &
-get_max_path
+get_max_path, exe_path
 !! functional API
 
 type :: path_t
@@ -279,6 +279,11 @@ module subroutine create_symlink(tgt, link, status)
 character(*), intent(in) :: tgt, link
 integer, intent(out), optional :: status
 end subroutine
+
+module function exe_path()
+!! get full path of main executable
+character(:), allocatable :: exe_path
+end function
 
 module logical function is_exe(path)
 character(*), intent(in) :: path

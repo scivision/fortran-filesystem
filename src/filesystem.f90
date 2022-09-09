@@ -22,7 +22,7 @@ sys_posix, touch, create_symlink, &
 remove, get_tempdir, filesep, &
 chmod_exe, chmod_no_exe, &
 is_macos, is_windows, is_linux, is_unix, &
-get_max_path
+get_max_path, exe_path
 !! functional API
 
 !! Maximum path length is dynamically determined for this computer.
@@ -327,6 +327,11 @@ module subroutine create_symlink(tgt, link, status)
 character(*), intent(in) :: tgt, link
 integer, intent(out), optional :: status
 end subroutine
+
+module function exe_path()
+!! get full path of main executable
+character(:), allocatable :: exe_path
+end function
 
 module logical function exists(path)
 !! a file or directory exists

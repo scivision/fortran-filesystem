@@ -74,4 +74,27 @@ endif
 end procedure make_absolute
 
 
+module procedure exe_path
+integer :: L, ierr
+character(:), allocatable :: buf
+
+allocate(character(get_max_path()) :: buf)
+
+call get_command_argument(0, buf, length=L, status=ierr)
+if(ierr /= 0) error stop "ERROR: get_command_argument(0) failed"
+if(L < 2) error stop "ERROR: get_command_argument(0) returned L < 2: " // trim(buf)
+
+!! gfortran (Windows): full path
+!! gfortran (Linux): relative path
+!! ifort/ifx (Windows or Linux), nvfortran, flang: relative path
+
+buf = canonical(buf)
+
+allocate(character(len_trim(buf)) :: exe_path)
+exe_path = buf
+
+end procedure exe_path
+
+
+
 end submodule find_filesystem

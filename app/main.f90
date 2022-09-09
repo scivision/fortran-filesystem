@@ -7,26 +7,29 @@ use filesystem
 
 implicit none
 
-integer :: i
+integer :: i, argc
 character(1000) :: buf, buf2
 character(16) :: fcn
 
-if (command_argument_count() < 1) error stop "usage: ./filesystem_cli <function> [<path> ...]"
+argc = command_argument_count()
+
+if (argc < 1) error stop "usage: ./filesystem_cli <function> [<path> ...]"
 
 call get_command_argument(1, fcn, status=i)
 if (i /= 0) error stop "invalid function name: " // trim(fcn)
 
 select case (fcn)
-case ("get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos", "max_path")
+case ("get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos", "max_path", "exe_path")
+  if (argc /= 1) error stop "usage: ./filesystem_cli " // trim(fcn)
 case default
-  if (command_argument_count() < 2) error stop "usage: ./filesystem_cli <function> <path>"
+  if (argc < 2) error stop "usage: ./filesystem_cli <function> <path>"
   call get_command_argument(2, buf, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf)
 end select
 
 select case (fcn)
 case ("relative_to", "same_file", "with_suffix")
-  if (command_argument_count() < 3) error stop "usage: ./filesystem_cli <function> <path> <path>"
+  if (argc < 3) error stop "usage: ./filesystem_cli <function> <path> <path>"
   call get_command_argument(3, buf2, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf2)
 end select
@@ -58,6 +61,8 @@ case ("is_file")
   print '(L1)', is_file(buf)
 case ("is_symlink")
   print '(L1)', is_symlink(buf)
+case ("exe_path")
+  print '(A)', exe_path()
 case ("mkdir")
   print *, "mkdir: " // trim(buf)
   call mkdir(trim(buf))
