@@ -153,7 +153,6 @@ bool is_symlink(const char* path){
   return GetFileAttributes(path) & FILE_ATTRIBUTE_REPARSE_POINT;
 #else
   struct stat buf;
-  int p;
 
   if(lstat(path, &buf) != 0) return false;
 
