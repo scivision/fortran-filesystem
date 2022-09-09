@@ -1,8 +1,5 @@
-include(CheckSymbolExists)
 include(CheckCXXSymbolExists)
-include(CheckFortranSourceCompiles)
 include(CheckCXXSourceCompiles)
-include(CheckCXXSourceRuns)
 
 # --- abi check
 
@@ -26,37 +23,6 @@ if(NOT abi_ok)
     "
     )
   endif()
-endif()
-
-# check if Fortran compiler new enough
-check_fortran_source_compiles("
-module a
-implicit none
-
-interface
-module subroutine d()
-end subroutine d
-end interface
-end module
-
-submodule (a) b
-contains
-module procedure d
-end procedure d
-end submodule
-
-program c
-use a, only : d
-
-character :: e
-error stop e
-end program
-"
-HAS_Fortran_2018
-SRC_EXT f90
-)
-if(NOT HAS_Fortran_2018)
-  message(FATAL_ERROR "Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION} does not support Fortran 2018 syntax")
 endif()
 
 # setup / check C++ filesystem
