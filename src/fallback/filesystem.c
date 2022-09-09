@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <ctype.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -102,6 +103,16 @@ bool is_exe(const char* path){
 }
 
 
+bool exists(const char* path) {
+#ifdef _MSC_VER
+  return _access_s(path, 0 ) == 0;
+#else
+  return access(path, F_OK) == 0;
+#endif
+
+}
+
+
 size_t root(const char* path, char* r) {
 
 if (is_absolute(path)){
@@ -142,12 +153,7 @@ bool is_absolute(const char* path){
 
 bool is_symlink(const char* path){
   if(path==NULL) return false;
-
-#ifdef _MSC_VER
-  if(_access_s(path, 0 ) != 0) return false;
-#else
-  if(access(path, F_OK) != 0) return false;
-#endif
+  if(!exists(path)) return false;
 
 #ifdef _WIN32
   return GetFileAttributes(path) & FILE_ATTRIBUTE_REPARSE_POINT;
@@ -164,7 +170,14 @@ bool is_symlink(const char* path){
 int create_symlink(const char* target, const char* link) {
 
 #ifdef _WIN32
-  return !(CreateSymbolicLink(link, target, SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
+  if(is_dir(target)) {
+    return !(CreateSymbolicLink(link, target,
+      SYMBOLIC_LINK_FLAG_DIRECTORY | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
+  }
+  else {
+    return !(CreateSymbolicLink(link, target,
+      SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
+  }
 #else
   symlink(target, link);
   // return value not supported on macOS
@@ -185,6 +198,22 @@ size_t get_cwd(char* path) {
   return strlen(path);
 }
 
+bool fs_remove(const char* path) {
+  if (!exists(path)) return true;
+
+#ifdef _WIN32
+  if (is_dir(path)){
+    // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-removedirectorya
+    return RemoveDirectory(path) != 0;
+  }
+  else {
+    // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-deletefilea
+    return DeleteFile(path) != 0;
+  }
+#else
+  return remove(path) == 0;
+#endif
+}
 
 bool chmod_exe(const char* path){
   struct stat s;

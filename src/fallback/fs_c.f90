@@ -65,6 +65,16 @@ import
 character(kind=c_char), intent(in) :: path(*)
 end function
 
+logical(c_bool) function cfs_remove(path) bind(C, name="fs_remove")
+import c_bool, c_char
+character(kind=c_char), intent(in) :: path(*)
+end function
+
+logical(c_bool) function cfs_exists(path) bind(C, name="exists")
+import c_bool, c_char
+character(kind=c_char), intent(in) :: path(*)
+end function
+
 end interface
 
 
@@ -92,6 +102,17 @@ call cfs_filesep(cbuf)
 filesep = cbuf(1)
 
 end procedure filesep
+
+module procedure exists
+exists = cfs_exists(trim(path) // C_NULL_CHAR)
+end procedure exists
+
+module procedure remove
+logical(c_bool) :: e
+
+e = cfs_remove(trim(path) // C_NULL_CHAR)
+if (.not. e) write(stderr, '(a)') "filesystem:unlink: " // path // " may not have been deleted."
+end procedure remove
 
 
 module procedure file_size

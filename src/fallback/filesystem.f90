@@ -296,23 +296,20 @@ character(*), intent(in) :: path
 logical, intent(out), optional :: ok
 end subroutine
 
+module subroutine remove(path)
+!! delete the file, symbolic link, or empty directory
+character(*), intent(in) :: path
+end subroutine
+
+module logical function exists(path)
+character(*), intent(in) :: path
+end function
 
 end interface
 
 
 contains
 
-
-subroutine remove(path)
-!! delete the file, symbolic link, or empty directory
-character(*), intent(in) :: path
-
-integer :: u
-open(newunit=u, file=path, status='old')
-close(u, status='delete')
-end subroutine remove
-
-!> non-existent
 
 subroutine copy_file(src, dest, overwrite, status)
 !! copy single file from src to dest
@@ -686,12 +683,6 @@ if (is_dir(path)) return
 
 error stop 'filesystem:assert_is_dir: directory does not exist ' // path
 end subroutine assert_is_dir
-
-
-logical function exists(path)
-character(*), intent(in) :: path
-exists = (is_dir(path) .or. is_file(path))
-end function exists
 
 end module filesystem
 

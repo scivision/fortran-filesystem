@@ -384,7 +384,7 @@ module procedure remove
 logical(c_bool) :: e
 
 e = cfs_remove(trim(path) // C_NULL_CHAR)
-if (.not. e) write(stderr, '(a)') "filesystem:unlink: " // path // " did not exist."
+if (.not. e) write(stderr, '(a)') "filesystem:unlink: " // path // " may not have been deleted."
 end procedure remove
 
 

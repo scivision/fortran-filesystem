@@ -177,19 +177,27 @@ if(!exists(path)) return false;
 }
 
 int create_symlink(const char* target, const char* link) {
-// C++ filesystem doesn't work for create_symlink, but this C method does work
-#ifdef _WIN32
-  return !(CreateSymbolicLink(link, target, SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
-#endif
 
-  if(strlen(target) == 0) {
+  if(target==nullptr || strlen(target) == 0) {
     std::cerr << "ERROR:filesystem:create_symlink: target path must not be empty" << std::endl;
     return 1;
   }
-  if(strlen(link) == 0) {
+  if(link==nullptr || strlen(link) == 0) {
     std::cerr << "ERROR:filesystem:create_symlink: link path must not be empty" << std::endl;
     return 1;
   }
+
+#ifdef _WIN32
+  // C++ filesystem doesn't work for create_symlink, but this C method does work
+  if(is_dir(target)) {
+    return !(CreateSymbolicLink(link, target,
+      SYMBOLIC_LINK_FLAG_DIRECTORY | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
+  }
+  else {
+    return !(CreateSymbolicLink(link, target,
+      SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
+  }
+#endif
 
   std::error_code ec;
 
@@ -273,10 +281,7 @@ bool exists(const char* path) {
 
   auto e = fs::exists(path, ec);
 
-  if(ec) {
-    std::cerr << "ERROR:filesystem:exists: " << ec.message() << std::endl;
-    return false;
-  }
+  if(ec) return false;
 
   return e;
 }
@@ -308,16 +313,9 @@ bool is_dir(const char* path) {
   if (p.root_name() == p) return true;
 #endif
 
-  std::error_code ec;
+  if (!exists(path)) return false;
 
-  auto s = fs::status(path, ec);
-  if (s.type() == fs::file_type::not_found) return false;
-  if(ec) {
-    std::cerr << "ERROR:filesystem:is_dir:status: " << ec.message() << std::endl;
-    return false;
-  }
-
-  return fs::is_directory(s);
+  return fs::is_directory(path);
 
 }
 
