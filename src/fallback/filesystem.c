@@ -246,8 +246,17 @@ bool chmod_no_exe(const char* path){
 }
 
 
+size_t fs_realpath(const char* path, char* r) {
+  if (path == NULL || strlen(path) == 0) {
+    r = NULL;
+    return 0;
+  }
+
 #ifdef _WIN32
-extern void realpath(const char* path, char* rpath){
-  _fullpath(rpath, path, _MAX_PATH);
-}
+  _fullpath(r, path, _MAX_PATH);
+#else
+  realpath(path, r);
 #endif
+
+  return strlen(r);
+}

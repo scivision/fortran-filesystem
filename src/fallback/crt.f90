@@ -1,19 +1,17 @@
 submodule (filesystem) posix_crt
 
-use, intrinsic :: iso_c_binding, only: c_int
+use, intrinsic :: iso_c_binding, only: C_INT
 
 implicit none
 
 interface
-
-subroutine realpath_c(path, rpath) bind(C, name="realpath")
+integer(C_INT) function fs_realpath(path, rpath) bind(C)
 !! https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/realpath.3.html
 !! https://linux.die.net/man/3/realpath
-import c_char
-character(kind=c_char), intent(in) :: path(*)
-character(kind=c_char), intent(out) :: rpath(*)
-end subroutine realpath_c
-
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+character(kind=C_CHAR), intent(out) :: rpath(*)
+end function
 end interface
 
 contains
@@ -21,10 +19,10 @@ contains
 
 module procedure canonical
 
-character(kind=c_char, len=:), allocatable :: wk
-character(kind=c_char), allocatable :: c_buf(:)
+character(kind=C_CHAR, len=:), allocatable :: wk
+character(kind=C_CHAR), allocatable :: c_buf(:)
 character(:), allocatable :: buf
-integer :: i, L
+integer :: i, L, N
 
 L = get_max_path()
 
@@ -44,9 +42,9 @@ if (wk(1:1) == ".") wk = trim(get_cwd()) // "/" // wk
 
 if(len(wk) > L) error stop "filesystem:canonical: path too long: " // wk
 
-call realpath_c(wk // C_NULL_CHAR, c_buf)
+N = fs_realpath(wk // C_NULL_CHAR, c_buf)
 
-do i = 1, L
+do i = 1, N
   if (c_buf(i) == C_NULL_CHAR) exit
   buf(i:i) = c_buf(i)
 enddo
