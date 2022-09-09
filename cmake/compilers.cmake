@@ -1,3 +1,4 @@
+include(CheckSymbolExists)
 include(CheckCXXSymbolExists)
 include(CheckFortranSourceCompiles)
 include(CheckCXXSourceCompiles)
@@ -130,14 +131,6 @@ if(fallback AND NOT fallback_auto)
 endif()
 
 
-if(NOT fallback)
-
-  # C++ filesystem or C lstat() symbolic link information
-  file(READ ${CMAKE_CURRENT_LIST_DIR}/check_fs_symlink.cpp symlink_src)
-  check_cxx_source_runs("${symlink_src}" HAVE_SYMLINK)
-
-endif()
-
 # fixes errors about needing -fPIE
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   if(CMAKE_CXX_COMPILER_ID MATCHES "(Clang|Intel)")
@@ -184,6 +177,11 @@ add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-maybe-uninitialized>)
 
 add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-uninitialized>)
 # spurious warning on character(:), allocatable :: C(:)
+
+if(fallback)
+  add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-unused-dummy-argument>)
+  # spurious warning on fallback for stubs
+endif()
 
 endif()
 

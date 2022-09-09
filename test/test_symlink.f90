@@ -31,7 +31,7 @@ if (is_symlink(link)) then
 endif
 call create_symlink(tgt, link, status=i)
 if(i < 0) then
-  write(stderr,'(a)') "platform does not support symlinks"
+  write(stderr,'(a,i0)') "platform does not support symlinks: ", i
   stop 77
 elseif(i /= 0) then
   error stop "could not create symlink " // link
@@ -52,9 +52,9 @@ if(is_symlink(tgt)) error stop "is_symlink() should be false for non-symlink pat
 if(p_tgt%is_symlink()) error stop "%is_symlink() should be false for non-symlink path"
 if(.not. is_file(link)) error stop "is_file() should be true for existing regular file"
 
-if(.not. is_symlink(link)) error stop "is_symlink() should be true for symlink path"
-if(.not. p_sym%is_symlink()) error stop "%is_symlink() should be trum for symlink path"
-if(.not. is_file(link)) error stop "is_file() should be true for existing symlink path"
+if(.not. is_symlink(link)) error stop "is_symlink() should be true for symlink path: " // link
+if(.not. p_sym%is_symlink()) error stop "%is_symlink() should be trum for symlink path: " // p_sym%path()
+if(.not. is_file(link)) error stop "is_file() should be true for existing symlink path: " // link
 
 print *, "OK: filesystem symbolic links"
 

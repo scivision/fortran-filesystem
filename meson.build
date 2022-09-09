@@ -1,5 +1,5 @@
 project('ffilesystem', 'c', 'cpp', 'fortran',
-version: '3.7.1',
+version: '3.7.2',
 meson_version: '>= 0.55.0',
 default_options : ['cpp_std=c++17'])
 

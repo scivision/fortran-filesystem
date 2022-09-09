@@ -650,7 +650,7 @@ function fs_read_text(self, max_length)
 !! read text file
 class(path_t), intent(in) :: self
 character(:), allocatable :: fs_read_text
-integer, optional :: max_length
+integer, optional, intent(in) :: max_length
 
 fs_read_text = read_text(self%path_str, max_length)
 end function fs_read_text

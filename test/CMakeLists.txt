@@ -59,7 +59,6 @@ add_test(NAME FileSize COMMAND test_filesize)
 add_executable(test_exe test_exe.f90)
 target_link_libraries(test_exe PRIVATE filesystem)
 add_test(NAME ExeDetect COMMAND test_exe)
-set_property(TEST ExeDetect PROPERTY DISABLED $<BOOL:${fallback}>)
 
 # --- file ops
 add_executable(test_fileops test_fileop.f90)

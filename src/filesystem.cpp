@@ -14,6 +14,10 @@ namespace fs = std::filesystem;
 #error "No C++ filesystem support"
 #endif
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include "filesystem.h"
 
 bool is_macos(){
@@ -140,7 +144,7 @@ size_t suffix(const char* path, char* fsuffix) {
 
 size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
 
-  if( (strlen(path) == 0) ) {
+  if(strlen(path) == 0) {
     swapped = NULL;
     return 0;
   }
@@ -154,11 +158,18 @@ size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
 
 
 bool is_symlink(const char* path) {
+if(!exists(path)) return false;
+
+#ifdef __MINGW32__
+// c++ filesystem is_symlink doesn't work on MinGW GCC, but this C method does work
+  return GetFileAttributes(path) & FILE_ATTRIBUTE_REPARSE_POINT;
+#endif
+
   std::error_code ec;
 
   auto e = fs::is_symlink(path, ec);
   if(ec) {
-    std::cerr << "filesystem:is_symlink: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:is_symlink: " << ec.message() << std::endl;
     return false;
   }
 
@@ -166,10 +177,9 @@ bool is_symlink(const char* path) {
 }
 
 int create_symlink(const char* target, const char* link) {
-
-#ifndef HAVE_SYMLINK
-  std::cerr << "ERROR:filesystem:create_symlink: symlink not supported for this platform." << std::endl;
-  return -1;
+// C++ filesystem doesn't work for create_symlink, but this C method does work
+#ifdef _WIN32
+  return !(CreateSymbolicLink(link, target, SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
 #endif
 
   if(strlen(target) == 0) {

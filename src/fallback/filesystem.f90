@@ -269,6 +269,36 @@ end function
 
 end interface
 
+interface !< fs_c.90
+
+module logical function is_symlink(path)
+character(*), intent(in) :: path
+end function
+
+module subroutine create_symlink(tgt, link, status)
+character(*), intent(in) :: tgt, link
+integer, intent(out), optional :: status
+end subroutine
+
+module logical function is_exe(path)
+character(*), intent(in) :: path
+end function
+
+module subroutine chmod_exe(path, ok)
+!! set owner executable bit for regular file
+character(*), intent(in) :: path
+logical, intent(out), optional :: ok
+end subroutine
+
+module subroutine chmod_no_exe(path, ok)
+!! set owner non-executable bit for regular file
+character(*), intent(in) :: path
+logical, intent(out), optional :: ok
+end subroutine
+
+
+end interface
+
 
 contains
 
@@ -317,48 +347,12 @@ class(path_t), intent(in) :: self
 fs_is_symlink = is_symlink(self%path_str)
 end function
 
-logical function is_symlink(path)
-character(*), intent(in) :: path
-write(stderr,'(a)') "WARNING:filesystem:fallback doesn't have is_symlink"
-is_symlink = .false.
-end function
-
 
 subroutine fs_create_symlink(self, target, status)
 class(path_t), intent(in) :: self
 character(*), intent(in) :: target
 integer, intent(out), optional :: status
 call create_symlink(self%path_str, target, status)
-end subroutine fs_create_symlink
-
-subroutine create_symlink(tgt, link, status)
-character(*), intent(in) :: tgt, link
-integer, intent(out), optional :: status
-if (present(status)) then
-  status = -1
-  return
-endif
-error stop "filesystem:fallback doesn't have create_symlink"
-end subroutine
-
-
-logical function is_exe(path)
-character(*), intent(in) :: path
-error stop "filesystem:fallback doesn't have is_exe"
-end function
-
-subroutine chmod_exe(path, ok)
-!! set owner executable bit for regular file
-character(*), intent(in) :: path
-logical, intent(out), optional :: ok
-error stop "filesystem:fallback doesn't have chmod_exe"
-end subroutine
-
-subroutine chmod_no_exe(path, ok)
-!! set owner non-executable bit for regular file
-character(*), intent(in) :: path
-logical, intent(out), optional :: ok
-error stop "filesystem:fallback doesn't have chmod_no_exe"
 end subroutine
 
 
@@ -366,8 +360,9 @@ function read_text(filename, max_length)
 !! read text file
 character(*), intent(in) :: filename
 character(:), allocatable :: read_text
-integer, optional :: max_length
-error stop "filesystem:fallback doesn't have read_text"
+integer, optional, intent(in) :: max_length
+read_text = ""
+write(stderr,*) "ERROR:filesystem:fallback doesn't have read_text"
 end function
 
 function fs_read_text(self, max_length)
@@ -397,7 +392,8 @@ logical function match(path, pattern)
 !! does any substring of path match the pattern
 !! pattern uses C++ regex_search() syntax
 character(*), intent(in) :: path, pattern
-error stop "filesystem:fallback doesn't have match"
+match = .false.
+write(stderr,*) "ERROR:filesystem:fallback doesn't have match"
 end function
 
 logical function fs_match(self, pattern)

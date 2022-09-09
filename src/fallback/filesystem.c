@@ -2,12 +2,18 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #ifdef _MSC_VER
 #include <stdlib.h>
 #include <direct.h>
+#include <io.h>
 #else
 #include <unistd.h>
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
 #endif
 
 #include "filesystem.h"
@@ -78,11 +84,20 @@ bool is_dir(const char* path){
 
   int i = stat(path, &s);
 
-#ifdef _MSC_VER
   // NOTE: root() e.g. "C:" needs a trailing slash
   return i == 0 && (s.st_mode & S_IFDIR);
+}
+
+
+bool is_exe(const char* path){
+  struct stat s;
+
+  if(stat(path, &s) != 0) return false;
+
+#ifdef _MSC_VER
+  return s.st_mode & _S_IEXEC;
 #else
-  return i == 0 && S_ISDIR(s.st_mode);
+  return s.st_mode & S_IXUSR;
 #endif
 }
 
@@ -125,6 +140,41 @@ bool is_absolute(const char* path){
 }
 
 
+bool is_symlink(const char* path){
+  if(path==NULL) return false;
+
+#ifdef _MSC_VER
+  if(_access_s(path, 0 ) != 0) return false;
+#else
+  if(access(path, F_OK) != 0) return false;
+#endif
+
+#ifdef _WIN32
+  return GetFileAttributes(path) & FILE_ATTRIBUTE_REPARSE_POINT;
+#else
+  struct stat buf;
+  int p;
+
+  if(lstat(path, &buf) != 0) return false;
+
+  // return (buf.st_mode & S_IFMT) == S_IFLNK; // equivalent to below line
+  return S_ISLNK(buf.st_mode);
+#endif
+}
+
+int create_symlink(const char* target, const char* link) {
+
+#ifdef _WIN32
+  return !(CreateSymbolicLink(link, target, SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
+#else
+  symlink(target, link);
+  // return value not supported on macOS
+  return 0;
+#endif
+
+}
+
+
 size_t get_cwd(char* path) {
 
 #ifdef _MSC_VER
@@ -134,8 +184,31 @@ size_t get_cwd(char* path) {
 #endif
 
   return strlen(path);
-
 }
+
+
+bool chmod_exe(const char* path){
+  struct stat s;
+  if(stat(path, &s) != 0) return false;
+
+#ifdef _MSC_VER
+  return _chmod(path, s.st_mode | _S_IEXEC) == 0;
+#else
+  return chmod(path, s.st_mode | S_IXUSR) == 0;
+#endif
+}
+
+bool chmod_no_exe(const char* path){
+  struct stat s;
+  if(stat(path, &s) != 0) return false;
+
+#ifdef _MSC_VER
+  return _chmod(path, s.st_mode | !_S_IEXEC) == 0;
+#else
+  return chmod(path, s.st_mode | !S_IXUSR) == 0;
+#endif
+}
+
 
 #ifdef _WIN32
 extern void realpath(const char* path, char* rpath){

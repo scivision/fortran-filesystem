@@ -14,6 +14,21 @@ import
 character(kind=C_CHAR), intent(out) :: sep(*)
 end subroutine
 
+logical(c_bool) function cfs_is_exe(path) bind(C, name="is_exe")
+import
+character(kind=c_char), intent(in) :: path(*)
+end function
+
+logical(c_bool) function cfs_is_symlink(path) bind(C, name="is_symlink")
+import
+character(kind=c_char), intent(in) :: path(*)
+end function
+
+integer(C_INT) function cfs_create_symlink(target, link) bind(C, name="create_symlink")
+import
+character(kind=c_char), intent(in) :: target(*), link(*)
+end function
+
 integer(C_SIZE_T) function cfs_file_size(path) bind(C, name="file_size")
 import
 character(kind=c_char), intent(in) :: path(*)
@@ -40,6 +55,16 @@ character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: result(*)
 end function
 
+logical(c_bool) function cfs_chmod_exe(path) bind(C, name="chmod_exe")
+import
+character(kind=c_char), intent(in) :: path(*)
+end function
+
+logical(c_bool) function cfs_chmod_no_exe(path) bind(C, name="chmod_no_exe")
+import
+character(kind=c_char), intent(in) :: path(*)
+end function
+
 end interface
 
 
@@ -53,6 +78,11 @@ end procedure
 module procedure is_dir
 is_dir = cfs_is_dir(trim(path) // C_NULL_CHAR)
 end procedure is_dir
+
+
+module procedure is_exe
+is_exe = cfs_is_exe(trim(path) // C_NULL_CHAR)
+end procedure is_exe
 
 
 module procedure filesep
@@ -88,6 +118,25 @@ is_absolute = cfs_is_absolute(trim(path) // C_NULL_CHAR)
 end procedure is_absolute
 
 
+module procedure is_symlink
+is_symlink = cfs_is_symlink(trim(path) // C_NULL_CHAR)
+end procedure is_symlink
+
+
+module procedure create_symlink
+integer(C_INT) :: ierr
+
+ierr = cfs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)
+if(present(status)) then
+  status = ierr
+elseif (ierr < 0) then
+  error stop "ERROR:filesystem:create_symlink: platform is not capable of symlinks."
+elseif (ierr /= 0) then
+  error stop "ERROR:filesystem:create_symlink: " // link
+endif
+end procedure create_symlink
+
+
 module procedure root
 character(kind=c_char, len=3) :: cbuf
 integer(C_SIZE_T) :: N
@@ -98,6 +147,21 @@ allocate(character(N) :: root)
 root = cbuf(:N)
 
 end procedure root
+
+module procedure chmod_exe
+logical :: s
+
+s = cfs_chmod_exe(trim(path) // C_NULL_CHAR)
+if(present(ok)) ok = s
+end procedure chmod_exe
+
+
+module procedure chmod_no_exe
+logical :: s
+
+s = cfs_chmod_no_exe(trim(path) // C_NULL_CHAR)
+if(present(ok)) ok = s
+end procedure chmod_no_exe
 
 
 end submodule fs_c_int

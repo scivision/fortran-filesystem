@@ -4,7 +4,6 @@ target_include_directories(filesystem_cpp PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_compile_features(filesystem_cpp PRIVATE cxx_std_17)
 target_compile_definitions(filesystem_cpp PRIVATE
 $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
-$<$<BOOL:${HAVE_SYMLINK}>:HAVE_SYMLINK>
 )
 
 set(s ${CMAKE_CURRENT_SOURCE_DIR})
