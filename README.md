@@ -140,6 +140,17 @@ One can either `cmake --install build` or use ExternalProject from the other pro
 [ffilesystem.cmake](./cmake/ffilesystem.cmake) would be included from the other project to find or build Fortran-filesystem automatically.
 It provides the appropriate imported targets for shared or static builds, including Windows DLL handling.
 
+## Concepts
+
+The [concepts](./concepts/) directory shows a few concepts for future consideration.
+
+[exe_dir](./concepts/exe_dir/)
+is a working example of how to determine an exeucutable's full path no matter what the current working directory is.
+This can be useful when a data file is known to exist relative to an executable.
+This is relevant to say CMake installed project that has an executable and associated data files installed.
+Assuming the user knows the path to the MAIN executable in the installed directory, the program can determine its own full path and
+then a priori know the relative path to the data file(s).
+
 ## Notes
 
 A few topics on unsupported features:
@@ -154,13 +165,3 @@ Intel oneAPI does not support `selected_char_kind('ISO_10646')` as of this writi
 filesystem currently uses the default Fortran `character` kind, which is ASCII.
 This means that UTF-8 / UTF-16 / UTF-32 strings are not supported.
 You may find a particular compiler and computer passes some non-ASCII strings, but this is not supported.
-
-### Unsupported compilers
-
-At this time, these compilers aren't supported for reasons including:
-
-#### Nvidia HPC-SDK
-
-nvfortran 22.1 does not support `character(:), allocatable` from Fortran 2003, which is used everywhere in filesystem.
-nvc++ 22.1 does not support C++ filesystem, which is essential for filesystem.
-New Fortran language standard features aren't being added to nvfortran until the Flang f18 LLVM project is ready to use. I would estimate this as being in a couple years from now.
