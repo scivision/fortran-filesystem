@@ -133,11 +133,7 @@ endif()
 
 # fixes errors about needing -fPIE
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  if(CMAKE_CXX_COMPILER_ID MATCHES "(Clang|Intel)")
-    set(CMAKE_POSITION_INDEPENDENT_CODE true)
-  elseif(BUILD_SHARED_LIBS AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_POSITION_INDEPENDENT_CODE true)
-  endif()
+  set(CMAKE_POSITION_INDEPENDENT_CODE true)
 endif()
 
 # --- flags
