@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.11...3.25)
+cmake_minimum_required(VERSION 3.15...3.25)
+# 3.15+: TARGET_FILE_BASE_NAME
+
 # shared: prints full path to shared library file  e.g. /path/to/mylib.[dylib,so,dll]
 # static: prints full path to main executable file  e.g.  /path/to/main.exe
 
@@ -42,12 +44,14 @@ endif()
 endif()
 
 add_library(mylib SHARED lib.c)
-if(NOT MSVC)
+target_compile_features(mylib PRIVATE c_std_99)
+if(MSVC)
+  target_compile_definitions(mylib PRIVATE MY_DLL_NAME="$<TARGET_FILE_BASE_NAME:mylib>.dll")
+else()
   target_include_directories(mylib PRIVATE ${DL_INCDIR})
   target_link_libraries(mylib PRIVATE ${DL_LIBRARY})
   target_compile_definitions(mylib PRIVATE _GNU_SOURCE)
 endif()
-target_compile_features(mylib PRIVATE c_std_99)
 
 add_executable(lib_dir main.f90)
 target_link_libraries(lib_dir PRIVATE mylib)
