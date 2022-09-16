@@ -10,12 +10,8 @@ size_t get_libpath(char* path)
 {
 
 #ifdef _MSC_VER
-  char buf[MAX_PATH];
-  if (GetModuleFileName(GetModuleHandle("mylib.dll"), buf, MAX_PATH) !=0)
-  {
-    strcpy(path, buf);
+  if (GetModuleFileName(GetModuleHandle("mylib.dll"), path, MAX_PATH) !=0)
     return strlen(path);
-  }
 #else
  Dl_info info;
 
