@@ -6,10 +6,16 @@ cmake_minimum_required(VERSION 3.11...3.25)
 
 project(concept_libdir LANGUAGES C Fortran)
 
+include(CheckFunctionExists)
+include(GNUInstallDirs)
+
 # Necessary for shared library with Visual Studio / Windows oneAPI -- creates .lib file to acommpany .dll
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS true)
 
-include(CheckFunctionExists)
+# Rpath options necessary for shared library install to work correctly in user projects
+set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
 
 # --- auto-ignore build directory
 if(NOT EXISTS ${PROJECT_BINARY_DIR}/.gitignore)
