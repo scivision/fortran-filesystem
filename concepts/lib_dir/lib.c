@@ -3,7 +3,6 @@
 #ifdef _MSC_VER
 #include <Windows.h>
 #else
-#define _GNU_SOURCE
 #include <dlfcn.h>
 #endif
 
