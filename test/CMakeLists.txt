@@ -85,6 +85,11 @@ target_link_libraries(test_find PRIVATE filesystem)
 add_test(NAME Find COMMAND test_find)
 set_property(TEST Find PROPERTY FIXTURES_REQUIRED ops_fxt)
 
+# --- binpath
+add_executable(test_binpath test_binpath.f90)
+target_link_libraries(test_binpath PRIVATE filesystem)
+add_test(NAME Binpath COMMAND test_binpath $<BOOL:${BUILD_SHARED_LIBS}>)
+
 # --- C / C++ interface
 add_executable(test_cpp_ifc test_ifc.cpp)
 target_compile_features(test_cpp_ifc PRIVATE cxx_std_17)

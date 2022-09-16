@@ -450,6 +450,16 @@ character(:), allocatable :: exe
 exe = exe_path()
 ```
 
+Get full path of **SHARED LIBRARY**, regardless of current working directory.
+If static library, works like exe_path().
+To use `lib_path()`, build fortran-filesystem with `cmake -DBUILD_SHARED_LIBS=on`
+
+```fortran
+character(:), allocatable :: bin
+
+bin = lib_path()
+```
+
 Get current working directory
 
 ```fortran
