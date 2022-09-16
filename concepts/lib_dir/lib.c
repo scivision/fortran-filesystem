@@ -2,7 +2,7 @@
 
 #ifdef _WIN32
 #ifndef MY_DLL_NAME
-#error "must define MY_DLL_PATH with filename of this file's DLL"
+#define MY_DLL_NAME NULL
 #endif
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
