@@ -4,8 +4,6 @@ cmake_minimum_required(VERSION 3.15...3.25)
 # shared: prints full path to shared library file  e.g. /path/to/mylib.[dylib,so,dll]
 # static: prints full path to main executable file  e.g.  /path/to/main.exe
 
-## MSYS2 has libdl: mingw-w64-x86_64-dlfcn
-
 project(concept_libdir LANGUAGES C Fortran)
 
 include(CheckFunctionExists)
@@ -24,32 +22,21 @@ if(NOT EXISTS ${PROJECT_BINARY_DIR}/.gitignore)
   file(WRITE ${PROJECT_BINARY_DIR}/.gitignore "*")
 endif()
 
-if(NOT MSVC)
-find_path(DL_INCDIR NAMES dlfcn.h)
-
-find_library(DL_LIBRARY
-NAMES dl
-HINTS ${CMAKE_DL_LIBS}
-)
-
-set(CMAKE_REQUIRED_INCLUDES ${DL_INCDIR})
-set(CMAKE_REQUIRED_LIBRARIES ${DL_LIBRARY})
-set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
-check_function_exists(dladdr HAVE_DLADDR)
-
-if(NOT HAVE_DLADDR)
-  message(FATAL_ERROR "dladdr() not found in dl library ${DL_LIBRARY}")
-endif()
-
+if(NOT WIN32)
+  set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
+  set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+  check_function_exists(dladdr HAVE_DLADDR)
+  if(NOT HAVE_DLADDR)
+    message(FATAL_ERROR "dladdr() not found in dl library ${CMAKE_DL_LIBS}")
+  endif()
 endif()
 
 add_library(mylib SHARED lib.c)
 target_compile_features(mylib PRIVATE c_std_99)
-if(MSVC)
+if(WIN32)
   target_compile_definitions(mylib PRIVATE MY_DLL_NAME="$<TARGET_FILE_BASE_NAME:mylib>.dll")
 else()
-  target_include_directories(mylib PRIVATE ${DL_INCDIR})
-  target_link_libraries(mylib PRIVATE ${DL_LIBRARY})
+  target_link_libraries(mylib PRIVATE ${CMAKE_DL_LIBS})
   target_compile_definitions(mylib PRIVATE _GNU_SOURCE)
 endif()
 
