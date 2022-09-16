@@ -3,6 +3,7 @@ target_include_directories(filesystem_c PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_compile_definitions(filesystem_c PRIVATE
 $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
 )
+target_compile_features(filesystem_c PRIVATE c_std_99)
 
 set(s ${CMAKE_CURRENT_SOURCE_DIR})
 

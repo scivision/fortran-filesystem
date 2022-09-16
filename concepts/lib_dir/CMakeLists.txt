@@ -26,6 +26,7 @@ endif()
 add_library(mylib SHARED lib.c)
 target_include_directories(mylib PRIVATE $<$<NOT:$<BOOL:${MSVC}>>:${DL_INCDIR}>)
 target_link_libraries(mylib PRIVATE $<$<NOT:$<BOOL:${MSVC}>>:${DL_LIBRARY}>)
+target_compile_features(mylib PRIVATE c_std_99)
 
 add_executable(lib_dir main.f90)
 target_link_libraries(lib_dir PRIVATE mylib)
