@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.11...3.25)
 # shared: prints full path to shared library file  e.g. /path/to/mylib.[dylib,so,dll]
 # static: prints full path to main executable file  e.g.  /path/to/main.exe
 
@@ -6,25 +6,26 @@ cmake_minimum_required(VERSION 3.18)
 
 project(concept_libdir LANGUAGES C Fortran)
 
-option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+# Necessary for shared library with Visual Studio / Windows oneAPI -- creates .lib file to acommpany .dll
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS true)
 
 # --- auto-ignore build directory
 if(NOT EXISTS ${PROJECT_BINARY_DIR}/.gitignore)
   file(WRITE ${PROJECT_BINARY_DIR}/.gitignore "*")
 endif()
 
-find_path(DL_INCDIR NAMES dlfcn.h REQUIRED)
+if(NOT MSVC)
+find_path(DL_INCDIR NAMES dlfcn.h)
 
 find_library(DL_LIBRARY
 NAMES dl
 HINTS ${CMAKE_DL_LIBS}
-REQUIRED
 )
+endif()
 
-add_library(mylib lib.c)
-target_include_directories(mylib PRIVATE ${DL_INCDIR})
-target_link_libraries(mylib PRIVATE ${DL_LIBRARY})
+add_library(mylib SHARED lib.c)
+target_include_directories(mylib PRIVATE $<$<NOT:$<BOOL:${MSVC}>>:${DL_INCDIR}>)
+target_link_libraries(mylib PRIVATE $<$<NOT:$<BOOL:${MSVC}>>:${DL_LIBRARY}>)
 
 add_executable(lib_dir main.f90)
-target_include_directories(lib_dir PRIVATE ${DL_INCDIR})
 target_link_libraries(lib_dir PRIVATE mylib)
