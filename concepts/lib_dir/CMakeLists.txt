@@ -9,6 +9,8 @@ project(concept_libdir LANGUAGES C Fortran)
 # Necessary for shared library with Visual Studio / Windows oneAPI -- creates .lib file to acommpany .dll
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS true)
 
+include(CheckFunctionExists)
+
 # --- auto-ignore build directory
 if(NOT EXISTS ${PROJECT_BINARY_DIR}/.gitignore)
   file(WRITE ${PROJECT_BINARY_DIR}/.gitignore "*")
@@ -21,6 +23,16 @@ find_library(DL_LIBRARY
 NAMES dl
 HINTS ${CMAKE_DL_LIBS}
 )
+
+set(CMAKE_REQUIRED_INCLUDES ${DL_INCDIR})
+set(CMAKE_REQUIRED_LIBRARIES ${DL_LIBRARY})
+set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+check_function_exists(dladdr HAVE_DLADDR)
+
+if(NOT HAVE_DLADDR)
+  message(FATAL_ERROR "dladdr() not found in dl library ${DL_LIBRARY}")
+endif()
+
 endif()
 
 add_library(mylib SHARED lib.c)
