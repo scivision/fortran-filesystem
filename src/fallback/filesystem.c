@@ -19,6 +19,7 @@
 
 #ifndef FS_DLL_NAME
 #define FS_DLL_NAME NULL
+#warning "FS_DLL_NAME not defined, using NULL -- this will work like exe_path()"
 #endif
 
 #else

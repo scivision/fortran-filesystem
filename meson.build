@@ -27,11 +27,17 @@ endif
 
 # --- libdl
 
-dl_dep = cc.find_library('dl', required: false)
+if host_machine.system() == 'windows'
+  dl_dep = []
+  cpp_args = '-DFS_DLL_NAME='
+  cpp_args += cc.get_id() == 'msvc' ? '"filesystem.dll"' : '"libfilesystem.dll"'
+else
+  dl_dep = cc.find_library('dl', required: false)
 
-have_dladdr = cc.has_function('dladdr', args: '-D_GNU_SOURCE', dependencies: dl_dep)
-if have_dladdr
-  cpp_args = '-DHAVE_DLADDR'
+  have_dladdr = cc.has_function('dladdr', args: '-D_GNU_SOURCE', dependencies: dl_dep)
+  if have_dladdr
+    cpp_args = '-DHAVE_DLADDR'
+  endif
 endif
 
 # --- filesystem binary

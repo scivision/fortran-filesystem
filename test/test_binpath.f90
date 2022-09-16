@@ -1,6 +1,6 @@
 program test_binpath
 
-use filesystem, only : exe_path, lib_path
+use filesystem, only : exe_path, lib_path, is_macos, is_windows
 
 implicit none
 
@@ -27,7 +27,7 @@ end subroutine
 
 subroutine test_lib_path()
 
-character(:), allocatable :: binpath
+character(:), allocatable :: binpath, name
 integer :: i, L
 character :: s
 logical :: shared
@@ -45,8 +45,17 @@ if(.not. shared) then
 endif
 
 binpath = lib_path()
-i = index(binpath, 'filesystem.')
-if (i<1) error stop "ERROR:test_binpath: lib_path not found correctly: " // binpath
+
+if (is_macos()) then
+  name = 'filesystem.dylib'
+elseif(is_windows()) then
+  name = 'filesystem.dll'
+else
+  name = 'libfilesystem.so'
+endif
+
+i = index(binpath, name)
+if (i<1) error stop "ERROR:test_binpath: lib_path not found correctly: " // binpath // ' with name ' // name
 
 print *, "OK: lib_path: ", binpath
 end subroutine
