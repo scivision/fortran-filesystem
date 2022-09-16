@@ -21,6 +21,7 @@ on:
       - "**/CMakeLists.txt"
       - ".github/workflows/oneapi-linux.yml"
       - "!cray.cmake"
+      - "!concepts/"
 
 jobs:
 
