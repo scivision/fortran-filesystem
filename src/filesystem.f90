@@ -22,7 +22,7 @@ sys_posix, touch, create_symlink, &
 remove, get_tempdir, filesep, &
 chmod_exe, chmod_no_exe, &
 is_macos, is_windows, is_linux, is_unix, &
-get_max_path, exe_path
+get_max_path, exe_path, lib_path
 !! functional API
 
 !! Maximum path length is dynamically determined for this computer.
@@ -266,28 +266,6 @@ end function
 end interface
 
 
-interface
-
-module logical function is_dir(path)
-!! .true.: "path" is a directory OR symlink pointing to a directory
-!! .false.: "path" is a broken symlink, does not exist, or is some other type of filesystem entity
-character(*), intent(in) :: path
-end function
-
-module integer(int64) function file_size(path)
-character(*), intent(in) :: path
-end function
-
-module logical function is_exe(path)
-character(*), intent(in) :: path
-end function
-
-module function get_cwd()
-character(:), allocatable :: get_cwd
-end function
-
-end interface
-
 interface !< filesystem.cpp
 
 logical(C_BOOL) function is_macos() bind(C)
@@ -316,6 +294,26 @@ end interface
 
 interface !< fs_cpp.f90
 
+module logical function is_dir(path)
+!! .true.: "path" is a directory OR symlink pointing to a directory
+!! .false.: "path" is a broken symlink, does not exist, or is some other type of filesystem entity
+character(*), intent(in) :: path
+end function
+
+module integer(int64) function file_size(path)
+character(*), intent(in) :: path
+end function
+
+module logical function is_exe(path)
+!! is "path" executable?
+character(*), intent(in) :: path
+end function
+
+module function get_cwd()
+!! get current working directory
+character(:), allocatable :: get_cwd
+end function
+
 module logical function is_symlink(path)
 !! .true.: "path" is a symbolic link
 !! .false.: "path" is not a symbolic link, or does not exist,
@@ -332,6 +330,12 @@ module function exe_path()
 !! get full path of main executable
 character(:), allocatable :: exe_path
 end function
+
+module function lib_path()
+!! get full path of shared library, or main executable if static
+character(:), allocatable :: lib_path
+end function
+
 
 module logical function exists(path)
 !! a file or directory exists

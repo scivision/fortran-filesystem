@@ -16,7 +16,20 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+
+#ifndef FS_DLL_NAME
+#define FS_DLL_NAME NULL
 #endif
+
+#else
+
+#ifdef HAVE_DLADDR
+#include <dlfcn.h>
+static void dl_dummy_func() {}
+#endif
+
+#endif
+
 
 #include "filesystem.h"
 
@@ -111,6 +124,26 @@ bool is_exe(const char* path){
 #else
   return s.st_mode & S_IXUSR;
 #endif
+}
+
+size_t lib_path(char* path){
+
+#ifdef _WIN32
+  if (GetModuleFileName(GetModuleHandle(FS_DLL_NAME), path, MAX_PATH) != 0)
+    return strlen(path);
+#elif defined(HAVE_DLADDR)
+  Dl_info info;
+
+  if (dladdr( (void*)&dl_dummy_func, &info) != 0)
+  {
+    strcpy(path, info.dli_fname);
+    return strlen(path);
+  }
+#endif
+
+
+  return 0;
+
 }
 
 

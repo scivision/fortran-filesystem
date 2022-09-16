@@ -19,7 +19,7 @@ remove, get_filename, make_absolute, &
 is_macos, is_linux, is_unix, is_windows, &
 is_symlink, create_symlink, is_exe, normal, &
 chmod_exe, chmod_no_exe, match, read_text, write_text, &
-get_max_path, exe_path
+get_max_path, exe_path, lib_path
 !! functional API
 
 type :: path_t
@@ -283,6 +283,11 @@ end subroutine
 module function exe_path()
 !! get full path of main executable
 character(:), allocatable :: exe_path
+end function
+
+module function lib_path()
+!! get full path of shared library, or main executable if static
+character(:), allocatable :: lib_path
 end function
 
 module logical function is_exe(path)

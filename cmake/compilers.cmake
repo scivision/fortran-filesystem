@@ -1,3 +1,4 @@
+include(CheckFunctionExists)
 include(CheckCXXSymbolExists)
 include(CheckCXXSourceCompiles)
 
@@ -25,9 +26,16 @@ if(NOT abi_ok)
   endif()
 endif()
 
-# setup / check C++ filesystem
+#--- is dladdr available for lib_path() optional function
+if(NOT WIN32)
+  set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
+  set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+  check_function_exists(dladdr HAVE_DLADDR)
+endif()
 
+#--- setup / check C++ filesystem
 unset(CMAKE_REQUIRED_LIBRARIES)
+unset(CMAKE_REQUIRED_DEFINITIONS)
 
 if(fallback)
 

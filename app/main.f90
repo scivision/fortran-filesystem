@@ -19,7 +19,8 @@ call get_command_argument(1, fcn, status=i)
 if (i /= 0) error stop "invalid function name: " // trim(fcn)
 
 select case (fcn)
-case ("get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos", "max_path", "exe_path")
+case ("get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos", &
+    "max_path", "exe_path", "lib_path")
   if (argc /= 1) error stop "usage: ./filesystem_cli " // trim(fcn)
 case default
   if (argc < 2) error stop "usage: ./filesystem_cli <function> <path>"
@@ -63,6 +64,8 @@ case ("is_symlink")
   print '(L1)', is_symlink(buf)
 case ("exe_path")
   print '(A)', exe_path()
+case ("lib_path")
+  print '(A)', lib_path()
 case ("mkdir")
   print *, "mkdir: " // trim(buf)
   call mkdir(trim(buf))
