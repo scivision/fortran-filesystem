@@ -1,11 +1,11 @@
 project('ffilesystem', 'c', 'cpp', 'fortran',
-version: '3.7.2',
+version: '3.8.0',
 meson_version: '>= 0.55.0',
-default_options : ['cpp_std=c++17'])
+default_options : ['cpp_std=c++17', 'c_std=c99'])
 
 # --- does system work with symlinks
 
-check_sym = files('cmake/check_fs_symlink.cpp')
+cc = meson.get_compiler('c')
 cpp = meson.get_compiler('cpp')
 fc = meson.get_compiler('fortran')
 
@@ -20,21 +20,26 @@ if fc.get_id() == 'gcc'
   add_project_arguments(['-Wno-maybe-uninitialized', '-Wno-uninitialized'], language: 'fortran')
 endif
 
-ret_symlink = cpp.run(check_sym, name: 'has_symlink', dependencies: fs_dep)
-has_symlink = ret_symlink.returncode() == 0
-
 has_filesys = cpp.has_header_symbol('filesystem', '__cpp_lib_filesystem')
 if not has_filesys
   error('C++ filesystem stdlib support not found')
 endif
 
+# --- libdl
+
+dl_dep = cc.find_library('dl', required: false)
+
+have_dladdr = cc.has_function('dladdr', args: '-D_GNU_SOURCE', dependencies: dl_dep)
+if have_dladdr
+  cpp_args = '-DHAVE_DLADDR'
+endif
+
 # --- filesystem binary
-cpp_args = has_symlink ? '-DHAVE_SYMLINK' : ''
 
 filesystem = library('filesystem',
 sources: files('src/filesystem.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90',
   'src/fs_cpp.f90', 'src/filesystem.cpp'),
-dependencies: fs_dep,
+dependencies: [fs_dep, dl_dep],
 include_directories: 'include',
 install: true,
 cpp_args: cpp_args
