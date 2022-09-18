@@ -10,8 +10,23 @@ include(CTest) # needed for "ctest -T memcheck"
 include(cmake/options.cmake)
 include(cmake/compilers.cmake)
 
+# --- path finding
+add_library(get_path OBJECT src/get_path.c)
+target_include_directories(get_path PRIVATE include)
+target_compile_features(get_path PRIVATE c_std_99)
+if(WIN32)
+  target_compile_definitions(get_path PRIVATE FS_DLL_NAME="$<TARGET_FILE_NAME:filesystem>")
+elseif(HAVE_DLADDR)
+  target_link_libraries(get_path PRIVATE ${CMAKE_DL_LIBS})
+  target_compile_definitions(get_path PRIVATE _GNU_SOURCE HAVE_DLADDR)
+endif()
 
-add_library(filesystem)
+# --- filesystem library
+
+add_library(filesystem
+src/max.c
+src/get_path.f90 $<TARGET_OBJECTS:get_path>
+)
 
 if(fallback)
   add_subdirectory(src/fallback)
@@ -26,6 +41,7 @@ set_property(TARGET filesystem PROPERTY LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINAR
 
 target_include_directories(filesystem PUBLIC
 $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
 $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )

@@ -1,7 +1,20 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#define PATH_LIMIT 4096  // absolute maximum, in case a system has ill-defined maximum path length
+
+#ifdef __cplusplus
+extern "C" {
+#else
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#endif
+
+// maximum path length
+#define PATH_LIMIT 4096
+// absolute maximum, in case a system has ill-defined maximum path length
 
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -34,23 +47,15 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 #define MAXP min(PMAX, PATH_LIMIT)
+// end maximum path length
 
-#ifdef __cplusplus
-extern "C" {
-#else
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
-#endif
+extern size_t get_maxp();
 
 extern bool is_macos();
 extern bool is_linux();
 extern bool is_unix();
 extern bool is_windows();
-
-extern int get_maxp();
 
 extern bool sys_posix();
 extern void filesep(char*);

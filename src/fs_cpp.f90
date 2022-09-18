@@ -116,11 +116,6 @@ character(kind=c_char), intent(in) :: path(*), base(*)
 character(kind=c_char), intent(out) :: result(*)
 end function
 
-integer(C_SIZE_T) function cfs_lib_path(path) bind(C, name="lib_path")
-import
-character(kind=c_char), intent(out) :: path(*)
-end function
-
 logical(c_bool) function cfs_touch(path) bind(C, name="touch")
 import
 character(kind=c_char), intent(in) :: path(*)
@@ -477,20 +472,6 @@ allocate(character(N) :: get_cwd)
 get_cwd = cbuf(:N)
 
 end procedure get_cwd
-
-
-module procedure lib_path
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-
-allocate(character(max_path()) :: cbuf)
-
-N = cfs_lib_path(cbuf)
-
-allocate(character(N) :: lib_path)
-lib_path = cbuf(:N)
-
-end procedure lib_path
 
 
 module procedure file_size

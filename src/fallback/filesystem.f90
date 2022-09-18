@@ -1,6 +1,6 @@
 module filesystem
 
-use, intrinsic:: iso_c_binding, only: C_BOOL, C_CHAR, C_NULL_CHAR, C_SIZE_T
+use, intrinsic:: iso_c_binding, only: C_BOOL, C_NULL_CHAR
 use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 
 implicit none

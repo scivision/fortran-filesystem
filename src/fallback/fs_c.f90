@@ -1,6 +1,6 @@
 submodule (filesystem) fs_c_int
 
-use, intrinsic :: iso_c_binding, only : C_INT
+use, intrinsic :: iso_c_binding, only : C_CHAR, C_INT, C_SIZE_T
 
 implicit none
 
@@ -35,11 +35,6 @@ character(kind=c_char), intent(in) :: path(*)
 end function
 
 integer(C_SIZE_T) function cfs_get_cwd(path) bind(C, name="get_cwd")
-import
-character(kind=c_char), intent(out) :: path(*)
-end function
-
-integer(C_SIZE_T) function cfs_lib_path(path) bind(C, name="lib_path")
 import
 character(kind=c_char), intent(out) :: path(*)
 end function
@@ -146,20 +141,6 @@ allocate(character(N) :: get_cwd)
 get_cwd = as_posix(cbuf(:N))
 
 end procedure get_cwd
-
-
-module procedure lib_path
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-
-allocate(character(max_path()) :: cbuf)
-
-N = cfs_lib_path(cbuf)
-
-allocate(character(N) :: lib_path)
-lib_path = cbuf(:N)
-
-end procedure lib_path
 
 
 module procedure is_absolute
