@@ -77,7 +77,6 @@ target_link_libraries(test_rw_text PRIVATE filesystem)
 add_test(NAME ReadWriteText
 COMMAND test_rw_text ${CMAKE_CURRENT_BINARY_DIR}/test_rw_text.txt
 )
-set_property(TEST ReadWriteText PROPERTY DISABLED $<BOOL:${fallback}>)
 
 # --- find
 add_executable(test_find test_find.f90)

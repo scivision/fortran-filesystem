@@ -167,6 +167,19 @@ end interface
 
 interface !< filesystem.c
 
+module function read_text(filename, max_length)
+!! read text file
+character(*), intent(in) :: filename
+character(:), allocatable :: read_text
+integer, optional, intent(in) :: max_length
+end function
+
+module subroutine write_text(filename, text)
+!! create or overwrite file with text
+character(*), intent(in) :: filename, text
+end subroutine
+
+
 integer module function get_max_path()
 !! returns dynamic MAX_PATH for this computer
 end function
@@ -362,16 +375,6 @@ integer, intent(out), optional :: status
 call create_symlink(self%path_str, target, status)
 end subroutine
 
-
-function read_text(filename, max_length)
-!! read text file
-character(*), intent(in) :: filename
-character(:), allocatable :: read_text
-integer, optional, intent(in) :: max_length
-read_text = ""
-write(stderr,*) "ERROR:filesystem:fallback doesn't have read_text"
-end function
-
 function fs_read_text(self, max_length)
 !! read text file
 class(path_t), intent(in) :: self
@@ -379,13 +382,7 @@ character(:), allocatable :: fs_read_text
 integer, optional :: max_length
 
 fs_read_text = read_text(self%path_str, max_length)
-end function fs_read_text
-
-subroutine write_text(filename, text)
-!! create or overwrite file with text
-character(*), intent(in) :: filename, text
-error stop "filesystem:fallback doesn't have write_text"
-end subroutine
+end function
 
 subroutine fs_write_text(self, text)
 !! create or overwrite file with text
@@ -393,7 +390,7 @@ class(path_t), intent(in) :: self
 character(*), intent(in) :: text
 
 call write_text(self%path_str, text)
-end subroutine fs_write_text
+end subroutine
 
 logical function match(path, pattern)
 !! does any substring of path match the pattern
@@ -699,3 +696,4 @@ end module filesystem
 !> procedures from main filesystem
 include "../iter.f90"
 include "../find.f90"
+include "../io.f90"
