@@ -15,11 +15,6 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(C_BOOL) function cfs_equivalent(path1, path2) bind(C, name="equivalent")
-import C_BOOL, C_CHAR
-character(kind=C_CHAR), intent(in) :: path1(*), path2(*)
-end function
-
 logical(C_BOOL) function cfs_match(path, pattern) bind(C, name='match')
 import
 character(kind=c_char), intent(in) :: path, pattern
@@ -89,10 +84,6 @@ allocate(character(N) :: relative_to)
 relative_to = cbuf(:N)
 
 end procedure relative_to
-
-module procedure same_file
-same_file = cfs_equivalent(trim(path1) // C_NULL_CHAR, trim(path2) // C_NULL_CHAR)
-end procedure
 
 module procedure touch
 if(.not. cfs_touch(trim(path) // C_NULL_CHAR)) error stop "filesystem:touch: " // path

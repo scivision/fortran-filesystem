@@ -156,6 +156,22 @@ uintmax_t file_size(const char* path) {
   return 0;
 }
 
+bool equivalent(const char* path1, const char* path2){
+// this is for exisitng paths
+
+  char* buf1 = (char*) malloc(MAXP);
+  char* buf2 = (char*) malloc(MAXP);
+
+  canonical(path1, true, buf1);
+  canonical(path2, true, buf2);
+
+  bool eqv = (strlen(buf1) > 0) && (strlen(buf2) > 0) && strcmp(buf1, buf2) == 0;
+  free(buf1);
+  free(buf2);
+  return eqv;
+
+}
+
 size_t expanduser(const char* path, char* result){
 
   if( path == NULL || strlen(path) == 0 )
@@ -263,8 +279,12 @@ bool is_exe(const char* path){
 
 
 bool exists(const char* path) {
+// false empty just for clarity
+if(path == NULL || strlen(path) == 0)
+  return false;
+
 #ifdef _MSC_VER
-  return _access_s(path, 0 ) == 0;
+  return _access_s(path, 0) == 0;
 #else
   return access(path, F_OK) == 0;
 #endif
