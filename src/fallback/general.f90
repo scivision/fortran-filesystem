@@ -73,4 +73,12 @@ end do
 end procedure relative_to
 
 
+!> stubs
+
+module procedure match
+match = .false.
+write(stderr,*) "ERROR:filesystem:fallback doesn't have match"
+end procedure
+
+
 end submodule no_cpp_fs

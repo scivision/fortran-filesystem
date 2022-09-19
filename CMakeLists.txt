@@ -26,12 +26,28 @@ endif()
 add_library(filesystem
 src/common.c
 src/get_path.f90 $<TARGET_OBJECTS:get_path>
+src/filesystem.f90 src/iter.f90 src/io.f90 src/find.f90 src/f2c.f90
 )
 
 if(fallback)
-  add_subdirectory(src/fallback)
+  add_library(filesystem_c OBJECT src/fallback/filesystem.c)
+  target_include_directories(filesystem_c PRIVATE ${PROJECT_SOURCE_DIR}/include)
+  target_compile_definitions(filesystem_c PRIVATE
+  $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
+  )
+  target_compile_features(filesystem_c PRIVATE c_std_99)
+  target_compile_definitions(filesystem_c PRIVATE _GNU_SOURCE)
+
+  target_sources(filesystem PRIVATE src/fallback/general.f90 $<TARGET_OBJECTS:filesystem_c>)
 else()
-  add_subdirectory(src)
+  add_library(filesystem_cpp OBJECT src/filesystem.cpp)
+  target_include_directories(filesystem_cpp PRIVATE ${PROJECT_SOURCE_DIR}/include)
+  target_compile_features(filesystem_cpp PRIVATE cxx_std_17)
+  target_compile_definitions(filesystem_cpp PRIVATE
+  $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
+  )
+
+  target_sources(filesystem PRIVATE src/fs_cpp.f90 $<TARGET_OBJECTS:filesystem_cpp>)
 endif()
 
 set_property(TARGET filesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
