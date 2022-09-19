@@ -49,7 +49,7 @@ do i = 1, N
   buf(i:i) = c_buf(i)
 enddo
 
-canonical = as_posix(buf(:i-1))
+canonical = normal(buf(:i-1))
 
 end procedure canonical
 

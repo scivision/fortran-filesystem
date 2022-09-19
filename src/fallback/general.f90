@@ -6,41 +6,6 @@ implicit none
 contains
 
 
-module procedure as_posix
-
-integer :: i
-
-allocate(character(len(path)) :: as_posix)
-as_posix = path
-
-i = index(as_posix, char(92))
-do while (i > 0)
-  as_posix(i:i) = '/'
-  i = index(as_posix, char(92))
-end do
-
-as_posix = drop_sep(as_posix)
-
-end procedure as_posix
-
-
-pure function drop_sep(path)
-character(*), intent(in) :: path
-character(:), allocatable :: drop_sep
-
-integer :: i
-
-allocate(character(len(path)) :: drop_sep)
-drop_sep = path
-
-i = index(drop_sep, "//")
-do while (i > 0)
-  drop_sep(i:) = drop_sep(i+1:)
-  i = index(drop_sep, "//")
-end do
-end function
-
-
 module procedure same_file
 same_file = canonical(path1) == canonical(path2)
 end procedure same_file
@@ -50,7 +15,7 @@ module procedure file_name
 character(:), allocatable :: wk
 integer :: i
 
-wk = as_posix(path)
+wk = normal(path)
 
 i = index(wk, "/", back=.true.) + 1
 
@@ -87,7 +52,7 @@ integer :: i
 
 allocate(character(get_max_path()) :: parent)
 
-wk = as_posix(path)
+wk = normal(path)
 
 i = index(wk, "/", back=.true.)
 if (i > 0) then
@@ -159,8 +124,8 @@ integer :: i, N1, N2
 
 allocate(character(get_max_path()) :: relative_to)
 
-s1 = as_posix(a)
-s2 = as_posix(b)
+s1 = normal(a)
+s2 = normal(b)
 
 if(s1 == s2) then
 !! same path
@@ -226,7 +191,7 @@ endif
 allocate(character(L) :: get_homedir)
 
 if (istat == 0) then
-  get_homedir = as_posix(buf)
+  get_homedir = normal(buf)
 else
   get_homedir = ""
 endif
@@ -253,7 +218,7 @@ endif
 allocate(character(L) :: get_tempdir)
 
 if (istat == 0) then
-  get_tempdir = as_posix(buf)
+  get_tempdir = normal(buf)
 else
   get_tempdir = ""
 endif
@@ -282,7 +247,7 @@ else
   expanduser = home // expanduser(2:)
 endif
 
-expanduser = as_posix(expanduser)
+expanduser = normal(expanduser)
 
 end procedure expanduser
 

@@ -68,6 +68,36 @@ void filesep(char* sep) {
 #endif
 }
 
+size_t normal(const char* path, char* normalized) {
+  if(path == NULL || strlen(path) == 0)
+    return 0;
+
+  size_t L=strlen(path);
+  char* buf = (char*) malloc(L+1);  // +1 for null terminator
+  strcpy(buf, path);
+
+// force posix file seperator
+  char s='\\';
+  char *p = strchr(buf, s);
+  while (p) {
+      *p = '/';
+      p = strchr(p+1, s);
+  }
+
+// dedupe file seperators
+  int j=0;
+  for (int i = 0; i < L; i++) {
+    if (i<L-1 && buf[i] == '/' && buf[i + 1] == '/')
+      continue;
+    normalized[j] = buf[i];
+    j++;
+  }
+  normalized[j] = '\0';
+
+  free(buf);
+  return strlen(normalized);
+}
+
 uintmax_t file_size(const char* path) {
   struct stat s;
 
@@ -203,7 +233,7 @@ size_t get_cwd(char* path) {
   if (getcwd(path, MAXP) == NULL) return 0;
 #endif
 
-  return strlen(path);
+  return normal(path, path);
 }
 
 bool fs_remove(const char* path) {
@@ -247,10 +277,8 @@ bool chmod_no_exe(const char* path){
 
 
 size_t fs_realpath(const char* path, char* r) {
-  if (path == NULL || strlen(path) == 0) {
-    r = NULL;
+  if (path == NULL || strlen(path) == 0)
     return 0;
-  }
 
 #ifdef _WIN32
   _fullpath(r, path, MAXP);

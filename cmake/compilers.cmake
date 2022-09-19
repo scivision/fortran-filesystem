@@ -113,7 +113,9 @@ endif()
 # --- flags
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  add_compile_options($<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration>)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration>
+  )
+  # "$<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-fsanitize=address>"
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "(Clang|Intel)")
   add_compile_options(
   "$<$<COMPILE_LANGUAGE:C,CXX>:-Wall;-Wextra>"

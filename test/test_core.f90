@@ -10,11 +10,11 @@ implicit none
 call test_setter_getter()
 print *, "OK: getter setter"
 
-call test_join()
-print *, "OK: test_join"
-
 call test_filesep()
 print *, "OK: filesystem: filesep"
+
+call test_join()
+print *, "OK: test_join"
 
 call test_stem()
 print *, "OK: filesystem: stem"
@@ -64,12 +64,10 @@ type(path_t) :: p1,p2
 p1 = path_t("a/b")
 
 p2 = p1%join("c/d")
-if (p2%path() /= "a/b/c/d") error stop "join"
+if (p2%path() /= "a/b/c/d") error stop "%join c/d: " // p2%path()
 p2 = p1%join("c/d/")
-if (p2%path() /= "a/b/c/d/") error stop "join"
-p2 = p1%join("c/d")
-if (p2%path() /= "a/b/c/d") error stop "%join"
-if (join("a/b", "c/d") /= "a/b/c/d") error stop "join()"
+if (p2%path() /= "a/b/c/d/") error stop "%join c/d/: " // p2%path()
+if (join("a/b", "c/d") /= "a/b/c/d") error stop "join(c/d): " // join("a/b", "c/d")
 
 end subroutine test_join
 
@@ -92,11 +90,9 @@ if (normal("") /= "") error stop "normal('') empty"
 
 p1 = path_t("/")
 p3 = p1%normal()
-if(p3%path() /= "/") error stop "%normal '/' failed"
+if(p3%path() /= "/") error stop "%normal '/' failed: " // p3%path()
 
-p2 = path_t(char(92))
-p3 = p2%normal()
-if(p3%path() /= "/") error stop "normal char(92) failed: " // p3%path()
+if(normal(char(92)) /= "/") error stop "normal char(92) failed: " // normal(char(92))
 
 end subroutine test_filesep
 
