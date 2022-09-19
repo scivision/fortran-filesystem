@@ -1,14 +1,9 @@
 submodule (filesystem) no_cpp_fs
-!! all compilers without non-C++17 filesystem
+!! all compilers without C++ filesystem
 
 implicit none
 
 contains
-
-
-module procedure same_file
-same_file = canonical(path1) == canonical(path2)
-end procedure
 
 
 module procedure with_suffix

@@ -27,6 +27,12 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+
+logical(C_BOOL) function cfs_equivalent(path1, path2) bind(C, name="equivalent")
+import C_BOOL, C_CHAR
+character(kind=C_CHAR), intent(in) :: path1(*), path2(*)
+end function
+
 subroutine cfs_filesep(sep) bind(C, name='filesep')
 import
 character(kind=C_CHAR), intent(out) :: sep(*)
@@ -290,6 +296,10 @@ integer(C_SIZE_T) :: N
 N = cfs_root(trim(path) // C_NULL_CHAR, cbuf)
 allocate(character(N) :: root)
 root = cbuf(:N)
+end procedure
+
+module procedure same_file
+same_file = cfs_equivalent(trim(path1) // C_NULL_CHAR, trim(path2) // C_NULL_CHAR)
 end procedure
 
 module procedure stem
