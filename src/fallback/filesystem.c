@@ -197,9 +197,10 @@ int create_symlink(const char* target, const char* link) {
 size_t get_cwd(char* path) {
 
 #ifdef _MSC_VER
-  if (_getcwd(path, _MAX_PATH) == NULL) return 0;
+// https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
+  if (_getcwd(path, MAXP) == NULL) return 0;
 #else
-  if (getcwd(path, PATH_MAX) == NULL) return 0;
+  if (getcwd(path, MAXP) == NULL) return 0;
 #endif
 
   return strlen(path);
@@ -252,7 +253,7 @@ size_t fs_realpath(const char* path, char* r) {
   }
 
 #ifdef _WIN32
-  _fullpath(r, path, _MAX_PATH);
+  _fullpath(r, path, MAXP);
 #else
   realpath(path, r);
 #endif
