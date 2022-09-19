@@ -27,7 +27,6 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-
 logical(C_BOOL) function cfs_equivalent(path1, path2) bind(C, name="equivalent")
 import C_BOOL, C_CHAR
 character(kind=C_CHAR), intent(in) :: path1(*), path2(*)
@@ -138,6 +137,11 @@ integer(C_SIZE_T) function cfs_suffix(path, fsuffix) bind(C, name="suffix")
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 character(kind=C_CHAR), intent(out) :: fsuffix(*)
+end function
+
+logical(c_bool) function cfs_touch(path) bind(C, name="touch")
+import
+character(kind=c_char), intent(in) :: path(*)
 end function
 
 end interface
@@ -318,6 +322,10 @@ allocate(character(max_path()) :: cbuf)
 N = cfs_suffix(trim(path) // C_NULL_CHAR, cbuf)
 allocate(character(N) :: suffix)
 suffix = cbuf(:N)
+end procedure
+
+module procedure touch
+if(.not. cfs_touch(trim(path) // C_NULL_CHAR)) error stop "filesystem:touch: " // path
 end procedure
 
 end submodule fort2c_ifc

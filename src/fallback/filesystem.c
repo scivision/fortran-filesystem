@@ -480,3 +480,16 @@ bool chmod_no_exe(const char* path){
   return chmod(path, s.st_mode | !S_IXUSR) == 0;
 #endif
 }
+
+bool touch(const char* path) {
+
+  if (exists(path) && !is_file(path))
+    return false;
+
+  if(!is_file(path)) {
+    FILE* fid = fopen(path, "a");
+    fclose(fid);
+  }
+
+  return is_file(path);
+}

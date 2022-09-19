@@ -462,10 +462,8 @@ size_t relative_to(const char* a, const char* b, char* result) {
 
 bool touch(const char* path) {
 
-  if(strlen(path) == 0) {
-    std::cerr << "filesystem:touch: cannot touch empty file name" << std::endl;
+  if(path == nullptr || strlen(path) == 0)
     return false;
-  }
 
   fs::path p(path);
   std::error_code ec;
@@ -473,12 +471,13 @@ bool touch(const char* path) {
   auto s = fs::status(p, ec);
   if(s.type() != fs::file_type::not_found){
     if(ec) {
-      std::cerr << "filesystem:touch:status: " << ec.message() << std::endl;
+      std::cerr << "ERROR:filesystem:touch:status: " << ec.message() << std::endl;
       return false;
     }
   }
 
-  if (fs::exists(s) && !fs::is_regular_file(s)) return false;
+  if (fs::exists(s) && !fs::is_regular_file(s))
+    return false;
 
   if(!fs::is_regular_file(s)) {
     std::ofstream ost;
