@@ -67,6 +67,34 @@ void filesep(char* sep) {
 #endif
 }
 
+size_t canonical(const char* path, bool strict, char* result) {
+  // also expands ~
+
+  if( path == NULL || strlen(path) == 0 )
+    return 0;
+
+  char* buf = (char*) malloc(MAXP);
+  expanduser(path, buf);
+
+  if(strict && !exists(buf)) {
+    free(buf);
+    return 0;
+  }
+
+char* buf2 = (char*) malloc(MAXP);
+#ifdef _WIN32
+  _fullpath(buf2, buf, MAXP);
+#else
+  realpath(buf, buf2);
+#endif
+
+  size_t L = normal(buf2, result);
+  free(buf);
+  free(buf2);
+  return L;
+}
+
+
 size_t normal(const char* path, char* normalized) {
   if(path == NULL || strlen(path) == 0)
     return 0;
@@ -431,18 +459,4 @@ bool chmod_no_exe(const char* path){
 #else
   return chmod(path, s.st_mode | !S_IXUSR) == 0;
 #endif
-}
-
-
-size_t fs_realpath(const char* path, char* r) {
-  if (path == NULL || strlen(path) == 0)
-    return 0;
-
-#ifdef _WIN32
-  _fullpath(r, path, MAXP);
-#else
-  realpath(path, r);
-#endif
-
-  return strlen(r);
 }

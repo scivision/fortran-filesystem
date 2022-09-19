@@ -4,13 +4,6 @@ implicit none
 
 interface !< fs.cpp
 
-integer(C_SIZE_T) function cfs_canonical(path, strict, canonicalized) bind(C, name="canonical")
-import
-character(kind=C_CHAR), intent(in) :: path(*)
-logical(C_BOOL), intent(in), value :: strict
-character(kind=C_CHAR), intent(out) :: canonicalized(*)
-end function
-
 integer(C_INT) function cfs_copy_file(source, dest, overwrite) bind(C, name="copy_file")
 import
 character(kind=c_char), intent(in) :: source(*), dest(*)
@@ -52,23 +45,6 @@ end function
 end interface
 
 contains
-
-module procedure canonical
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-logical(c_bool) :: s
-
-allocate(character(max_path()) :: cbuf)
-
-s = .false.
-if(present(strict)) s = strict
-
-N = cfs_canonical(trim(path) // C_NULL_CHAR, s, cbuf)
-
-allocate(character(N) :: canonical)
-canonical = cbuf(:N)
-
-end procedure canonical
 
 module procedure copy_file
 logical(c_bool) :: ow
