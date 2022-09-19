@@ -11,41 +11,6 @@ same_file = canonical(path1) == canonical(path2)
 end procedure same_file
 
 
-module procedure file_name
-character(:), allocatable :: wk
-integer :: i
-
-wk = normal(path)
-
-i = index(wk, "/", back=.true.) + 1
-
-allocate(character(len_trim(wk(i:))) :: file_name)
-
-file_name = wk(i:)
-
-!print *, "TRACE:file_name: in: " // wk // " out: " // file_name
-
-end procedure file_name
-
-
-module procedure stem
-character(len_trim(path)) :: wk
-integer :: i
-
-allocate(character(get_max_path()) :: stem)
-
-wk = file_name(path)
-
-i = index(wk, '.', back=.true.)
-if (i > 1) then
-  stem = wk(:i - 1)
-else
-  stem = wk
-endif
-!print '(a,i0,a)', "TRACE:stem: in: " // wk // " i: ", i, " out: " // stem
-end procedure stem
-
-
 module procedure suffix
 character(:), allocatable :: wk
 integer :: i

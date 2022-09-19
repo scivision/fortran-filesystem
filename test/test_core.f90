@@ -16,14 +16,14 @@ print *, "OK: filesystem: filesep"
 call test_join()
 print *, "OK: test_join"
 
+call test_filename()
+print *, "OK: filesystem: filename"
+
 call test_stem()
 print *, "OK: filesystem: stem"
 
 call test_parent()
 print *, "OK: filesystem: parent"
-
-call test_filename()
-print *, "OK: filesystem: filename"
 
 call test_suffix()
 print *, "OK: filesystem: suffix"
@@ -105,11 +105,11 @@ if(file_name("") /= "") error stop "filename empty: " // file_name("")
 
 p1 = path_t("a/b/c")
 p2 = path_t("a")
-if (p1%file_name() /= "c") error stop "file_name failed"
-if (p2%file_name() /= "a") error stop "file_name idempotent failed"
+if (p1%file_name() /= "c") error stop "file_name failed: " // p1%file_name()
+if (p2%file_name() /= "a") error stop "file_name idempotent failed: " // p2%file_name()
 
 if(file_name("file_name") /= "file_name") error stop "file_name leading dot filename"
-if(file_name("./file_name") /= "file_name") error stop "file_name leading dot filename cwd"
+if(file_name("./file_name") /= "file_name") error stop "file_name leading dot filename cwd: " // file_name("./file_name")
 if(file_name("file_name.txt") /= "file_name.txt") error stop "file_name leading dot filename w/ext"
 if(file_name("./file_name.txt") /= "file_name.txt") error stop "file_name leading dot filename w/ext and cwd"
 if(file_name("../file_name.txt") /= "file_name.txt") error stop "file_name leading dot filename w/ext up"
@@ -147,14 +147,14 @@ type(path_t) :: p1, p2
 if(stem("") /= "") error stop "stem empty: " // stem("")
 
 p1 = path_t("stem.a.b")
-if (p1%stem() /= "stem.a") error stop "stem failed"
+if (p1%stem() /= "stem.a") error stop "%stem failed: " // p1%stem()
 p2 = path_t(p1%stem())
 if (p2%stem() /= "stem") error stop "stem nest failed"
 
 if (stem("stem") /= "stem") error stop "stem idempotent failed: " // stem("stem")
 
 if(stem(".stem") /= ".stem") error stop "stem leading dot filename idempotent: " // stem(".stem")
-if(stem("./.stem") /= ".stem") error stop "stem leading dot filename cwd"
+if(stem("./.stem") /= ".stem") error stop "stem leading dot filename cwd: " // stem("./.stem")
 if(stem(".stem.txt") /= ".stem") error stop "stem leading dot filename w/ext"
 if(stem("./.stem.txt") /= ".stem") error stop "stem leading dot filename w/ext and cwd"
 if(stem("../.stem.txt") /= ".stem") error stop "stem leading dot filename w/ext up"

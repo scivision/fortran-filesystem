@@ -98,6 +98,27 @@ size_t normal(const char* path, char* normalized) {
   return strlen(normalized);
 }
 
+size_t file_name(const char* path, char* fname){
+
+  if(path == NULL || strlen(path) == 0)
+    return 0;
+
+  char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
+  normal(path, buf);
+
+  char* pos = strrchr(buf, '/');
+  if (pos){
+    strcpy(fname, pos+1);
+  }
+  else {
+    strcpy(fname, buf);
+  }
+
+  free(buf);
+  return strlen(fname);
+}
+
+
 uintmax_t file_size(const char* path) {
   struct stat s;
 
@@ -194,6 +215,28 @@ else {
 }
 
 return strlen(r);
+}
+
+
+size_t stem(const char* path, char* fstem){
+
+  if(path == NULL || strlen(path) == 0)
+    return 0;
+
+  char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
+  file_name(path, buf);
+
+  char* pos = strrchr(buf, '.');
+  if (pos && pos != buf){
+    strncpy(fstem, buf, pos-buf);
+    fstem[pos-buf] = '\0';
+  }
+  else {
+    strcpy(fstem, buf);
+  }
+
+  free(buf);
+  return strlen(fstem);
 }
 
 
