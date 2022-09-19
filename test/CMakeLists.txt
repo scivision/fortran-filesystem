@@ -40,7 +40,6 @@ add_test(NAME Expanduser COMMAND test_expanduser)
 add_executable(test_symlink test_symlink.f90)
 target_link_libraries(test_symlink PRIVATE filesystem)
 add_test(NAME symlink COMMAND test_symlink)
-set_property(TEST symlink PROPERTY SKIP_RETURN_CODE 77)
 
 # --- canonical
 add_executable(test_canonical test_canonical.f90)
@@ -66,7 +65,6 @@ target_link_libraries(test_fileops PRIVATE filesystem)
 
 add_test(NAME FileOps COMMAND test_fileops)
 set_property(TEST FileOps PROPERTY WORKING_DIRECTORY $<TARGET_FILE_DIR:test_fileops>)
-set_property(TEST FileOps PROPERTY SKIP_RETURN_CODE 77)
 set_property(TEST FileOps PROPERTY FIXTURES_SETUP ops_fxt)
 
 # workdir avoids test state being shared between tests
