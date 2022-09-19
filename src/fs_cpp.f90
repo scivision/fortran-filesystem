@@ -4,12 +4,6 @@ implicit none
 
 interface !< fs.cpp
 
-integer(C_INT) function cfs_copy_file(source, dest, overwrite) bind(C, name="copy_file")
-import
-character(kind=c_char), intent(in) :: source(*), dest(*)
-logical(c_bool), intent(in), value :: overwrite
-end function
-
 integer(C_INT) function cfs_create_directories(path) bind(C, name="create_directories")
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -36,21 +30,6 @@ end interface
 
 contains
 
-module procedure copy_file
-logical(c_bool) :: ow
-integer(C_INT) :: ierr
-
-ow = .false.
-if(present(overwrite)) ow = overwrite
-
-ierr = cfs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
-if (present(status)) then
-  status = ierr
-elseif(ierr /= 0) then
-  error stop "failed to copy file: " // src // " to " // dest
-endif
-
-end procedure copy_file
 
 module procedure match
 match = cfs_match(trim(path) // C_NULL_CHAR, trim(pattern) // C_NULL_CHAR)
