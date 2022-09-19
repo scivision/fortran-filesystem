@@ -26,7 +26,12 @@ int main(void) {
   getcwd(cpath, MAXP);
 #endif
 
-  printf("C: current working dir %s\n", cpath);
+  normal(cpath, cpath);
+
+  if (strcmp(fpath, cpath) != 0) {
+    fprintf(stderr, "C cwd %s != Fortran cwd %s\n", cpath, fpath);
+    return EXIT_FAILURE;
+  }
 
   return 0;
 }

@@ -1,6 +1,7 @@
 // use ffilesystem library from C++
 
 #include <iostream>
+#include <cstdlib>
 #include <cstring>
 
 #ifdef _MSC_VER
@@ -25,7 +26,12 @@ int main() {
     getcwd(cpath, MAXP);
 #endif
 
-  std::cout << "C++: current working dir " << cpath << std::endl;
+  normal(cpath, cpath);
+
+  if (strcmp(fpath, cpath) != 0) {
+    fprintf(stderr, "C cwd %s != Fortran cwd %s\n", cpath, fpath);
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }
