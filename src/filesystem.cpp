@@ -329,7 +329,7 @@ size_t canonical(const char* path, bool strict, char* result) {
   if( path == nullptr || strlen(path) == 0 )
     return 0;
 
-  char ex[MAXP];
+  char* ex = new char[MAXP];
   expanduser(path, ex);
 
   // std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
@@ -343,6 +343,7 @@ size_t canonical(const char* path, bool strict, char* result) {
   else {
     p = fs::weakly_canonical(ex, ec);
   }
+  delete[] ex;
 
   // std::cout << "TRACE:canonical: " << p << std::endl;
 
@@ -588,8 +589,6 @@ bool is_exe(const char* path) {
 
 size_t get_homedir(char* result) {
 
-char path[MAXP];
-
 #ifdef _WIN32
   auto k = "USERPROFILE";
 #else
@@ -603,9 +602,7 @@ char path[MAXP];
     return 0;
   }
 
-  std::strcpy(path, e);
-
-  return normal(path, result);
+  return normal(e, result);
 }
 
 
@@ -621,12 +618,14 @@ size_t expanduser(const char* path, char* result){
   if(p.front() != '~')
     return normal(path, result);
 
-
-  char h[MAXP];
-  if (!get_homedir(h))
+  char* h = new char[MAXP];
+  if (!get_homedir(h)){
+    delete[] h;
     return normal(path, result);
+  }
 
   fs::path home(h);
+  delete[] h;
 
   // std::cout << "TRACE:expanduser: path(home) " << home << std::endl;
 
