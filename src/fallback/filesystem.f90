@@ -672,10 +672,3 @@ error stop 'filesystem:assert_is_dir: directory does not exist ' // path
 end subroutine assert_is_dir
 
 end module filesystem
-
-!> procedures from main filesystem
-include "../f2c.f90"
-
-include "../iter.f90"
-include "../find.f90"
-include "../io.f90"
