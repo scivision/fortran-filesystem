@@ -86,7 +86,7 @@ size_t normal(const char* path, char* normalized) {
 
 // dedupe file seperators
   int j=0;
-  for (int i = 0; i < L; i++) {
+  for (size_t i = 0; i < L; i++) {
     if (i<L-1 && buf[i] == '/' && buf[i + 1] == '/')
       continue;
     normalized[j] = buf[i];
@@ -149,6 +149,30 @@ bool exists(const char* path) {
   return access(path, F_OK) == 0;
 #endif
 
+}
+
+
+size_t parent(const char* path, char* fparent){
+
+  if(path == NULL || strlen(path) == 0) {
+    strcpy(fparent, ".");
+    return strlen(fparent);
+  }
+
+  char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
+  normal(path, buf);
+
+  char* pos = strrchr(buf, '/');
+  if (pos){
+    strncpy(fparent, buf, pos-buf);
+    fparent[pos-buf] = '\0';
+  }
+  else {
+    strcpy(fparent, ".");
+  }
+
+  free(buf);
+  return strlen(fparent);
 }
 
 
