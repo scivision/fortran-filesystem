@@ -54,6 +54,11 @@ import
 character(kind=C_CHAR), intent(in) :: target(*), link(*)
 end function
 
+integer(C_INT) function cfs_create_directories(path) bind(C, name="create_directories")
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+end function
+
 logical(C_BOOL) function cfs_remove(path) bind(C, name="fs_remove")
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -184,6 +189,7 @@ s = cfs_chmod_no_exe(trim(path) // C_NULL_CHAR)
 if(present(ok)) ok = s
 end procedure
 
+
 module procedure copy_file
 logical(c_bool) :: ow
 integer(C_INT) :: ierr
@@ -199,6 +205,20 @@ elseif(ierr /= 0) then
 endif
 
 end procedure copy_file
+
+
+module procedure mkdir
+integer :: ierr
+
+ierr = cfs_create_directories(trim(path) // C_NULL_CHAR)
+if(present(status)) then
+  status = ierr
+elseif (ierr /= 0) then
+  write(stderr,'(a,i0)') "ERROR:filesystem:mkdir: failed to create directory: " // path // " error code: ", ierr
+  error stop
+endif
+end procedure mkdir
+
 
 module procedure create_symlink
 integer(C_INT) :: ierr

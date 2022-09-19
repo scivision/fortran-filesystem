@@ -4,11 +4,6 @@ implicit none
 
 interface !< fs.cpp
 
-integer(C_INT) function cfs_create_directories(path) bind(C, name="create_directories")
-import
-character(kind=C_CHAR), intent(in) :: path(*)
-end function
-
 logical(C_BOOL) function cfs_match(path, pattern) bind(C, name='match')
 import
 character(kind=c_char), intent(in) :: path, pattern
@@ -34,17 +29,6 @@ contains
 module procedure match
 match = cfs_match(trim(path) // C_NULL_CHAR, trim(pattern) // C_NULL_CHAR)
 end procedure
-
-module procedure mkdir
-integer :: ierr
-
-ierr = cfs_create_directories(trim(path) // C_NULL_CHAR)
-if(present(status)) then
-  status = ierr
-elseif (ierr /= 0) then
-  error stop "ERROR:filesystem:mkdir: failed to create directory: " // path
-endif
-end procedure mkdir
 
 module procedure relative_to
 character(kind=c_char, len=:), allocatable :: cbuf
