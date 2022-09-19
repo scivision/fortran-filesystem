@@ -239,6 +239,26 @@ size_t stem(const char* path, char* fstem){
   return strlen(fstem);
 }
 
+size_t suffix(const char* path, char* fout){
+
+  if(path == NULL || strlen(path) == 0)
+    return 0;
+
+  char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
+  file_name(path, buf);
+
+  char* pos = strrchr(buf, '.');
+  if (pos && pos != buf){
+    strcpy(fout, pos);
+  }
+  else {
+    fout[0] = '\0';
+  }
+
+  free(buf);
+  return strlen(fout);
+}
+
 
 bool is_absolute(const char* path){
   if(path == NULL) return false;

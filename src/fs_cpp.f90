@@ -54,12 +54,6 @@ character(kind=c_char), intent(in) :: path(*), base(*)
 character(kind=c_char), intent(out) :: result(*)
 end function
 
-integer(C_SIZE_T) function cfs_suffix(path, fsuffix) bind(C, name="suffix")
-import
-character(kind=C_CHAR), intent(in) :: path(*)
-character(kind=C_CHAR), intent(out) :: fsuffix(*)
-end function
-
 logical(c_bool) function cfs_touch(path) bind(C, name="touch")
 import
 character(kind=c_char), intent(in) :: path(*)
@@ -180,19 +174,6 @@ end procedure relative_to
 module procedure same_file
 same_file = cfs_equivalent(trim(path1) // C_NULL_CHAR, trim(path2) // C_NULL_CHAR)
 end procedure
-
-module procedure suffix
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-
-allocate(character(max_path()) :: cbuf)
-
-N = cfs_suffix(trim(path) // C_NULL_CHAR, cbuf)
-
-allocate(character(N) :: suffix)
-suffix = cbuf(:N)
-
-end procedure suffix
 
 module procedure touch
 if(.not. cfs_touch(trim(path) // C_NULL_CHAR)) error stop "filesystem:touch: " // path

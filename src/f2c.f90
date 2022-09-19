@@ -105,6 +105,11 @@ character(kind=C_CHAR), intent(in) :: path(*)
 character(kind=C_CHAR), intent(out) :: fstem(*)
 end function
 
+integer(C_SIZE_T) function cfs_suffix(path, fsuffix) bind(C, name="suffix")
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+character(kind=C_CHAR), intent(out) :: fsuffix(*)
+end function
 
 end interface
 
@@ -240,6 +245,15 @@ allocate(character(max_path()) :: cbuf)
 N = cfs_stem(trim(path) // C_NULL_CHAR, cbuf)
 allocate(character(N) :: stem)
 stem = cbuf(:N)
-end procedure stem
+end procedure
+
+module procedure suffix
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = cfs_suffix(trim(path) // C_NULL_CHAR, cbuf)
+allocate(character(N) :: suffix)
+suffix = cbuf(:N)
+end procedure
 
 end submodule fort2c_ifc

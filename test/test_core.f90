@@ -125,7 +125,7 @@ if(suffix("") /= "") error stop "suffix empty"
 
 p1 = path_t("suffix_name.a.b")
 
-if (p1%suffix() /= ".b") error stop "suffix failed"
+if (p1%suffix() /= ".b") error stop "%suffix failed: " // p1%suffix()
 p2 = path_t(p1%suffix())
 if (p2%suffix() /= "") error stop "suffix nest failed on " // p2%path()
 p2 = path_t(p2%suffix())

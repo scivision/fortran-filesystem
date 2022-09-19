@@ -8,30 +8,10 @@ contains
 
 module procedure same_file
 same_file = canonical(path1) == canonical(path2)
-end procedure same_file
-
-
-module procedure suffix
-character(:), allocatable :: wk
-integer :: i
-
-allocate(character(get_max_path()) :: suffix)
-
-wk = file_name(path)
-
-i = index(wk, '.', back=.true.)
-
-if (i > 1) then
-  suffix = wk(i:)
-else
-  suffix = ''
-end if
-!print '(a,i0,a)', "TRACE:suffix: in: " // wk // " i: ", i, " out: " // suffix
-end procedure suffix
+end procedure
 
 
 module procedure with_suffix
-
 allocate(character(get_max_path()) :: with_suffix)
 
 if(len_trim(path) > 0) then
@@ -39,7 +19,6 @@ if(len_trim(path) > 0) then
 else
   with_suffix = ""
 endif
-
 end procedure with_suffix
 
 
