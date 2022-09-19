@@ -502,6 +502,23 @@ bool touch(const char* path) {
   return is_file(path);
 }
 
+// as_windows() needed for system calls with MSVC
+
+// force Windows file seperator
+char* as_windows(const char* path) {
+  char s = '/';
+  char* buf = (char*) malloc(strlen(path)+1);  // +1 for null terminator
+  strcpy(buf, path);
+
+  char *p = strchr(buf, s);
+  while (p) {
+    *p = '\\';
+    p = strchr(p+1, s);
+  }
+  return buf;
+}
+
+
 // --- system calls for mkdir and copy_file
 int copy_file(const char* source, const char* destination, bool overwrite) {
 
@@ -519,7 +536,8 @@ if(destination == NULL || strlen(destination) == 0) {
   }
 
   #ifdef _WIN32
-  if(CopyFile(source, destination, true)) return 0;
+  if(CopyFile(source, destination, true))
+    return 0;
   return 1;
   #else
 // from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
@@ -534,6 +552,63 @@ if(destination == NULL || strlen(destination) == 0) {
   int ret = execvp("cp", args);
   free(s);
   free(d);
+
+  if(ret != -1)
+    return 0;
+
+  return ret;
+  #endif
+}
+
+int create_directories(const char* path) {
+
+  if(path == NULL || strlen(path) == 0) {
+    fprintf(stderr,"ERROR:filesystem:mkdir: path %s must not be empty\n", path);
+    return 1;
+  }
+
+  if(is_dir(path))
+    return 0;
+
+  char* p = (char*) malloc(strlen(path) + 1);
+
+  #ifdef _MSC_VER
+
+  p = as_windows(path);
+
+  STARTUPINFO si = { 0 };
+  PROCESS_INFORMATION pi;
+  si.cb = sizeof(si);
+
+  char* cmd = (char*) malloc(strlen(p) + 1 + 13);
+  strcpy(cmd, "cmd /c mkdir ");
+  strcat(cmd, p);
+  if (!CreateProcess(NULL, cmd, NULL, NULL, FALSE,
+                     0, 0, 0, &si, &pi)) {
+    free(p);
+    return -1;
+  }
+  // Wait until child process exits.
+  WaitForSingleObject( pi.hProcess, 2000 );
+  free(p);
+  CloseHandle(pi.hThread);
+  CloseHandle(pi.hProcess);
+  return 0;
+
+  #else
+// from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
+
+  strcpy(p, path);
+
+  #ifdef _WIN32
+  char *const args[5] = {"cmd", "/c", "mkdir", p, NULL};
+  int ret = execvp("cmd", args);
+  #else
+  char *const args[4] = {"mkdir", "-p", p, NULL};
+  int ret = execvp("mkdir", args);
+  #endif
+
+  free(p);
 
   if(ret != -1)
     return 0;

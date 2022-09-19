@@ -335,24 +335,18 @@ logical, intent(in), optional :: overwrite
 integer, intent(out), optional :: status
 end subroutine
 
+module subroutine mkdir(path, status)
+!! create a directory, with parents if needed
+character(*), intent(in) :: path
+integer, intent(out), optional :: status
+end subroutine
+
 
 end interface
 
 
 contains
 
-subroutine mkdir(path, status)
-!! create a directory, with parents if needed
-character(*), intent(in) :: path
-integer, intent(out), optional :: status
-
-if(present(status)) then
-  status = -1
-  return
-endif
-
-error stop "ERROR:filesystem:fallback doesn't have mkdir"
-end subroutine
 
 logical function fs_is_symlink(self)
 class(path_t), intent(in) :: self
