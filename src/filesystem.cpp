@@ -597,7 +597,14 @@ char path[MAXP];
   auto k = "HOME";
 #endif
 
-  std::strcpy(path, std::getenv(k));
+  auto e = std::getenv(k);
+
+  if(e == nullptr) {
+    std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined" << std::endl;
+    return 0;
+  }
+
+  std::strcpy(path, e);
 
   return normal(path, result);
 }
