@@ -24,7 +24,7 @@ endif()
 # --- filesystem library
 
 add_library(filesystem
-src/max.c
+src/common.c
 src/get_path.f90 $<TARGET_OBJECTS:get_path>
 )
 
