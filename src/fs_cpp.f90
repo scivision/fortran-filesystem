@@ -26,11 +26,6 @@ character(kind=c_char), intent(in) :: path(*), base(*)
 character(kind=c_char), intent(out) :: result(*)
 end function
 
-logical(c_bool) function cfs_touch(path) bind(C, name="touch")
-import
-character(kind=c_char), intent(in) :: path(*)
-end function
-
 integer(C_SIZE_T) function cfs_with_suffix(path, new_suffix, swapped) bind(C, name="with_suffix")
 import
 character(kind=C_CHAR), intent(in) :: path(*), new_suffix
@@ -84,10 +79,6 @@ allocate(character(N) :: relative_to)
 relative_to = cbuf(:N)
 
 end procedure relative_to
-
-module procedure touch
-if(.not. cfs_touch(trim(path) // C_NULL_CHAR)) error stop "filesystem:touch: " // path
-end procedure
 
 module procedure with_suffix
 character(kind=c_char, len=:), allocatable :: cbuf

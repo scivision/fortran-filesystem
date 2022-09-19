@@ -17,27 +17,6 @@ endif
 end procedure with_suffix
 
 
-module procedure touch
-
-integer :: u
-character(:), allocatable :: fn
-
-fn = expanduser(path)
-
-if(is_file(fn)) then
-  return
-elseif(is_dir(fn)) then
-  error stop "filesystem:touch: cannot touch directory: " // fn
-end if
-
-open(newunit=u, file=fn, status='new')
-close(u)
-
-if(.not. is_file(fn)) error stop 'could not touch ' // fn
-
-end procedure touch
-
-
 module procedure relative_to
 
 character(:), dimension(:), allocatable :: p1_pts, p2_pts
