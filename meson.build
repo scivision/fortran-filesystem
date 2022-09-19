@@ -1,6 +1,6 @@
 project('ffilesystem', 'c', 'cpp', 'fortran',
 version: '3.8.0',
-meson_version: '>= 0.55.0',
+meson_version: '>= 0.62.0',
 default_options : ['cpp_std=c++17', 'c_std=c99'])
 
 # --- does system work with symlinks
@@ -26,17 +26,17 @@ if not has_filesys
 endif
 
 # --- libdl
-
+c_args = []
 if host_machine.system() == 'windows'
   dl_dep = []
-  cpp_args = '-DFS_DLL_NAME='
-  cpp_args += cc.get_id() == 'msvc' ? '"filesystem.dll"' : '"libfilesystem.dll"'
+  c_args = '-DFS_DLL_NAME='
+  c_args += cc.get_id() == 'msvc' ? '"filesystem.dll"' : '"libfilesystem.dll"'
 else
-  dl_dep = cc.find_library('dl', required: false)
+  dl_dep = dependency('dl', required: false)
 
   have_dladdr = cc.has_function('dladdr', args: '-D_GNU_SOURCE', dependencies: dl_dep)
   if have_dladdr
-    cpp_args = '-DHAVE_DLADDR'
+    c_args = '-DHAVE_DLADDR'
   endif
 endif
 
@@ -49,7 +49,7 @@ sources: files('src/filesystem.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90
 dependencies: [fs_dep, dl_dep],
 include_directories: 'include',
 install: true,
-cpp_args: cpp_args
+c_args: c_args
 )
 install_headers('include/filesystem.h')
 
