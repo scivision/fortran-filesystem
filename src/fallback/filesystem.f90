@@ -209,10 +209,10 @@ end interface
 
 interface !< compiler/{intel,gcc}
 
-module function as_posix(path)
+module function normal(path)
 !! '\' => '/', dropping redundant separators
 
-character(:), allocatable :: as_posix
+character(:), allocatable :: normal
 character(*), intent(in) :: path
 end function
 
@@ -415,12 +415,6 @@ class(path_t), intent(in) :: self
 type(path_t) :: fs_normal
 
 fs_normal%path_str = normal(self%path_str)
-end function
-
-function normal(path)
-character(*), intent(in) :: path
-character(:), allocatable :: normal
-normal = as_posix(path)
 end function
 
 !> one-liner methods calling actual procedures
