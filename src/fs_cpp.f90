@@ -27,22 +27,6 @@ import C_BOOL, C_CHAR
 character(kind=C_CHAR), intent(in) :: path1(*), path2(*)
 end function
 
-integer(C_SIZE_T) function cfs_expanduser(path, result) bind(C, name="expanduser")
-import
-character(kind=c_char), intent(in) :: path(*)
-character(kind=c_char), intent(out) :: result(*)
-end function
-
-integer(C_SIZE_T) function cfs_get_homedir(path) bind(C, name="get_homedir")
-import
-character(kind=c_char), intent(out) :: path(*)
-end function
-
-integer(C_SIZE_T) function cfs_get_tempdir(path) bind(C, name="get_tempdir")
-import
-character(kind=c_char), intent(out) :: path(*)
-end function
-
 logical(C_BOOL) function cfs_match(path, pattern) bind(C, name='match')
 import
 character(kind=c_char), intent(in) :: path, pattern
@@ -101,47 +85,6 @@ elseif(ierr /= 0) then
 endif
 
 end procedure copy_file
-
-module procedure expanduser
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-
-allocate(character(max_path()) :: cbuf)
-
-N = cfs_expanduser(trim(path) // C_NULL_CHAR, cbuf)
-
-allocate(character(N) :: expanduser)
-expanduser = cbuf(:N)
-end procedure expanduser
-
-
-module procedure get_homedir
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-
-allocate(character(max_path()) :: cbuf)
-
-N = cfs_get_homedir(cbuf)
-
-allocate(character(N) :: get_homedir)
-get_homedir = cbuf(:N)
-
-end procedure get_homedir
-
-
-module procedure get_tempdir
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-
-allocate(character(max_path()) :: cbuf)
-
-N = cfs_get_tempdir(cbuf)
-
-allocate(character(N) :: get_tempdir)
-get_tempdir = cbuf(:N)
-
-end procedure get_tempdir
-
 
 module procedure match
 match = cfs_match(trim(path) // C_NULL_CHAR, trim(pattern) // C_NULL_CHAR)

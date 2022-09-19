@@ -45,6 +45,12 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+integer(C_SIZE_T) function cfs_expanduser(path, result) bind(C, name="expanduser")
+import
+character(kind=c_char), intent(in) :: path(*)
+character(kind=c_char), intent(out) :: result(*)
+end function
+
 integer(C_SIZE_T) function cfs_file_name(path, filename) bind(C, name="file_name")
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -59,6 +65,16 @@ end function
 integer(C_SIZE_T) function cfs_get_cwd(path) bind(C, name="get_cwd")
 import
 character(kind=C_CHAR), intent(out) :: path(*)
+end function
+
+integer(C_SIZE_T) function cfs_get_homedir(path) bind(C, name="get_homedir")
+import
+character(kind=c_char), intent(out) :: path(*)
+end function
+
+integer(C_SIZE_T) function cfs_get_tempdir(path) bind(C, name="get_tempdir")
+import
+character(kind=c_char), intent(out) :: path(*)
 end function
 
 logical(c_bool) function cfs_is_absolute(path) bind(C, name="is_absolute")
@@ -149,6 +165,15 @@ module procedure exists
 exists = cfs_exists(trim(path) // C_NULL_CHAR)
 end procedure
 
+module procedure expanduser
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = cfs_expanduser(trim(path) // C_NULL_CHAR, cbuf)
+allocate(character(N) :: expanduser)
+expanduser = cbuf(:N)
+end procedure
+
 module procedure filesep
 character(kind=C_CHAR) :: cbuf(2)
 call cfs_filesep(cbuf)
@@ -162,7 +187,7 @@ allocate(character(max_path()) :: cbuf)
 N = cfs_file_name(trim(path) // C_NULL_CHAR, cbuf)
 allocate(character(N) :: file_name)
 file_name = cbuf(:N)
-end procedure file_name
+end procedure
 
 module procedure file_size
 file_size = cfs_file_size(trim(path) // C_NULL_CHAR)
@@ -171,15 +196,29 @@ end procedure
 module procedure get_cwd
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
-
 allocate(character(max_path()) :: cbuf)
-
 N = cfs_get_cwd(cbuf)
-
 allocate(character(N) :: get_cwd)
 get_cwd = cbuf(:N)
+end procedure
 
-end procedure get_cwd
+module procedure get_homedir
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = cfs_get_homedir(cbuf)
+allocate(character(N) :: get_homedir)
+get_homedir = cbuf(:N)
+end procedure
+
+module procedure get_tempdir
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = cfs_get_tempdir(cbuf)
+allocate(character(N) :: get_tempdir)
+get_tempdir = cbuf(:N)
+end procedure
 
 module procedure is_absolute
 !! no expanduser to be consistent with Python filesystem etc.
@@ -205,15 +244,11 @@ end procedure
 module procedure parent
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
-
 allocate(character(max_path()) :: cbuf)
-
 N = cfs_parent(trim(path) // C_NULL_CHAR, cbuf)
-
 allocate(character(N) :: parent)
 parent = cbuf(:N)
-
-end procedure parent
+end procedure
 
 module procedure normal
 character(kind=c_char, len=:), allocatable :: cbuf
@@ -222,7 +257,7 @@ allocate(character(max_path()) :: cbuf)
 N = cfs_normal(trim(path) // C_NULL_CHAR, cbuf)
 allocate(character(N) :: normal)
 normal = cbuf(:N)
-end procedure normal
+end procedure
 
 module procedure remove
 logical(c_bool) :: e
