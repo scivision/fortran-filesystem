@@ -142,10 +142,8 @@ size_t suffix(const char* path, char* fsuffix) {
 
 size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
 
-  if(strlen(path) == 0) {
-    swapped = NULL;
+  if( path == nullptr || strlen(path) == 0 )
     return 0;
-  }
 
   fs::path p(path);
 
@@ -328,10 +326,8 @@ bool fs_remove(const char* path) {
 size_t canonical(const char* path, bool strict, char* result) {
   // also expands ~
 
-  if( (strlen(path) == 0) ) {
-    path = NULL;
+  if( path == nullptr || strlen(path) == 0 )
     return 0;
-  }
 
   char ex[MAXP];
   expanduser(path, ex);
@@ -438,21 +434,16 @@ int copy_file(const char* source, const char* destination, bool overwrite) {
 
 size_t relative_to(const char* a, const char* b, char* result) {
 
-  // library bug handling
-  if( (strlen(a) == 0) || (strlen(b) == 0) ) {
-    // undefined case, avoid bugs with MacOS
-    result = NULL;
+  // undefined case, avoid bugs with MacOS
+  if( a == nullptr || (strlen(a) == 0) || b == nullptr || (strlen(b) == 0) )
     return 0;
-  }
 
   fs::path a1(a);
   fs::path b1(b);
 
-  if(a1.is_absolute() != b1.is_absolute()) {
-    // cannot be relative, avoid bugs with MacOS
-    result = NULL;
+  // cannot be relative, avoid bugs with MacOS
+  if(a1.is_absolute() != b1.is_absolute())
     return 0;
-  }
 
   fs::path r;
 
@@ -606,7 +597,7 @@ char path[MAXP];
   auto k = "HOME";
 #endif
 
-  std::strcpy(path, fs::path(std::getenv(k)).string().c_str());
+  std::strcpy(path, std::getenv(k));
 
   return normal(path, result);
 }
@@ -618,27 +609,18 @@ size_t expanduser(const char* path, char* result){
 
   // std::cout << "TRACE:expanduser: path: " << p << " length: " << strlen(path) << std::endl;
 
-  if( p.length() == 0 ) {
-    result = NULL;
+  if( path == nullptr || strlen(path) == 0 )
     return 0;
-  }
 
-  if(p.front() != '~') {
+  if(p.front() != '~')
     return normal(path, result);
-  }
+
 
   char h[MAXP];
-  get_homedir(h);
-
-  std::string s(h);
-
-  // std::cout << "TRACE:expanduser: home: " << s << std::endl;
-
-  if( s.length() == 0 ) {
+  if (!get_homedir(h))
     return normal(path, result);
-  }
 
-  fs::path home(s);
+  fs::path home(h);
 
   // std::cout << "TRACE:expanduser: path(home) " << home << std::endl;
 

@@ -6,7 +6,6 @@
 #include <sys/types.h>
 
 #ifdef _MSC_VER
-#include <stdlib.h>
 #include <direct.h>
 #include <io.h>
 #else
@@ -127,6 +126,78 @@ uintmax_t file_size(const char* path) {
   if (stat(path, &s) == 0) return s.st_size;
 
   return 0;
+}
+
+size_t expanduser(const char* path, char* result){
+
+  if( path == NULL || strlen(path) == 0 )
+    return 0;
+
+  normal(path, result);
+  size_t L = strlen(result);
+
+  if(path[0] != '~')
+    return L;
+
+  char* buf = (char*) malloc(MAXP);
+  if (!get_homedir(buf))
+    return L;
+
+  // ~ alone
+  if (L == 1)
+    return normal(buf, result);
+
+  strncat(buf, "/", 2);
+  // ~/ alone
+  if (L == 2)
+    return normal(buf, result);
+
+  strcat(buf, result+2);
+  strcpy(result, buf);
+  printf("TRACE:expanduser result: %s\n", result);
+
+  free(buf);
+  return strlen(result);
+}
+
+size_t get_homedir(char* result) {
+
+char* buf = (char*) malloc(MAXP);
+size_t L;
+
+#ifdef _WIN32
+  getenv_s(&L, buf, MAXP, "USERPROFILE");
+#else
+  const char* e = getenv("HOME");
+  if(e)
+    strcpy(buf, e);
+  else
+    buf = NULL;
+#endif
+
+  L = normal(buf, result);
+  free(buf);
+  return L;
+}
+
+size_t get_tempdir(char* result) {
+
+char* buf = (char*) malloc(MAXP);
+size_t L;
+
+#ifdef _WIN32
+  getenv_s(&L, buf, MAXP, "TMP");
+#else
+  const char* e = getenv("TMPDIR");
+  if(e)
+    strcpy(buf, e);
+  else
+    buf = NULL;
+#endif
+
+  L = normal(buf, result);
+  free(buf);
+  return L;
 }
 
 
