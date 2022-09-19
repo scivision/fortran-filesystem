@@ -10,6 +10,6 @@ $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
 set(s ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_sources(filesystem PRIVATE
-${s}/filesystem.f90 ${s}/iter.f90 ${s}/io.f90 ${s}/find.f90 ${s}/fs_cpp.f90
+${s}/filesystem.f90 ${s}/iter.f90 ${s}/io.f90 ${s}/find.f90 ${s}/fs_cpp.f90 ${s}/f2c.f90
 $<TARGET_OBJECTS:filesystem_cpp>
 )

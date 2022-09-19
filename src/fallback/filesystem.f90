@@ -1,6 +1,6 @@
 module filesystem
 
-use, intrinsic:: iso_c_binding, only: C_BOOL, C_NULL_CHAR
+use, intrinsic:: iso_c_binding, only: C_BOOL
 use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 
 implicit none
@@ -694,6 +694,8 @@ end subroutine assert_is_dir
 end module filesystem
 
 !> procedures from main filesystem
+include "../f2c.f90"
+
 include "../iter.f90"
 include "../find.f90"
 include "../io.f90"

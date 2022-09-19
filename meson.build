@@ -44,7 +44,8 @@ endif
 
 filesystem = library('filesystem',
 sources: files('src/filesystem.f90', 'src/iter.f90', 'src/io.f90', 'src/find.f90',
-  'src/fs_cpp.f90', 'src/filesystem.cpp'),
+  'src/fs_cpp.f90', 'src/f2c.f90', 'src/filesystem.cpp',
+  'src/max.c', 'src/get_path.c', 'src/get_path.f90'),
 dependencies: [fs_dep, dl_dep],
 include_directories: 'include',
 install: true,
