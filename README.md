@@ -4,7 +4,6 @@
 [![ci_cmake](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_cmake.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_cmake.yml)
 [![ci_fpm](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_fpm.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_fpm.yml)
 [![oneapi-linux](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml)
-[![ci_meson](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml)
 
 Platform independent (Linux, macOS, Windows, Cygwin, WSL, ...), object-oriented Fortran filesystem path manipulation library.
 The library also provides header
@@ -93,7 +92,7 @@ The Cray compiler itself works with the non-C++ fallback.
 
 ## Build
 
-Fortran-filesystem can be built with CMake, Fortran Package Manager (FPM), or Meson.
+Fortran-filesystem can be built with CMake or Fortran Package Manager (FPM).
 
 [lib]filesystem.a is the library binary built that contains the Fortran "filesystem" module--it is the only binary you need to use in your project.
 
@@ -112,15 +111,6 @@ Fortran Package Manager (fallback functions):
 
 ```sh
 fpm build
-```
-
-Meson:
-
-```sh
-meson setup build
-meson compile -C build
-# optional
-meson test -C build
 ```
 
 ## Command line
