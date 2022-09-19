@@ -184,17 +184,25 @@ size_t expanduser(const char* path, char* result){
     return L;
 
   char* buf = (char*) malloc(MAXP);
-  if (!get_homedir(buf))
+  if (!get_homedir(buf)){
+    free(buf);
     return L;
+  }
 
   // ~ alone
-  if (L == 1)
-    return normal(buf, result);
+  if (L == 1){
+    L = normal(buf, result);
+    free(buf);
+    return L;
+  }
 
   strncat(buf, "/", 2);
   // ~/ alone
-  if (L == 2)
-    return normal(buf, result);
+  if (L == 2){
+    L = normal(buf, result);
+    free(buf);
+    return L;
+  }
 
   strcat(buf, result+2);
   strcpy(result, buf);
