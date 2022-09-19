@@ -54,12 +54,6 @@ import
 character(kind=c_char), intent(in) :: path, pattern
 end function
 
-integer(C_SIZE_T) function cfs_parent(path, fparent) bind(C, name="parent")
-import
-character(kind=C_CHAR), intent(in) :: path(*)
-character(kind=C_CHAR), intent(out) :: fparent(*)
-end function
-
 integer(C_SIZE_T) function cfs_relative_to(path, base, result) bind(C, name="relative_to")
 import
 character(kind=c_char), intent(in) :: path(*), base(*)
@@ -194,19 +188,6 @@ elseif (ierr /= 0) then
   error stop "ERROR:filesystem:mkdir: failed to create directory: " // path
 endif
 end procedure mkdir
-
-module procedure parent
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-
-allocate(character(max_path()) :: cbuf)
-
-N = cfs_parent(trim(path) // C_NULL_CHAR, cbuf)
-
-allocate(character(N) :: parent)
-parent = cbuf(:N)
-
-end procedure parent
 
 module procedure relative_to
 character(kind=c_char, len=:), allocatable :: cbuf

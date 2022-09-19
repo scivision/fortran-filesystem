@@ -81,6 +81,12 @@ character(kind=C_CHAR), intent(in) :: path(*)
 character(kind=C_CHAR), intent(out) :: normalized(*)
 end function
 
+integer(C_SIZE_T) function cfs_parent(path, fparent) bind(C, name="parent")
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+character(kind=C_CHAR), intent(out) :: fparent(*)
+end function
+
 integer(C_SIZE_T) function cfs_root(path, result) bind(C, name="root")
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -168,6 +174,19 @@ end procedure
 module procedure is_symlink
 is_symlink = cfs_is_symlink(trim(path) // C_NULL_CHAR)
 end procedure
+
+module procedure parent
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+
+allocate(character(max_path()) :: cbuf)
+
+N = cfs_parent(trim(path) // C_NULL_CHAR, cbuf)
+
+allocate(character(N) :: parent)
+parent = cbuf(:N)
+
+end procedure parent
 
 module procedure normal
 character(kind=c_char, len=:), allocatable :: cbuf

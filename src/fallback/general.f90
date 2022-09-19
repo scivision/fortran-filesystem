@@ -46,23 +46,6 @@ endif
 end procedure stem
 
 
-module procedure parent
-character(:), allocatable :: wk
-integer :: i
-
-allocate(character(get_max_path()) :: parent)
-
-wk = normal(path)
-
-i = index(wk, "/", back=.true.)
-if (i > 0) then
-  parent = wk(:i-1)
-else
-  parent = "."
-end if
-end procedure parent
-
-
 module procedure suffix
 character(:), allocatable :: wk
 integer :: i
