@@ -9,6 +9,6 @@ target_compile_features(filesystem_c PRIVATE c_std_99)
 set(s ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_sources(filesystem PRIVATE
-${s}/filesystem.f90 ${s}/general.f90 ${s}/crt.f90
+${s}/filesystem.f90 ${s}/general.f90
 $<TARGET_OBJECTS:filesystem_c>
 )

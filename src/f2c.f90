@@ -10,6 +10,13 @@ integer(C_INT) function max_path() bind(C, name="get_maxp")
 import
 end function
 
+integer(C_SIZE_T) function cfs_canonical(path, strict, canonicalized) bind(C, name="canonical")
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+logical(C_BOOL), intent(in), value :: strict
+character(kind=C_CHAR), intent(out) :: canonicalized(*)
+end function
+
 logical(C_BOOL) function cfs_chmod_exe(path) bind(C, name="chmod_exe")
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -135,6 +142,18 @@ module procedure get_max_path
 get_max_path = int(max_path())
 end procedure
 
+
+module procedure canonical
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+logical(c_bool) :: s
+allocate(character(max_path()) :: cbuf)
+s = .false.
+if(present(strict)) s = strict
+N = cfs_canonical(trim(path) // C_NULL_CHAR, s, cbuf)
+allocate(character(N) :: canonical)
+canonical = cbuf(:N)
+end procedure canonical
 
 module procedure chmod_exe
 logical :: s
