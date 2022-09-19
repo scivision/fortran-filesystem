@@ -33,12 +33,6 @@ character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: result(*)
 end function
 
-integer(C_SIZE_T) function cfs_file_name(path, filename) bind(C, name="file_name")
-import
-character(kind=C_CHAR), intent(in) :: path(*)
-character(kind=C_CHAR), intent(out) :: filename(*)
-end function
-
 integer(C_SIZE_T) function cfs_get_homedir(path) bind(C, name="get_homedir")
 import
 character(kind=c_char), intent(out) :: path(*)
@@ -58,12 +52,6 @@ integer(C_SIZE_T) function cfs_relative_to(path, base, result) bind(C, name="rel
 import
 character(kind=c_char), intent(in) :: path(*), base(*)
 character(kind=c_char), intent(out) :: result(*)
-end function
-
-integer(C_SIZE_T) function cfs_stem(path, fstem) bind(C, name="stem")
-import
-character(kind=C_CHAR), intent(in) :: path(*)
-character(kind=C_CHAR), intent(out) :: fstem(*)
 end function
 
 integer(C_SIZE_T) function cfs_suffix(path, fsuffix) bind(C, name="suffix")
@@ -133,19 +121,6 @@ expanduser = cbuf(:N)
 end procedure expanduser
 
 
-module procedure file_name
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-
-allocate(character(max_path()) :: cbuf)
-
-N = cfs_file_name(trim(path) // C_NULL_CHAR, cbuf)
-
-allocate(character(N) :: file_name)
-file_name = cbuf(:N)
-
-end procedure file_name
-
 module procedure get_homedir
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
@@ -205,19 +180,6 @@ end procedure relative_to
 module procedure same_file
 same_file = cfs_equivalent(trim(path1) // C_NULL_CHAR, trim(path2) // C_NULL_CHAR)
 end procedure
-
-module procedure stem
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-
-allocate(character(max_path()) :: cbuf)
-
-N = cfs_stem(trim(path) // C_NULL_CHAR, cbuf)
-
-allocate(character(N) :: stem)
-stem = cbuf(:N)
-
-end procedure stem
 
 module procedure suffix
 character(kind=c_char, len=:), allocatable :: cbuf

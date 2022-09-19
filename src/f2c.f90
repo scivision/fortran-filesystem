@@ -45,6 +45,12 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+integer(C_SIZE_T) function cfs_file_name(path, filename) bind(C, name="file_name")
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+character(kind=C_CHAR), intent(out) :: filename(*)
+end function
+
 integer(C_SIZE_T) function cfs_file_size(path) bind(C, name="file_size")
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -93,6 +99,13 @@ character(kind=C_CHAR), intent(in) :: path(*)
 character(kind=C_CHAR), intent(out) :: result(*)
 end function
 
+integer(C_SIZE_T) function cfs_stem(path, fstem) bind(C, name="stem")
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+character(kind=C_CHAR), intent(out) :: fstem(*)
+end function
+
+
 end interface
 
 contains
@@ -136,6 +149,15 @@ character(kind=C_CHAR) :: cbuf(2)
 call cfs_filesep(cbuf)
 filesep = cbuf(1)
 end procedure
+
+module procedure file_name
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = cfs_file_name(trim(path) // C_NULL_CHAR, cbuf)
+allocate(character(N) :: file_name)
+file_name = cbuf(:N)
+end procedure file_name
 
 module procedure file_size
 file_size = cfs_file_size(trim(path) // C_NULL_CHAR)
@@ -210,5 +232,14 @@ N = cfs_root(trim(path) // C_NULL_CHAR, cbuf)
 allocate(character(N) :: root)
 root = cbuf(:N)
 end procedure
+
+module procedure stem
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = cfs_stem(trim(path) // C_NULL_CHAR, cbuf)
+allocate(character(N) :: stem)
+stem = cbuf(:N)
+end procedure stem
 
 end submodule fort2c_ifc
