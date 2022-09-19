@@ -245,7 +245,6 @@ end subroutine
 
 module subroutine copy_file(src, dest, overwrite, status)
 !! copy single file from src to dest
-!! OVERWRITES existing destination file
 character(*), intent(in) :: src, dest
 logical, intent(in), optional :: overwrite
 integer, intent(out), optional :: status

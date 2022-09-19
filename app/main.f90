@@ -22,18 +22,18 @@ select case (fcn)
 case ("get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos", &
     "max_path", "exe_path", "lib_path")
   if (argc /= 1) error stop "usage: ./filesystem_cli " // trim(fcn)
+case ("copy_file", "relative_to", "same_file", "with_suffix")
+  if (argc < 3) error stop "usage: ./filesystem_cli <function> <path> <path>"
+  call get_command_argument(2, buf, status=i)
+  if (i /= 0) error stop "invalid path: " // trim(buf)
+  call get_command_argument(3, buf2, status=i)
+  if (i /= 0) error stop "invalid path: " // trim(buf2)
 case default
   if (argc < 2) error stop "usage: ./filesystem_cli <function> <path>"
   call get_command_argument(2, buf, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf)
 end select
 
-select case (fcn)
-case ("relative_to", "same_file", "with_suffix")
-  if (argc < 3) error stop "usage: ./filesystem_cli <function> <path> <path>"
-  call get_command_argument(3, buf2, status=i)
-  if (i /= 0) error stop "invalid path: " // trim(buf2)
-end select
 
 select case (fcn)
 case ('is_macos')
@@ -44,6 +44,9 @@ case ('is_linux')
   print '(L1)', is_linux()
 case ('is_unix')
   print '(L1)', is_unix()
+case ("copy_file")
+  call copy_file(buf, buf2, status=i)
+  if (i /= 0) error stop "copy_file failed"
 case ("get_cwd")
   print '(A)', trim(get_cwd())
 case ("normal")

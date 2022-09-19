@@ -4,6 +4,7 @@ target_compile_definitions(filesystem_c PRIVATE
 $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
 )
 target_compile_features(filesystem_c PRIVATE c_std_99)
+target_compile_definitions(filesystem_c PRIVATE _GNU_SOURCE)
 
 #--- sources
 set(s ${CMAKE_CURRENT_SOURCE_DIR})

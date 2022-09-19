@@ -328,26 +328,18 @@ module logical function exists(path)
 character(*), intent(in) :: path
 end function
 
+module subroutine copy_file(src, dest, overwrite, status)
+!! copy single file from src to dest
+character(*), intent(in) :: src, dest
+logical, intent(in), optional :: overwrite
+integer, intent(out), optional :: status
+end subroutine
+
+
 end interface
 
 
 contains
-
-
-subroutine copy_file(src, dest, overwrite, status)
-!! copy single file from src to dest
-!! OVERWRITES existing destination file
-character(*), intent(in) :: src, dest
-logical, intent(in), optional :: overwrite
-integer, intent(out), optional :: status
-
-if(present(status)) then
-  status = -1
-  return
-endif
-
-error stop "ERROR:filesystem:fallback doesn't have copy_file"
-end subroutine
 
 subroutine mkdir(path, status)
 !! create a directory, with parents if needed

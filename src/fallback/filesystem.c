@@ -501,3 +501,43 @@ bool touch(const char* path) {
 
   return is_file(path);
 }
+
+// --- system calls for mkdir and copy_file
+int copy_file(const char* source, const char* destination, bool overwrite) {
+
+if(source == NULL || strlen(source) == 0) {
+  fprintf(stderr,"ERROR:filesystem:copy_file: source path %s must not be empty\n", source);
+  return 1;
+}
+if(destination == NULL || strlen(destination) == 0) {
+  fprintf(stderr, "ERROR:filesystem:copy_file: destination path %s must not be empty\n", destination);
+  return 1;
+}
+
+  if(overwrite){
+    if(is_file(destination)) fs_remove(destination);
+  }
+
+  #ifdef _WIN32
+  if(CopyFile(source, destination, true)) return 0;
+  return 1;
+  #else
+// from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
+
+  char* s = (char*) malloc(strlen(source) + 1);
+  char* d = (char*) malloc(strlen(destination) + 1);
+  strcpy(s, source);
+  strcpy(d, destination);
+
+  char *const args[4] = {"cp", s, d, NULL};
+
+  int ret = execvp("cp", args);
+  free(s);
+  free(d);
+
+  if(ret != -1)
+    return 0;
+
+  return ret;
+  #endif
+}
