@@ -40,9 +40,17 @@ Full C++ filesystem support and hence full Fortran-filesystem features are avail
 * Intel oneAPI (icx, ifx, icpc, ifort, icl)
 * Flang
 * NVidia HPC SDK (nvc++, nvfortran)
-* AOCC AMD Optimizing Compilers (clang++, flang)
 * Visual Studio (C++) + oneAPI (Fortran)
 * Cray: C++ filesystem: using GCC or Intel backend with cray.cmake toolchain
+
+Fallback C library support gives almost all functions of full C++ filesystem.
+For these compilers, configure with:
+
+```sh
+cmake -Bbuild -Dfallback=yes
+```
+
+* AOCC AMD Optimizing Compilers (clang++, flang)
 * Cray: non-C++ fallback functions: using Cray compilers alone (cc, ftn)
 
 Expected to work with other
