@@ -6,11 +6,7 @@ add_test(NAME C_interface COMMAND test_c_ifc)
 
 # --- C++ interface
 if(cpp)
-add_executable(test_cpp_ifc test_ifc.cpp)
-target_compile_features(test_cpp_ifc PRIVATE cxx_std_17)
-target_link_libraries(test_cpp_ifc PRIVATE filesystem)
-set_property(TARGET test_cpp_ifc PROPERTY LABELS cpp)
-add_test(NAME CPP_interface COMMAND test_cpp_ifc)
+  add_subdirectory(cpp)
 endif()
 
 if(fortran)
@@ -21,13 +17,6 @@ endif()
 
 get_property(test_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
 foreach(t IN LISTS test_targets)
-  get_property(tlbl TARGET ${t} PROPERTY LABELS)
-  if("cpp" IN_LIST tlbl)
-    get_property(tlang TARGET ${t} PROPERTY LINKER_LANGUAGE)
-    message(VERBOSE "link_language: ${tlang} ${t}")
-    continue()
-  endif()
-
   # Intel needs linker_language fortran else error "undefined reference to `main'"
   set_property(TARGET ${t} PROPERTY LINKER_LANGUAGE Fortran)
 endforeach()
