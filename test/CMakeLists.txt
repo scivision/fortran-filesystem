@@ -1,6 +1,7 @@
+set_property(DIRECTORY PROPERTY LABELS cpp)
+
 # --- C  interface
 add_executable(test_c_ifc test_ifc.c)
-set_property(TARGET test_c_ifc PROPERTY LABELS cpp)
 target_link_libraries(test_c_ifc PRIVATE filesystem)
 add_test(NAME C_interface COMMAND test_c_ifc)
 
@@ -14,12 +15,6 @@ if(fortran)
 endif()
 
 # --- props
-
-get_property(test_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
-foreach(t IN LISTS test_targets)
-  # Intel needs linker_language fortran else error "undefined reference to `main'"
-  set_property(TARGET ${t} PROPERTY LINKER_LANGUAGE Fortran)
-endforeach()
 
 get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
 set_property(TEST ${test_names} PROPERTY RUN_SERIAL true)
