@@ -31,7 +31,7 @@ jobs:
 
     strategy:
       matrix:
-        fallback: [true, false]
+        cpp: [true, false]
 
     steps:
     - uses: actions/checkout@v3
@@ -62,7 +62,7 @@ jobs:
 
     - name: Configure CMake
       timeout-minutes: 1
-      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dfallback:BOOL=${{ matrix.fallback }}
+      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dcpp:BOOL=${{ matrix.cpp }}
 
     - name: print config log
       if: ${{ failure() }}

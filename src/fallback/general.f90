@@ -77,7 +77,7 @@ end procedure relative_to
 
 module procedure match
 match = .false.
-write(stderr,*) "ERROR:filesystem:fallback doesn't have match"
+write(stderr,*) "ERROR:filesystem:C-only doesn't have match"
 end procedure
 
 

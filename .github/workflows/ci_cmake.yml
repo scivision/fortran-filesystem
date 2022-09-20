@@ -26,15 +26,15 @@ jobs:
       matrix:
         gcc-version: [8, 9, 10, 11]
         shared: [true, false]
-        fallback: [true, false]
+        cpp: [true, false]
         exclude:
-        - fallback: true
+        - cpp: false
           shared: true
         - gcc-version: 8
           shared: true
         include:
         - gcc-version: 7
-          fallback: true
+          cpp: false
           shared: false
 
     env:
@@ -50,8 +50,8 @@ jobs:
         sudo apt update
         sudo apt install ninja-build gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }} gfortran-${{ matrix.gcc-version }}
 
-    - name: config fallback=${{ matrix.fallback }} shared=${{ matrix.shared }}
-      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dfallback:BOOL=${{ matrix.fallback }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+    - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
+      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dcpp:BOOL=${{ matrix.cpp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug -V
@@ -80,11 +80,11 @@ jobs:
       matrix:
         clang-version: ["6.0", 7, 8, 9, 10]
         shared: [true, false]
-        fallback: [true, false]
+        cpp: [true, false]
         exclude:
-        - fallback: false
+        - cpp: true
           clang-version: "6.0"
-        - fallback: true
+        - cpp: false
           shared: true
 
     env:
@@ -100,8 +100,8 @@ jobs:
         sudo apt update
         sudo apt install ninja-build clang-${{ matrix.clang-version }}
 
-    - name: config fallback=${{ matrix.fallback }} shared=${{ matrix.shared }}
-      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dfallback:BOOL=${{ matrix.fallback }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+    - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
+      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dcpp:BOOL=${{ matrix.cpp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug -V
@@ -178,10 +178,10 @@ jobs:
       matrix:
         compiler: [ {cpp: g++-11, c: gcc-11}, {cpp: clang++, c: clang} ]
         shared: [true, false]
-        fallback: [true, false]
+        cpp: [true, false]
         exclude:
         - shared: true
-          fallback: true
+          cpp: false
         - shared: true
           compiler: {cpp: g++-11, c: gcc-11}
 
@@ -196,8 +196,8 @@ jobs:
         brew install ninja
         brew reinstall gcc
 
-    - name: config fallback=${{ matrix.fallback }} shared=${{ matrix.shared }}
-      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dfallback:BOOL=${{ matrix.fallback }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+    - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
+      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dcpp:BOOL=${{ matrix.cpp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug -V
@@ -226,10 +226,10 @@ jobs:
     strategy:
       matrix:
         shared: [true, false]
-        fallback: [true, false]
+        cpp: [true, false]
         exclude:
         # just saving CI resources
-        - fallback: true
+        - cpp: false
           shared: true
 
     env:
@@ -248,8 +248,8 @@ jobs:
 
     - uses: actions/checkout@v3
 
-    - name: config fallback=${{ matrix.fallback }} shared=${{ matrix.shared }}
-      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dfallback:BOOL=${{ matrix.fallback }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+    - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
+      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dcpp:BOOL=${{ matrix.cpp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - run: cmake --build --preset debug
     - run: ctest --preset debug -V

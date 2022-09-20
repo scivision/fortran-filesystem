@@ -43,15 +43,15 @@ Full C++ filesystem support and hence full Fortran-filesystem features are avail
 * Visual Studio (C++) + oneAPI (Fortran)
 * Cray: C++ filesystem: using GCC or Intel backend with cray.cmake toolchain
 
-Fallback C library support gives almost all functions of full C++ filesystem.
+For systems without C++ filesystem support, we provide a C-only library that gives almost all functions of full C++ filesystem.
 For these compilers, configure with:
 
 ```sh
-cmake -Bbuild -Dfallback=yes
+cmake -Bbuild -Dcpp=no
 ```
 
 * AOCC AMD Optimizing Compilers (clang++, flang)
-* Cray: non-C++ fallback functions: using Cray compilers alone (cc, ftn)
+* Cray: using Cray compilers alone (cc, ftn)
 
 Expected to work with other
 [C++17 compilers](https://en.cppreference.com/w/cpp/compiler_support)
@@ -59,21 +59,15 @@ and Fortran 2008 compilers yet to be tested.
 E.g. IBM XL, NAG, et al.
 In particular, the compiler and the libstdc++ must both support filesystem as well as Fortran 2008.
 
-For compilers without functioning C++ filesystem, we provide a fallback set of filesystem features using the C runtime library and our own Fortran routines.
-This fallback is enabled automatically when C++ filesystem is not available when CMake option `-Dfallback_auto=yes` is specified.
-The installed CMake package provides BOOL CMake variable `ffilesystem_fallback` that can be used to check if the fallback routines are enabled.
-To force enable the fallback routines, for example for testing:
+For compilers without functioning C++ filesystem, we provide a subset of filesystem features using the C runtime library and our own Fortran routines.
+The installed CMake package provides BOOL CMake variable `ffilesystem_cpp` that can be used to check if the C++ routines are enabled.
+To force enable the C-only routines, for example for testing:
 
 ```sh
-cmake -B build -Dfallback=on
+cmake -B build -Dcpp=off
 ```
 
-Note: to avoid end users missing features inadvertently, by default the fallback is disabled unless requested or enabled.
-To allow automatic fallback, set:
-
-```sh
-cmake -B build -Dfallback_auto=on
-```
+Note: to avoid end users missing features inadvertently, by default C++ is disabled unless requested or enabled.
 
 ### libstdc++
 
@@ -96,7 +90,7 @@ scl enable gcc-toolset-10 "which g++"
 ```
 
 **Cray PE** works with GCC or Intel backends.
-The Cray compiler itself works with the non-C++ fallback.
+The Cray compiler itself works with the non-C++ filesystem.
 
 ## Build
 
@@ -115,7 +109,7 @@ cmake --build build
 ctest --test-dir build
 ```
 
-Fortran Package Manager (fallback functions):
+Fortran Package Manager (C- and Fortran-only functions):
 
 ```sh
 fpm build

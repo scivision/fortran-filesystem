@@ -6,7 +6,7 @@ include(CheckCXXSourceCompiles)
 
 # check C and Fortran compiler ABI compatibility
 
-if(NOT abi_ok)
+if(fortran AND NOT abi_ok)
   message(CHECK_START "checking that C, C++, and Fortran compilers can link")
   try_compile(abi_ok
   ${CMAKE_CURRENT_BINARY_DIR}/abi_check ${CMAKE_CURRENT_LIST_DIR}/abi_check
@@ -37,12 +37,7 @@ endif()
 unset(CMAKE_REQUIRED_LIBRARIES)
 unset(CMAKE_REQUIRED_DEFINITIONS)
 
-if(fallback)
-
-  unset(HAVE_CXX_FILESYSTEM CACHE)
-
-else()
-
+if(cpp)
   if((CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1.0) OR
       CMAKE_CXX_COMPILER_ID STREQUAL "NVHPC")
     set(CMAKE_REQUIRED_LIBRARIES stdc++fs)
@@ -61,18 +56,16 @@ else()
 
   check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXX_FILESYSTEM)
 
-endif()
-
-if(HAVE_CXX_FILESYSTEM)
-  message(STATUS "C++ filesystem support enabled.")
+  if(HAVE_CXX_FILESYSTEM)
+    message(STATUS "C++ filesystem support enabled.")
+  else()
+    message(FATAL_ERROR "C++ filesystem support is not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+  endif()
 else()
-  message(STATUS "C++ filesystem support is not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}"
-  )
-  set(fallback true)
+  unset(HAVE_CXX_FILESYSTEM CACHE)
 endif()
 
-
-if(NOT fallback)
+if(cpp)
   # some compilers e.g. Cray claim to have filesystem, but their libstdc++ doesn't have it.
   check_cxx_source_compiles([=[
   #if __has_include(<filesystem>)
@@ -92,18 +85,10 @@ if(NOT fallback)
   )
 
   if(NOT HAVE_FILESYSTEM_STDLIB)
-    message(STATUS "C++ compiler has filesystem, but filesystem is missing from libstdc++ ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}
-    Using fallback with limited functionality.")
-    set(fallback true)
+    message(FATAL_ERROR "C++ compiler has filesystem, but filesystem is missing from libstdc++ ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
   endif()
 
 endif()
-
-
-if(fallback AND NOT fallback_auto)
-  message(FATAL_ERROR "filesystem C++ fallback was requested, but not auto-enabled")
-endif()
-
 
 # fixes errors about needing -fPIE
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -150,9 +135,9 @@ add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-maybe-uninitialized>)
 add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-uninitialized>)
 # spurious warning on character(:), allocatable :: C(:)
 
-if(fallback)
+if(NOT cpp)
   add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-unused-dummy-argument>)
-  # spurious warning on fallback for stubs
+  # spurious warning for C stubs
 endif()
 
 endif()

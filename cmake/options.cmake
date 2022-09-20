@@ -1,11 +1,7 @@
 message(STATUS "${PROJECT_NAME} ${PROJECT_VERSION} CMake ${CMAKE_VERSION} Toolchain ${CMAKE_TOOLCHAIN_FILE}")
 
-option(fallback "Don't use C++ filesystem, limited functionality")
-option(fallback_auto "enable ability to fallback (default off to prevent unintended missing features)")
-if(fallback)
-  # user requested, don't force them to set both options
-  set(fallback_auto true)
-endif()
+option(cpp "Use C++ filesystem for full functionality" on)
+option(fortran "use the Fortran interaces to C functions" on)
 
 option(ENABLE_COVERAGE "Code coverage tests")
 option(BUILD_UTILS "Build utils e.g. CLI")

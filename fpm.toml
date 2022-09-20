@@ -16,4 +16,4 @@ source-dir = "src/fallback"
 
 [[test]]
 name = "core"
-main = "test_core.f90"
+main = "fortran/test_core.f90"

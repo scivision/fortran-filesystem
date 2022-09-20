@@ -1,13 +1,17 @@
 cmake_minimum_required(VERSION 3.8...3.25)
 
 project(ffilesystem
-LANGUAGES C CXX Fortran
+LANGUAGES C CXX
 VERSION 3.8.0
 )
 
 include(CTest) # needed for "ctest -T memcheck"
 
 include(cmake/options.cmake)
+if(fortran)
+  enable_language(Fortran)
+endif()
+
 include(cmake/compilers.cmake)
 
 # --- path finding
@@ -24,12 +28,29 @@ endif()
 # --- filesystem library
 
 add_library(filesystem
-src/common.c
-src/get_path.f90 $<TARGET_OBJECTS:get_path>
-src/filesystem.f90 src/iter.f90 src/io.f90 src/find.f90 src/f2c.f90
+src/common.c $<TARGET_OBJECTS:get_path>
 )
 
-if(fallback)
+if(fortran)
+  target_sources(filesystem PRIVATE
+  src/get_path.f90
+  src/filesystem.f90 src/iter.f90 src/io.f90 src/find.f90 src/f2c.f90
+  )
+endif()
+
+if(cpp)
+  add_library(filesystem_cpp OBJECT src/filesystem.cpp)
+  target_include_directories(filesystem_cpp PRIVATE ${PROJECT_SOURCE_DIR}/include)
+  target_compile_features(filesystem_cpp PRIVATE cxx_std_17)
+  target_compile_definitions(filesystem_cpp PRIVATE
+  $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
+  )
+
+  target_sources(filesystem PRIVATE
+  $<$<BOOL:${fortran}>:src/fs_cpp.f90>
+  $<TARGET_OBJECTS:filesystem_cpp>
+  )
+else()
   add_library(filesystem_c OBJECT src/fallback/filesystem.c)
   target_include_directories(filesystem_c PRIVATE ${PROJECT_SOURCE_DIR}/include)
   target_compile_definitions(filesystem_c PRIVATE
@@ -38,16 +59,10 @@ if(fallback)
   target_compile_features(filesystem_c PRIVATE c_std_99)
   target_compile_definitions(filesystem_c PRIVATE _GNU_SOURCE)
 
-  target_sources(filesystem PRIVATE src/fallback/general.f90 $<TARGET_OBJECTS:filesystem_c>)
-else()
-  add_library(filesystem_cpp OBJECT src/filesystem.cpp)
-  target_include_directories(filesystem_cpp PRIVATE ${PROJECT_SOURCE_DIR}/include)
-  target_compile_features(filesystem_cpp PRIVATE cxx_std_17)
-  target_compile_definitions(filesystem_cpp PRIVATE
-  $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
+  target_sources(filesystem PRIVATE
+  $<$<BOOL:${fortran}>:src/fallback/general.f90>
+  $<TARGET_OBJECTS:filesystem_c>
   )
-
-  target_sources(filesystem PRIVATE src/fs_cpp.f90 $<TARGET_OBJECTS:filesystem_cpp>)
 endif()
 
 set_property(TARGET filesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
@@ -66,7 +81,9 @@ ${CMAKE_REQUIRED_LIBRARIES}
 $<$<BOOL:${HAVE_DLADDR}>:${CMAKE_DL_LIBS}>
 )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+if(fortran)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif()
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/filesystem.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(TARGETS filesystem EXPORT ${PROJECT_NAME}-targets
@@ -88,7 +105,7 @@ endif()
 
 # --- CLI
 
-if(BUILD_UTILS)
+if(fortran AND BUILD_UTILS)
   add_executable(filesystem_cli app/main.f90)
   target_link_libraries(filesystem_cli PRIVATE filesystem)
   set_property(TARGET filesystem_cli PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
