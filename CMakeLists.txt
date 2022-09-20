@@ -1,13 +1,16 @@
 cmake_minimum_required(VERSION 3.8...3.25)
 
 project(ffilesystem
-LANGUAGES C CXX
+LANGUAGES C
 VERSION 3.8.0
 )
 
 include(CTest) # needed for "ctest -T memcheck"
 
 include(cmake/options.cmake)
+if(cpp)
+  enable_language(CXX)
+endif()
 if(fortran)
   enable_language(Fortran)
 endif()

@@ -6,7 +6,7 @@ include(CheckCXXSourceCompiles)
 
 # check C and Fortran compiler ABI compatibility
 
-if(fortran AND NOT abi_ok)
+if(cpp AND fortran AND NOT abi_ok)
   message(CHECK_START "checking that C, C++, and Fortran compilers can link")
   try_compile(abi_ok
   ${CMAKE_CURRENT_BINARY_DIR}/abi_check ${CMAKE_CURRENT_LIST_DIR}/abi_check

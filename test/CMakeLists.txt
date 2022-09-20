@@ -1,14 +1,17 @@
-# --- C / C++ interface
+# --- C  interface
+add_executable(test_c_ifc test_ifc.c)
+set_property(TARGET test_c_ifc PROPERTY LABELS cpp)
+target_link_libraries(test_c_ifc PRIVATE filesystem)
+add_test(NAME C_interface COMMAND test_c_ifc)
+
+# --- C++ interface
+if(cpp)
 add_executable(test_cpp_ifc test_ifc.cpp)
 target_compile_features(test_cpp_ifc PRIVATE cxx_std_17)
 target_link_libraries(test_cpp_ifc PRIVATE filesystem)
 set_property(TARGET test_cpp_ifc PROPERTY LABELS cpp)
 add_test(NAME CPP_interface COMMAND test_cpp_ifc)
-
-add_executable(test_c_ifc test_ifc.c)
-set_property(TARGET test_c_ifc PROPERTY LABELS cpp)
-target_link_libraries(test_c_ifc PRIVATE filesystem)
-add_test(NAME C_interface COMMAND test_c_ifc)
+endif()
 
 if(fortran)
   add_subdirectory(fortran)
