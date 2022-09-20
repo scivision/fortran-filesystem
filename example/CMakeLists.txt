@@ -35,11 +35,8 @@ get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
 set_property(TEST ${test_names} PROPERTY TIMEOUT 10)
 
 # --- Windows shared DLLs
-if(WIN32 AND BUILD_SHARED_LIBS)
-  add_custom_command(TARGET ex_fortran POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:ex_fortran> $<TARGET_FILE_DIR:ex_fortran>
-  COMMAND_EXPAND_LISTS
-  )
+if(WIN32 AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
+  set_property(TEST ${test_names} PROPERTY ENVIRONMENT_MODIFICATION PATH=path_list_append:${PROJECT_BINARY_DIR})
 endif()
 
 # --- auto-ignore build directory
