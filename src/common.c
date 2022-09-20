@@ -1,34 +1,39 @@
 #include "filesystem.h"
 
-bool is_macos(){
-#if __APPLE__
+#ifdef __APPLE__
 #include "TargetConditionals.h"
+#endif
+
+bool is_macos(){
 #if TARGET_OS_MAC
   return true;
+#else
+  return false;
 #endif
-#endif
-return false;
 }
 
 bool is_linux() {
 #ifdef __linux__
   return true;
+#else
+  return false;
 #endif
-return false;
 }
 
 bool is_unix() {
 #ifdef __unix__
   return true;
+#else
+  return false;
 #endif
-return false;
 }
 
 bool is_windows() {
 #ifdef _WIN32
   return true;
+#else
+  return false;
 #endif
-return false;
 }
 
 bool sys_posix() {
