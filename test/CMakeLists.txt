@@ -6,7 +6,7 @@ target_link_libraries(test_c_ifc PRIVATE filesystem)
 add_test(NAME C_interface COMMAND test_c_ifc)
 
 # --- C++ interface
-if(cpp)
+if(HAVE_CXX_FILESYSTEM)
   add_subdirectory(cpp)
 endif()
 
@@ -23,11 +23,11 @@ set_property(TEST ${test_names} PROPERTY TIMEOUT 15)
 
 # --- coverage
 
-if(ENABLE_COVERAGE)
-setup_target_for_coverage_gcovr_html(
-NAME coverage
-EXECUTABLE ${CMAKE_CTEST_COMMAND}
-)
+if(coverage)
+  setup_target_for_coverage_gcovr_html(
+  NAME coverage
+  EXECUTABLE ${CMAKE_CTEST_COMMAND}
+  )
 endif()
 
 # --- Windows shared DLLs

@@ -40,18 +40,15 @@ Full C++ filesystem support and hence full Fortran-filesystem features are avail
 * Intel oneAPI (icx, ifx, icpc, ifort, icl)
 * Flang
 * NVidia HPC SDK (nvc++, nvfortran)
-* Visual Studio (C++) + oneAPI (Fortran)
-* Cray: C++ filesystem: using GCC or Intel backend with cray.cmake toolchain
+* Visual Studio (C/C++) + oneAPI (Fortran)
+* Cray: using Cray compilers alone (cc, CC, ftn) or using GCC or Intel backend
 
 For systems without C++ filesystem support, we provide a C-only library that gives almost all functions of full C++ filesystem.
-For these compilers, configure with:
+C++ can be disabled (using C-only library) by:
 
 ```sh
 cmake -Bbuild -Dcpp=no
 ```
-
-* AOCC AMD Optimizing Compilers (clang++, flang)
-* Cray: using Cray compilers alone (cc, ftn)
 
 Expected to work with other
 [C++17 compilers](https://en.cppreference.com/w/cpp/compiler_support)
@@ -96,7 +93,7 @@ The Cray compiler itself works with the non-C++ filesystem.
 
 Fortran-filesystem can be built with CMake or Fortran Package Manager (FPM).
 
-[lib]filesystem.a is the library binary built that contains the Fortran "filesystem" module--it is the only binary you need to use in your project.
+`[lib]filesystem.a` is the library binary built that contains the Fortran "filesystem" module--it is the only binary you need to use in your project.
 
 Please see the [API docs](./API.md) for extensive list of functions/subroutines.
 
@@ -115,15 +112,7 @@ Fortran Package Manager (C- and Fortran-only functions):
 fpm build
 ```
 
-## Command line
-
 For user convenience, we provide a demo executable "filesystem_cli" that allows simple testing of what the filesystem routines do.
-To build the filesystem_cli utility:
-
-```sh
-cmake -B build -DBUILD_UTILS=on
-cmake --build build
-```
 
 ## Usage from other projects
 

@@ -8,6 +8,8 @@ enable_testing()
 
 find_package(ffilesystem CONFIG REQUIRED)
 
+set(CMAKE_CXX_STANDARD 17)
+
 # --- Fortran use of our custom C++ functions
 add_executable(ex_fortran ex1.f90)
 target_link_libraries(ex_fortran PRIVATE ffilesystem::filesystem)
@@ -18,7 +20,6 @@ add_test(NAME ExFortran COMMAND ex_fortran)
 if(filesystem_cpp)
   # --- C++ use of our custom C++ functions
   add_executable(ex_cpp ex2.cpp)
-  target_compile_features(ex_cpp PRIVATE cxx_std_17)
   target_link_libraries(ex_cpp PRIVATE ffilesystem::filesystem)
 
   add_test(NAME ExCpp COMMAND ex_cpp)

@@ -2,10 +2,8 @@
 
 include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake)
 
-set(ffilesystem_fallback @fallback@)
+set(ffilesystem_cpp @HAVE_CXX_FILESYSTEM@)
 
-target_link_libraries(ffilesystem::filesystem INTERFACE
-$<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:${CMAKE_CXX_COMPILER_VERSION},9.1.0>>:stdc++fs>
-)
+target_link_libraries(ffilesystem::filesystem INTERFACE @NEED_stdfs@)
 
 check_required_components(@PROJECT_NAME@)

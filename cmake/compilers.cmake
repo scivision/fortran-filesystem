@@ -2,9 +2,9 @@ include(CheckFunctionExists)
 include(CheckCXXSymbolExists)
 include(CheckCXXSourceCompiles)
 
-# --- abi check
+include(${CMAKE_CURRENT_LIST_DIR}/CppCheck.cmake)
 
-# check C and Fortran compiler ABI compatibility
+# --- abi check: C++ and Fortran compiler ABI compatibility
 
 if(cpp AND fortran AND NOT abi_ok)
   message(CHECK_START "checking that C, C++, and Fortran compilers can link")
@@ -26,6 +26,29 @@ if(cpp AND fortran AND NOT abi_ok)
   endif()
 endif()
 
+# --- some compilers require these manual settings
+unset(CMAKE_REQUIRED_LIBRARIES)
+unset(CMAKE_REQUIRED_DEFINITIONS)
+
+if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "9.1.0") OR
+    CMAKE_C_COMPILER_ID STREQUAL "NVHPC")
+  set(NEED_stdfs stdc++fs)
+  set(CMAKE_REQUIRED_LIBRARIES ${NEED_stdfs})
+  message(STATUS "adding library ${NEED_stdfs} for ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPLIER_VERSION}")
+endif()
+
+if(MSVC)
+  set(CMAKE_REQUIRED_FLAGS /std:c++17)
+else()
+  set(CMAKE_REQUIRED_FLAGS -std=c++17)
+endif()
+
+if(cpp)
+  cpp_check()
+else()
+  unset(HAVE_CXX_FILESYSTEM CACHE)
+endif()
+
 #--- is dladdr available for lib_path() optional function
 if(NOT WIN32)
   set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
@@ -33,69 +56,12 @@ if(NOT WIN32)
   check_function_exists(dladdr HAVE_DLADDR)
 endif()
 
-#--- setup / check C++ filesystem
-unset(CMAKE_REQUIRED_LIBRARIES)
-unset(CMAKE_REQUIRED_DEFINITIONS)
-
-if(cpp)
-  if((CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1.0) OR
-      CMAKE_CXX_COMPILER_ID STREQUAL "NVHPC")
-    set(CMAKE_REQUIRED_LIBRARIES stdc++fs)
-  endif()
-
-  if(MSVC)
-    set(CMAKE_REQUIRED_FLAGS /std:c++17)
-  else()
-    set(CMAKE_REQUIRED_FLAGS -std=c++17)
-  endif()
-
-  check_cxx_symbol_exists(__has_include "" HAVE_INCLUDE_MACRO)
-  if(NOT HAVE_INCLUDE_MACRO)
-    message(FATAL_ERROR "C++ compiler not C++17 capable ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-  endif()
-
-  check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_CXX_FILESYSTEM)
-
-  if(HAVE_CXX_FILESYSTEM)
-    message(STATUS "C++ filesystem support enabled.")
-  else()
-    message(FATAL_ERROR "C++ filesystem support is not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-  endif()
-else()
-  unset(HAVE_CXX_FILESYSTEM CACHE)
-endif()
-
-if(cpp)
-  # some compilers e.g. Cray claim to have filesystem, but their libstdc++ doesn't have it.
-  check_cxx_source_compiles([=[
-  #if __has_include(<filesystem>)
-  #include <filesystem>
-  namespace fs = std::filesystem;
-  #else
-  #error "No C++ filesystem support"
-  #endif
-
-  int main () {
-  fs::path tgt(".");
-  auto h = tgt.has_filename();
-  return EXIT_SUCCESS;
-  }
-  ]=]
-  HAVE_FILESYSTEM_STDLIB
-  )
-
-  if(NOT HAVE_FILESYSTEM_STDLIB)
-    message(FATAL_ERROR "C++ compiler has filesystem, but filesystem is missing from libstdc++ ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-  endif()
-
-endif()
-
 # fixes errors about needing -fPIE
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CMAKE_POSITION_INDEPENDENT_CODE true)
 endif()
 
-# --- flags
+# --- compile flags
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration>
@@ -143,8 +109,8 @@ endif()
 endif()
 
 # --- code coverage
-if(ENABLE_COVERAGE)
-include(CodeCoverage)
-append_coverage_compiler_flags()
-set(COVERAGE_EXCLUDES ${PROJECT_SOURCE_DIR}/src/tests)
+if(coverage)
+  include(CodeCoverage)
+  append_coverage_compiler_flags()
+  set(COVERAGE_EXCLUDES ${PROJECT_SOURCE_DIR}/src/tests)
 endif()

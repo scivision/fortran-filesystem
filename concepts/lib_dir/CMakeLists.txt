@@ -8,6 +8,8 @@ project(concept_libdir LANGUAGES C Fortran)
 include(CheckFunctionExists)
 include(GNUInstallDirs)
 
+set(CMAKE_C_STANDARD 99)
+
 # Necessary for shared library with Visual Studio / Windows oneAPI -- creates .lib file to acommpany .dll
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS true)
 
@@ -31,7 +33,6 @@ if(NOT WIN32)
 endif()
 
 add_library(mylib SHARED lib.c)
-target_compile_features(mylib PRIVATE c_std_99)
 if(WIN32)
   target_compile_definitions(mylib PRIVATE MY_DLL_NAME="$<TARGET_FILE_NAME:mylib>")
 else()

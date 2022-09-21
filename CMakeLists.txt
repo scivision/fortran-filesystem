@@ -7,6 +7,9 @@ VERSION 3.8.0
 
 include(CTest) # needed for "ctest -T memcheck"
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 99)
+
 include(cmake/options.cmake)
 if(cpp)
   enable_language(CXX)
@@ -20,7 +23,6 @@ include(cmake/compilers.cmake)
 # --- path finding
 add_library(get_path OBJECT src/get_path.c)
 target_include_directories(get_path PRIVATE include)
-target_compile_features(get_path PRIVATE c_std_99)
 target_compile_definitions(get_path PRIVATE _GNU_SOURCE)
 if(WIN32)
   target_compile_definitions(get_path PRIVATE FS_DLL_NAME="$<TARGET_FILE_NAME:filesystem>")
@@ -34,9 +36,7 @@ endif()
 add_library(filesystem
 src/common.c $<TARGET_OBJECTS:get_path>
 )
-target_compile_definitions(filesystem PRIVATE
-$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
-)
+target_compile_definitions(filesystem PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
 
 if(fortran)
   target_sources(filesystem PRIVATE
@@ -45,10 +45,9 @@ if(fortran)
   )
 endif()
 
-if(cpp)
+if(HAVE_CXX_FILESYSTEM)
   add_library(filesystem_cpp OBJECT src/filesystem.cpp)
   target_include_directories(filesystem_cpp PRIVATE ${PROJECT_SOURCE_DIR}/include)
-  target_compile_features(filesystem_cpp PRIVATE cxx_std_17)
   target_compile_definitions(filesystem_cpp PRIVATE
   $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
   )
@@ -64,7 +63,6 @@ else()
   $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
   _GNU_SOURCE
   )
-  target_compile_features(filesystem_c PRIVATE c_std_99)
 
   target_sources(filesystem PRIVATE
   $<$<BOOL:${fortran}>:src/fallback/general.f90>
@@ -84,7 +82,7 @@ $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(filesystem INTERFACE
-${CMAKE_REQUIRED_LIBRARIES}
+${NEED_stdfs}
 $<$<BOOL:${HAVE_DLADDR}>:${CMAKE_DL_LIBS}>
 )
 
@@ -112,9 +110,10 @@ endif()
 
 # --- CLI
 
-if(BUILD_UTILS)
+if(cli)
   add_executable(fs_cli app/main.c)
   target_compile_definitions(fs_cli PRIVATE "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>")
+  target_link_libraries(fs_cli PRIVATE filesystem)
 
   if(fortran)
   add_executable(filesystem_cli app/main.f90)

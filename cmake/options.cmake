@@ -2,9 +2,9 @@ message(STATUS "${PROJECT_NAME} ${PROJECT_VERSION} CMake ${CMAKE_VERSION} Toolch
 
 option(cpp "Use C++ filesystem for full functionality" on)
 option(fortran "use the Fortran interaces to C functions" on)
+option(cli "Build CLI" on)
 
-option(ENABLE_COVERAGE "Code coverage tests")
-option(BUILD_UTILS "Build utils e.g. CLI")
+option(coverage "Code coverage tests")
 
 
 include(GNUInstallDirs)
