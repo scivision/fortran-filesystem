@@ -225,12 +225,9 @@ jobs:
 
     strategy:
       matrix:
-        shared: [true, false]
+        shared: [false]
         cpp: [true, false]
-        exclude:
-        # just saving CI resources
-        - cpp: false
-          shared: true
+      # github actions generally broken for shared lib, even when exe in cwd
 
     env:
       CMAKE_GENERATOR: Ninja
