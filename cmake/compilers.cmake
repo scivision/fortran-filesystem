@@ -1,5 +1,6 @@
 include(CheckFunctionExists)
 include(CheckCXXSymbolExists)
+include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 
 # --- abi check
@@ -31,6 +32,21 @@ if(NOT WIN32)
   set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
   set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
   check_function_exists(dladdr HAVE_DLADDR)
+endif()
+
+#--- is __attribute__((constructor)) available for Windows DLL loading
+if(WIN32)
+check_c_source_compiles("
+void con(void) __attribute__((constructor));
+void des(void) __attribute__((destructor));
+
+void con(void){};
+void des(void){};
+
+int main(void) {return 0;}
+"
+HAVE_ATTR_CONSTRUCTOR
+)
 endif()
 
 #--- setup / check C++ filesystem
@@ -97,16 +113,16 @@ endif()
 
 # --- flags
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration>
   )
   # "$<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-fsanitize=address>"
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "(Clang|Intel)")
+elseif(CMAKE_C_COMPILER_ID MATCHES "(Clang|Intel)")
   add_compile_options(
   "$<$<COMPILE_LANGUAGE:C,CXX>:-Wall;-Wextra>"
   "$<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration>"
   )
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
   add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/W3>")
 endif()
 

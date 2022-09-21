@@ -7,7 +7,7 @@ use filesystem
 
 implicit none
 
-integer :: i, argc
+integer :: i, L, argc
 character(1000) :: buf, buf2
 character(16) :: fcn
 
@@ -15,8 +15,8 @@ argc = command_argument_count()
 
 if (argc < 1) error stop "usage: ./filesystem_cli <function> [<path> ...]"
 
-call get_command_argument(1, fcn, status=i)
-if (i /= 0) error stop "invalid function name: " // trim(fcn)
+call get_command_argument(1, fcn, length=L, status=i)
+if (L == 0 .or. i /= 0) error stop "invalid function name: " // trim(fcn)
 
 select case (fcn)
 case ("get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos", &
