@@ -9,12 +9,6 @@ import
 character(kind=c_char), intent(in) :: path, pattern
 end function
 
-integer(C_SIZE_T) function cfs_relative_to(path, base, result) bind(C, name="relative_to")
-import
-character(kind=c_char), intent(in) :: path(*), base(*)
-character(kind=c_char), intent(out) :: result(*)
-end function
-
 integer(C_SIZE_T) function cfs_with_suffix(path, new_suffix, swapped) bind(C, name="with_suffix")
 import
 character(kind=C_CHAR), intent(in) :: path(*), new_suffix
@@ -29,19 +23,6 @@ contains
 module procedure match
 match = cfs_match(trim(path) // C_NULL_CHAR, trim(pattern) // C_NULL_CHAR)
 end procedure
-
-module procedure relative_to
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-
-allocate(character(max_path()) :: cbuf)
-
-N = cfs_relative_to(trim(a) // C_NULL_CHAR, trim(b) // C_NULL_CHAR, cbuf)
-
-allocate(character(N) :: relative_to)
-relative_to = cbuf(:N)
-
-end procedure relative_to
 
 module procedure with_suffix
 character(kind=c_char, len=:), allocatable :: cbuf

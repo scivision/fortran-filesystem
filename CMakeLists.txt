@@ -41,7 +41,7 @@ target_compile_definitions(filesystem PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_W
 if(fortran)
   target_sources(filesystem PRIVATE
   src/get_path.f90
-  src/filesystem.f90 src/iter.f90 src/io.f90 src/find.f90 src/f2c.f90
+  src/filesystem.f90 src/io.f90 src/find.f90 src/f2c.f90
   )
 endif()
 
@@ -81,9 +81,12 @@ $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
 $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-target_link_libraries(filesystem INTERFACE
+target_link_libraries(filesystem
+INTERFACE
 ${NEED_stdfs}
 $<$<BOOL:${HAVE_DLADDR}>:${CMAKE_DL_LIBS}>
+PRIVATE
+$<$<BOOL:${WIN32}>:Shlwapi>
 )
 
 if(fortran)

@@ -133,6 +133,12 @@ character(kind=C_CHAR), intent(in) :: path(*)
 character(kind=C_CHAR), intent(out) :: fparent(*)
 end function
 
+integer(C_SIZE_T) function cfs_relative_to(path, base, result) bind(C, name="relative_to")
+import
+character(kind=c_char), intent(in) :: path(*), base(*)
+character(kind=c_char), intent(out) :: result(*)
+end function
+
 integer(C_SIZE_T) function cfs_root(path, result) bind(C, name="root")
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -329,6 +335,15 @@ allocate(character(max_path()) :: cbuf)
 N = cfs_normal(trim(path) // C_NULL_CHAR, cbuf)
 allocate(character(N) :: normal)
 normal = cbuf(:N)
+end procedure
+
+module procedure relative_to
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = cfs_relative_to(trim(a) // C_NULL_CHAR, trim(b) // C_NULL_CHAR, cbuf)
+allocate(character(N) :: relative_to)
+relative_to = cbuf(:N)
 end procedure
 
 module procedure remove

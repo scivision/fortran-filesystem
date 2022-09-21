@@ -10,10 +10,11 @@ integer :: i
 
 type(path_t) :: p1, p2, p3
 
-p1 = path_t("")
-p2 = path_t("~")
+if(expanduser("") /= "") error stop "expanduser blank failed"
+if(expanduser(".") /= ".") error stop "expanduser dot failed: " // expanduser(".")
 
-p1 = p1%expanduser()
+
+p2 = path_t("~")
 p2 = p2%expanduser()
 
 if(expanduser("~") /= p2%path()) then
@@ -22,7 +23,6 @@ if(expanduser("~") /= p2%path()) then
    error stop
 endif
 
-if(p1%path() /= "") error stop "expanduser blank failed"
 p3 = path_t(p2%path())
 p3 = p3%expanduser()
 if (p3%path() /= p2%path()) error stop "expanduser idempotent failed"

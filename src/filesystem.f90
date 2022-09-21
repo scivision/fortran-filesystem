@@ -13,7 +13,7 @@ is_symlink, &
 exists, match, &
 join, &
 copy_file, mkdir, &
-file_parts, relative_to, root, same_file, file_size, &
+relative_to, root, same_file, file_size, &
 file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
 get_filename, make_absolute, &
@@ -45,7 +45,6 @@ contains
 procedure, public :: path=>get_path
 procedure, public :: length
 procedure, public :: join=>fs_join
-procedure, public :: parts=>fs_parts
 procedure, public :: relative_to=>fs_relative_to
 procedure, public :: normal=>fs_normal
 procedure, public :: exists=>fs_exists
@@ -133,14 +132,6 @@ module function with_suffix(path, new)
 character(*), intent(in) :: path,new
 character(:), allocatable :: with_suffix
 end function
-
-module subroutine file_parts(path, fparts)
-!! split path into up to 1000 parts (arbitrary limit)
-!! all path separators are discarded, except the leftmost if present
-character(*), intent(in) :: path
-character(:), allocatable, intent(out) :: fparts(:)
-!! allocatable, intent(out) because we do want to implicitly deallocate first
-end subroutine
 
 module logical function same_file(path1, path2)
 character(*), intent(in) :: path1, path2
@@ -635,16 +626,6 @@ if (is_dir(path)) return
 
 error stop 'filesystem:assert_is_dir: directory does not exist ' // path
 end subroutine assert_is_dir
-
-
-function fs_parts(self)
-!! split path into up to 1000 parts (arbitrary limit)
-!! all path separators are discarded, except the leftmost if present
-class(path_t), intent(in) :: self
-character(:), allocatable :: fs_parts(:)
-
-call file_parts(self%path_str, fparts=fs_parts)
-end function fs_parts
 
 
 subroutine fs_touch(self)

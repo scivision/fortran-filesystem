@@ -309,26 +309,7 @@ call chmod_not_exe("my/file.exe")
 
 These procedures emit a string.
 
-Split path_t into path components.
-Path separators are discarded.
-`file_parts()` is a subroutine because GCC < 9 was buggy with `character(:), allocatable, dimension(:)` functions.
-The functional method %parts() was OK at least to GCC >= 7.5.
-
-```fortran
-character(:), allocatable :: pts
-
-p = path_t("/a1/b23/c456/")
-
-pts = p%parts()
-
-! pts == [character(4) :: "a1", "b23", "c456"]
-
-! OR
-
-call file_parts("/a1/b23/c456/", pts)
-
-! pts == [character(4) :: "a1", "b23", "c456"]
-```
+---
 
 Join path_t with other path string using posix separators.
 The paths are treated like strings.
@@ -337,6 +318,8 @@ No path resolution is used, so non-sensical paths are possible for non-sensical 
 ```fortran
 join("a/b", "c/d") ! "a/b/c/d"
 ```
+
+---
 
 Get file suffix: extracts path suffix, including the final "." dot
 

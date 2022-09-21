@@ -1,5 +1,6 @@
 program test_filesystem
 
+use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
 is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep, parent, &
 assert_is_dir, normal
@@ -112,7 +113,10 @@ if(file_name("file_name") /= "file_name") error stop "file_name leading dot file
 if(file_name("./file_name") /= "file_name") error stop "file_name leading dot filename cwd: " // file_name("./file_name")
 if(file_name("file_name.txt") /= "file_name.txt") error stop "file_name leading dot filename w/ext"
 if(file_name("./file_name.txt") /= "file_name.txt") error stop "file_name leading dot filename w/ext and cwd"
-if(file_name("../file_name.txt") /= "file_name.txt") error stop "file_name leading dot filename w/ext up"
+if(file_name("../file_name.txt") /= "file_name.txt") then
+  write(stderr, *) "file_name leading dot filename w/ext up ", file_name("../file_name.txt")
+  error stop
+endif
 
 end subroutine test_filename
 
@@ -157,7 +161,10 @@ if(stem(".stem") /= ".stem") error stop "stem leading dot filename idempotent: "
 if(stem("./.stem") /= ".stem") error stop "stem leading dot filename cwd: " // stem("./.stem")
 if(stem(".stem.txt") /= ".stem") error stop "stem leading dot filename w/ext"
 if(stem("./.stem.txt") /= ".stem") error stop "stem leading dot filename w/ext and cwd"
-if(stem("../.stem.txt") /= ".stem") error stop "stem leading dot filename w/ext up"
+if(stem("../.stem.txt") /= ".stem") then
+  write(stderr,*) "stem leading dot filename w/ext up ", stem("../.stem.txt")
+  error stop
+endif
 
 end subroutine test_stem
 
@@ -170,16 +177,22 @@ type(path_t) :: p1, p2
 if(parent("") /= ".") error stop "parent empty: " // parent("")
 
 p1 = path_t("a/b/c")
-if (p1%parent() /= "a/b") error stop "parent failed" // p1%path()
+if (p1%parent() /= "a/b") then
+  write(stderr,*) "parent failed: ", p1%parent()
+  error stop
+endif
 p2 = path_t(p1%parent())
-if (p2%parent() /= "a") error stop "parent nest failed" // p1%path()
+if (p2%parent() /= "a") error stop "parent nest failed" // p2%parent()
 p2 = path_t("a")
-if (p2%parent() /= ".") error stop "parent idempotent failed. Expected '.', but got: " // p2%path()
+if (p2%parent() /= ".") error stop "parent idempotent failed. Expected '.', but got: " // p2%parent()
 
-if(parent("./.parent") /= ".") error stop "parent leading dot filename cwd"
+if(parent("./.parent") /= ".") error stop "parent leading dot filename cwd: " // parent("./.parent")
 if(parent(".parent.txt") /= ".") error stop "parent leading dot filename w/ext"
 if(parent("./.parent.txt") /= ".") error stop "parent leading dot filename w/ext and cwd"
-if(parent("../../.parent.txt") /= "../..") error stop "parent leading dot filename w/ext up"
+if(parent("a/b/../.parent.txt") /= "a") then
+  write(stderr,*) "parent leading dot filename w/ext up ",  parent("a/b/../.parent.txt")
+  error stop
+endif
 
 end subroutine test_parent
 

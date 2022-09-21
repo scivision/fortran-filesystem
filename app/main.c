@@ -14,12 +14,16 @@ int main(int argc, char* argv[]){
       return EXIT_FAILURE;
   }
   else if (strcmp(argv[1], "homedir") == 0) {
-    get_homedir(p);
-    printf("%s\n", p);
+    if(get_homedir(p))
+      printf("%s\n", p);
+  }
+  else if (strcmp(argv[1], "tempdir") == 0) {
+    if(get_tempdir(p))
+      printf("%s\n", p);
   }
   else if (strcmp(argv[1], "lib_path") == 0){
-    lib_path(p);
-    printf("%s\n", p);
+    if(lib_path(p))
+      printf("%s\n", p);
   }
   else if (strcmp(argv[1], "is_linux") ==0){
     printf("%d\n", is_linux());
@@ -42,11 +46,22 @@ int main(int argc, char* argv[]){
   else if (strcmp(argv[1], "is_dir") ==0 && argc == 3){
     printf("%d\n", is_dir(argv[2]));
   }
+  else if (strcmp(argv[1], "is_exe") ==0 && argc == 3){
+    printf("%d\n", is_exe(argv[2]));
+  }
   else if (strcmp(argv[1], "is_file") ==0 && argc == 3){
     printf("%d\n", is_file(argv[2]));
   }
   else if (strcmp(argv[1], "is_symlink") ==0 && argc == 3){
     printf("%d\n", is_symlink(argv[2]));
+  }
+  else if (strcmp(argv[1], "relative_to") ==0 && argc == 4){
+    if(relative_to(argv[2], argv[3], p))
+      printf("%s\n", p);
+  }
+  else if (strcmp(argv[1], "normal") ==0 && argc==3){
+    if(normal(argv[2], p))
+      printf("%s\n", p);
   }
   else{
     fprintf(stderr, "fs_cli <function_name> [<arg1> ...]");

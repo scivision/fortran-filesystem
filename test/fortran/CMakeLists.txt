@@ -12,12 +12,13 @@ target_link_libraries(test_env PRIVATE filesystem)
 add_test(NAME environment COMMAND test_env)
 
 # --- relative_to
-add_executable(test_relative_to test_cpp_relative.f90)
+add_executable(test_relative_to test_relative.f90)
 target_link_libraries(test_relative_to PRIVATE filesystem)
 add_test(NAME relative_to COMMAND test_relative_to)
-set_property(TEST relative_to PROPERTY DISABLED $<NOT:$<BOOL:${cpp}>>)
 if(HAVE_CXX_FILESYSTEM)
   set_property(TEST relative_to PROPERTY PASS_REGULAR_EXPRESSION "OK: relative_to full")
+elseif(NOT WIN32)
+  set_property(TEST relative_to PROPERTY DISABLED true)
 endif()
 
 # --- regex
@@ -25,11 +26,6 @@ add_executable(test_match test_match.f90)
 target_link_libraries(test_match PRIVATE filesystem)
 add_test(NAME match COMMAND test_match)
 set_property(TEST match PROPERTY DISABLED $<NOT:$<BOOL:${cpp}>>)
-
-# --- file parts
-add_executable(test_filesystem_parts test_parts.f90)
-target_link_libraries(test_filesystem_parts PRIVATE filesystem)
-add_test(NAME FileParts COMMAND test_filesystem_parts)
 
 # --- expanduser
 add_executable(test_expanduser test_expanduser.f90)
@@ -40,6 +36,11 @@ add_test(NAME Expanduser COMMAND test_expanduser)
 add_executable(test_symlink test_symlink.f90)
 target_link_libraries(test_symlink PRIVATE filesystem)
 add_test(NAME symlink COMMAND test_symlink)
+
+# --- same file
+add_executable(test_same test_same.f90)
+target_link_libraries(test_same PRIVATE filesystem)
+add_test(NAME same COMMAND test_same)
 
 # --- canonical
 add_executable(test_canonical test_canonical.f90)

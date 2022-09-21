@@ -76,8 +76,10 @@ size_t stem(const char* path, char* fstem) {
 size_t parent(const char* path, char* fparent) {
   fs::path p(path);
 
+  p = p.lexically_normal();
+
   if(p.has_parent_path()){
-    std::strcpy(fparent, p.parent_path().string().c_str());
+    normal(p.parent_path().string().c_str(), fparent);
   }
   else{
     std::strcpy(fparent, ".");
@@ -394,24 +396,24 @@ int copy_file(const char* source, const char* destination, bool overwrite) {
 }
 
 
-size_t relative_to(const char* a, const char* b, char* result) {
+size_t relative_to(const char* to, const char* from, char* result) {
 
   // undefined case, avoid bugs with MacOS
-  if( a == nullptr || (strlen(a) == 0) || b == nullptr || (strlen(b) == 0) )
+  if( to == nullptr || (strlen(to) == 0) || from == nullptr || (strlen(from) == 0) )
     return 0;
 
-  fs::path a1(a);
-  fs::path b1(b);
+  fs::path tp(to);
+  fs::path fp(from);
 
   // cannot be relative, avoid bugs with MacOS
-  if(a1.is_absolute() != b1.is_absolute())
+  if(tp.is_absolute() != fp.is_absolute())
     return 0;
 
   fs::path r;
 
   std::error_code ec;
 
-  r = fs::relative(a1, b1, ec);
+  r = fs::relative(tp, fp, ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
