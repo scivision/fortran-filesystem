@@ -1,6 +1,5 @@
 include(CheckFunctionExists)
 include(CheckCXXSymbolExists)
-include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 
 # --- abi check
@@ -32,21 +31,6 @@ if(NOT WIN32)
   set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
   set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
   check_function_exists(dladdr HAVE_DLADDR)
-endif()
-
-#--- is __attribute__((constructor)) available for Windows DLL loading
-if(WIN32)
-check_c_source_compiles("
-void con(void) __attribute__((constructor));
-void des(void) __attribute__((destructor));
-
-void con(void){};
-void des(void){};
-
-int main(void) {return 0;}
-"
-HAVE_ATTR_CONSTRUCTOR
-)
 endif()
 
 #--- setup / check C++ filesystem

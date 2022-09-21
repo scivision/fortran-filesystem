@@ -36,7 +36,6 @@ src/common.c $<TARGET_OBJECTS:get_path>
 )
 target_compile_definitions(filesystem PRIVATE
 $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
-$<$<BOOL:${HAVE_ATTR_CONSTRUCTOR}>:HAVE_ATTR_CONSTRUCTOR>
 )
 
 if(fortran)
@@ -115,12 +114,6 @@ endif()
 
 if(BUILD_UTILS)
   add_executable(fs_cli app/main.c)
-# target_link_libraries(fs_cli PRIVATE "$<LINK_LIBRARY:delayload,<LIBRARY>")
-  target_link_options(fs_cli PRIVATE
-  "$<$<BOOL:${MSVC}>:/DELAYLOAD:$<TARGET_FILE_NAME:filesystem>>"
-  "$<$<BOOL:${MINGW}>:-Wl,-Xlink=-DELAYLOAD:$<TARGET_FILE_NAME:filesystem>>"
-  )
-  target_link_libraries(fs_cli PRIVATE filesystem $<$<BOOL:${WIN32}>:delayimp>)
   target_compile_definitions(fs_cli PRIVATE "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>")
 
   if(fortran)
