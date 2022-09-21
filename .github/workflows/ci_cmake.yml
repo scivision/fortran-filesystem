@@ -251,11 +251,15 @@ jobs:
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dcpp:BOOL=${{ matrix.cpp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
-    - run: cmake --build --preset debug
-    - run: ctest --preset debug -V
+    - name: Build Debug
+      run: cmake --build --preset debug
+    - name: Test Debug
+      run: ctest --preset debug -V
 
-    - run: cmake --build --preset release
-    - run: ctest --preset release -V
+    - name: Build Release
+      run: cmake --build --preset release
+    - name: Test Release
+      run: ctest --preset release -V
 
     - name: install package
       run: cmake --install build
