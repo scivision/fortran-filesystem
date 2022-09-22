@@ -21,6 +21,10 @@ int main(int argc, char* argv[]){
     if(get_tempdir(p))
       printf("%s\n", p);
   }
+  else if (strcmp(argv[1], "tempdir") == 0) {
+    get_tempdir(p);
+    printf("%s\n", p);
+  }
   else if (strcmp(argv[1], "lib_path") == 0){
     if(lib_path(p))
       printf("%s\n", p);

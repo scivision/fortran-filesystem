@@ -250,7 +250,7 @@ char* buf = (char*) malloc(MAXP);
 size_t L;
 
 #ifdef _WIN32
-  getenv_s(&L, buf, MAXP, "TMP");
+  L = GetTempPath(MAXP, buf);
 #else
   const char* e = getenv("TMPDIR");
   if(e)
