@@ -108,7 +108,7 @@ size_t suffix(const char* path, char* fsuffix) {
 
 size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
 
-  if( path == nullptr || strlen(path) == 0 )
+  if( path == nullptr )
     return 0;
 
   fs::path p(path);

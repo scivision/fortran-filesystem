@@ -210,10 +210,13 @@ subroutine test_with_suffix()
 
 type(path_t) :: p1, p2
 
-if(with_suffix("", ".h5") /= "") error stop "with_suffix empty: " // with_suffix("", ".h5")
-if(with_suffix("foo.h5", "") /= "foo") error stop "with_suffix foo.h5 to ''"
+if(with_suffix("", ".h5") /= ".h5") error stop "with_suffix empty: " // with_suffix("", ".h5")
+if(with_suffix("foo.h5", "") /= "foo") error stop "with_suffix foo.h5 to empty: " // with_suffix("foo.h5", "")
 if(with_suffix(".h5", "") /= ".h5") error stop "with_suffix .h5 to .h5"
-if(with_suffix(".h5", ".h5") /= ".h5.h5") error stop "with_suffix .h5.h5"
+if(with_suffix(".h5", ".h5") /= ".h5.h5") then
+  write(stderr,*) "with_suffix .h5.h5: " // with_suffix(".h5", ".h5")
+  error stop
+endif
 
 p1 = path_t("my/file.h5")
 p2 = p1%with_suffix(".hdf5")

@@ -53,10 +53,7 @@ if(HAVE_CXX_FILESYSTEM)
   $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
   )
 
-  target_sources(filesystem PRIVATE
-  $<$<BOOL:${fortran}>:src/fs_cpp.f90>
-  $<TARGET_OBJECTS:filesystem_cpp>
-  )
+  target_sources(filesystem PRIVATE $<TARGET_OBJECTS:filesystem_cpp>)
 else()
   add_library(filesystem_c OBJECT src/fallback/filesystem.c
   src/fallback/cwalk.c
@@ -71,10 +68,7 @@ else()
   CWK_EXPORTS
   )
 
-  target_sources(filesystem PRIVATE
-  $<$<BOOL:${fortran}>:src/fallback/general.f90>
-  $<TARGET_OBJECTS:filesystem_c>
-  )
+  target_sources(filesystem PRIVATE $<TARGET_OBJECTS:filesystem_c>)
 endif()
 
 set_property(TARGET filesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)

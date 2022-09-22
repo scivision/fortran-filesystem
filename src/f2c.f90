@@ -168,6 +168,12 @@ import
 character(kind=c_char), intent(in) :: path(*)
 end function
 
+integer(C_SIZE_T) function cfs_with_suffix(path, new_suffix, swapped) bind(C, name="with_suffix")
+import
+character(kind=C_CHAR), intent(in) :: path(*), new_suffix
+character(kind=C_CHAR), intent(out) :: swapped(*)
+end function
+
 end interface
 
 contains
@@ -400,5 +406,14 @@ end procedure
 module procedure touch
 if(.not. cfs_touch(trim(path) // C_NULL_CHAR)) error stop "filesystem:touch: " // path
 end procedure
+
+module procedure with_suffix
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = cfs_with_suffix(trim(path) // C_NULL_CHAR, trim(new) // C_NULL_CHAR, cbuf)
+allocate(character(N) :: with_suffix)
+with_suffix = cbuf(:N)
+end procedure with_suffix
 
 end submodule fort2c_ifc

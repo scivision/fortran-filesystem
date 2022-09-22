@@ -487,6 +487,24 @@ bool touch(const char* path) {
   return is_file(path);
 }
 
+size_t with_suffix(const char* path, const char* suffix, char* result){
+  if(path == NULL || suffix == NULL)
+    return 0;
+
+  if(strlen(suffix) == 0)
+    return stem(path, result);
+
+  if(path[0] == '.'){
+    // workaround for leading dot filename
+    strcpy(result, path);
+    strcat(result, suffix);
+    return strlen(result);
+  }
+
+  cwk_path_set_style(CWK_STYLE_UNIX);
+  return cwk_path_change_extension(path, suffix, result, MAXP);
+}
+
 // as_windows() needed for system calls with MSVC
 
 // force Windows file seperator
