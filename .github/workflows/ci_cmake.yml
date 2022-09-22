@@ -269,3 +269,29 @@ jobs:
 
     - name: example test
       run: ctest --test-dir example/build -V
+
+
+  windows-msvc:
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        shared: [true, false]
+        cpp: [true, false]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
+      run: cmake -Bbuild -Dfortran=off
+
+    - name: Build Debug
+      run: cmake --build build --config Debug --parallel
+    - name: Test Debug
+      run: ctest --test-dir build -C Debug -V
+
+    - name: Build Release
+      run: cmake --build build --config Release --parallel
+    - name: Test Release
+      run: ctest --test-dir build -C Release -V
