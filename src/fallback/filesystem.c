@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <errno.h>
 
 #ifdef _MSC_VER
 #include <direct.h>
@@ -45,7 +46,10 @@ size_t canonical(const char* path, bool strict, char* result) {
     return get_cwd(result);
 
   char* buf = (char*) malloc(MAXP);
-  expanduser(path, buf);
+  if(expanduser(path, buf) == 0){
+    free(buf);
+    return 0;
+  }
 
   if(TRACE) printf("TRACE:canonical in: %s  expanded: %s\n", path, buf);
 
@@ -56,10 +60,16 @@ size_t canonical(const char* path, bool strict, char* result) {
 
 char* buf2 = (char*) malloc(MAXP);
 #ifdef _WIN32
-  _fullpath(buf2, buf, MAXP);
+  char* t = _fullpath(buf2, buf, MAXP);
 #else
-  realpath(buf, buf2);
+  char* t = realpath(buf, buf2);
 #endif
+  if (strict && t == NULL) {
+    fprintf(stderr, "ERROR:canonical: %s => %s\n", buf, strerror(errno));
+    free(buf);
+    free(buf2);
+    return 0;
+  }
 
   size_t L = normal(buf2, result);
   free(buf);
@@ -136,11 +146,13 @@ size_t relative_to(const char* to, const char* from, char* result) {
 uintmax_t file_size(const char* path) {
   struct stat s;
 
-  if (!is_file(path)) return 0;
+  if (!is_file(path))
+    return 0;
 
-  if (stat(path, &s) == 0) return s.st_size;
+  if (stat(path, &s) != 0)
+    return 0;
 
-  return 0;
+  return s.st_size;;
 }
 
 bool equivalent(const char* path1, const char* path2){
@@ -203,7 +215,11 @@ char* buf = (char*) malloc(MAXP);
 size_t L;
 
 #ifdef _WIN32
-  getenv_s(&L, buf, MAXP, "USERPROFILE");
+  if(getenv_s(&L, buf, MAXP, "USERPROFILE") != 0){
+    fprintf(stderr, "ERROR:get_homedir: %s\n", strerror(errno));
+    free(buf);
+    return 0;
+  }
 #else
   const char* e = getenv("HOME");
   if(e)
@@ -223,13 +239,20 @@ char* buf = (char*) malloc(MAXP);
 size_t L;
 
 #ifdef _WIN32
-  L = GetTempPath(MAXP, buf);
+  if(GetTempPath(MAXP, buf) == 0){
+    fprintf(stderr, "ERROR:get_tempdir: %s\n", strerror(errno));
+    free(buf);
+    return 0;
+  }
 #else
   const char* e = getenv("TMPDIR");
   if(e)
     strcpy(buf, e);
-  else
-    buf = NULL;
+  else{
+    fprintf(stderr, "ERROR:get_tempdir: %s\n", strerror(errno));
+    free(buf);
+    return 0;
+  }
 #endif
 
   L = normal(buf, result);
@@ -293,7 +316,10 @@ size_t parent(const char* path, char* fparent){
   }
 
   char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
-  normal(path, buf);
+  if(normal(path, buf) == 0){
+    free(buf);
+    return 0;
+  }
 
   char* pos = strrchr(buf, '/');
   if (pos){
@@ -373,15 +399,20 @@ size_t suffix(const char* path, char* fout){
 
 
 bool is_absolute(const char* path){
-  if(path == NULL) return false;
+  if(path == NULL)
+    return false;
 
   size_t L = strlen(path);
-  if(L < 1) return false;
+  if(L < 1)
+    return false;
 
 #ifdef _WIN32
-  if(L < 2) return false;
-  if(path[1] != ':') return false;
-  if(!isalpha(path[0])) return false;
+  if(L < 2)
+    return false;
+  if(path[1] != ':')
+    return false;
+  if(!isalpha(path[0]))
+    return false;
   return true;
 #endif
 
@@ -390,15 +421,18 @@ bool is_absolute(const char* path){
 
 
 bool is_symlink(const char* path){
-  if(path==NULL) return false;
-  if(!exists(path)) return false;
+  if(path==NULL)
+    return false;
+  if(!exists(path))
+    return false;
 
 #ifdef _WIN32
   return GetFileAttributes(path) & FILE_ATTRIBUTE_REPARSE_POINT;
 #else
   struct stat buf;
 
-  if(lstat(path, &buf) != 0) return false;
+  if(lstat(path, &buf) != 0)
+    return false;
 
   // return (buf.st_mode & S_IFMT) == S_IFLNK; // equivalent to below line
   return S_ISLNK(buf.st_mode);
@@ -427,16 +461,19 @@ size_t get_cwd(char* path) {
 
 #ifdef _MSC_VER
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
-  if (_getcwd(path, MAXP) == NULL) return 0;
+  if (_getcwd(path, MAXP) == NULL)
+    return 0;
 #else
-  if (getcwd(path, MAXP) == NULL) return 0;
+  if (getcwd(path, MAXP) == NULL)
+    return 0;
 #endif
 
   return normal(path, path);
 }
 
 bool fs_remove(const char* path) {
-  if (!exists(path)) return true;
+  if (!exists(path))
+    return true;
 
 #ifdef _WIN32
   if (is_dir(path)){
@@ -454,7 +491,8 @@ bool fs_remove(const char* path) {
 
 bool chmod_exe(const char* path){
   struct stat s;
-  if(stat(path, &s) != 0) return false;
+  if(stat(path, &s) != 0)
+    return false;
 
 #ifdef _MSC_VER
   return _chmod(path, s.st_mode | _S_IEXEC) == 0;
@@ -465,7 +503,8 @@ bool chmod_exe(const char* path){
 
 bool chmod_no_exe(const char* path){
   struct stat s;
-  if(stat(path, &s) != 0) return false;
+  if(stat(path, &s) != 0)
+    return false;
 
 #ifdef _MSC_VER
   return _chmod(path, s.st_mode | !_S_IEXEC) == 0;
@@ -535,7 +574,11 @@ if(destination == NULL || strlen(destination) == 0) {
 }
 
   if(overwrite){
-    if(is_file(destination)) fs_remove(destination);
+    if(is_file(destination)){
+      if(!fs_remove(destination)){
+        fprintf(stderr, "ERROR:filesystem:copy_file: could not remove existing file %s\n", destination);
+      }
+    }
   }
 
   #ifdef _WIN32

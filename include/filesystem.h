@@ -99,6 +99,7 @@ extern size_t expanduser(const char*, char*);
 
 extern uintmax_t file_size(const char*);
 
+extern size_t exe_path(char* path);
 extern size_t lib_path(char* path);
 
 #ifdef __cplusplus
