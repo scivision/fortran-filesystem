@@ -48,7 +48,7 @@ jobs:
     - name: install compilers
       run: |
         sudo apt update
-        sudo apt install ninja-build gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }} gfortran-${{ matrix.gcc-version }}
+        sudo apt install --no-install-recommends ninja-build gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }} gfortran-${{ matrix.gcc-version }}
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dcpp:BOOL=${{ matrix.cpp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
@@ -73,17 +73,15 @@ jobs:
 
 
   linux-clang:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
 
     strategy:
       matrix:
-        clang-version: ["6.0", 7, 8, 9, 10]
+        clang-version: [11, 12, 13, 14]
         shared: [true, false]
         cpp: [true, false]
         exclude:
-        - cpp: true
-          clang-version: "6.0"
         - cpp: false
           shared: true
 
@@ -98,7 +96,7 @@ jobs:
     - name: install compilers
       run: |
         sudo apt update
-        sudo apt install ninja-build clang-${{ matrix.clang-version }}
+        sudo apt install --no-install-recommends ninja-build clang-${{ matrix.clang-version }}
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dcpp:BOOL=${{ matrix.cpp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
@@ -176,14 +174,14 @@ jobs:
 
     strategy:
       matrix:
-        compiler: [ {cpp: g++-11, c: gcc-11}, {cpp: clang++, c: clang} ]
+        compiler: [ {cpp: g++, c: gcc}, {cpp: clang++, c: clang} ]
         shared: [true, false]
         cpp: [true, false]
         exclude:
         - shared: true
           cpp: false
         - shared: true
-          compiler: {cpp: g++-11, c: gcc-11}
+          compiler: {cpp: g++, c: gcc}
 
     env:
       CC: ${{ matrix.compiler.c }}
