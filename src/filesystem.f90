@@ -277,11 +277,11 @@ logical(C_BOOL) function sys_posix() bind(C)
 import C_BOOL
 end function
 
-
-end interface
-
-
-interface !< fs_cpp.f90
+module function join(path, other)
+!! returns path_t object with other appended to self using posix separator
+character(:), allocatable :: join
+character(*), intent(in) :: path, other
+end function
 
 module logical function is_dir(path)
 !! .true.: "path" is a directory OR symlink pointing to a directory
@@ -615,14 +615,6 @@ pure integer function length(self)
 !! returns string length len_trim(path)
 class(path_t), intent(in) :: self
 length = len_trim(self%path_str)
-end function
-
-
-function join(path, other)
-!! returns path_t object with other appended to self using posix separator
-character(:), allocatable :: join
-character(*), intent(in) :: path, other
-join = normal(path // "/" // other)
 end function
 
 

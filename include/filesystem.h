@@ -60,6 +60,8 @@ extern bool is_windows();
 extern bool sys_posix();
 extern void filesep(char*);
 
+extern size_t join(const char*, const char*, char*);
+
 extern size_t file_name(const char*, char*);
 extern size_t stem(const char*, char*);
 extern size_t parent(const char*, char*);

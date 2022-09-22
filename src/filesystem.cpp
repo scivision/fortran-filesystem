@@ -67,6 +67,15 @@ size_t stem(const char* path, char* fstem) {
 }
 
 
+size_t join(const char* path, const char* other, char* result) {
+  fs::path p1(path);
+  fs::path p2(other);
+
+  auto p = p1 / p2;
+
+  return normal(p.string().c_str(), result);
+}
+
 size_t parent(const char* path, char* fparent) {
   fs::path p(path);
 

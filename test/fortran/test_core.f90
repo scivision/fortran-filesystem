@@ -66,8 +66,7 @@ p1 = path_t("a/b")
 
 p2 = p1%join("c/d")
 if (p2%path() /= "a/b/c/d") error stop "%join c/d: " // p2%path()
-p2 = p1%join("c/d/")
-if (p2%path() /= "a/b/c/d/") error stop "%join c/d/: " // p2%path()
+
 if (join("a/b", "c/d") /= "a/b/c/d") error stop "join(c/d): " // join("a/b", "c/d")
 
 end subroutine test_join
@@ -75,7 +74,7 @@ end subroutine test_join
 
 subroutine test_filesep()
 
-type(path_t) :: p1, p2, p3
+type(path_t) :: p1, p2
 
 if(sys_posix()) then
   if (filesep() /= "/") error stop "filesep posix: " // filesep()
@@ -89,11 +88,14 @@ p2 = p1%normal()
 if (p2%path() /= "") error stop "%normal: empty"
 if (normal("") /= "") error stop "normal('') empty"
 
-p1 = path_t("/")
-p3 = p1%normal()
-if(p3%path() /= "/") error stop "%normal '/' failed: " // p3%path()
-
-if(normal(char(92)) /= "/") error stop "normal char(92) failed: " // normal(char(92))
+if(normal("/") /= "/") then
+  write(stderr,*) "ERROR: normal '/' failed: " // normal("/")
+  error stop
+endif
+if(normal(char(92)) /= "/") then
+  write(stderr,*) "ERROR: normal char(92) failed: " // normal(char(92))
+  error stop
+endif
 
 end subroutine test_filesep
 
@@ -109,7 +111,14 @@ p2 = path_t("a")
 if (p1%file_name() /= "c") error stop "file_name failed: " // p1%file_name()
 if (p2%file_name() /= "a") error stop "file_name idempotent failed: " // p2%file_name()
 
-if(file_name("file_name") /= "file_name") error stop "file_name leading dot filename"
+if(file_name("file_name") /= "file_name") then
+  write(stderr,*) "ERROR: file_name plain filename: " // file_name("file_name")
+  error stop
+endif
+if(file_name(".file_name") /= ".file_name") then
+  write(stderr,*) "ERROR: file_name leading dot filename: " // file_name(".file_name")
+  error stop
+endif
 if(file_name("./file_name") /= "file_name") error stop "file_name leading dot filename cwd: " // file_name("./file_name")
 if(file_name("file_name.txt") /= "file_name.txt") error stop "file_name leading dot filename w/ext"
 if(file_name("./file_name.txt") /= "file_name.txt") error stop "file_name leading dot filename w/ext and cwd"

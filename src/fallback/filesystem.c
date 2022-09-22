@@ -20,6 +20,9 @@
 
 
 #include "filesystem.h"
+#include "cwalk.h"
+
+#define TRACE 0
 
 
 char* as_windows(const char*);
@@ -44,7 +47,7 @@ size_t canonical(const char* path, bool strict, char* result) {
   char* buf = (char*) malloc(MAXP);
   expanduser(path, buf);
 
-  // printf("TRACE:canonical in: %s  expanded: %s\n", path, buf);
+  if(TRACE) printf("TRACE:canonical in: %s  expanded: %s\n", path, buf);
 
   if(strict && !exists(buf)) {
     free(buf);
@@ -64,68 +67,49 @@ char* buf2 = (char*) malloc(MAXP);
   return L;
 }
 
+size_t join(const char* path, const char* other, char* result){
+  if(path == NULL || other == NULL)
+    return 0;
+
+  cwk_path_set_style(CWK_STYLE_UNIX);
+  return cwk_path_join(path, other, result, MAXP);
+}
+
 
 size_t normal(const char* path, char* normalized) {
-  if(path == NULL || strlen(path) == 0)
+  if(path == NULL)
     return 0;
 
-  size_t L=strlen(path);
-  if (L == 1 && path[0] == '.'){
-    strcpy(normalized, ".");
-    return strlen(normalized);
-  }
+  cwk_path_set_style(CWK_STYLE_UNIX);
+  size_t L = cwk_path_normalize(path, normalized, MAXP);
 
-  char* buf = (char*) malloc(L+1);  // +1 for null terminator
-
-#ifdef _WIN32
-  if(!PathCanonicalizeA(buf, as_windows(path))){
-    fprintf(stderr, "ERROR:filesystem:normal:PathCanonicalizeA failed on %s\n", path);
-    return 0;
-  }
-#else
-  strcpy(buf, path);
-#endif
+  if(TRACE) printf("TRACE:normal in: %s  out: %s\n", path, normalized);
 
 // force posix file seperator
   char s='\\';
-  char *p = strchr(buf, s);
+  char *p = strchr(normalized, s);
   while (p) {
       *p = '/';
       p = strchr(p+1, s);
   }
 
-// dedupe file seperators
-  int j=0;
-  for (size_t i = 0; i < L; i++) {
-    if (i<L-1 && buf[i] == '/' && buf[i + 1] == '/')
-      continue;
-    normalized[j] = buf[i];
-    j++;
-  }
-  normalized[j] = '\0';
+  return L;
 
-  free(buf);
-  return strlen(normalized);
 }
 
-size_t file_name(const char* path, char* fname){
+size_t file_name(const char* path, char* result){
 
-  if(path == NULL || strlen(path) == 0)
+  if(path == NULL)
     return 0;
 
-  char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
-  normal(path, buf);
+  const char *base;
+  size_t L;
 
-  char* pos = strrchr(buf, '/');
-  if (pos){
-    strcpy(fname, pos+1);
-  }
-  else {
-    strcpy(fname, buf);
-  }
-
-  free(buf);
-  return strlen(fname);
+  cwk_path_set_style(CWK_STYLE_UNIX);
+  cwk_path_get_basename(path, &base, &L);
+  strncpy(result, base, L);
+  result[L] = '\0';
+  return L;
 }
 
 size_t relative_to(const char* to, const char* from, char* result) {
@@ -144,15 +128,8 @@ size_t relative_to(const char* to, const char* from, char* result) {
     return strlen(result);
   }
 
-#ifdef _WIN32
-  PathRelativePathToA(result, as_windows(from), FILE_ATTRIBUTE_DIRECTORY,
-    as_windows(to), FILE_ATTRIBUTE_DIRECTORY);
-
-  return normal(result, result);
-#else
-  fprintf(stderr, "relative_to not implemented for non-Windows systems in C-only fallback");
-  return 0;
-#endif
+  cwk_path_set_style(CWK_STYLE_UNIX);
+  return cwk_path_get_relative(from, to, result, MAXP);
 }
 
 
@@ -201,24 +178,20 @@ size_t expanduser(const char* path, char* result){
   }
 
   // ~ alone
-  if (L == 1){
+  if (L < 3){
     L = normal(buf, result);
+    if(TRACE) printf("TRACE:expanduser: orphan ~: homedir %s %s\n", buf, result);
     free(buf);
     return L;
   }
 
   strcat(buf, "/");
-  // ~/ alone
-  if (L == 2){
-    L = normal(buf, result);
-    free(buf);
-    return L;
-  }
-  //printf("TRACE:expanduser: homedir %s\n", buf);
+
+  if(TRACE) printf("TRACE:expanduser: homedir %s\n", buf);
 
   strcat(buf, path+2);
   L = normal(buf, result);
-  //printf("TRACE:expanduser result: %s\n", result);
+  if(TRACE) printf("TRACE:expanduser result: %s\n", result);
 
   free(buf);
   return L;
@@ -238,8 +211,8 @@ size_t L;
   else
     buf = NULL;
 #endif
-
   L = normal(buf, result);
+  if(TRACE) printf("TRACE: get_homedir: %s %s\n", buf, result);
   free(buf);
   return L;
 }
@@ -597,20 +570,20 @@ int create_directories(const char* path) {
   strcpy(cmd, "cmd /c mkdir ");
   strcat(cmd, p);
 
-  // printf("TRACE:mkdir %s\n", cmd);
+  if(TRACE) printf("TRACE:mkdir %s\n", cmd);
   if (!CreateProcess(NULL, cmd, NULL, NULL, FALSE,
                      0, 0, 0, &si, &pi)) {
     free(p);
     return -1;
   }
 
-  // printf("TRACE:mkdir waiting to complete %s\n", cmd);
+  if(TRACE) printf("TRACE:mkdir waiting to complete %s\n", cmd);
   // Wait until child process exits.
   WaitForSingleObject( pi.hProcess, 2000 );
   free(p);
   CloseHandle(pi.hThread);
   CloseHandle(pi.hProcess);
-  // printf("TRACE:mkdir completed %s\n", cmd);
+  if(TRACE) printf("TRACE:mkdir completed %s\n", cmd);
 
   return 0;
 

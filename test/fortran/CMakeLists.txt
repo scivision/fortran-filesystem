@@ -17,8 +17,6 @@ target_link_libraries(test_relative_to PRIVATE filesystem)
 add_test(NAME relative_to COMMAND test_relative_to)
 if(HAVE_CXX_FILESYSTEM)
   set_property(TEST relative_to PROPERTY PASS_REGULAR_EXPRESSION "OK: relative_to full")
-elseif(NOT WIN32)
-  set_property(TEST relative_to PROPERTY DISABLED true)
 endif()
 
 # --- expanduser

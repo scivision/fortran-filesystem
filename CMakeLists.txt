@@ -8,7 +8,7 @@ VERSION 3.8.0
 include(CTest) # needed for "ctest -T memcheck"
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD 11) # for CWalk
 
 include(cmake/options.cmake)
 if(cpp)
@@ -33,10 +33,11 @@ endif()
 
 # --- filesystem library
 
-add_library(filesystem
-src/common.c $<TARGET_OBJECTS:get_path>
+add_library(filesystem src/common.c
+$<TARGET_OBJECTS:get_path>
 )
 target_compile_definitions(filesystem PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
+set_property(TARGET filesystem PROPERTY PUBLIC_HEADER include/filesystem.h)
 
 if(fortran)
   target_sources(filesystem PRIVATE
@@ -57,11 +58,17 @@ if(HAVE_CXX_FILESYSTEM)
   $<TARGET_OBJECTS:filesystem_cpp>
   )
 else()
-  add_library(filesystem_c OBJECT src/fallback/filesystem.c)
-  target_include_directories(filesystem_c PRIVATE ${PROJECT_SOURCE_DIR}/include)
+  add_library(filesystem_c OBJECT src/fallback/filesystem.c
+  src/fallback/cwalk.c
+  )
+  target_include_directories(filesystem_c PRIVATE
+  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/src/fallback
+  )
   target_compile_definitions(filesystem_c PRIVATE
   $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
   _GNU_SOURCE
+  CWK_EXPORTS
   )
 
   target_sources(filesystem PRIVATE
@@ -92,13 +99,13 @@ $<$<BOOL:${WIN32}>:Shlwapi>
 if(fortran)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/filesystem.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(TARGETS filesystem EXPORT ${PROJECT_NAME}-targets
 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 add_library(ffilesystem::filesystem INTERFACE IMPORTED)

@@ -121,6 +121,12 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+integer(C_SIZE_T) function cfs_join(path, other, result) bind(C, name="join")
+import
+character(kind=c_char), intent(in) :: path(*), other(*)
+character(kind=c_char), intent(out) :: result(*)
+end function
+
 integer(C_SIZE_T) function cfs_normal(path, normalized) bind(C, name="normal")
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -317,6 +323,15 @@ end procedure
 
 module procedure is_symlink
 is_symlink = cfs_is_symlink(trim(path) // C_NULL_CHAR)
+end procedure
+
+module procedure join
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = cfs_join(trim(path) // C_NULL_CHAR, trim(other) // C_NULL_CHAR, cbuf)
+allocate(character(N) :: join)
+join = cbuf(:N)
 end procedure
 
 module procedure parent
