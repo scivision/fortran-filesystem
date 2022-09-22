@@ -21,12 +21,6 @@ elseif(NOT WIN32)
   set_property(TEST relative_to PROPERTY DISABLED true)
 endif()
 
-# --- regex
-add_executable(test_match test_match.f90)
-target_link_libraries(test_match PRIVATE filesystem)
-add_test(NAME match COMMAND test_match)
-set_property(TEST match PROPERTY DISABLED $<NOT:$<BOOL:${cpp}>>)
-
 # --- expanduser
 add_executable(test_expanduser test_expanduser.f90)
 target_link_libraries(test_expanduser PRIVATE filesystem)

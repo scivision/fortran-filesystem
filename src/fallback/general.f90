@@ -17,12 +17,4 @@ endif
 end procedure with_suffix
 
 
-!> stubs
-
-module procedure match
-match = .false.
-write(stderr,*) "ERROR:filesystem:C-only doesn't have match"
-end procedure
-
-
 end submodule no_cpp_fs

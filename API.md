@@ -198,17 +198,6 @@ file_size("my/file.txt")
 
 These methods emit a logical value.
 
-```fortran
-logical function match(path, pattern)
-!! does any substring of path match the pattern
-!! pattern uses C++ regex_search() syntax
-character(*), intent(in) :: path, pattern
-
-p%match("a.*\d{2}")  !< true
-
-match("abc23r", "a.*\d{2}")  !< true
-```
-
 Does directory exist:
 
 ```fortran
@@ -222,6 +211,8 @@ Error stop if directory does not exist
 ```fortran
 call assert_is_dir("my/dir")
 ```
+
+---
 
 Is "path" a file or directory (or a symbolic link to existing file or directory):
 

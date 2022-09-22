@@ -46,12 +46,6 @@ void filesep(char* sep) {
 }
 
 
-bool match(const char* path, const char* pattern) {
-  std::regex r(pattern);
-  return std::regex_search(path, r);
-}
-
-
 size_t file_name(const char* path, char* filename) {
   fs::path p(path);
 

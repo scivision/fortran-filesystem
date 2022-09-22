@@ -59,7 +59,6 @@ extern bool is_windows();
 
 extern bool sys_posix();
 extern void filesep(char*);
-extern bool match(const char*, const char*);
 
 extern size_t file_name(const char*, char*);
 extern size_t stem(const char*, char*);
