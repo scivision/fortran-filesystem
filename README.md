@@ -56,9 +56,8 @@ and Fortran 2008 compilers yet to be tested.
 E.g. IBM XL, NAG, et al.
 In particular, the compiler and the libstdc++ must both support filesystem as well as Fortran 2008.
 
-For compilers without functioning C++ filesystem, we provide a subset of filesystem features using the C runtime library and our own Fortran routines.
-The installed CMake package provides BOOL CMake variable `ffilesystem_cpp` that can be used to check if the C++ routines are enabled.
-To force enable the C-only routines, for example for testing:
+For compilers without functioning C++ filesystem, we use CWalk and the C runtime library.
+To force enable the C-only routines:
 
 ```sh
 cmake -B build -Dcpp=off
