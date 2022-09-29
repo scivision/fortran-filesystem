@@ -1,11 +1,11 @@
 set_property(DIRECTORY PROPERTY LABELS c)
 
 add_executable(test_c_ifc test_ifc.c)
-target_link_libraries(test_c_ifc PRIVATE filesystem)
+target_link_libraries(test_c_ifc PRIVATE ffilesystem)
 add_test(NAME C_interface COMMAND test_c_ifc)
 
 add_executable(test_binpath_c test_binpath.c)
-target_link_libraries(test_binpath_c PRIVATE filesystem)
+target_link_libraries(test_binpath_c PRIVATE ffilesystem)
 add_test(NAME binpath_c COMMAND test_binpath_c $<BOOL:${BUILD_SHARED_LIBS}>)
 
 # --- props

@@ -47,11 +47,11 @@ endif
 binpath = lib_path()
 
 if (is_macos()) then
-  name = 'filesystem.dylib'
+  name = 'ffilesystem.dylib'
 elseif(is_windows()) then
-  name = 'filesystem.dll'
+  name = 'ffilesystem.dll'
 else
-  name = 'libfilesystem.so'
+  name = 'libffilesystem.so'
 endif
 
 i = index(binpath, name)

@@ -1,5 +1,5 @@
-!! a CLI frontent for filesystem
-!! helps people understand filesystem output
+!! a CLI frontent for ffilesystem
+!! helps people understand ffilesystem output
 
 program cli
 

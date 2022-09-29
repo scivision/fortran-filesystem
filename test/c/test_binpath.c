@@ -1,4 +1,4 @@
-#include "filesystem.h"
+#include "ffilesystem.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,15 +36,15 @@ int test_lib_path(char* argv[]){
 
   lib_path(binpath);
 
-  char name[17];
+  char name[18];
   if (is_macos()) {
-    strcpy(name, "filesystem.dylib");
+    strcpy(name, "ffilesystem.dylib");
   }
   else if(is_windows()) {
-    strcpy(name, "filesystem.dll");
+    strcpy(name, "ffilesystem.dll");
   }
   else{
-    strcpy(name, "libfilesystem.so");
+    strcpy(name, "libffilesystem.so");
   }
 
   if(!strstr(binpath, name)){

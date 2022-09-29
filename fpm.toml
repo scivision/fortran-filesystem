@@ -1,4 +1,4 @@
-name = "filesystem"
+name = "ffilesystem"
 description = "Lightweight filesystem and path manipulations"
 categories = "io"
 version = "3.9.0"

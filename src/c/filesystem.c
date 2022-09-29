@@ -20,7 +20,7 @@
 #endif
 
 
-#include "filesystem.h"
+#include "ffilesystem.h"
 #include "cwalk.h"
 
 #define TRACE 0

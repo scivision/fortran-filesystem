@@ -23,7 +23,7 @@ p%path(2) !< character index 2:end
 
 In all the examples, we assume "p" is path_t.
 
-C++17 filesystem is used extensively within Fortran-filesystem to implement functions in a platform-agnostic and robust way.
+C++17 filesystem is used extensively within Ffilesystem to implement functions in a platform-agnostic and robust way.
 For the interchange of character strings between Fortran and C++, the buffer length is determined at compile time as seen by parameter MAXP in
 [filesystem.h](./include/filesystem.h).
 MAXP can be introspected in user programs by:
@@ -426,7 +426,7 @@ exe = exe_path()
 
 Get full path of **SHARED LIBRARY**, regardless of current working directory.
 If static library, works like exe_path().
-To use `lib_path()`, build fortran-filesystem with `cmake -DBUILD_SHARED_LIBS=on`
+To use `lib_path()`, build Ffilesystem with `cmake -DBUILD_SHARED_LIBS=on`
 
 ```fortran
 character(:), allocatable :: bin

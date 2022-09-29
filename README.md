@@ -1,11 +1,11 @@
-# Fortran filesystem
+# Ffilesystem: for Fortran using C or C++
 
 [![DOI](https://zenodo.org/badge/433875623.svg)](https://zenodo.org/badge/latestdoi/433875623)
 [![ci_cmake](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_cmake.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_cmake.yml)
 [![ci_fpm](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_fpm.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_fpm.yml)
 [![oneapi-linux](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml)
 
-Platform independent (Linux, macOS, Windows, Cygwin, WSL, ...), object-oriented Fortran filesystem path manipulation library.
+Platform independent (Linux, macOS, Windows, Cygwin, WSL, ...), object-oriented Fortran filesystem "Ffilesystem" path manipulation library.
 The library also provides header
 [filesystem.h](./include/filesystem.h)
 that can be used from C and C++ project code--see
@@ -29,41 +29,27 @@ p = path_t("my/path")  !< setter
 print *, "path: ", p%path() !< getter
 ```
 
-Due to compiler limitations, currently Fortran-filesystem only officially supports ASCII characters.
+Due to compiler limitations, currently Ffilesystem only officially supports ASCII characters.
 
 ## Compiler support
 
-Full C++ filesystem support and hence full Fortran-filesystem features are available with any of these compilers:
+Ffilesystem supports compilers including:
 
-* GCC &ge; 8 (g++, gfortran)
-* LLVM Clang &ge; 7 (clang++, flang or gfortran)
-* Intel oneAPI (icx, ifx, icpc, ifort, icl)
+* GCC &ge; 8 (gcc/g++, gfortran)
+* LLVM Clang &ge; 7 (clang/clang++, flang or gfortran)
+* Intel oneAPI (icx, ifx, ifort)
 * Flang
 * NVidia HPC SDK (nvc++, nvfortran)
-* Visual Studio (C/C++) + oneAPI (Fortran)
+* Visual Studio (C/C++)
 * Cray: using Cray compilers alone (cc, CC, ftn) or using GCC or Intel backend
 
-For systems without C++ filesystem support, we provide a C-only library that gives almost all functions of full C++ filesystem.
-C++ can be disabled (using C-only library) by:
+For systems without C++ stdlib filesystem support, using vendored
+[CWalk](https://github.com/likle/cwalk)
+and C runtime library:
 
 ```sh
 cmake -Bbuild -Dcpp=no
 ```
-
-Expected to work with other
-[C++17 compilers](https://en.cppreference.com/w/cpp/compiler_support)
-and Fortran 2008 compilers yet to be tested.
-E.g. IBM XL, NAG, et al.
-In particular, the compiler and the libstdc++ must both support filesystem as well as Fortran 2008.
-
-For compilers without functioning C++ filesystem, we use CWalk and the C runtime library.
-To force enable the C-only routines:
-
-```sh
-cmake -B build -Dcpp=off
-```
-
-Note: to avoid end users missing features inadvertently, by default C++ is disabled unless requested or enabled.
 
 ### libstdc++
 
@@ -85,14 +71,11 @@ which can be determined like:
 scl enable gcc-toolset-10 "which g++"
 ```
 
-**Cray PE** works with GCC or Intel backends.
-The Cray compiler itself works with the non-C++ filesystem.
-
 ## Build
 
-Fortran-filesystem can be built with CMake or Fortran Package Manager (FPM).
+Ffilesystem can be built with CMake or Fortran Package Manager (FPM).
 
-`[lib]filesystem.a` is the library binary built that contains the Fortran "filesystem" module--it is the only binary you need to use in your project.
+"libffilesystem.a" is the library binary built that contains the Fortran "filesystem" module--it is the only binary you need to use in your project.
 
 Please see the [API docs](./API.md) for extensive list of functions/subroutines.
 
@@ -117,7 +100,7 @@ For user convenience, we provide a demo executable "filesystem_cli" that allows 
 
 The [example](./example) directory contains a use pattern from external projects.
 One can either `cmake --install build` or use ExternalProject from the other project.
-[ffilesystem.cmake](./cmake/ffilesystem.cmake) would be included from the other project to find or build Fortran-filesystem automatically.
+[ffilesystem.cmake](./cmake/ffilesystem.cmake) would be included from the other project to find or build Ffilesystem automatically.
 It provides the appropriate imported targets for shared or static builds, including Windows DLL handling.
 
 ## Concepts

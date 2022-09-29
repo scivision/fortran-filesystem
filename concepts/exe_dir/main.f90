@@ -42,7 +42,7 @@ character(kind=C_CHAR, len=:), allocatable :: cbuf
 integer :: N
 
 integer, parameter :: MAX = 4096
-!! arbitrary PATH_MAX, see fortran-filesystem for robust implementation
+!! arbitrary PATH_MAX, see Ffilesystem for robust implementation
 
 allocate(character(MAX) :: cbuf)
 N = fs_realpath(trim(path) // C_NULL_CHAR, cbuf)

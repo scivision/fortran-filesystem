@@ -1,7 +1,7 @@
 set_property(DIRECTORY PROPERTY LABELS cpp)
 
 add_executable(test_cpp_ifc test_ifc.cpp)
-target_link_libraries(test_cpp_ifc PRIVATE filesystem)
+target_link_libraries(test_cpp_ifc PRIVATE ffilesystem)
 add_test(NAME CPP_interface COMMAND test_cpp_ifc)
 
 
