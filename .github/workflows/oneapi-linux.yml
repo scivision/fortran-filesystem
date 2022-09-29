@@ -1,12 +1,11 @@
 name: oneapi-linux
 
 env:
-  CTEST_PARALLEL_LEVEL: 2
   CC: icx
   CXX: icpx
   FC: ifx
-  LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18673/l_BaseKit_p_2022.2.0.262_offline.sh
-  LINUX_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18679/l_HPCKit_p_2022.2.0.191_offline.sh
+  LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18852/l_BaseKit_p_2022.3.0.8767_offline.sh
+  LINUX_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/18856/l_HPCKit_p_2022.3.0.8751_offline.sh
   LINUX_CPP_COMPONENTS: intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
   LINUX_FORTRAN_COMPONENTS: intel-oneapi-compiler-fortran
 # https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
