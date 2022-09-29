@@ -55,12 +55,12 @@ if(HAVE_CXX_FILESYSTEM)
 
   target_sources(filesystem PRIVATE $<TARGET_OBJECTS:filesystem_cpp>)
 else()
-  add_library(filesystem_c OBJECT src/fallback/filesystem.c
-  src/fallback/cwalk.c
+  add_library(filesystem_c OBJECT src/c/filesystem.c
+  src/c/cwalk.c
   )
   target_include_directories(filesystem_c PRIVATE
   ${PROJECT_SOURCE_DIR}/include
-  ${PROJECT_SOURCE_DIR}/src/fallback
+  ${PROJECT_SOURCE_DIR}/src/c
   )
   target_compile_definitions(filesystem_c PRIVATE
   $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>

@@ -1,3 +1,5 @@
+// used for C or C++ interfaces
+
 #include "filesystem.h"
 
 #ifdef __APPLE__
