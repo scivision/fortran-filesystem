@@ -63,13 +63,10 @@ endif()
 
 # --- compile flags
 
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-  add_compile_options($<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration>
-  )
-  # "$<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-fsanitize=address>"
-elseif(CMAKE_C_COMPILER_ID MATCHES "(Clang|Intel)")
+if(CMAKE_C_COMPILER_ID MATCHES "(Clang|GNU|Intel)")
   add_compile_options(
-  "$<$<COMPILE_LANGUAGE:C,CXX>:-Wall;-Wextra>"
+  "$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<CONFIG:Debug>>:-Wextra>"
+  "$<$<COMPILE_LANGUAGE:C,CXX>:-Wall>"
   "$<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration>"
   )
 elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
@@ -88,9 +85,8 @@ add_compile_options(
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 
 add_compile_options(
--Wall
-$<$<CONFIG:Debug>:-Wextra>
-"$<$<COMPILE_LANGUAGE:Fortran>:-fimplicit-none>"
+"$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug>>:-Wextra>"
+"$<$<COMPILE_LANGUAGE:Fortran>:-Wall;-fimplicit-none>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug>>:-fcheck=all;-Werror=array-bounds>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Release>>:-fno-backtrace>"
 )

@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
     printf("%d\n", is_windows());
   }
   else if (strcmp(argv[1], "file_size") ==0 && argc == 3){
-    printf("%ld\n", file_size(argv[2]));
+    printf("%ju\n", file_size(argv[2]));
   }
   else if (strcmp(argv[1], "exists") ==0 && argc == 3){
     printf("%d\n", exists(argv[2]));

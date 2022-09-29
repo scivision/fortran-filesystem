@@ -18,11 +18,11 @@ int test_exe_path(void){
   return 0;
 }
 
-int test_lib_path(char* argv[]){
+int test_lib_path(int argc, char* argv[]){
 
   char binpath[MAXP];
 
-  if(argv[1] == NULL){
+  if(argc != 2){
     fprintf(stderr, "need argument 0 for static or 1 for shared.  Got: %s\n", argv[1]);
     return 1;
   }
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]){
 
   int i = test_exe_path();
 
-  i += test_lib_path(argv);
+  i += test_lib_path(argc, argv);
 
   return i;
 }
