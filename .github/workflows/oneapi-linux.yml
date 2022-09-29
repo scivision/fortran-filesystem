@@ -65,7 +65,10 @@ jobs:
 
     - name: Configure CMake
       timeout-minutes: 1
-      run: cmake --preset multi --install-prefix=${{ runner.temp }} -Dcpp:BOOL=${{ matrix.cpp }}
+      run: >-
+        cmake --preset multi --install-prefix=${{ runner.temp }}
+        -Dcpp:BOOL=${{ matrix.cpp }}
+        -DCMAKE_COMPILE_WARNING_AS_ERROR:BOOL=true
 
     - name: print config log
       if: ${{ failure() }}
