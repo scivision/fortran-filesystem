@@ -28,12 +28,34 @@
 
 char* as_windows(const char*);
 
-void filesep(char* sep) {
+void fs_filesep(char* sep) {
 #ifdef _WIN32
   strcpy(sep, "\\");
 #else
   strcpy(sep, "/");
 #endif
+}
+
+
+size_t normal(const char* path, char* normalized) {
+  if(path == NULL)
+    return 0;
+
+  cwk_path_set_style(CWK_STYLE_UNIX);
+  size_t L = cwk_path_normalize(path, normalized, MAXP);
+
+  if(TRACE) printf("TRACE:normal in: %s  out: %s\n", path, normalized);
+
+// force posix file seperator
+  char s='\\';
+  char *p = strchr(normalized, s);
+  while (p) {
+      *p = '/';
+      p = strchr(p+1, s);
+  }
+
+  return L;
+
 }
 
 size_t canonical(const char* path, bool strict, char* result) {
@@ -85,27 +107,6 @@ size_t join(const char* path, const char* other, char* result){
   return cwk_path_join(path, other, result, MAXP);
 }
 
-
-size_t normal(const char* path, char* normalized) {
-  if(path == NULL)
-    return 0;
-
-  cwk_path_set_style(CWK_STYLE_UNIX);
-  size_t L = cwk_path_normalize(path, normalized, MAXP);
-
-  if(TRACE) printf("TRACE:normal in: %s  out: %s\n", path, normalized);
-
-// force posix file seperator
-  char s='\\';
-  char *p = strchr(normalized, s);
-  while (p) {
-      *p = '/';
-      p = strchr(p+1, s);
-  }
-
-  return L;
-
-}
 
 size_t file_name(const char* path, char* result){
 

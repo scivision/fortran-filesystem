@@ -58,7 +58,7 @@ extern bool is_unix();
 extern bool is_windows();
 
 extern bool sys_posix();
-extern void filesep(char*);
+extern void fs_filesep(char*);
 
 extern size_t join(const char*, const char*, char*);
 

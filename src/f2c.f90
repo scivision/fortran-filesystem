@@ -39,7 +39,7 @@ import C_BOOL, C_CHAR
 character(kind=C_CHAR), intent(in) :: path1(*), path2(*)
 end function
 
-subroutine cfs_filesep(sep) bind(C, name='filesep')
+subroutine fs_filesep(sep) bind(C)
 import
 character(kind=C_CHAR), intent(out) :: sep(*)
 end subroutine
@@ -266,7 +266,7 @@ end procedure
 
 module procedure filesep
 character(kind=C_CHAR) :: cbuf(2)
-call cfs_filesep(cbuf)
+call fs_filesep(cbuf)
 filesep = cbuf(1)
 end procedure
 

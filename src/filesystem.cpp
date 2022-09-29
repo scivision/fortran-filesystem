@@ -22,6 +22,13 @@ namespace fs = std::filesystem;
 #include "ffilesystem.h"
 
 
+void fs_filesep(char* sep) {
+  fs::path p("/");
+
+  std::strcpy(sep, p.make_preferred().string().c_str());
+}
+
+
 size_t normal(const char* path, char* normalized) {
   // normalize path
   fs::path p(path);
@@ -36,13 +43,6 @@ size_t normal(const char* path, char* normalized) {
   std::strcpy(normalized, s.c_str());
 
   return strlen(normalized);
-}
-
-
-void filesep(char* sep) {
-  fs::path p("/");
-
-  std::strcpy(sep, p.make_preferred().string().c_str());
 }
 
 

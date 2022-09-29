@@ -41,7 +41,7 @@ bool is_windows() {
 bool sys_posix() {
   char sep[2];
 
-  filesep(sep);
+  fs_filesep(sep);
   return sep[0] == '/';
 }
 
