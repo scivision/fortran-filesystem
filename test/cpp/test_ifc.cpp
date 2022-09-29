@@ -21,9 +21,11 @@ int main() {
   std::cout << "Fortran: current working dir " << fpath << std::endl;
 
 #ifdef _MSC_VER
-    _getcwd(cpath, MAXP);
+    if(_getcwd(cpath, MAXP)  == NULL)
+      return EXIT_FAILURE;
 #else
-    getcwd(cpath, MAXP);
+    if(getcwd(cpath, MAXP) == NULL)
+      return EXIT_FAILURE;
 #endif
 
   normal(cpath, cpath);
