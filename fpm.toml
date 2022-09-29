@@ -12,6 +12,7 @@ library = true
 
 [library]
 source-dir = "src/fallback"
+include-dir = ["include", "src/fallback"]
 
 
 [[test]]
