@@ -221,7 +221,7 @@ int create_directories(const char* path) {
 }
 
 
-size_t root(const char* path, char* result, size_t buffer_size) {
+size_t fs_root(const char* path, char* result, size_t buffer_size) {
   fs::path p(path);
 
 #ifdef _WIN32
@@ -585,7 +585,7 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
   return fs_normal((home / p.substr(2)).generic_string().c_str(), result, buffer_size);
 }
 
-bool chmod_exe(const char* path) {
+bool fs_chmod_exe(const char* path) {
   // make path owner executable, if it's a file
 
   if(!fs_is_file(path)) {
@@ -606,7 +606,7 @@ bool chmod_exe(const char* path) {
 
 }
 
-bool chmod_no_exe(const char* path) {
+bool fs_chmod_no_exe(const char* path) {
   // make path not executable, if it's a file
 
   if(!fs_is_file(path)) {

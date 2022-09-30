@@ -60,7 +60,7 @@ procedure, public :: touch=>fs_touch
 procedure, public :: parent=>f_parent
 procedure, public :: file_name=>f_file_name
 procedure, public :: stem=>f_stem
-procedure, public :: root=>fs_root
+procedure, public :: root=>f_root
 procedure, public :: suffix=>f_suffix
 procedure, public :: expanduser=>f_expanduser
 procedure, public :: with_suffix=>f_with_suffix
@@ -70,8 +70,8 @@ procedure, public :: remove=>fs_unlink
 procedure, public :: file_size=>f_file_size
 procedure, public :: read_text=>fs_read_text
 procedure, public :: write_text=>fs_write_text
-procedure, public :: chmod_exe=>fs_chmod_exe
-procedure, public :: chmod_no_exe=>fs_chmod_no_exe
+procedure, public :: chmod_exe=>f_chmod_exe
+procedure, public :: chmod_no_exe=>f_chmod_no_exe
 
 end type path_t
 
@@ -457,11 +457,11 @@ type(path_t) :: r
 r%path_str = normal(self%path_str)
 end function
 
-function fs_root(self)
+function f_root(self) result(r)
 !! returns root of path
 class(path_t), intent(in) :: self
-character(:), allocatable :: fs_root
-fs_root = root(self%path_str)
+character(:), allocatable :: r
+r = root(self%path_str)
 end function
 
 function f_join(self, other) result(r)
@@ -608,13 +608,13 @@ length = len_trim(self%path_str)
 end function
 
 
-subroutine fs_chmod_exe(self)
+subroutine f_chmod_exe(self)
 class(path_t), intent(in) :: self
 call chmod_exe(self%path_str)
 end subroutine
 
 
-subroutine fs_chmod_no_exe(self)
+subroutine f_chmod_no_exe(self)
 class(path_t), intent(in) :: self
 call chmod_no_exe(self%path_str)
 end subroutine

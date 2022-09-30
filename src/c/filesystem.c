@@ -407,7 +407,7 @@ if(path == NULL || strlen(path) == 0)
 }
 
 
-size_t root(const char* path, char* result, size_t buffer_size) {
+size_t fs_root(const char* path, char* result, size_t buffer_size) {
 
 if (fs_is_absolute(path)){
 
@@ -520,7 +520,7 @@ bool fs_remove(const char* path) {
 #endif
 }
 
-bool chmod_exe(const char* path){
+bool fs_chmod_exe(const char* path){
   struct stat s;
   if(stat(path, &s) != 0)
     return false;
@@ -532,7 +532,7 @@ bool chmod_exe(const char* path){
 #endif
 }
 
-bool chmod_no_exe(const char* path){
+bool fs_chmod_no_exe(const char* path){
   struct stat s;
   if(stat(path, &s) != 0)
     return false;

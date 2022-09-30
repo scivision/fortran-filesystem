@@ -18,12 +18,12 @@ character(kind=C_CHAR), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-logical(C_BOOL) function cfs_chmod_exe(path) bind(C, name="chmod_exe")
+logical(C_BOOL) function fs_chmod_exe(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(C_BOOL) function cfs_chmod_no_exe(path) bind(C, name="chmod_no_exe")
+logical(C_BOOL) function fs_chmod_no_exe(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
@@ -155,7 +155,7 @@ character(kind=c_char), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_root(path, result, buffer_size) bind(C, name="root")
+integer(C_SIZE_T) function fs_root(path, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 character(kind=C_CHAR), intent(out) :: result(*)
@@ -211,13 +211,13 @@ end procedure canonical
 
 module procedure chmod_exe
 logical :: s
-s = cfs_chmod_exe(trim(path) // C_NULL_CHAR)
+s = fs_chmod_exe(trim(path) // C_NULL_CHAR)
 if(present(ok)) ok = s
 end procedure
 
 module procedure chmod_no_exe
 logical :: s
-s = cfs_chmod_no_exe(trim(path) // C_NULL_CHAR)
+s = fs_chmod_no_exe(trim(path) // C_NULL_CHAR)
 if(present(ok)) ok = s
 end procedure
 
@@ -393,7 +393,7 @@ end procedure
 module procedure root
 character(kind=c_char, len=3) :: cbuf
 integer(C_SIZE_T) :: N
-N = cfs_root(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_root(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: root)
 root = cbuf(:N)
 end procedure

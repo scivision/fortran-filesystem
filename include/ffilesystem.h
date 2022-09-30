@@ -67,7 +67,7 @@ extern size_t fs_file_name(const char*, char*, size_t);
 extern size_t fs_stem(const char*, char*, size_t);
 extern size_t fs_parent(const char*, char*, size_t);
 extern size_t fs_suffix(const char*, char*, size_t);
-extern size_t root(const char*, char*, size_t);
+extern size_t fs_root(const char*, char*, size_t);
 
 extern size_t fs_with_suffix(const char*, const char*, char*, size_t);
 
@@ -81,8 +81,8 @@ extern bool fs_is_dir(const char*);
 extern bool fs_is_file(const char*);
 extern bool fs_is_exe(const char*);
 
-extern bool chmod_exe(const char*);
-extern bool chmod_no_exe(const char*);
+extern bool fs_chmod_exe(const char*);
+extern bool fs_chmod_no_exe(const char*);
 
 extern bool fs_remove(const char*);
 extern size_t canonical(const char*, bool, char*, size_t);
