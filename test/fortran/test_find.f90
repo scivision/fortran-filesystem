@@ -87,7 +87,7 @@ end subroutine test_get_filename
 
 subroutine test_make_absolute()
 
-character(16) :: fn2
+character(:), allocatable :: fn2
 
 if (is_windows()) then
   fn2 = make_absolute("rel", "j:/foo")
