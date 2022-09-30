@@ -20,6 +20,8 @@ endif()
 if(HAVE_FS_FEATURE)
   # some compilers e.g. Cray claim to have filesystem, but their libstdc++ doesn't have it.
   check_cxx_source_compiles([=[
+  #include <cstdlib>
+
   #if __has_include(<filesystem>)
   #include <filesystem>
   namespace fs = std::filesystem;

@@ -84,7 +84,7 @@ $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(ffilesystem
 INTERFACE
-${NEED_stdfs}
+${GNU_stdfs}
 $<$<BOOL:${HAVE_DLADDR}>:${CMAKE_DL_LIBS}>
 PRIVATE
 $<$<BOOL:${WIN32}>:Shlwapi>

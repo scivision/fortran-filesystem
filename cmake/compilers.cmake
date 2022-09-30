@@ -6,11 +6,12 @@ include(${CMAKE_CURRENT_LIST_DIR}/CppCheck.cmake)
 
 # --- abi check: C++ and Fortran compiler ABI compatibility
 
-if(cpp AND fortran AND NOT abi_ok)
-  message(CHECK_START "checking that C, C++, and Fortran compilers can link")
+if(NOT abi_ok)
+  message(CHECK_START "checking that compilers can link together")
   try_compile(abi_ok
   ${CMAKE_CURRENT_BINARY_DIR}/abi_check ${CMAKE_CURRENT_LIST_DIR}/abi_check
   abi_check
+  CMAKE_FLAGS -Dcpp:BOOL=${cpp} -Dfortran:BOOL=${fortran}
   OUTPUT_VARIABLE abi_log
   )
   if(abi_ok)
@@ -39,10 +40,14 @@ unset(CMAKE_REQUIRED_LIBRARIES)
 unset(CMAKE_REQUIRED_DEFINITIONS)
 
 if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "9.1.0") OR
+   (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "9.1.0") OR
     CMAKE_C_COMPILER_ID STREQUAL "NVHPC")
-  set(NEED_stdfs stdc++fs)
-  set(CMAKE_REQUIRED_LIBRARIES ${NEED_stdfs})
-  message(STATUS "adding library ${NEED_stdfs} for ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPLIER_VERSION}")
+  set(GNU_stdfs stdc++fs)
+endif()
+
+if(GNU_stdfs)
+  set(CMAKE_REQUIRED_LIBRARIES ${GNU_stdfs})
+  message(STATUS "adding library ${GNU_stdfs}")
 endif()
 
 if(MSVC)
