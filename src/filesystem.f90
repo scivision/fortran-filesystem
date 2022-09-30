@@ -57,8 +57,8 @@ procedure, public :: copy_file=>fs_copy_file
 procedure, public :: mkdir=>fs_mkdir
 procedure, public :: touch=>fs_touch
 procedure, public :: parent=>fs_parent
-procedure, public :: file_name=>fs_file_name
-procedure, public :: stem=>fs_stem
+procedure, public :: file_name=>f_file_name
+procedure, public :: stem=>f_stem
 procedure, public :: root=>fs_root
 procedure, public :: suffix=>fs_suffix
 procedure, public :: expanduser=>fs_expanduser
@@ -67,7 +67,7 @@ procedure, public :: resolve=>fs_resolve
 procedure, public :: same_file=>fs_same_file
 procedure, public :: is_exe=>fs_is_exe
 procedure, public :: remove=>fs_unlink
-procedure, public :: file_size=>fs_file_size
+procedure, public :: file_size=>f_file_size
 procedure, public :: read_text=>fs_read_text
 procedure, public :: write_text=>fs_write_text
 procedure, public :: chmod_exe=>fs_chmod_exe
@@ -403,11 +403,10 @@ fs_relative_to = relative_to(self%path_str, other)
 end function
 
 
-function fs_stem(self)
+function f_stem(self) result(r)
 class(path_t), intent(in) :: self
-character(:), allocatable :: fs_stem
-
-fs_stem = stem(self%path_str)
+character(:), allocatable :: r
+r = stem(self%path_str)
 end function
 
 
@@ -420,12 +419,11 @@ fs_suffix = suffix(self%path_str)
 end function
 
 
-function fs_file_name(self)
+function f_file_name(self) result (r)
 !! returns file name without path
 class(path_t), intent(in) :: self
-character(:), allocatable :: fs_file_name
-
-fs_file_name = file_name(self%path_str)
+character(:), allocatable :: r
+r = file_name(self%path_str)
 end function
 
 
@@ -456,11 +454,11 @@ character(*), intent(in) :: new
 fs_with_suffix%path_str = with_suffix(self%path_str, new)
 end function
 
-function f_normal(self)
+function f_normal(self) result(r)
 !! lexically normalize path
 class(path_t), intent(in) :: self
-type(path_t) :: f_normal
-f_normal%path_str = normal(self%path_str)
+type(path_t) :: r
+r%path_str = normal(self%path_str)
 end function
 
 function fs_root(self)
@@ -530,9 +528,9 @@ class(path_t), intent(in) :: self
 fs_is_file = is_file(self%path_str)
 end function
 
-integer(int64) function fs_file_size(self)
+integer(int64) function f_file_size(self)
 class(path_t), intent(in) :: self
-fs_file_size = file_size(self%path_str)
+f_file_size = file_size(self%path_str)
 end function
 
 

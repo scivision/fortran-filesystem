@@ -60,6 +60,52 @@ size_t fs_normal(const char* path, char* normalized, size_t buffer_size) {
 
 }
 
+
+size_t fs_file_name(const char* path, char* result, size_t buffer_size){
+
+  if(path == NULL || strlen(path) == 0)
+    return 0;
+
+  const char *base;
+
+  if(TRACE) printf("TRACE:file_name: %s\n", path);
+
+  cwk_path_set_style(CWK_STYLE_UNIX);
+  cwk_path_get_basename(path, &base, NULL);
+
+  if(TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
+
+  strncpy(result, base, buffer_size);
+  size_t L = strlen(result);
+  result[L] = '\0';
+
+  return L;
+}
+
+
+size_t fs_stem(const char* path, char* result, size_t buffer_size){
+
+  if(path == NULL || strlen(path) == 0)
+    return 0;
+
+  char* buf = (char*) malloc(buffer_size);
+  fs_file_name(path, buf, buffer_size);
+
+  char* pos = strrchr(buf, '.');
+  if (pos && pos != buf){
+    strncpy(result, buf, pos-buf);
+    result[pos-buf] = '\0';
+  }
+  else {
+    strncpy(result, buf, buffer_size);
+    result[strlen(result)] = '\0';
+  }
+
+  free(buf);
+  return strlen(result);
+}
+
+
 size_t canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
@@ -109,27 +155,6 @@ size_t join(const char* path, const char* other, char* result, size_t buffer_siz
   return cwk_path_join(path, other, result, buffer_size);
 }
 
-
-size_t file_name(const char* path, char* result, size_t buffer_size){
-
-  if(path == NULL || strlen(path) == 0)
-    return 0;
-
-  const char *base;
-
-  printf("TRACE:file_name: %s\n", path);
-
-  cwk_path_set_style(CWK_STYLE_UNIX);
-  cwk_path_get_basename(path, &base, NULL);
-
-  printf("TRACE:file_name: %s => %s\n", path, base);
-
-  strncpy(result, base, buffer_size);
-  size_t L = strlen(result);
-  result[L] = '\0';
-
-  return L;
-}
 
 size_t relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
 
@@ -360,35 +385,13 @@ else {
 }
 
 
-size_t stem(const char* path, char* result, size_t buffer_size){
-
-  if(path == NULL || strlen(path) == 0)
-    return 0;
-
-  char* buf = (char*) malloc(buffer_size);
-  file_name(path, buf, buffer_size);
-
-  char* pos = strrchr(buf, '.');
-  if (pos && pos != buf){
-    strncpy(result, buf, pos-buf);
-    result[pos-buf] = '\0';
-  }
-  else {
-    strncpy(result, buf, buffer_size);
-    result[strlen(result)] = '\0';
-  }
-
-  free(buf);
-  return strlen(result);
-}
-
 size_t suffix(const char* path, char* fout, size_t buffer_size){
 
   if(path == NULL || strlen(path) == 0)
     return 0;
 
   char* buf = (char*) malloc(buffer_size);
-  file_name(path, buf, buffer_size);
+  fs_file_name(path, buf, buffer_size);
 
   char* pos = strrchr(buf, '.');
   if (pos && pos != buf){
@@ -537,7 +540,7 @@ size_t with_suffix(const char* path, const char* suffix, char* result, size_t bu
     return 0;
 
   if(strlen(suffix) == 0)
-    return stem(path, result, buffer_size);
+    return fs_stem(path, result, buffer_size);
 
   if(path[0] == '.'){
     // workaround for leading dot filename

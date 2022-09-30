@@ -158,7 +158,7 @@ if(stem("") /= "") error stop "stem empty: " // stem("")
 p1 = path_t("stem.a.b")
 if (p1%stem() /= "stem.a") error stop "%stem failed: " // p1%stem()
 p2 = path_t(p1%stem())
-if (p2%stem() /= "stem") error stop "stem nest failed"
+if (p2%stem() /= "stem") error stop "stem nest failed: " // p2%stem()
 
 if (stem("stem") /= "stem") error stop "stem idempotent failed: " // stem("stem")
 

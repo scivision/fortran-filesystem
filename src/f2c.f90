@@ -77,7 +77,7 @@ character(kind=c_char), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_file_name(path, filename, buffer_size) bind(C, name="file_name")
+integer(C_SIZE_T) function fs_file_name(path, filename, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 character(kind=C_CHAR), intent(out) :: filename(*)
@@ -162,7 +162,7 @@ character(kind=C_CHAR), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_stem(path, result, buffer_size) bind(C, name="stem")
+integer(C_SIZE_T) function fs_stem(path, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 character(kind=C_CHAR), intent(out) :: result(*)
@@ -290,7 +290,7 @@ module procedure file_name
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_file_name(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_file_name(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: file_name)
 file_name = cbuf(:N)
 end procedure
@@ -405,7 +405,7 @@ module procedure stem
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_stem(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_stem(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: stem)
 stem = cbuf(:N)
 end procedure

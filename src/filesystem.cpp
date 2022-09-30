@@ -54,7 +54,7 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size) {
 }
 
 
-size_t file_name(const char* path, char* result, size_t buffer_size) {
+size_t fs_file_name(const char* path, char* result, size_t buffer_size) {
 
   fs::path p(path);
 
@@ -62,7 +62,7 @@ size_t file_name(const char* path, char* result, size_t buffer_size) {
 }
 
 
-size_t stem(const char* path, char* result, size_t buffer_size) {
+size_t fs_stem(const char* path, char* result, size_t buffer_size) {
 
   fs::path p(path);
 
