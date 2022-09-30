@@ -239,7 +239,7 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
   // short circuit if trivially equal
   if(strcmp(to, from) == 0){
     strcpy(result, ".");
-    return strlen(result);
+    return 1;
   }
 
   cwk_path_set_style(CWK_STYLE_UNIX);
