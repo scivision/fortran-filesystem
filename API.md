@@ -450,25 +450,6 @@ Get system temporary directory:
 character(:), allocatable :: get_tempdir
 ```
 
-Find a file "name" under "path"
-
-```fortran
-use filesystem, only : get_filename
-
-function get_filename(path, name, suffixes)
-!! given a path, stem and vector of suffixes, find the full filename
-!! assumes:
-!! * if present, "name" is the file name we wish to find (without suffix or directories)
-!! * if name not present, "path" is the directory + filename without suffix
-!!
-!! suffixes is a vector of suffixes to check. Default is [character(4) :: '.h5', '.nc', '.dat']
-!! if file not found, empty character is returned
-
-character(*), intent(in) :: path
-character(*), intent(in), optional :: name, suffixes(:)
-character(:), allocatable :: get_filename
-```
-
 Make a path absolute if relative:
 
 ```fortran
