@@ -47,7 +47,7 @@ procedure, public :: length
 procedure, public :: join=>f_join
 procedure, public :: relative_to=>fs_relative_to
 procedure, public :: normal=>f_normal
-procedure, public :: exists=>fs_exists
+procedure, public :: exists=>f_exists
 procedure, public :: is_file=>f_is_file
 procedure, public :: is_exe=>f_is_exe
 procedure, public :: is_dir=>f_is_dir
@@ -480,9 +480,9 @@ call remove(self%path_str)
 end subroutine
 
 
-logical function fs_exists(self)
+logical function f_exists(self) result(r)
 class(path_t), intent(in) :: self
-fs_exists = exists(self%path_str)
+r = exists(self%path_str)
 end function
 
 

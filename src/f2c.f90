@@ -65,7 +65,7 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(C_BOOL) function cfs_exists(path) bind(C, name="exists")
+logical(C_BOOL) function fs_exists(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
@@ -267,7 +267,7 @@ end procedure
 
 
 module procedure exists
-exists = cfs_exists(trim(path) // C_NULL_CHAR)
+exists = fs_exists(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure expanduser

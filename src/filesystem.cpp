@@ -116,7 +116,9 @@ size_t fs_with_suffix(const char* path, const char* new_suffix, char* result, si
 
 
 bool fs_is_symlink(const char* path) {
-if(!exists(path)) return false;
+
+if(!fs_exists(path))
+  return false;
 
 #ifdef __MINGW32__
 // c++ filesystem is_symlink doesn't work on MinGW GCC, but this C method does work
@@ -231,13 +233,15 @@ size_t root(const char* path, char* result, size_t buffer_size) {
 }
 
 
-bool exists(const char* path) {
+bool fs_exists(const char* path) {
   std::error_code ec;
 
   auto e = fs::exists(path, ec);
 
-  if(ec)
+  if(ec) {
+    std::cerr << "ERROR:filesystem:exists: " << ec.message() << std::endl;
     return false;
+  }
 
   return e;
 }
@@ -250,17 +254,17 @@ bool fs_is_absolute(const char* path) {
 
 
 bool fs_is_dir(const char* path) {
+
   if(std::strlen(path) == 0)
     return false;
 
-  fs::path p(path);
-
 #ifdef _WIN32
+  fs::path p(path);
   if (p.root_name() == p)
     return true;
 #endif
 
-  if (!exists(path))
+  if (!fs_exists(path))
     return false;
 
   return fs::is_directory(path);
@@ -268,27 +272,16 @@ bool fs_is_dir(const char* path) {
 
 
 bool fs_is_exe(const char* path) {
-  fs::path p(path);
-  std::error_code ec;
 
-  auto s = fs::status(p, ec);
-  if (s.type() == fs::file_type::not_found)
+  if (!fs_is_file(path))
     return false;
 
-  if(ec) {
-    std::cerr << "ERROR:filesystem:is_exe: " << ec.message() << std::endl;
-    return false;
-  }
-
-  if (!fs::is_regular_file(s)) {
-    std::cerr << "filesystem:is_exe: " << p << " is not a regular file" << std::endl;
-    return false;
-  }
+  auto s = fs::status(path);
 
   auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
   auto isexe = i != fs::perms::none;
 
-  if(TRACE) std::cout << "TRACE:is_exe: " << p << " " << isexe << std::endl;
+  if(TRACE) std::cout << "TRACE:is_exe: " << path << " " << isexe << std::endl;
 
   return isexe;
 }
@@ -297,7 +290,7 @@ bool fs_is_exe(const char* path) {
 bool fs_is_file(const char* path) {
   std::error_code ec;
 
-  if (!exists(path))
+  if (!fs_exists(path))
     return false;
 
   return fs::is_regular_file(path);
@@ -352,20 +345,13 @@ size_t canonical(const char* path, bool strict, char* result, size_t buffer_size
 
 bool equivalent(const char* path1, const char* path2) {
   // check existance to avoid error if not exist
-  fs::path p1(path1);
-  fs::path p2(path2);
+
+  if (! (fs_exists(path1) && fs_exists(path2)) )
+    return false;
 
   std::error_code ec;
 
-  if (! (fs::exists(p1, ec) && fs::exists(p2, ec)) )
-    return false;
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:equivalent: " << ec.message() << std::endl;
-    return false;
-  }
-
-  auto e = fs::equivalent(p1, p2, ec);
+  auto e = fs::equivalent(path1, path2, ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:equivalent: " << ec.message() << std::endl;
@@ -387,26 +373,20 @@ int copy_file(const char* source, const char* destination, bool overwrite) {
     return 1;
   }
 
-  fs::path d(destination);
-
   auto opt = fs::copy_options::none;
 
-  std::error_code ec;
-
   if (overwrite) {
-
 // WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
-  if(fs::exists(d, ec)) fs::remove(d, ec);
+    if(fs_exists(destination)){
+      if (!fs_remove(destination))
+        return 1;
+    }
 
-  if(ec) {
-    std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << std::endl;
-    return ec.value();
+    opt |= fs::copy_options::overwrite_existing;
   }
 
-  opt |= fs::copy_options::overwrite_existing;
-  }
-
-  auto ok = fs::copy_file(source, d, opt, ec);
+  std::error_code ec;
+  auto ok = fs::copy_file(source, destination, opt, ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << std::endl;
@@ -459,10 +439,9 @@ bool touch(const char* path) {
   if(path == nullptr || strlen(path) == 0)
     return false;
 
-  fs::path p(path);
   std::error_code ec;
 
-  auto s = fs::status(p, ec);
+  auto s = fs::status(path, ec);
   if(s.type() != fs::file_type::not_found){
     if(ec) {
       std::cerr << "ERROR:filesystem:touch:status: " << ec.message() << std::endl;
@@ -475,25 +454,20 @@ bool touch(const char* path) {
 
   if(!fs::is_regular_file(s)) {
     std::ofstream ost;
-    ost.open(p);
+    ost.open(path);
     ost.close();
     // ensure user can access file, as default permissions may be mode 600 or such
-    fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add, ec);
+    fs::permissions(path, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add, ec);
   }
   if(ec) {
     std::cerr << "filesystem:touch:permissions: " << ec.message() << std::endl;
     return false;
   }
 
-  if (!fs::is_regular_file(p, ec)) return false;
-  // here p because we want to check the new file
-  if(ec) {
-    std::cerr << "filesystem:touch:is_regular_file: " << ec.message() << std::endl;
+  if (!fs_is_file(path))
     return false;
-  }
 
-
-  fs::last_write_time(p, fs::file_time_type::clock::now(), ec);
+  fs::last_write_time(path, fs::file_time_type::clock::now(), ec);
   if(ec) {
     std::cerr << "filesystem:touch:last_write_time: " << path << " was created, but modtime was not updated: " << ec.message() << std::endl;
     return false;
@@ -521,21 +495,17 @@ size_t fs_get_tempdir(char* result, size_t buffer_size) {
 
 uintmax_t fs_file_size(const char* path) {
   // need to check is_regular_file for MSVC/Intel Windows
-  fs::path p(path);
+
+  if (!fs_is_file(path)) {
+    std::cerr << "filesystem:file_size: " << path << " is not a regular file" << std::endl;
+    return 0;
+  }
+
   std::error_code ec;
 
-  if (!fs::is_regular_file(p, ec)) {
-    std::cerr << "filesystem:file_size: " << p << " is not a regular file" << std::endl;
-    return 0;
-  }
-  if(ec) {
-    std::cerr << "ERROR:filesystem:file_size: " << ec.message() << std::endl;
-    return 0;
-  }
-
-  auto fsize = fs::file_size(p, ec);
+  auto fsize = fs::file_size(path, ec);
   if (ec) {
-    std::cerr << "ERROR:filesystem:file_size: " << p << " could not get file size: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:file_size: " << path << " could not get file size: " << ec.message() << std::endl;
     return 0;
   }
 
@@ -618,22 +588,17 @@ size_t expanduser(const char* path, char* result, size_t buffer_size){
 bool chmod_exe(const char* path) {
   // make path owner executable, if it's a file
 
-  fs::path p(path);
+  if(!fs_is_file(path)) {
+    std::cerr << "filesystem:chmod_exe: " << path << " is not a regular file" << std::endl;
+    return false;
+  }
+
   std::error_code ec;
 
-  if(!fs::is_regular_file(p, ec)) {
-    std::cerr << "filesystem:chmod_exe: " << p << " is not a regular file" << std::endl;
-    return false;
-  }
-  if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_exe: " << p << ": " << ec.message() << std::endl;
-    return false;
-  }
-
-  fs::permissions(p, fs::perms::owner_exec, fs::perm_options::add, ec);
+  fs::permissions(path, fs::perms::owner_exec, fs::perm_options::add, ec);
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_exe: " << p << ": " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:chmod_exe: " << path << ": " << ec.message() << std::endl;
     return false;
   }
 
@@ -644,22 +609,17 @@ bool chmod_exe(const char* path) {
 bool chmod_no_exe(const char* path) {
   // make path not executable, if it's a file
 
-  fs::path p(path);
+  if(!fs_is_file(path)) {
+    std::cerr << "filesystem:chmod_no_exe: " << path << " is not a regular file" << std::endl;
+    return false;
+  }
+
   std::error_code ec;
 
-  if(!fs::is_regular_file(p, ec)) {
-    std::cerr << "filesystem:chmod_no_exe: " << p << " is not a regular file" << std::endl;
-    return false;
-  }
-  if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_no_exe: " << p << ": " << ec.message() << std::endl;
-    return false;
-  }
-
-  fs::permissions(p, fs::perms::owner_exec, fs::perm_options::remove, ec);
+  fs::permissions(path, fs::perms::owner_exec, fs::perm_options::remove, ec);
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_no_exe: " << p << ": " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:chmod_no_exe: " << path << ": " << ec.message() << std::endl;
     return false;
   }
 

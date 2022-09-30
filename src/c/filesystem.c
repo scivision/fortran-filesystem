@@ -201,7 +201,7 @@ size_t canonical(const char* path, bool strict, char* result, size_t buffer_size
 
   if(TRACE) printf("TRACE:canonical in: %s  expanded: %s\n", path, buf);
 
-  if(strict && !exists(buf)) {
+  if(strict && !fs_exists(buf)) {
     free(buf);
     return 0;
   }
@@ -393,7 +393,7 @@ bool fs_is_file(const char* path){
 }
 
 
-bool exists(const char* path) {
+bool fs_exists(const char* path) {
 // false empty just for clarity
 if(path == NULL || strlen(path) == 0)
   return false;
@@ -453,7 +453,7 @@ bool fs_is_absolute(const char* path){
 bool fs_is_symlink(const char* path){
   if(path==NULL)
     return false;
-  if(!exists(path))
+  if(!fs_exists(path))
     return false;
 
 #ifdef _WIN32
@@ -503,7 +503,7 @@ size_t fs_get_cwd(char* path, size_t buffer_size) {
 }
 
 bool fs_remove(const char* path) {
-  if (!exists(path))
+  if (!fs_exists(path))
     return true;
 
 #ifdef _WIN32
@@ -546,7 +546,7 @@ bool chmod_no_exe(const char* path){
 
 bool touch(const char* path) {
 
-  if (exists(path) && !fs_is_file(path))
+  if (fs_exists(path) && !fs_is_file(path))
     return false;
 
   if(!fs_is_file(path)) {

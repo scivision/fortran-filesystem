@@ -49,7 +49,7 @@ int main(int argc, char* argv[]){
     printf("%ju\n", fs_file_size(argv[2]));
   }
   else if (strcmp(argv[1], "exists") ==0 && argc == 3){
-    printf("%d\n", exists(argv[2]));
+    printf("%d\n", fs_exists(argv[2]));
   }
   else if (strcmp(argv[1], "is_dir") ==0 && argc == 3){
     printf("%d\n", fs_is_dir(argv[2]));
