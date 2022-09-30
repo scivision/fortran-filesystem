@@ -39,18 +39,20 @@ size_t fs_filesep(char* sep) {
 }
 
 
-size_t fs_normal(const char* path, char* normalized, size_t buffer_size) {
-  if(path == NULL)
+size_t fs_normal(const char* path, char* result, size_t buffer_size) {
+  if(path == NULL){
+    result[0] = '\0';
     return 0;
+  }
 
   cwk_path_set_style(CWK_STYLE_UNIX);
-  size_t L = cwk_path_normalize(path, normalized, buffer_size);
+  size_t L = cwk_path_normalize(path, result, buffer_size);
 
-  if(TRACE) printf("TRACE:normal in: %s  out: %s\n", path, normalized);
+  if(TRACE) printf("TRACE:normal in: %s  out: %s\n", path, result);
 
 // force posix file seperator
   char s='\\';
-  char *p = strchr(normalized, s);
+  char *p = strchr(result, s);
   while (p) {
       *p = '/';
       p = strchr(p+1, s);
@@ -63,8 +65,10 @@ size_t fs_normal(const char* path, char* normalized, size_t buffer_size) {
 
 size_t fs_file_name(const char* path, char* result, size_t buffer_size){
 
-  if(path == NULL || strlen(path) == 0)
+  if(path == NULL || strlen(path) == 0){
+    result[0] = '\0';
     return 0;
+  }
 
   const char *base;
 
@@ -85,8 +89,10 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size){
 
 size_t fs_stem(const char* path, char* result, size_t buffer_size){
 
-  if(path == NULL || strlen(path) == 0)
+  if(path == NULL || strlen(path) == 0){
+    result[0] = '\0';
     return 0;
+  }
 
   char* buf = (char*) malloc(buffer_size);
   fs_file_name(path, buf, buffer_size);
@@ -107,8 +113,10 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size){
 
 
 size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size){
-  if(path == NULL || other == NULL)
+  if(path == NULL || other == NULL){
+    result[0] = '\0';
     return 0;
+  }
 
   cwk_path_set_style(CWK_STYLE_UNIX);
   return cwk_path_join(path, other, result, buffer_size);
@@ -144,8 +152,10 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size){
 
 size_t fs_suffix(const char* path, char* result, size_t buffer_size){
 
-  if(path == NULL || strlen(path) == 0)
+  if(path == NULL || strlen(path) == 0){
+    result[0] = '\0';
     return 0;
+  }
 
   char* buf = (char*) malloc(buffer_size);
   fs_file_name(path, buf, buffer_size);
@@ -165,8 +175,10 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size){
 
 
 size_t fs_with_suffix(const char* path, const char* suffix, char* result, size_t buffer_size){
-  if(path == NULL || suffix == NULL)
+  if(path == NULL || suffix == NULL){
+    result[0] = '\0';
     return 0;
+  }
 
   if(strlen(suffix) == 0)
     return fs_stem(path, result, buffer_size);
@@ -187,8 +199,10 @@ size_t fs_with_suffix(const char* path, const char* suffix, char* result, size_t
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
-  if( path == NULL || strlen(path) == 0 )
+  if( path == NULL || strlen(path) == 0 ){
+    result[0] = '\0';
     return 0;
+  }
 
   if(strlen(path) == 1 && path[0] == '.')
     return fs_get_cwd(result, buffer_size);
@@ -196,6 +210,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   char* buf = (char*) malloc(buffer_size);
   if(fs_expanduser(path, buf, buffer_size) == 0){
     free(buf);
+    result[0] = '\0';
     return 0;
   }
 
@@ -203,6 +218,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 
   if(strict && !fs_exists(buf)) {
     free(buf);
+    result[0] = '\0';
     return 0;
   }
 
@@ -216,6 +232,7 @@ char* buf2 = (char*) malloc(buffer_size);
     fprintf(stderr, "ERROR:canonical: %s => %s\n", buf, strerror(errno));
     free(buf);
     free(buf2);
+    result[0] = '\0';
     return 0;
   }
 
@@ -229,12 +246,16 @@ char* buf2 = (char*) malloc(buffer_size);
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
 
   // undefined case, avoid bugs with MacOS
-  if( to == NULL || (strlen(to) == 0) || from ==NULL || (strlen(from) == 0) )
+  if( to == NULL || (strlen(to) == 0) || from ==NULL || (strlen(from) == 0) ){
+    result[0] = '\0';
     return 0;
+  }
 
   // cannot be relative, avoid bugs with MacOS
-  if(fs_is_absolute(to) != fs_is_absolute(from))
+  if(fs_is_absolute(to) != fs_is_absolute(from)){
+    result[0] = '\0';
     return 0;
+  }
 
   // short circuit if trivially equal
   if(strcmp(to, from) == 0){
@@ -277,12 +298,16 @@ bool fs_equivalent(const char* path1, const char* path2){
 
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
 
-  if(path == NULL)
+  if(path == NULL){
+    result[0] = '\0';
     return 0;
+  }
 
   size_t L = strlen(path);
-  if(L == 0)
-    return L;
+  if(L == 0){
+    result[0] = '\0';
+    return 0;
+  }
 
   if(path[0] != '~')
     return fs_normal(path, result, buffer_size);
@@ -323,6 +348,7 @@ size_t L;
   if(getenv_s(&L, buf, buffer_size, "USERPROFILE") != 0){
     fprintf(stderr, "ERROR:get_homedir: %s\n", strerror(errno));
     free(buf);
+    result[0] = '\0';
     return 0;
   }
 #else
@@ -346,6 +372,7 @@ size_t L;
   if(GetTempPath((DWORD)buffer_size, buf) == 0){
     fprintf(stderr, "ERROR:get_tempdir: %s\n", strerror(errno));
     free(buf);
+    result[0] = '\0';
     return 0;
   }
 #else
@@ -488,18 +515,22 @@ int fs_create_symlink(const char* target, const char* link) {
 }
 
 
-size_t fs_get_cwd(char* path, size_t buffer_size) {
+size_t fs_get_cwd(char* result, size_t buffer_size) {
 
 #ifdef _MSC_VER
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
-  if (_getcwd(path, (DWORD)buffer_size) == NULL)
+  if (_getcwd(result, (DWORD)buffer_size) == NULL){
+    result[0] = '\0';
     return 0;
+  }
 #else
-  if (getcwd(path, buffer_size) == NULL)
+  if (getcwd(result, buffer_size) == NULL){
+    result[0] = '\0';
     return 0;
+  }
 #endif
 
-  return fs_normal(path, path, buffer_size);
+  return fs_normal(result, result, buffer_size);
 }
 
 bool fs_remove(const char* path) {

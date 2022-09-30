@@ -61,6 +61,12 @@ subroutine test_join()
 
 type(path_t) :: p1,p2
 
+if(join("", "") /= "") error stop "join empty: " // join("", "")
+
+if(join("a", "") /= "a") error stop "join a: " // join("a", "")
+
+if(join("", "b") /= "b") error stop "join b: " // join("", "b")
+
 
 p1 = path_t("a/b")
 

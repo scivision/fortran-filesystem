@@ -23,7 +23,6 @@ namespace fs = std::filesystem;
 
 #define TRACE 0
 
-
 size_t path2str(const fs::path p, char* result, size_t buffer_size){
 
   auto s = p.generic_string();
@@ -72,8 +71,24 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size) {
 
 size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size) {
 
+  size_t L1 = strlen(path);
+  size_t L2 = strlen(other);
+
+  if (L1 == 0 && L2 == 0){
+    result[0] = '\0';
+    return 0;
+  }
+
   fs::path p1(path);
   fs::path p2(other);
+
+  if (TRACE) std::cout << "TRACE:fs_join: " << path << " + " << other << std::endl;
+
+  if(L1 == 0)
+    return path2str(p2, result, buffer_size);
+
+  if(L2 == 0)
+    return path2str(p1, result, buffer_size);
 
   return path2str(p1 / p2, result, buffer_size);
 }
@@ -106,8 +121,10 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size) {
 
 size_t fs_with_suffix(const char* path, const char* new_suffix, char* result, size_t buffer_size) {
 
-  if(path == nullptr)
+  if(path == nullptr){
+    result[0] = '\0';
     return 0;
+  }
 
   fs::path p(path);
 
@@ -313,8 +330,10 @@ bool fs_remove(const char* path) {
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
-  if( path == nullptr || strlen(path) == 0 )
+  if( path == nullptr || strlen(path) == 0 ){
+    result[0] = '\0';
     return 0;
+  }
 
   char* ex = new char[buffer_size];
   fs_expanduser(path, ex, buffer_size);
@@ -336,6 +355,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 
   if(ec) {
     std::cerr << "ERROR:filesystem:canonical: " << ec.message() << std::endl;
+    result[0] = '\0';
     return 0;
   }
 
@@ -411,15 +431,19 @@ int fs_copy_file(const char* source, const char* destination, bool overwrite) {
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
 
   // undefined case, avoid bugs with MacOS
-  if( to == nullptr || (strlen(to) == 0) || from == nullptr || (strlen(from) == 0) )
+  if( to == nullptr || (strlen(to) == 0) || from == nullptr || (strlen(from) == 0) ){
+    result[0] = '\0';
     return 0;
+  }
 
   fs::path tp(to);
   fs::path fp(from);
 
   // cannot be relative, avoid bugs with MacOS
-  if(tp.is_absolute() != fp.is_absolute())
+  if(tp.is_absolute() != fp.is_absolute()){
+    result[0] = '\0';
     return 0;
+  }
 
   std::error_code ec;
 
@@ -427,6 +451,7 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
 
   if(ec) {
     std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
+    result[0] = '\0';
     return 0;
   }
 
@@ -486,6 +511,7 @@ size_t fs_get_tempdir(char* result, size_t buffer_size) {
 
   if(ec) {
     std::cerr << "filesystem:get_tempdir: " << ec.message() << std::endl;
+    result[0] = '\0';
     return 0;
   }
 
@@ -520,6 +546,7 @@ size_t fs_get_cwd(char* result, size_t buffer_size) {
 
   if(ec) {
     std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << std::endl;
+    result[0] = '\0';
     return 0;
   }
 
@@ -539,6 +566,7 @@ size_t fs_get_homedir(char* result, size_t buffer_size) {
 
   if(r == nullptr) {
     std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined" << std::endl;
+    result[0] = '\0';
     return 0;
   }
 
@@ -552,8 +580,10 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
 
   if(TRACE)  std::cout << "TRACE:expanduser: path: " << p << " length: " << strlen(path) << std::endl;
 
-  if( path == nullptr || strlen(path) == 0 )
+  if( path == nullptr || strlen(path) == 0 ){
+    result[0] = '\0';
     return 0;
+  }
 
   if(p.front() != '~')
     return fs_normal(path, result, buffer_size);
