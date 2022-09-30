@@ -8,7 +8,6 @@ VERSION 3.9.0
 include(CTest) # needed for "ctest -T memcheck"
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_C_STANDARD 11) # for CWalk
 
 include(cmake/options.cmake)
 if(cpp)

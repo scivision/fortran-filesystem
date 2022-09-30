@@ -35,7 +35,7 @@ size_t fs_exe_path(char* path, size_t buffer_size){
 
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  return GetModuleFileName(NULL, path, buffer_size);
+  return GetModuleFileName(NULL, path, (DWORD)buffer_size);
 #elif defined(__linux__)
   // https://man7.org/linux/man-pages/man2/readlink.2.html
   if (readlink("/proc/self/exe", path, buffer_size) == -1)
@@ -78,7 +78,7 @@ size_t fs_lib_path(char* path, size_t buffer_size){
 
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  return GetModuleFileName(GetModuleHandle(FS_DLL_NAME), path, buffer_size);
+  return GetModuleFileName(GetModuleHandle(FS_DLL_NAME), path, (DWORD)buffer_size);
 #elif defined(HAVE_DLADDR)
   Dl_info info;
 
@@ -90,6 +90,8 @@ size_t fs_lib_path(char* path, size_t buffer_size){
   }
 #endif
 
+  (void)buffer_size;
+  (void)path;
   return 0;
 
 }

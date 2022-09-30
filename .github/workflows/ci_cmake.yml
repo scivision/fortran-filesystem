@@ -310,7 +310,10 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
-      run: cmake -Bbuild -Dfortran=off
+      run: >-
+        cmake -Bbuild
+        -Dfortran=off
+        -DCMAKE_COMPILE_WARNING_AS_ERROR:BOOL=true
 
     - name: Build Debug
       run: cmake --build build --config Debug --parallel
