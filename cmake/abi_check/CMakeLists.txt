@@ -14,15 +14,6 @@ if(fortran)
   enable_language(Fortran)
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "9.1.0") OR
-   (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "9.1.0") OR
-    CMAKE_C_COMPILER_ID STREQUAL "NVHPC")
-  set(stdfs stdc++fs)
-endif()
-
 # test libraries
 add_library(addone OBJECT addone.c)
 add_library(addtwo OBJECT "$<IF:$<BOOL:${cpp}>,addtwo.cpp,addtwo.c>")
@@ -39,10 +30,6 @@ endif()
 if(cpp)
   add_executable(main_cpp main.cpp $<TARGET_OBJECTS:addone_f>)
   add_test(NAME Cpp_main COMMAND main_cpp)
-
-  add_executable(c_fs main_fs.c lib_fs.cpp $<TARGET_OBJECTS:addone_f>)
-  target_link_libraries(c_fs PRIVATE $<$<BOOL:${stdfs}>:${stdfs}>)
-  add_test(NAME C_fs COMMAND c_fs)
 endif()
 
 # C main using C++ and Fortran library.

@@ -17,13 +17,15 @@ if(NOT abi_ok)
   if(abi_ok)
     message(CHECK_PASS "OK")
   else()
+    set(err_log ${CMAKE_CURRENT_BINARY_DIR}/abi_check/CMakeError.log)
     message(FATAL_ERROR "ABI-incompatible compilers:
     C compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}
     C++ compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}
     Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION}
-    ${abi_log}
+    For logged errors see ${err_log}
     "
     )
+    file(WRITE ${err_log} ${abi_log})
   endif()
 endif()
 
@@ -40,9 +42,12 @@ unset(CMAKE_REQUIRED_LIBRARIES)
 unset(CMAKE_REQUIRED_DEFINITIONS)
 
 if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "9.1.0") OR
-   (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "9.1.0") OR
-    CMAKE_C_COMPILER_ID STREQUAL "NVHPC")
+   (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "9.1.0"))
   set(GNU_stdfs stdc++fs)
+endif()
+
+if(CMAKE_C_COMPILER_ID STREQUAL "NVHPC")
+  set(GNU_stdfs stdc++fs stdc++)
 endif()
 
 if(GNU_stdfs)
@@ -60,6 +65,34 @@ if(cpp)
   cpp_check()
 else()
   unset(HAVE_CXX_FILESYSTEM CACHE)
+endif()
+
+
+# --- deeper filesystem check: C, C++ and Fortran compiler ABI compatibility
+
+if(HAVE_CXX_FILESYSTEM AND NOT DEFINED fs_abi_ok)
+  message(CHECK_START "checking that compilers can link C++ Filesystem together")
+  try_compile(fs_abi_ok
+  ${CMAKE_CURRENT_BINARY_DIR}/fs_check ${CMAKE_CURRENT_LIST_DIR}/fs_check
+  fs_check
+  CMAKE_FLAGS -DGNU_stdfs=${GNU_stdfs} -Dfortran:BOOL=${fortran}
+  OUTPUT_VARIABLE abi_log
+  )
+  if(fs_abi_ok)
+    message(CHECK_PASS "OK")
+  else()
+    set(err_log ${CMAKE_CURRENT_BINARY_DIR}/fs_check/CMakeError.log)
+    message(WARNING "
+    Disabling C++ filesystem due to ABI-incompatible compilers:
+    C compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}
+    C++ compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}
+    Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION}
+    For logged errors see ${err_log}
+    "
+    )
+    file(WRITE ${err_log} ${abi_log})
+    set(HAVE_CXX_FILESYSTEM false CACHE BOOL "ABI problem with C++ filesystem" FORCE)
+  endif()
 endif()
 
 # fixes errors about needing -fPIE
@@ -102,11 +135,6 @@ add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-maybe-uninitialized>)
 
 add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-uninitialized>)
 # spurious warning on character(:), allocatable :: C(:)
-
-if(NOT cpp)
-  add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-unused-dummy-argument>)
-  # spurious warning for C stubs
-endif()
 
 endif()
 
