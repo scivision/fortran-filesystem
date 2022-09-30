@@ -233,7 +233,7 @@ size_t relative_to(const char* to, const char* from, char* result, size_t buffer
     return 0;
 
   // cannot be relative, avoid bugs with MacOS
-  if(is_absolute(to) != is_absolute(from))
+  if(fs_is_absolute(to) != fs_is_absolute(from))
     return 0;
 
   // short circuit if trivially equal
@@ -409,7 +409,7 @@ if(path == NULL || strlen(path) == 0)
 
 size_t root(const char* path, char* result, size_t buffer_size) {
 
-if (is_absolute(path)){
+if (fs_is_absolute(path)){
 
 #ifdef _WIN32
   strncpy(result, &path[0], buffer_size);
@@ -428,7 +428,7 @@ else {
 }
 
 
-bool is_absolute(const char* path){
+bool fs_is_absolute(const char* path){
   if(path == NULL)
     return false;
 
@@ -450,7 +450,7 @@ bool is_absolute(const char* path){
 }
 
 
-bool is_symlink(const char* path){
+bool fs_is_symlink(const char* path){
   if(path==NULL)
     return false;
   if(!exists(path))
@@ -469,7 +469,8 @@ bool is_symlink(const char* path){
 #endif
 }
 
-int create_symlink(const char* target, const char* link) {
+
+int fs_create_symlink(const char* target, const char* link) {
 
 #ifdef _WIN32
   if(is_dir(target)) {

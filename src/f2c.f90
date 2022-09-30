@@ -45,12 +45,12 @@ import
 character(kind=C_CHAR), intent(out) :: sep(*)
 end function
 
-logical(C_BOOL) function cfs_is_symlink(path) bind(C, name="is_symlink")
+logical(C_BOOL) function fs_is_symlink(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-integer(C_INT) function cfs_create_symlink(target, link) bind(C, name="create_symlink")
+integer(C_INT) function fs_create_symlink(target, link) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: target(*), link(*)
 end function
@@ -107,7 +107,7 @@ character(kind=c_char), intent(out) :: path(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-logical(c_bool) function cfs_is_absolute(path) bind(C, name="is_absolute")
+logical(c_bool) function fs_is_absolute(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
@@ -255,7 +255,7 @@ end procedure mkdir
 module procedure create_symlink
 integer(C_INT) :: ierr
 
-ierr = cfs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)
+ierr = fs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)
 if(present(status)) then
   status = ierr
 elseif (ierr < 0) then
@@ -263,7 +263,8 @@ elseif (ierr < 0) then
 elseif (ierr /= 0) then
   error stop "ERROR:filesystem:create_symlink: " // link
 endif
-end procedure create_symlink
+end procedure
+
 
 module procedure exists
 exists = cfs_exists(trim(path) // C_NULL_CHAR)
@@ -328,7 +329,7 @@ end procedure
 
 module procedure is_absolute
 !! no expanduser to be consistent with Python filesystem etc.
-is_absolute = cfs_is_absolute(trim(path) // C_NULL_CHAR)
+is_absolute = fs_is_absolute(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_dir
@@ -344,7 +345,7 @@ is_file = cfs_is_file(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_symlink
-is_symlink = cfs_is_symlink(trim(path) // C_NULL_CHAR)
+is_symlink = fs_is_symlink(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure join

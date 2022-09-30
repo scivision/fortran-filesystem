@@ -115,7 +115,7 @@ size_t fs_with_suffix(const char* path, const char* new_suffix, char* result, si
 }
 
 
-bool is_symlink(const char* path) {
+bool fs_is_symlink(const char* path) {
 if(!exists(path)) return false;
 
 #ifdef __MINGW32__
@@ -134,7 +134,7 @@ if(!exists(path)) return false;
   return e;
 }
 
-int create_symlink(const char* target, const char* link) {
+int fs_create_symlink(const char* target, const char* link) {
 
   if(target==nullptr || strlen(target) == 0) {
     std::cerr << "ERROR:filesystem:create_symlink: target path must not be empty" << std::endl;
@@ -241,7 +241,7 @@ bool exists(const char* path) {
   return e;
 }
 
-bool is_absolute(const char* path) {
+bool fs_is_absolute(const char* path) {
   fs::path p(path);
   return p.is_absolute();
 }

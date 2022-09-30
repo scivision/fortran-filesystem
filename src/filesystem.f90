@@ -50,9 +50,9 @@ procedure, public :: normal=>f_normal
 procedure, public :: exists=>fs_exists
 procedure, public :: is_file=>fs_is_file
 procedure, public :: is_dir=>fs_is_dir
-procedure, public :: is_absolute=>fs_is_absolute
-procedure, public :: is_symlink=>fs_is_symlink
-procedure, public :: create_symlink=>fs_create_symlink
+procedure, public :: is_absolute=>f_is_absolute
+procedure, public :: is_symlink=>f_is_symlink
+procedure, public :: create_symlink=>f_create_symlink
 procedure, public :: copy_file=>fs_copy_file
 procedure, public :: mkdir=>fs_mkdir
 procedure, public :: touch=>fs_touch
@@ -434,12 +434,11 @@ r = parent(self%path_str)
 end function
 
 
-logical function fs_is_absolute(self)
+logical function f_is_absolute(self) result(r)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. filesystem
 class(path_t), intent(in) :: self
-
-fs_is_absolute = is_absolute(self%path_str)
+r = is_absolute(self%path_str)
 end function
 
 
@@ -506,13 +505,13 @@ fs_is_dir = is_dir(self%path_str)
 end function
 
 
-logical function fs_is_symlink(self)
+logical function f_is_symlink(self) result(r)
 class(path_t), intent(in) :: self
-fs_is_symlink = is_symlink(self%path_str)
+r = is_symlink(self%path_str)
 end function
 
 
-subroutine fs_create_symlink(self, link, status)
+subroutine f_create_symlink(self, link, status)
 class(path_t), intent(in) :: self
 character(*), intent(in) :: link
 integer, intent(out), optional :: status

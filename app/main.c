@@ -61,7 +61,7 @@ int main(int argc, char* argv[]){
     printf("%d\n", is_file(argv[2]));
   }
   else if (strcmp(argv[1], "is_symlink") ==0 && argc == 3){
-    printf("%d\n", is_symlink(argv[2]));
+    printf("%d\n", fs_is_symlink(argv[2]));
   }
   else if (strcmp(argv[1], "relative_to") ==0 && argc == 4){
     if(relative_to(argv[2], argv[3], p, MAXP))

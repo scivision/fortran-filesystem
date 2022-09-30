@@ -71,12 +71,12 @@ extern size_t root(const char*, char*, size_t);
 
 extern size_t fs_with_suffix(const char*, const char*, char*, size_t);
 
-extern bool is_symlink(const char*);
-extern int create_symlink(const char*, const char*);
+extern bool fs_is_symlink(const char*);
+extern int fs_create_symlink(const char*, const char*);
 
 extern int create_directories(const char*);
 extern bool exists(const char*);
-extern bool is_absolute(const char*);
+extern bool fs_is_absolute(const char*);
 extern bool is_dir(const char*);
 extern bool is_file(const char*);
 extern bool is_exe(const char*);
