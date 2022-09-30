@@ -44,7 +44,7 @@ contains
 
 procedure, public :: path=>get_path
 procedure, public :: length
-procedure, public :: join=>fs_join
+procedure, public :: join=>f_join
 procedure, public :: relative_to=>fs_relative_to
 procedure, public :: normal=>f_normal
 procedure, public :: exists=>fs_exists
@@ -56,7 +56,7 @@ procedure, public :: create_symlink=>fs_create_symlink
 procedure, public :: copy_file=>fs_copy_file
 procedure, public :: mkdir=>fs_mkdir
 procedure, public :: touch=>fs_touch
-procedure, public :: parent=>fs_parent
+procedure, public :: parent=>f_parent
 procedure, public :: file_name=>f_file_name
 procedure, public :: stem=>f_stem
 procedure, public :: root=>fs_root
@@ -427,12 +427,11 @@ r = file_name(self%path_str)
 end function
 
 
-function fs_parent(self)
+function f_parent(self) result(r)
 !! returns parent directory of path
 class(path_t), intent(in) :: self
-character(:), allocatable :: fs_parent
-
-fs_parent = parent(self%path_str)
+character(:), allocatable :: r
+r = parent(self%path_str)
 end function
 
 
@@ -468,12 +467,12 @@ character(:), allocatable :: fs_root
 fs_root = root(self%path_str)
 end function
 
-function fs_join(self, other)
+function f_join(self, other) result(r)
 !! returns path_t object with other appended to self using posix separator
-type(path_t) :: fs_join
+type(path_t) :: r
 class(path_t), intent(in) :: self
 character(*), intent(in) :: other
-fs_join%path_str = join(self%path_str, other)
+r%path_str = join(self%path_str, other)
 end function
 
 

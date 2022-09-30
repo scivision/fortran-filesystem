@@ -106,6 +106,42 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size){
 }
 
 
+size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size){
+  if(path == NULL || other == NULL)
+    return 0;
+
+  cwk_path_set_style(CWK_STYLE_UNIX);
+  return cwk_path_join(path, other, result, buffer_size);
+}
+
+
+size_t fs_parent(const char* path, char* result, size_t buffer_size){
+
+  if(path == NULL || strlen(path) == 0) {
+    strcpy(result, ".");
+    return 1;
+  }
+
+  char* buf = (char*) malloc(buffer_size);
+  if(fs_normal(path, buf, buffer_size) == 0){
+    free(buf);
+    return 0;
+  }
+
+  char* pos = strrchr(buf, '/');
+  if (pos){
+    strncpy(result, buf, pos-buf);
+    result[pos-buf] = '\0';
+  }
+  else {
+    strcpy(result, ".");
+  }
+
+  free(buf);
+  return strlen(result);
+}
+
+
 size_t canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
@@ -145,14 +181,6 @@ char* buf2 = (char*) malloc(buffer_size);
   free(buf);
   free(buf2);
   return L;
-}
-
-size_t join(const char* path, const char* other, char* result, size_t buffer_size){
-  if(path == NULL || other == NULL)
-    return 0;
-
-  cwk_path_set_style(CWK_STYLE_UNIX);
-  return cwk_path_join(path, other, result, buffer_size);
 }
 
 
@@ -334,33 +362,6 @@ if(path == NULL || strlen(path) == 0)
   return access(path, F_OK) == 0;
 #endif
 
-}
-
-
-size_t parent(const char* path, char* result, size_t buffer_size){
-
-  if(path == NULL || strlen(path) == 0) {
-    strcpy(result, ".");
-    return 1;
-  }
-
-  char* buf = (char*) malloc(buffer_size);
-  if(fs_normal(path, buf, buffer_size) == 0){
-    free(buf);
-    return 0;
-  }
-
-  char* pos = strrchr(buf, '/');
-  if (pos){
-    strncpy(result, buf, pos-buf);
-    result[pos-buf] = '\0';
-  }
-  else {
-    strcpy(result, ".");
-  }
-
-  free(buf);
-  return strlen(result);
 }
 
 

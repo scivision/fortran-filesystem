@@ -61,11 +61,11 @@ extern size_t fs_filesep(char*);
 
 extern size_t fs_normal(const char*, char*, size_t);
 
-extern size_t join(const char*, const char*, char*, size_t);
+extern size_t fs_join(const char*, const char*, char*, size_t);
 
 extern size_t fs_file_name(const char*, char*, size_t);
 extern size_t fs_stem(const char*, char*, size_t);
-extern size_t parent(const char*, char*, size_t);
+extern size_t fs_parent(const char*, char*, size_t);
 extern size_t suffix(const char*, char*, size_t);
 extern size_t root(const char*, char*, size_t);
 

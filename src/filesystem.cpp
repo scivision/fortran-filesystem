@@ -70,7 +70,7 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size) {
 }
 
 
-size_t join(const char* path, const char* other, char* result, size_t buffer_size) {
+size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size) {
 
   fs::path p1(path);
   fs::path p2(other);
@@ -78,7 +78,8 @@ size_t join(const char* path, const char* other, char* result, size_t buffer_siz
   return path2str(p1 / p2, result, buffer_size);
 }
 
-size_t parent(const char* path, char* result, size_t buffer_size) {
+
+size_t fs_parent(const char* path, char* result, size_t buffer_size) {
 
   fs::path p(path);
 
