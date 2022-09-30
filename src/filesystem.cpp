@@ -175,7 +175,7 @@ int fs_create_symlink(const char* target, const char* link) {
   return 0;
 }
 
-int create_directories(const char* path) {
+int fs_create_directories(const char* path) {
 
   if(strlen(path) == 0) {
     std::cerr << "ERROR:filesystem:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
@@ -362,7 +362,7 @@ bool equivalent(const char* path1, const char* path2) {
 }
 
 
-int copy_file(const char* source, const char* destination, bool overwrite) {
+int fs_copy_file(const char* source, const char* destination, bool overwrite) {
 
   if(strlen(source) == 0) {
     std::cerr << "filesystem:copy_file: source path must not be empty" << std::endl;

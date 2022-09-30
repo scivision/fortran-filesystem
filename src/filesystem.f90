@@ -54,8 +54,8 @@ procedure, public :: is_dir=>f_is_dir
 procedure, public :: is_absolute=>f_is_absolute
 procedure, public :: is_symlink=>f_is_symlink
 procedure, public :: create_symlink=>f_create_symlink
-procedure, public :: copy_file=>fs_copy_file
-procedure, public :: mkdir=>fs_mkdir
+procedure, public :: copy_file=>f_copy_file
+procedure, public :: mkdir=>f_mkdir
 procedure, public :: touch=>fs_touch
 procedure, public :: parent=>f_parent
 procedure, public :: file_name=>f_file_name
@@ -536,14 +536,14 @@ r = is_exe(self%path_str)
 end function
 
 
-subroutine fs_mkdir(self)
+subroutine f_mkdir(self)
 !! create a directory, with parents if needed
 class(path_t), intent(in) :: self
 call mkdir(self%path_str)
 end subroutine
 
 
-subroutine fs_copy_file(self, dest, overwrite)
+subroutine f_copy_file(self, dest, overwrite)
 !! copy file from source to destination
 !! OVERWRITES existing destination files
 class(path_t), intent(in) :: self

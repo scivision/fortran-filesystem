@@ -28,7 +28,7 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-integer(C_INT) function cfs_copy_file(source, dest, overwrite) bind(C, name="copy_file")
+integer(C_INT) function fs_copy_file(source, dest, overwrite) bind(C)
 import
 character(kind=c_char), intent(in) :: source(*), dest(*)
 logical(c_bool), intent(in), value :: overwrite
@@ -55,7 +55,7 @@ import
 character(kind=C_CHAR), intent(in) :: target(*), link(*)
 end function
 
-integer(C_INT) function cfs_create_directories(path) bind(C, name="create_directories")
+integer(C_INT) function fs_create_directories(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
@@ -225,24 +225,21 @@ end procedure
 module procedure copy_file
 logical(c_bool) :: ow
 integer(C_INT) :: ierr
-
 ow = .false.
 if(present(overwrite)) ow = overwrite
-
-ierr = cfs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
+ierr = fs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
 if (present(status)) then
   status = ierr
 elseif(ierr /= 0) then
   error stop "failed to copy file: " // src // " to " // dest
 endif
-
-end procedure copy_file
+end procedure
 
 
 module procedure mkdir
 integer :: ierr
 
-ierr = cfs_create_directories(trim(path) // C_NULL_CHAR)
+ierr = fs_create_directories(trim(path) // C_NULL_CHAR)
 if(present(status)) then
   status = ierr
 elseif (ierr /= 0) then

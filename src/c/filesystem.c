@@ -576,7 +576,7 @@ char* as_windows(const char* path) {
 
 
 // --- system calls for mkdir and copy_file
-int copy_file(const char* source, const char* destination, bool overwrite) {
+int fs_copy_file(const char* source, const char* destination, bool overwrite) {
 
 if(source == NULL || strlen(source) == 0) {
   fprintf(stderr,"ERROR:filesystem:copy_file: source path %s must not be empty\n", source);
@@ -620,7 +620,7 @@ if(destination == NULL || strlen(destination) == 0) {
   #endif
 }
 
-int create_directories(const char* path) {
+int fs_create_directories(const char* path) {
   // Windows: note that SHCreateDirectory is deprecated, so use a system call like Unix
 
   if(path == NULL || strlen(path) == 0) {
