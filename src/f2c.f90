@@ -169,7 +169,7 @@ character(kind=C_CHAR), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_suffix(path, result, buffer_size) bind(C, name="suffix")
+integer(C_SIZE_T) function fs_suffix(path, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 character(kind=C_CHAR), intent(out) :: result(*)
@@ -181,7 +181,7 @@ import
 character(kind=c_char), intent(in) :: path(*)
 end function
 
-integer(C_SIZE_T) function cfs_with_suffix(path, new_suffix, result, buffer_size) bind(C, name="with_suffix")
+integer(C_SIZE_T) function fs_with_suffix(path, new_suffix, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*), new_suffix
 character(kind=C_CHAR), intent(out) :: result(*)
@@ -414,7 +414,7 @@ module procedure suffix
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_suffix(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_suffix(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: suffix)
 suffix = cbuf(:N)
 end procedure
@@ -427,7 +427,7 @@ module procedure with_suffix
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_with_suffix(trim(path) // C_NULL_CHAR, trim(new) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_with_suffix(trim(path) // C_NULL_CHAR, trim(new) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: with_suffix)
 with_suffix = cbuf(:N)
 end procedure with_suffix

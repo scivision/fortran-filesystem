@@ -60,9 +60,9 @@ procedure, public :: parent=>f_parent
 procedure, public :: file_name=>f_file_name
 procedure, public :: stem=>f_stem
 procedure, public :: root=>fs_root
-procedure, public :: suffix=>fs_suffix
+procedure, public :: suffix=>f_suffix
 procedure, public :: expanduser=>fs_expanduser
-procedure, public :: with_suffix=>fs_with_suffix
+procedure, public :: with_suffix=>f_with_suffix
 procedure, public :: resolve=>fs_resolve
 procedure, public :: same_file=>fs_same_file
 procedure, public :: is_exe=>fs_is_exe
@@ -410,12 +410,11 @@ r = stem(self%path_str)
 end function
 
 
-function fs_suffix(self)
+function f_suffix(self) result(r)
 !! extracts path suffix, including the final "." dot
 class(path_t), intent(in) :: self
-character(:), allocatable :: fs_suffix
-
-fs_suffix = suffix(self%path_str)
+character(:), allocatable :: r
+r = suffix(self%path_str)
 end function
 
 
@@ -444,13 +443,12 @@ fs_is_absolute = is_absolute(self%path_str)
 end function
 
 
-function fs_with_suffix(self, new)
+function f_with_suffix(self, new) result(r)
 !! replace file suffix with new suffix
 class(path_t), intent(in) :: self
-type(path_t) :: fs_with_suffix
+type(path_t) :: r
 character(*), intent(in) :: new
-
-fs_with_suffix%path_str = with_suffix(self%path_str, new)
+r%path_str = with_suffix(self%path_str, new)
 end function
 
 function f_normal(self) result(r)

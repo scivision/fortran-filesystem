@@ -142,6 +142,48 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size){
 }
 
 
+size_t fs_suffix(const char* path, char* result, size_t buffer_size){
+
+  if(path == NULL || strlen(path) == 0)
+    return 0;
+
+  char* buf = (char*) malloc(buffer_size);
+  fs_file_name(path, buf, buffer_size);
+
+  char* pos = strrchr(buf, '.');
+  if (pos && pos != buf){
+    strncpy(result, pos, buffer_size);
+    result[strlen(result)] = '\0';
+  }
+  else {
+    result[0] = '\0';
+  }
+
+  free(buf);
+  return strlen(result);
+}
+
+
+size_t fs_with_suffix(const char* path, const char* suffix, char* result, size_t buffer_size){
+  if(path == NULL || suffix == NULL)
+    return 0;
+
+  if(strlen(suffix) == 0)
+    return fs_stem(path, result, buffer_size);
+
+  if(path[0] == '.'){
+    // workaround for leading dot filename
+    strncpy(result, path, buffer_size);
+    result[strlen(result)] = '\0';
+    strncat(result, suffix, buffer_size);
+    return strlen(result);
+  }
+
+  cwk_path_set_style(CWK_STYLE_UNIX);
+  return cwk_path_change_extension(path, suffix, result, buffer_size);
+}
+
+
 size_t canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
@@ -386,28 +428,6 @@ else {
 }
 
 
-size_t suffix(const char* path, char* fout, size_t buffer_size){
-
-  if(path == NULL || strlen(path) == 0)
-    return 0;
-
-  char* buf = (char*) malloc(buffer_size);
-  fs_file_name(path, buf, buffer_size);
-
-  char* pos = strrchr(buf, '.');
-  if (pos && pos != buf){
-    strncpy(fout, pos, buffer_size);
-    fout[strlen(fout)] = '\0';
-  }
-  else {
-    fout[0] = '\0';
-  }
-
-  free(buf);
-  return strlen(fout);
-}
-
-
 bool is_absolute(const char* path){
   if(path == NULL)
     return false;
@@ -536,24 +556,6 @@ bool touch(const char* path) {
   return is_file(path);
 }
 
-size_t with_suffix(const char* path, const char* suffix, char* result, size_t buffer_size){
-  if(path == NULL || suffix == NULL)
-    return 0;
-
-  if(strlen(suffix) == 0)
-    return fs_stem(path, result, buffer_size);
-
-  if(path[0] == '.'){
-    // workaround for leading dot filename
-    strncpy(result, path, buffer_size);
-    result[strlen(result)] = '\0';
-    strncat(result, suffix, buffer_size);
-    return strlen(result);
-  }
-
-  cwk_path_set_style(CWK_STYLE_UNIX);
-  return cwk_path_change_extension(path, suffix, result, buffer_size);
-}
 
 // as_windows() needed for system calls with MSVC
 

@@ -96,7 +96,7 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size) {
 }
 
 
-size_t suffix(const char* path, char* result, size_t buffer_size) {
+size_t fs_suffix(const char* path, char* result, size_t buffer_size) {
 
   fs::path p(path);
 
@@ -104,7 +104,7 @@ size_t suffix(const char* path, char* result, size_t buffer_size) {
 }
 
 
-size_t with_suffix(const char* path, const char* new_suffix, char* result, size_t buffer_size) {
+size_t fs_with_suffix(const char* path, const char* new_suffix, char* result, size_t buffer_size) {
 
   if(path == nullptr)
     return 0;
