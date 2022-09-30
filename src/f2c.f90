@@ -6,11 +6,11 @@ implicit none
 
 interface
 
-integer(C_INT) function max_path() bind(C, name="get_maxp")
+integer(C_INT) function max_path() bind(C, name="fs_get_maxp")
 import
 end function
 
-integer(C_SIZE_T) function cfs_canonical(path, strict, result, buffer_size) bind(C, name="canonical")
+integer(C_SIZE_T) function fs_canonical(path, strict, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 logical(C_BOOL), intent(in), value :: strict
@@ -35,7 +35,7 @@ logical(c_bool), intent(in), value :: overwrite
 end function
 
 
-logical(C_BOOL) function cfs_equivalent(path1, path2) bind(C, name="equivalent")
+logical(C_BOOL) function fs_equivalent(path1, path2) bind(C)
 import C_BOOL, C_CHAR
 character(kind=C_CHAR), intent(in) :: path1(*), path2(*)
 end function
@@ -60,7 +60,7 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(C_BOOL) function cfs_remove(path) bind(C, name="fs_remove")
+logical(C_BOOL) function fs_remove(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
@@ -148,7 +148,7 @@ character(kind=C_CHAR), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_relative_to(path, base, result, buffer_size) bind(C, name="relative_to")
+integer(C_SIZE_T) function fs_relative_to(path, base, result, buffer_size) bind(C)
 import
 character(kind=c_char), intent(in) :: path(*), base(*)
 character(kind=c_char), intent(out) :: result(*)
@@ -176,7 +176,7 @@ character(kind=C_CHAR), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-logical(c_bool) function cfs_touch(path) bind(C, name="touch")
+logical(c_bool) function fs_touch(path) bind(C)
 import
 character(kind=c_char), intent(in) :: path(*)
 end function
@@ -204,7 +204,7 @@ logical(c_bool) :: s
 allocate(character(max_path()) :: cbuf)
 s = .false.
 if(present(strict)) s = strict
-N = cfs_canonical(trim(path) // C_NULL_CHAR, s, cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_canonical(trim(path) // C_NULL_CHAR, s, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: canonical)
 canonical = cbuf(:N)
 end procedure canonical
@@ -376,14 +376,14 @@ module procedure relative_to
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_relative_to(trim(a) // C_NULL_CHAR, trim(b) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_relative_to(trim(a) // C_NULL_CHAR, trim(b) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: relative_to)
 relative_to = cbuf(:N)
 end procedure
 
 module procedure remove
 logical(c_bool) :: e
-e = cfs_remove(trim(path) // C_NULL_CHAR)
+e = fs_remove(trim(path) // C_NULL_CHAR)
 if (.not. e) write(stderr, '(a)') "filesystem:unlink: " // path // " may not have been deleted."
 end procedure
 
@@ -396,7 +396,7 @@ root = cbuf(:N)
 end procedure
 
 module procedure same_file
-same_file = cfs_equivalent(trim(path1) // C_NULL_CHAR, trim(path2) // C_NULL_CHAR)
+same_file = fs_equivalent(trim(path1) // C_NULL_CHAR, trim(path2) // C_NULL_CHAR)
 end procedure
 
 module procedure stem
@@ -418,7 +418,7 @@ suffix = cbuf(:N)
 end procedure
 
 module procedure touch
-if(.not. cfs_touch(trim(path) // C_NULL_CHAR)) error stop "filesystem:touch: " // path
+if(.not. fs_touch(trim(path) // C_NULL_CHAR)) error stop "filesystem:touch: " // path
 end procedure
 
 module procedure with_suffix

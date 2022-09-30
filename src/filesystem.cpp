@@ -310,7 +310,7 @@ bool fs_remove(const char* path) {
   return e;
 }
 
-size_t canonical(const char* path, bool strict, char* result, size_t buffer_size) {
+size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
   if( path == nullptr || strlen(path) == 0 )
@@ -343,7 +343,7 @@ size_t canonical(const char* path, bool strict, char* result, size_t buffer_size
 }
 
 
-bool equivalent(const char* path1, const char* path2) {
+bool fs_equivalent(const char* path1, const char* path2) {
   // check existance to avoid error if not exist
 
   if (! (fs_exists(path1) && fs_exists(path2)) )
@@ -408,7 +408,7 @@ int fs_copy_file(const char* source, const char* destination, bool overwrite) {
 }
 
 
-size_t relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
+size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
 
   // undefined case, avoid bugs with MacOS
   if( to == nullptr || (strlen(to) == 0) || from == nullptr || (strlen(from) == 0) )
@@ -434,7 +434,7 @@ size_t relative_to(const char* to, const char* from, char* result, size_t buffer
 }
 
 
-bool touch(const char* path) {
+bool fs_touch(const char* path) {
 
   if(path == nullptr || strlen(path) == 0)
     return false;

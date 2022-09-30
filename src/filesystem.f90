@@ -45,7 +45,7 @@ contains
 procedure, public :: path=>get_path
 procedure, public :: length
 procedure, public :: join=>f_join
-procedure, public :: relative_to=>fs_relative_to
+procedure, public :: relative_to=>f_relative_to
 procedure, public :: normal=>f_normal
 procedure, public :: exists=>f_exists
 procedure, public :: is_file=>f_is_file
@@ -56,7 +56,7 @@ procedure, public :: is_symlink=>f_is_symlink
 procedure, public :: create_symlink=>f_create_symlink
 procedure, public :: copy_file=>f_copy_file
 procedure, public :: mkdir=>f_mkdir
-procedure, public :: touch=>fs_touch
+procedure, public :: touch=>f_touch
 procedure, public :: parent=>f_parent
 procedure, public :: file_name=>f_file_name
 procedure, public :: stem=>f_stem
@@ -64,8 +64,8 @@ procedure, public :: root=>f_root
 procedure, public :: suffix=>f_suffix
 procedure, public :: expanduser=>f_expanduser
 procedure, public :: with_suffix=>f_with_suffix
-procedure, public :: resolve=>fs_resolve
-procedure, public :: same_file=>fs_same_file
+procedure, public :: resolve=>f_resolve
+procedure, public :: same_file=>f_same_file
 procedure, public :: remove=>fs_unlink
 procedure, public :: file_size=>f_file_size
 procedure, public :: read_text=>fs_read_text
@@ -257,19 +257,19 @@ end interface
 
 interface !< filesystem.cpp
 
-logical(C_BOOL) function is_macos() bind(C)
+logical(C_BOOL) function is_macos() bind(C, name="fs_is_macos")
 import C_BOOL
 end function
 
-logical(C_BOOL) function is_windows() bind(C)
+logical(C_BOOL) function is_windows() bind(C, name="fs_is_windows")
 import C_BOOL
 end function
 
-logical(C_BOOL) function is_linux() bind(C)
+logical(C_BOOL) function is_linux() bind(C, name="fs_is_linux")
 import C_BOOL
 end function
 
-logical(C_BOOL) function is_unix() bind(C)
+logical(C_BOOL) function is_unix() bind(C, name="fs_is_unix")
 import C_BOOL
 end function
 
@@ -393,13 +393,13 @@ end function get_path
 
 !> one-liner methods calling actual procedures
 
-function fs_relative_to(self, other)
+function f_relative_to(self, other) result(r)
 !! returns other relative to self
 class(path_t), intent(in) :: self
 character(*), intent(in) :: other
-character(:), allocatable :: fs_relative_to
+character(:), allocatable :: r
 
-fs_relative_to = relative_to(self%path_str, other)
+r = relative_to(self%path_str, other)
 end function
 
 
@@ -486,14 +486,14 @@ r = exists(self%path_str)
 end function
 
 
-function fs_resolve(self) result(r)
+function f_resolve(self) result(r)
 class(path_t), intent(in) :: self
 type(path_t) :: r
 r%path_str = canonical(self%path_str)
 end function
 
 
-logical function fs_same_file(self, other) result(r)
+logical function f_same_file(self, other) result(r)
 class(path_t), intent(in) :: self, other
 r = same_file(self%path_str, other%path_str)
 end function
@@ -578,7 +578,7 @@ error stop 'filesystem:assert_is_dir: directory does not exist ' // path
 end subroutine
 
 
-subroutine fs_touch(self)
+subroutine f_touch(self)
 class(path_t), intent(in) :: self
 call touch(self%path_str)
 end subroutine

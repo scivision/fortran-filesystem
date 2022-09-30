@@ -6,7 +6,7 @@
 #include "TargetConditionals.h"
 #endif
 
-bool is_macos(){
+bool fs_is_macos(){
 #if TARGET_OS_MAC
   return true;
 #else
@@ -14,7 +14,7 @@ bool is_macos(){
 #endif
 }
 
-bool is_linux() {
+bool fs_is_linux() {
 #ifdef __linux__
   return true;
 #else
@@ -22,7 +22,7 @@ bool is_linux() {
 #endif
 }
 
-bool is_unix() {
+bool fs_is_unix() {
 #ifdef __unix__
   return true;
 #else
@@ -30,7 +30,7 @@ bool is_unix() {
 #endif
 }
 
-bool is_windows() {
+bool fs_is_windows() {
 #ifdef _WIN32
   return true;
 #else
@@ -39,4 +39,4 @@ bool is_windows() {
 }
 
 
-size_t get_maxp(){ return MAXP; }
+size_t fs_get_maxp(){ return MAXP; }

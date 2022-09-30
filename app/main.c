@@ -34,16 +34,16 @@ int main(int argc, char* argv[]){
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "is_linux") ==0){
-    printf("%d\n", is_linux());
+    printf("%d\n", fs_is_linux());
   }
   else if (strcmp(argv[1], "is_macos") ==0){
-    printf("%d\n", is_macos());
+    printf("%d\n", fs_is_macos());
   }
   else if (strcmp(argv[1], "is_unix") ==0){
-    printf("%d\n", is_unix());
+    printf("%d\n", fs_is_unix());
   }
   else if (strcmp(argv[1], "is_windows") ==0){
-    printf("%d\n", is_windows());
+    printf("%d\n", fs_is_windows());
   }
   else if (strcmp(argv[1], "file_size") ==0 && argc == 3){
     printf("%ju\n", fs_file_size(argv[2]));
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]){
     printf("%d\n", fs_is_symlink(argv[2]));
   }
   else if (strcmp(argv[1], "relative_to") ==0 && argc == 4){
-    if(relative_to(argv[2], argv[3], p, MAXP))
+    if(fs_relative_to(argv[2], argv[3], p, MAXP))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "normal") ==0 && argc==3){

@@ -50,12 +50,12 @@ extern "C" {
 // end maximum path length
 
 
-extern size_t get_maxp();
+extern size_t fs_get_maxp();
 
-extern bool is_macos();
-extern bool is_linux();
-extern bool is_unix();
-extern bool is_windows();
+extern bool fs_is_macos();
+extern bool fs_is_linux();
+extern bool fs_is_unix();
+extern bool fs_is_windows();
 
 extern size_t fs_filesep(char*);
 
@@ -85,11 +85,11 @@ extern bool fs_chmod_exe(const char*);
 extern bool fs_chmod_no_exe(const char*);
 
 extern bool fs_remove(const char*);
-extern size_t canonical(const char*, bool, char*, size_t);
-extern bool equivalent(const char*, const char*);
+extern size_t fs_canonical(const char*, bool, char*, size_t);
+extern bool fs_equivalent(const char*, const char*);
 extern int fs_copy_file(const char*, const char*, bool);
-extern size_t relative_to(const char*, const char*, char*, size_t);
-extern bool touch(const char*);
+extern size_t fs_relative_to(const char*, const char*, char*, size_t);
+extern bool fs_touch(const char*);
 
 extern size_t fs_get_cwd(char*, size_t);
 extern size_t fs_get_homedir(char*, size_t);

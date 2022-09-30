@@ -184,7 +184,7 @@ size_t fs_with_suffix(const char* path, const char* suffix, char* result, size_t
 }
 
 
-size_t canonical(const char* path, bool strict, char* result, size_t buffer_size) {
+size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
   if( path == NULL || strlen(path) == 0 )
@@ -226,7 +226,7 @@ char* buf2 = (char*) malloc(buffer_size);
 }
 
 
-size_t relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
+size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
 
   // undefined case, avoid bugs with MacOS
   if( to == NULL || (strlen(to) == 0) || from ==NULL || (strlen(from) == 0) )
@@ -259,14 +259,14 @@ uintmax_t fs_file_size(const char* path) {
   return s.st_size;;
 }
 
-bool equivalent(const char* path1, const char* path2){
+bool fs_equivalent(const char* path1, const char* path2){
 // this is for exisitng paths
 
   char* buf1 = (char*) malloc(MAXP);
   char* buf2 = (char*) malloc(MAXP);
 
-  canonical(path1, true, buf1, MAXP);
-  canonical(path2, true, buf2, MAXP);
+  fs_canonical(path1, true, buf1, MAXP);
+  fs_canonical(path2, true, buf2, MAXP);
 
   bool eqv = (strlen(buf1) > 0) && (strlen(buf2) > 0) && strcmp(buf1, buf2) == 0;
   free(buf1);
@@ -544,7 +544,7 @@ bool fs_chmod_no_exe(const char* path){
 #endif
 }
 
-bool touch(const char* path) {
+bool fs_touch(const char* path) {
 
   if (fs_exists(path) && !fs_is_file(path))
     return false;
