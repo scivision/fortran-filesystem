@@ -250,7 +250,7 @@ size_t relative_to(const char* to, const char* from, char* result, size_t buffer
 uintmax_t file_size(const char* path) {
   struct stat s;
 
-  if (!is_file(path))
+  if (!fs_is_file(path))
     return 0;
 
   if (stat(path, &s) != 0)
@@ -360,7 +360,7 @@ size_t L;
 }
 
 
-bool is_dir(const char* path){
+bool fs_is_dir(const char* path){
   struct stat s;
 
   int i = stat(path, &s);
@@ -370,17 +370,7 @@ bool is_dir(const char* path){
 }
 
 
-bool is_file(const char* path){
-  struct stat s;
-
-  int i = stat(path, &s);
-
-  // NOTE: root() e.g. "C:" needs a trailing slash
-  return i == 0 && (s.st_mode & S_IFREG);
-}
-
-
-bool is_exe(const char* path){
+bool fs_is_exe(const char* path){
   struct stat s;
 
   if(stat(path, &s) != 0) return false;
@@ -390,6 +380,16 @@ bool is_exe(const char* path){
 #else
   return s.st_mode & S_IXUSR;
 #endif
+}
+
+
+bool fs_is_file(const char* path){
+  struct stat s;
+
+  int i = stat(path, &s);
+
+  // NOTE: root() e.g. "C:" needs a trailing slash
+  return i == 0 && (s.st_mode & S_IFREG);
 }
 
 
@@ -473,7 +473,7 @@ bool fs_is_symlink(const char* path){
 int fs_create_symlink(const char* target, const char* link) {
 
 #ifdef _WIN32
-  if(is_dir(target)) {
+  if(fs_is_dir(target)) {
     return !(CreateSymbolicLink(link, target,
       SYMBOLIC_LINK_FLAG_DIRECTORY | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
   }
@@ -507,7 +507,7 @@ bool fs_remove(const char* path) {
     return true;
 
 #ifdef _WIN32
-  if (is_dir(path)){
+  if (fs_is_dir(path)){
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-removedirectorya
     return RemoveDirectory(path) != 0;
   }
@@ -546,15 +546,15 @@ bool chmod_no_exe(const char* path){
 
 bool touch(const char* path) {
 
-  if (exists(path) && !is_file(path))
+  if (exists(path) && !fs_is_file(path))
     return false;
 
-  if(!is_file(path)) {
+  if(!fs_is_file(path)) {
     FILE* fid = fopen(path, "a");
     fclose(fid);
   }
 
-  return is_file(path);
+  return fs_is_file(path);
 }
 
 
@@ -588,7 +588,7 @@ if(destination == NULL || strlen(destination) == 0) {
 }
 
   if(overwrite){
-    if(is_file(destination)){
+    if(fs_is_file(destination)){
       if(!fs_remove(destination)){
         fprintf(stderr, "ERROR:filesystem:copy_file: could not remove existing file %s\n", destination);
       }
@@ -628,7 +628,7 @@ int create_directories(const char* path) {
     return 1;
   }
 
-  if(is_dir(path))
+  if(fs_is_dir(path))
     return 0;
 
   char* p = (char*) malloc(strlen(path) + 1);

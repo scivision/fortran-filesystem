@@ -77,9 +77,9 @@ extern int fs_create_symlink(const char*, const char*);
 extern int create_directories(const char*);
 extern bool exists(const char*);
 extern bool fs_is_absolute(const char*);
-extern bool is_dir(const char*);
-extern bool is_file(const char*);
-extern bool is_exe(const char*);
+extern bool fs_is_dir(const char*);
+extern bool fs_is_file(const char*);
+extern bool fs_is_exe(const char*);
 
 extern bool chmod_exe(const char*);
 extern bool chmod_no_exe(const char*);

@@ -147,7 +147,7 @@ int fs_create_symlink(const char* target, const char* link) {
 
 #ifdef _WIN32
   // C++ filesystem doesn't work for create_symlink, but this C method does work
-  if(is_dir(target)) {
+  if(fs_is_dir(target)) {
     return !(CreateSymbolicLink(link, target,
       SYMBOLIC_LINK_FLAG_DIRECTORY | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
   }
@@ -159,7 +159,7 @@ int fs_create_symlink(const char* target, const char* link) {
 
   std::error_code ec;
 
-  if (is_dir(target)) {
+  if (fs_is_dir(target)) {
     fs::create_directory_symlink(target, link, ec);
   }
   else {
@@ -191,7 +191,7 @@ int create_directories(const char* path) {
   }
 
   if(fs::exists(s)) {
-    if(is_dir(path)) return 0;
+    if(fs_is_dir(path)) return 0;
 
     std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " already exists but is not a directory" << std::endl;
     return 1;
@@ -205,7 +205,7 @@ int create_directories(const char* path) {
 
   if( !ok ) {
     // old MacOS return != 0 even if directory was created
-    if(is_dir(path)) {
+    if(fs_is_dir(path)) {
       return 0;
     }
     else
@@ -230,6 +230,7 @@ size_t root(const char* path, char* result, size_t buffer_size) {
 
 }
 
+
 bool exists(const char* path) {
   std::error_code ec;
 
@@ -241,21 +242,14 @@ bool exists(const char* path) {
   return e;
 }
 
+
 bool fs_is_absolute(const char* path) {
   fs::path p(path);
   return p.is_absolute();
 }
 
-bool is_file(const char* path) {
-  std::error_code ec;
 
-  if (!exists(path))
-    return false;
-
-  return fs::is_regular_file(path);
-}
-
-bool is_dir(const char* path) {
+bool fs_is_dir(const char* path) {
   if(std::strlen(path) == 0)
     return false;
 
@@ -270,8 +264,45 @@ bool is_dir(const char* path) {
     return false;
 
   return fs::is_directory(path);
-
 }
+
+
+bool fs_is_exe(const char* path) {
+  fs::path p(path);
+  std::error_code ec;
+
+  auto s = fs::status(p, ec);
+  if (s.type() == fs::file_type::not_found)
+    return false;
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:is_exe: " << ec.message() << std::endl;
+    return false;
+  }
+
+  if (!fs::is_regular_file(s)) {
+    std::cerr << "filesystem:is_exe: " << p << " is not a regular file" << std::endl;
+    return false;
+  }
+
+  auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
+  auto isexe = i != fs::perms::none;
+
+  if(TRACE) std::cout << "TRACE:is_exe: " << p << " " << isexe << std::endl;
+
+  return isexe;
+}
+
+
+bool fs_is_file(const char* path) {
+  std::error_code ec;
+
+  if (!exists(path))
+    return false;
+
+  return fs::is_regular_file(path);
+}
+
 
 bool fs_remove(const char* path) {
   std::error_code ec;
@@ -383,7 +414,7 @@ int copy_file(const char* source, const char* destination, bool overwrite) {
   }
 
   if( !ok ) {
-    if(is_file(destination)) {
+    if(fs_is_file(destination)) {
       return 0;
     }
     else
@@ -523,33 +554,6 @@ size_t get_cwd(char* result, size_t buffer_size) {
   }
 
   return path2str(r, result, buffer_size);
-}
-
-
-bool is_exe(const char* path) {
-  fs::path p(path);
-  std::error_code ec;
-
-  auto s = fs::status(p, ec);
-  if (s.type() == fs::file_type::not_found)
-    return false;
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:is_exe: " << ec.message() << std::endl;
-    return false;
-  }
-
-  if (!fs::is_regular_file(s)) {
-    std::cerr << "filesystem:is_exe: " << p << " is not a regular file" << std::endl;
-    return false;
-  }
-
-  auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
-  auto isexe = i != fs::perms::none;
-
-  // std::cout << "TRACE:is_exe: " << p << " " << isexe << std::endl;
-
-  return isexe;
 }
 
 

@@ -52,13 +52,13 @@ int main(int argc, char* argv[]){
     printf("%d\n", exists(argv[2]));
   }
   else if (strcmp(argv[1], "is_dir") ==0 && argc == 3){
-    printf("%d\n", is_dir(argv[2]));
+    printf("%d\n", fs_is_dir(argv[2]));
   }
   else if (strcmp(argv[1], "is_exe") ==0 && argc == 3){
-    printf("%d\n", is_exe(argv[2]));
+    printf("%d\n", fs_is_exe(argv[2]));
   }
   else if (strcmp(argv[1], "is_file") ==0 && argc == 3){
-    printf("%d\n", is_file(argv[2]));
+    printf("%d\n", fs_is_file(argv[2]));
   }
   else if (strcmp(argv[1], "is_symlink") ==0 && argc == 3){
     printf("%d\n", fs_is_symlink(argv[2]));

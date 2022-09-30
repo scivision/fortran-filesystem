@@ -48,8 +48,9 @@ procedure, public :: join=>f_join
 procedure, public :: relative_to=>fs_relative_to
 procedure, public :: normal=>f_normal
 procedure, public :: exists=>fs_exists
-procedure, public :: is_file=>fs_is_file
-procedure, public :: is_dir=>fs_is_dir
+procedure, public :: is_file=>f_is_file
+procedure, public :: is_exe=>f_is_exe
+procedure, public :: is_dir=>f_is_dir
 procedure, public :: is_absolute=>f_is_absolute
 procedure, public :: is_symlink=>f_is_symlink
 procedure, public :: create_symlink=>f_create_symlink
@@ -65,7 +66,6 @@ procedure, public :: expanduser=>fs_expanduser
 procedure, public :: with_suffix=>f_with_suffix
 procedure, public :: resolve=>fs_resolve
 procedure, public :: same_file=>fs_same_file
-procedure, public :: is_exe=>fs_is_exe
 procedure, public :: remove=>fs_unlink
 procedure, public :: file_size=>f_file_size
 procedure, public :: read_text=>fs_read_text
@@ -486,22 +486,22 @@ fs_exists = exists(self%path_str)
 end function
 
 
-function fs_resolve(self)
+function fs_resolve(self) result(r)
 class(path_t), intent(in) :: self
-type(path_t) :: fs_resolve
-fs_resolve%path_str = canonical(self%path_str)
+type(path_t) :: r
+r%path_str = canonical(self%path_str)
 end function
 
 
-logical function fs_same_file(self, other)
+logical function fs_same_file(self, other) result(r)
 class(path_t), intent(in) :: self, other
-fs_same_file = same_file(self%path_str, other%path_str)
+r = same_file(self%path_str, other%path_str)
 end function
 
 
-logical function fs_is_dir(self)
+logical function f_is_dir(self) result(r)
 class(path_t), intent(in) :: self
-fs_is_dir = is_dir(self%path_str)
+r = is_dir(self%path_str)
 end function
 
 
@@ -519,9 +519,9 @@ call create_symlink(self%path_str, link, status)
 end subroutine
 
 
-logical function fs_is_file(self)
+logical function f_is_file(self) result(r)
 class(path_t), intent(in) :: self
-fs_is_file = is_file(self%path_str)
+r = is_file(self%path_str)
 end function
 
 integer(int64) function f_file_size(self)
@@ -530,9 +530,9 @@ f_file_size = file_size(self%path_str)
 end function
 
 
-logical function fs_is_exe(self)
+logical function f_is_exe(self) result(r)
 class(path_t), intent(in) :: self
-fs_is_exe = is_exe(self%path_str)
+r = is_exe(self%path_str)
 end function
 
 

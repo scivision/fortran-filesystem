@@ -112,17 +112,17 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(C_BOOL) function cfs_is_file(path) bind(C, name="is_file")
+logical(C_BOOL) function fs_is_file(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(C_BOOL) function cfs_is_dir(path) bind(C, name="is_dir")
+logical(C_BOOL) function fs_is_dir(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(c_bool) function cfs_is_exe(path) bind(C, name="is_exe")
+logical(c_bool) function fs_is_exe(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
@@ -333,15 +333,15 @@ is_absolute = fs_is_absolute(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_dir
-is_dir = cfs_is_dir(trim(path) // C_NULL_CHAR)
+is_dir = fs_is_dir(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_exe
-is_exe = cfs_is_exe(trim(path) // C_NULL_CHAR)
+is_exe = fs_is_exe(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_file
-is_file = cfs_is_file(trim(path) // C_NULL_CHAR)
+is_file = fs_is_file(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_symlink
