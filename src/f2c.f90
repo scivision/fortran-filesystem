@@ -84,24 +84,24 @@ character(kind=C_CHAR), intent(out) :: filename(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_file_size(path) bind(C, name="file_size")
+integer(C_SIZE_T) function fs_file_size(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-integer(C_SIZE_T) function cfs_get_cwd(path, buffer_size) bind(C, name="get_cwd")
+integer(C_SIZE_T) function fs_get_cwd(path, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(out) :: path(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_get_homedir(path, buffer_size) bind(C, name="get_homedir")
+integer(C_SIZE_T) function fs_get_homedir(path, buffer_size) bind(C)
 import
 character(kind=c_char), intent(out) :: path(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_get_tempdir(path, buffer_size) bind(C, name="get_tempdir")
+integer(C_SIZE_T) function fs_get_tempdir(path, buffer_size) bind(C)
 import
 character(kind=c_char), intent(out) :: path(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
@@ -297,14 +297,14 @@ file_name = cbuf(:N)
 end procedure
 
 module procedure file_size
-file_size = cfs_file_size(trim(path) // C_NULL_CHAR)
+file_size = fs_file_size(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure get_cwd
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_get_cwd(cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_get_cwd(cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: get_cwd)
 get_cwd = cbuf(:N)
 end procedure
@@ -313,7 +313,7 @@ module procedure get_homedir
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_get_homedir(cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_get_homedir(cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: get_homedir)
 get_homedir = cbuf(:N)
 end procedure
@@ -322,7 +322,7 @@ module procedure get_tempdir
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_get_tempdir(cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_get_tempdir(cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: get_tempdir)
 get_tempdir = cbuf(:N)
 end procedure

@@ -524,9 +524,9 @@ class(path_t), intent(in) :: self
 r = is_file(self%path_str)
 end function
 
-integer(int64) function f_file_size(self)
+integer(int64) function f_file_size(self) result(r)
 class(path_t), intent(in) :: self
-f_file_size = file_size(self%path_str)
+r = file_size(self%path_str)
 end function
 
 

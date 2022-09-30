@@ -17,7 +17,7 @@ int main() {
   char fpath[MAXP];
   char cpath[MAXP];
 
-  get_cwd(fpath, MAXP);
+  fs_get_cwd(fpath, MAXP);
   std::cout << "Fortran: current working dir " << fpath << std::endl;
 
 #ifdef _MSC_VER

@@ -91,13 +91,13 @@ extern int copy_file(const char*, const char*, bool);
 extern size_t relative_to(const char*, const char*, char*, size_t);
 extern bool touch(const char*);
 
-extern size_t get_cwd(char*, size_t);
-extern size_t get_homedir(char*, size_t);
-extern size_t get_tempdir(char*, size_t);
+extern size_t fs_get_cwd(char*, size_t);
+extern size_t fs_get_homedir(char*, size_t);
+extern size_t fs_get_tempdir(char*, size_t);
 
 extern size_t expanduser(const char*, char*, size_t);
 
-extern uintmax_t file_size(const char*);
+extern uintmax_t fs_file_size(const char*);
 
 extern size_t fs_exe_path(char* path, size_t);
 extern size_t fs_lib_path(char* path, size_t);

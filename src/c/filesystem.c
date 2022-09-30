@@ -191,7 +191,7 @@ size_t canonical(const char* path, bool strict, char* result, size_t buffer_size
     return 0;
 
   if(strlen(path) == 1 && path[0] == '.')
-    return get_cwd(result, buffer_size);
+    return fs_get_cwd(result, buffer_size);
 
   char* buf = (char*) malloc(buffer_size);
   if(expanduser(path, buf, buffer_size) == 0){
@@ -247,7 +247,7 @@ size_t relative_to(const char* to, const char* from, char* result, size_t buffer
 }
 
 
-uintmax_t file_size(const char* path) {
+uintmax_t fs_file_size(const char* path) {
   struct stat s;
 
   if (!fs_is_file(path))
@@ -288,7 +288,7 @@ size_t expanduser(const char* path, char* result, size_t buffer_size){
     return fs_normal(path, result, buffer_size);
 
   char* buf = (char*) malloc(buffer_size);
-  if (!get_homedir(buf, buffer_size)) {
+  if (!fs_get_homedir(buf, buffer_size)) {
     free(buf);
     return fs_normal(path, result, buffer_size);
   }
@@ -313,7 +313,7 @@ size_t expanduser(const char* path, char* result, size_t buffer_size){
   return L;
 }
 
-size_t get_homedir(char* result, size_t buffer_size) {
+size_t fs_get_homedir(char* result, size_t buffer_size) {
 
 char* buf;
 size_t L;
@@ -336,7 +336,7 @@ size_t L;
   return L;
 }
 
-size_t get_tempdir(char* result, size_t buffer_size) {
+size_t fs_get_tempdir(char* result, size_t buffer_size) {
 
 char* buf;
 size_t L;
@@ -488,7 +488,7 @@ int fs_create_symlink(const char* target, const char* link) {
 }
 
 
-size_t get_cwd(char* path, size_t buffer_size) {
+size_t fs_get_cwd(char* path, size_t buffer_size) {
 
 #ifdef _MSC_VER
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170

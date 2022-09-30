@@ -504,7 +504,7 @@ bool touch(const char* path) {
 }
 
 
-size_t get_tempdir(char* result, size_t buffer_size) {
+size_t fs_get_tempdir(char* result, size_t buffer_size) {
 
   std::error_code ec;
 
@@ -519,7 +519,7 @@ size_t get_tempdir(char* result, size_t buffer_size) {
 }
 
 
-uintmax_t file_size(const char* path) {
+uintmax_t fs_file_size(const char* path) {
   // need to check is_regular_file for MSVC/Intel Windows
   fs::path p(path);
   std::error_code ec;
@@ -543,7 +543,7 @@ uintmax_t file_size(const char* path) {
 }
 
 
-size_t get_cwd(char* result, size_t buffer_size) {
+size_t fs_get_cwd(char* result, size_t buffer_size) {
   std::error_code ec;
 
   auto r = fs::current_path(ec);
@@ -557,7 +557,7 @@ size_t get_cwd(char* result, size_t buffer_size) {
 }
 
 
-size_t get_homedir(char* result, size_t buffer_size) {
+size_t fs_get_homedir(char* result, size_t buffer_size) {
 
 #ifdef _WIN32
   auto k = "USERPROFILE";
@@ -589,7 +589,7 @@ size_t expanduser(const char* path, char* result, size_t buffer_size){
     return fs_normal(path, result, buffer_size);
 
   char* h = new char[buffer_size];
-  if (!get_homedir(h, buffer_size)){
+  if (!fs_get_homedir(h, buffer_size)){
     delete[] h;
     return fs_normal(path, result, buffer_size);
   }

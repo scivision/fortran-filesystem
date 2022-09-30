@@ -14,15 +14,15 @@ int main(int argc, char* argv[]){
       return EXIT_FAILURE;
   }
   else if (strcmp(argv[1], "homedir") == 0) {
-    if(get_homedir(p, MAXP))
+    if(fs_get_homedir(p, MAXP))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "tempdir") == 0) {
-    if(get_tempdir(p, MAXP))
+    if(fs_get_tempdir(p, MAXP))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "tempdir") == 0) {
-    get_tempdir(p, MAXP);
+    fs_get_tempdir(p, MAXP);
     printf("%s\n", p);
   }
   else if (strcmp(argv[1], "lib_path") == 0){
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]){
     printf("%d\n", is_windows());
   }
   else if (strcmp(argv[1], "file_size") ==0 && argc == 3){
-    printf("%ju\n", file_size(argv[2]));
+    printf("%ju\n", fs_file_size(argv[2]));
   }
   else if (strcmp(argv[1], "exists") ==0 && argc == 3){
     printf("%d\n", exists(argv[2]));
