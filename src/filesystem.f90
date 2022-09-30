@@ -62,7 +62,7 @@ procedure, public :: file_name=>f_file_name
 procedure, public :: stem=>f_stem
 procedure, public :: root=>fs_root
 procedure, public :: suffix=>f_suffix
-procedure, public :: expanduser=>fs_expanduser
+procedure, public :: expanduser=>f_expanduser
 procedure, public :: with_suffix=>f_with_suffix
 procedure, public :: resolve=>fs_resolve
 procedure, public :: same_file=>fs_same_file
@@ -553,12 +553,12 @@ call copy_file(self%path_str, dest, overwrite)
 end subroutine
 
 
-function fs_expanduser(self)
+function f_expanduser(self) result(r)
 !! resolve home directory as Fortran does not understand tilde
 !! works for Linux, Mac, Windows, etc.
 class(path_t), intent(in) :: self
-type(path_t) :: fs_expanduser
-fs_expanduser%path_str = expanduser(self%path_str)
+type(path_t) :: r
+r%path_str = expanduser(self%path_str)
 end function
 
 

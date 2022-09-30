@@ -317,7 +317,7 @@ size_t canonical(const char* path, bool strict, char* result, size_t buffer_size
     return 0;
 
   char* ex = new char[buffer_size];
-  expanduser(path, ex, buffer_size);
+  fs_expanduser(path, ex, buffer_size);
 
   if(TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
 
@@ -546,7 +546,7 @@ size_t fs_get_homedir(char* result, size_t buffer_size) {
 }
 
 
-size_t expanduser(const char* path, char* result, size_t buffer_size){
+size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
 
   std::string p(path);
 

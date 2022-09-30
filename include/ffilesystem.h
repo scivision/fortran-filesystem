@@ -95,7 +95,7 @@ extern size_t fs_get_cwd(char*, size_t);
 extern size_t fs_get_homedir(char*, size_t);
 extern size_t fs_get_tempdir(char*, size_t);
 
-extern size_t expanduser(const char*, char*, size_t);
+extern size_t fs_expanduser(const char*, char*, size_t);
 
 extern uintmax_t fs_file_size(const char*);
 

@@ -194,7 +194,7 @@ size_t canonical(const char* path, bool strict, char* result, size_t buffer_size
     return fs_get_cwd(result, buffer_size);
 
   char* buf = (char*) malloc(buffer_size);
-  if(expanduser(path, buf, buffer_size) == 0){
+  if(fs_expanduser(path, buf, buffer_size) == 0){
     free(buf);
     return 0;
   }
@@ -275,7 +275,7 @@ bool equivalent(const char* path1, const char* path2){
 
 }
 
-size_t expanduser(const char* path, char* result, size_t buffer_size){
+size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
 
   if(path == NULL)
     return 0;

@@ -70,7 +70,7 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-integer(C_SIZE_T) function cfs_expanduser(path, result, buffer_size) bind(C, name="expanduser")
+integer(C_SIZE_T) function fs_expanduser(path, result, buffer_size) bind(C)
 import
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: result(*)
@@ -274,7 +274,7 @@ module procedure expanduser
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_expanduser(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_expanduser(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: expanduser)
 expanduser = cbuf(:N)
 end procedure
