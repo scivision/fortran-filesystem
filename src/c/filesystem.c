@@ -265,10 +265,10 @@ bool fs_equivalent(const char* path1, const char* path2){
   char* buf1 = (char*) malloc(MAXP);
   char* buf2 = (char*) malloc(MAXP);
 
-  fs_canonical(path1, true, buf1, MAXP);
-  fs_canonical(path2, true, buf2, MAXP);
+  size_t L1 = fs_canonical(path1, true, buf1, MAXP);
+  size_t L2 = fs_canonical(path2, true, buf2, MAXP);
 
-  bool eqv = (strlen(buf1) > 0) && (strlen(buf2) > 0) && strcmp(buf1, buf2) == 0;
+  bool eqv = (L1 > 0) && (L2 > 0) && strcmp(buf1, buf2) == 0;
   free(buf1);
   free(buf2);
   return eqv;
