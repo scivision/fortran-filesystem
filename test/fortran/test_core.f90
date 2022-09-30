@@ -2,7 +2,7 @@ program test_filesystem
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
-is_absolute, with_suffix, relative_to, is_dir, sys_posix, exists, filesep, parent, &
+is_absolute, with_suffix, relative_to, is_dir, is_windows, exists, filesep, parent, &
 assert_is_dir, normal
 
 implicit none
@@ -76,10 +76,10 @@ subroutine test_filesep()
 
 type(path_t) :: p1, p2
 
-if(sys_posix()) then
-  if (filesep() /= "/") error stop "filesep posix: " // filesep()
-else
+if(is_windows()) then
   if(filesep() /= char(92)) error stop "filesep windows: " // filesep()
+else
+  if (filesep() /= "/") error stop "filesep posix: " // filesep()
 endif
 
 p1 = path_t("")
@@ -90,10 +90,6 @@ if (normal("") /= "") error stop "normal('') empty"
 
 if(normal("/") /= "/") then
   write(stderr,*) "ERROR: normal '/' failed: " // normal("/")
-  error stop
-endif
-if(normal(char(92)) /= "/") then
-  write(stderr,*) "ERROR: normal char(92) failed: " // normal(char(92))
   error stop
 endif
 
@@ -237,7 +233,13 @@ if(root("") /= "") error stop "root empty"
 p1 = path_t("/etc")
 p2 = path_t("c:/etc")
 
-if(sys_posix()) then
+if(is_windows()) then
+  if(p1%root() == "/") error stop "windows %root failed"
+
+  r = p2%root()
+  if( r/= "c:") error stop "windows %root drive: " // r
+  if(root("c:/etc") /= "c:") error stop "windows root() failed"
+else
   r = p1%root()
   if(r /= "/") error stop "unix %root failed 1: " // r
 
@@ -246,12 +248,6 @@ if(sys_posix()) then
 
   r = root("/etc")
   if(r /= "/") error stop "unix root() failed: " // r
-else
-  if(p1%root() == "/") error stop "windows %root failed"
-
-  r = p2%root()
-  if( r/= "c:") error stop "windows %root drive: " // r
-  if(root("c:/etc") /= "c:") error stop "windows root() failed"
 endif
 
 end subroutine test_root
@@ -268,11 +264,11 @@ character(:), allocatable :: iwa
 
 if(is_dir("")) error stop "is_dir empty should be false"
 
-if(sys_posix()) then
-  if(.not. is_dir("/")) error stop "is_dir('/') failed"
-else
+if(is_windows()) then
   r = root(get_cwd()) // "/"
   if(.not. is_dir(r)) error stop "is_dir('" // r // "') failed"
+else
+  if(.not. is_dir("/")) error stop "is_dir('/') failed"
 endif
 
 p1 = path_t(".")
@@ -302,18 +298,18 @@ type(path_t) :: p1,p2
 p1 = path_t("")
 if (p1%is_absolute()) error stop "blank is not absolute"
 
-if (sys_posix()) then
-  p2 = path_t("/")
-  if (.not. p2%is_absolute()) error stop p2%path() // "on Unix should be absolute"
-  p2 = path_t("c:/")
-  if (p2%is_absolute()) error stop p2%path() // "on Unix is not absolute"
-else
+if (is_windows()) then
   p2 = path_t("J:/")
   if (.not. p2%is_absolute()) error stop p2%path() // "on Windows should be absolute"
   p2 = path_t("j:/")
   if (.not. p2%is_absolute()) error stop p2%path() // "on Windows should be absolute"
   p2 = path_t("/")
   if (p2%is_absolute()) error stop p2%path() // "on Windows is not absolute"
+else
+  p2 = path_t("/")
+  if (.not. p2%is_absolute()) error stop p2%path() // "on Unix should be absolute"
+  p2 = path_t("c:/")
+  if (p2%is_absolute()) error stop p2%path() // "on Unix is not absolute"
 endif
 
 end subroutine test_absolute

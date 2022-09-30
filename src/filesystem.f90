@@ -18,7 +18,7 @@ file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
 get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
-sys_posix, touch, create_symlink, &
+touch, create_symlink, &
 remove, get_tempdir, filesep, &
 chmod_exe, chmod_no_exe, &
 is_macos, is_windows, is_linux, is_unix, &
@@ -270,10 +270,6 @@ import C_BOOL
 end function
 
 logical(C_BOOL) function is_unix() bind(C)
-import C_BOOL
-end function
-
-logical(C_BOOL) function sys_posix() bind(C)
 import C_BOOL
 end function
 

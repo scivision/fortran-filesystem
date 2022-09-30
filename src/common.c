@@ -38,12 +38,5 @@ bool is_windows() {
 #endif
 }
 
-bool sys_posix() {
-  char sep[2];
-
-  fs_filesep(sep);
-  return sep[0] == '/';
-}
-
 
 size_t get_maxp(){ return MAXP; }

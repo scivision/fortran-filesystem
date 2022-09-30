@@ -482,11 +482,6 @@ character(:), allocatable :: make_absolute
 character(*), intent(in) :: path, top_path
 ```
 
-Tell if system is POSIX-like (MacOS, Unix, Linux, BSD, ...) or not (Windows)
-
-```fortran
-pure logical function sys_posix()
-```
 
 ```fortran
 ! logical based on C++ preprocessor

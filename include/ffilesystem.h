@@ -57,7 +57,6 @@ extern bool is_linux();
 extern bool is_unix();
 extern bool is_windows();
 
-extern bool sys_posix();
 extern size_t fs_filesep(char*);
 
 extern size_t fs_normal(const char*, char*, size_t);
