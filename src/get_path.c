@@ -7,11 +7,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-#define MAXP _MAX_PATH
-
 #ifndef FS_DLL_NAME
 #define FS_DLL_NAME NULL
-#warning "FS_DLL_NAME not defined, using NULL -- this will work like exe_path()"
+#warning "FS_DLL_NAME not defined, using NULL -- this will work like fs_exe_path()"
 #endif
 
 #else
@@ -24,43 +22,33 @@ static void dl_dummy_func() {}
 #endif
 
 #ifdef __APPLE__
-#include <sys/syslimits.h>
 #include <mach-o/dyld.h>
-#define MAXP PATH_MAX
 #elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 #include <sys/sysctl.h>
-#elif defined(__linux__)
-#include <limits.h>
-#ifdef PATH_MAX
-#define MAXP PATH_MAX
-#endif
-#endif
-
-#ifndef MAXP
-#define MAXP 256
 #endif
 
 
-size_t exe_path(char* path){
+
+size_t fs_exe_path(char* path, size_t buffer_size){
   // https://stackoverflow.com/a/4031835
   // https://stackoverflow.com/a/1024937
 
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  return GetModuleFileName(NULL, path, MAXP);
+  return GetModuleFileName(NULL, path, buffer_size);
 #elif defined(__linux__)
   // https://man7.org/linux/man-pages/man2/readlink.2.html
-  if (readlink("/proc/self/exe", path, MAXP) == -1)
+  if (readlink("/proc/self/exe", path, buffer_size) == -1)
     return 0;
 #elif defined(__APPLE__)
-  char buf[MAXP];
+  char buf[buffer_size];
   uint32_t mp = sizeof(buf);
   if (_NSGetExecutablePath(buf, &mp) != 0)
     return 0;
   if(realpath(buf, path) == NULL)
     return 0;
 #elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-  char* buf = (char*) malloc(MAXP);
+  char* buf = (char*) malloc(buffer_size);
   int mib[4];
   mib[0] = CTL_KERN;
   mib[1] = KERN_PROC;
@@ -86,17 +74,18 @@ size_t exe_path(char* path){
 }
 
 
-size_t lib_path(char* path){
+size_t fs_lib_path(char* path, size_t buffer_size){
 
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  return GetModuleFileName(GetModuleHandle(FS_DLL_NAME), path, _MAX_PATH);
+  return GetModuleFileName(GetModuleHandle(FS_DLL_NAME), path, buffer_size);
 #elif defined(HAVE_DLADDR)
   Dl_info info;
 
   if (dladdr( (void*)&dl_dummy_func, &info) != 0)
   {
-    strcpy(path, info.dli_fname);
+    strncpy(path, info.dli_fname, buffer_size);
+    path[strlen(path)] = '\0';
     return strlen(path);
   }
 #endif

@@ -46,7 +46,7 @@ procedure, public :: path=>get_path
 procedure, public :: length
 procedure, public :: join=>fs_join
 procedure, public :: relative_to=>fs_relative_to
-procedure, public :: normal=>fs_normal
+procedure, public :: normal=>f_normal
 procedure, public :: exists=>fs_exists
 procedure, public :: is_file=>fs_is_file
 procedure, public :: is_dir=>fs_is_dir
@@ -460,11 +460,11 @@ character(*), intent(in) :: new
 fs_with_suffix%path_str = with_suffix(self%path_str, new)
 end function
 
-function fs_normal(self)
+function f_normal(self)
 !! lexically normalize path
 class(path_t), intent(in) :: self
-type(path_t) :: fs_normal
-fs_normal%path_str = normal(self%path_str)
+type(path_t) :: f_normal
+f_normal%path_str = normal(self%path_str)
 end function
 
 function fs_root(self)

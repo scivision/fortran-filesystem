@@ -58,18 +58,19 @@ extern bool is_unix();
 extern bool is_windows();
 
 extern bool sys_posix();
-extern void fs_filesep(char*);
+extern size_t fs_filesep(char*);
 
-extern size_t join(const char*, const char*, char*);
+extern size_t fs_normal(const char*, char*, size_t);
 
-extern size_t file_name(const char*, char*);
-extern size_t stem(const char*, char*);
-extern size_t parent(const char*, char*);
-extern size_t suffix(const char*, char*);
-extern size_t root(const char*, char*);
+extern size_t join(const char*, const char*, char*, size_t);
 
-extern size_t with_suffix(const char*, const char*, char*);
-extern size_t normal(const char*, char*);
+extern size_t file_name(const char*, char*, size_t);
+extern size_t stem(const char*, char*, size_t);
+extern size_t parent(const char*, char*, size_t);
+extern size_t suffix(const char*, char*, size_t);
+extern size_t root(const char*, char*, size_t);
+
+extern size_t with_suffix(const char*, const char*, char*, size_t);
 
 extern bool is_symlink(const char*);
 extern int create_symlink(const char*, const char*);
@@ -85,22 +86,22 @@ extern bool chmod_exe(const char*);
 extern bool chmod_no_exe(const char*);
 
 extern bool fs_remove(const char*);
-extern size_t canonical(const char*, bool, char*);
+extern size_t canonical(const char*, bool, char*, size_t);
 extern bool equivalent(const char*, const char*);
 extern int copy_file(const char*, const char*, bool);
-extern size_t relative_to(const char*, const char*, char*);
+extern size_t relative_to(const char*, const char*, char*, size_t);
 extern bool touch(const char*);
 
-extern size_t get_cwd(char*);
-extern size_t get_homedir(char*);
-extern size_t get_tempdir(char*);
+extern size_t get_cwd(char*, size_t);
+extern size_t get_homedir(char*, size_t);
+extern size_t get_tempdir(char*, size_t);
 
-extern size_t expanduser(const char*, char*);
+extern size_t expanduser(const char*, char*, size_t);
 
 extern uintmax_t file_size(const char*);
 
-extern size_t exe_path(char* path);
-extern size_t lib_path(char* path);
+extern size_t fs_exe_path(char* path, size_t);
+extern size_t fs_lib_path(char* path, size_t);
 
 #ifdef __cplusplus
 }

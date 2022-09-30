@@ -28,21 +28,23 @@
 
 char* as_windows(const char*);
 
-void fs_filesep(char* sep) {
+size_t fs_filesep(char* sep) {
 #ifdef _WIN32
   strcpy(sep, "\\");
 #else
   strcpy(sep, "/");
 #endif
+
+  return strlen(sep);
 }
 
 
-size_t normal(const char* path, char* normalized) {
+size_t fs_normal(const char* path, char* normalized, size_t buffer_size) {
   if(path == NULL)
     return 0;
 
   cwk_path_set_style(CWK_STYLE_UNIX);
-  size_t L = cwk_path_normalize(path, normalized, MAXP);
+  size_t L = cwk_path_normalize(path, normalized, buffer_size);
 
   if(TRACE) printf("TRACE:normal in: %s  out: %s\n", path, normalized);
 
@@ -58,17 +60,17 @@ size_t normal(const char* path, char* normalized) {
 
 }
 
-size_t canonical(const char* path, bool strict, char* result) {
+size_t canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
   if( path == NULL || strlen(path) == 0 )
     return 0;
 
   if(strlen(path) == 1 && path[0] == '.')
-    return get_cwd(result);
+    return get_cwd(result, buffer_size);
 
-  char* buf = (char*) malloc(MAXP);
-  if(expanduser(path, buf) == 0){
+  char* buf = (char*) malloc(buffer_size);
+  if(expanduser(path, buf, buffer_size) == 0){
     free(buf);
     return 0;
   }
@@ -80,9 +82,9 @@ size_t canonical(const char* path, bool strict, char* result) {
     return 0;
   }
 
-char* buf2 = (char*) malloc(MAXP);
+char* buf2 = (char*) malloc(buffer_size);
 #ifdef _WIN32
-  char* t = _fullpath(buf2, buf, MAXP);
+  char* t = _fullpath(buf2, buf, buffer_size);
 #else
   char* t = realpath(buf, buf2);
 #endif
@@ -93,37 +95,43 @@ char* buf2 = (char*) malloc(MAXP);
     return 0;
   }
 
-  size_t L = normal(buf2, result);
+  size_t L = fs_normal(buf2, result, buffer_size);
   free(buf);
   free(buf2);
   return L;
 }
 
-size_t join(const char* path, const char* other, char* result){
+size_t join(const char* path, const char* other, char* result, size_t buffer_size){
   if(path == NULL || other == NULL)
     return 0;
 
   cwk_path_set_style(CWK_STYLE_UNIX);
-  return cwk_path_join(path, other, result, MAXP);
+  return cwk_path_join(path, other, result, buffer_size);
 }
 
 
-size_t file_name(const char* path, char* result){
+size_t file_name(const char* path, char* result, size_t buffer_size){
 
-  if(path == NULL)
+  if(path == NULL || strlen(path) == 0)
     return 0;
 
   const char *base;
-  size_t L;
+
+  printf("TRACE:file_name: %s\n", path);
 
   cwk_path_set_style(CWK_STYLE_UNIX);
-  cwk_path_get_basename(path, &base, &L);
-  strncpy(result, base, L);
+  cwk_path_get_basename(path, &base, NULL);
+
+  printf("TRACE:file_name: %s => %s\n", path, base);
+
+  strncpy(result, base, buffer_size);
+  size_t L = strlen(result);
   result[L] = '\0';
+
   return L;
 }
 
-size_t relative_to(const char* to, const char* from, char* result) {
+size_t relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
 
   // undefined case, avoid bugs with MacOS
   if( to == NULL || (strlen(to) == 0) || from ==NULL || (strlen(from) == 0) )
@@ -140,7 +148,7 @@ size_t relative_to(const char* to, const char* from, char* result) {
   }
 
   cwk_path_set_style(CWK_STYLE_UNIX);
-  return cwk_path_get_relative(from, to, result, MAXP);
+  return cwk_path_get_relative(from, to, result, buffer_size);
 }
 
 
@@ -162,8 +170,8 @@ bool equivalent(const char* path1, const char* path2){
   char* buf1 = (char*) malloc(MAXP);
   char* buf2 = (char*) malloc(MAXP);
 
-  canonical(path1, true, buf1);
-  canonical(path2, true, buf2);
+  canonical(path1, true, buf1, MAXP);
+  canonical(path2, true, buf2, MAXP);
 
   bool eqv = (strlen(buf1) > 0) && (strlen(buf2) > 0) && strcmp(buf1, buf2) == 0;
   free(buf1);
@@ -172,9 +180,9 @@ bool equivalent(const char* path1, const char* path2){
 
 }
 
-size_t expanduser(const char* path, char* result){
+size_t expanduser(const char* path, char* result, size_t buffer_size){
 
-  if( path == NULL)
+  if(path == NULL)
     return 0;
 
   size_t L = strlen(path);
@@ -182,17 +190,17 @@ size_t expanduser(const char* path, char* result){
     return L;
 
   if(path[0] != '~')
-    return normal(path, result);
+    return fs_normal(path, result, buffer_size);
 
-  char* buf = (char*) malloc(MAXP);
-  if (!get_homedir(buf)){
+  char* buf = (char*) malloc(buffer_size);
+  if (!get_homedir(buf, buffer_size)) {
     free(buf);
-    return normal(path, result);
+    return fs_normal(path, result, buffer_size);
   }
 
   // ~ alone
   if (L < 3){
-    L = normal(buf, result);
+    L = fs_normal(buf, result, buffer_size);
     if(TRACE) printf("TRACE:expanduser: orphan ~: homedir %s %s\n", buf, result);
     free(buf);
     return L;
@@ -203,61 +211,56 @@ size_t expanduser(const char* path, char* result){
   if(TRACE) printf("TRACE:expanduser: homedir %s\n", buf);
 
   strcat(buf, path+2);
-  L = normal(buf, result);
+  L = fs_normal(buf, result, buffer_size);
   if(TRACE) printf("TRACE:expanduser result: %s\n", result);
 
   free(buf);
   return L;
 }
 
-size_t get_homedir(char* result) {
+size_t get_homedir(char* result, size_t buffer_size) {
 
-char* buf = (char*) malloc(MAXP);
+char* buf;
 size_t L;
 
 #ifdef _WIN32
-  if(getenv_s(&L, buf, MAXP, "USERPROFILE") != 0){
+  buf = (char*) malloc(buffer_size);
+  if(getenv_s(&L, buf, buffer_size, "USERPROFILE") != 0){
     fprintf(stderr, "ERROR:get_homedir: %s\n", strerror(errno));
     free(buf);
     return 0;
   }
 #else
-  const char* e = getenv("HOME");
-  if(e)
-    strcpy(buf, e);
-  else
-    buf = NULL;
+  buf = getenv("HOME");
 #endif
-  L = normal(buf, result);
+  L = fs_normal(buf, result, buffer_size);
   if(TRACE) printf("TRACE: get_homedir: %s %s\n", buf, result);
+#ifdef _WIN32
   free(buf);
+#endif
   return L;
 }
 
-size_t get_tempdir(char* result) {
+size_t get_tempdir(char* result, size_t buffer_size) {
 
-char* buf = (char*) malloc(MAXP);
+char* buf;
 size_t L;
 
 #ifdef _WIN32
-  if(GetTempPath(MAXP, buf) == 0){
+  buf = (char*) malloc(buffer_size);
+  if(GetTempPath((DWORD)buffer_size, buf) == 0){
     fprintf(stderr, "ERROR:get_tempdir: %s\n", strerror(errno));
     free(buf);
     return 0;
   }
 #else
-  const char* e = getenv("TMPDIR");
-  if(e)
-    strcpy(buf, e);
-  else{
-    fprintf(stderr, "ERROR:get_tempdir: %s\n", strerror(errno));
-    free(buf);
-    return 0;
-  }
+  buf = getenv("TMPDIR");
 #endif
 
-  L = normal(buf, result);
+  L = fs_normal(buf, result, buffer_size);
+#ifdef _WIN32
   free(buf);
+#endif
   return L;
 }
 
@@ -309,86 +312,88 @@ if(path == NULL || strlen(path) == 0)
 }
 
 
-size_t parent(const char* path, char* fparent){
+size_t parent(const char* path, char* result, size_t buffer_size){
 
   if(path == NULL || strlen(path) == 0) {
-    strcpy(fparent, ".");
-    return strlen(fparent);
+    strcpy(result, ".");
+    return 1;
   }
 
-  char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
-  if(normal(path, buf) == 0){
+  char* buf = (char*) malloc(buffer_size);
+  if(fs_normal(path, buf, buffer_size) == 0){
     free(buf);
     return 0;
   }
 
   char* pos = strrchr(buf, '/');
   if (pos){
-    strncpy(fparent, buf, pos-buf);
-    fparent[pos-buf] = '\0';
+    strncpy(result, buf, pos-buf);
+    result[pos-buf] = '\0';
   }
   else {
-    strcpy(fparent, ".");
+    strcpy(result, ".");
   }
 
   free(buf);
-  return strlen(fparent);
+  return strlen(result);
 }
 
 
-size_t root(const char* path, char* r) {
+size_t root(const char* path, char* result, size_t buffer_size) {
 
 if (is_absolute(path)){
 
 #ifdef _WIN32
-  strncpy(r, &path[0], 2);
-  r[2] = '\0';
+  strncpy(result, &path[0], buffer_size);
+  result[2] = '\0';
 #else
-  strncpy(r, &path[0], 1);
-  r[1] = '\0';
+  strncpy(result, &path[0], buffer_size);
+  result[1] = '\0';
 #endif
 
 }
 else {
-  r = "";
+  result = "";
 }
 
-return strlen(r);
+  return strlen(result);
 }
 
 
-size_t stem(const char* path, char* fstem){
+size_t stem(const char* path, char* result, size_t buffer_size){
 
   if(path == NULL || strlen(path) == 0)
     return 0;
 
-  char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
-  file_name(path, buf);
+  char* buf = (char*) malloc(buffer_size);
+  file_name(path, buf, buffer_size);
 
   char* pos = strrchr(buf, '.');
   if (pos && pos != buf){
-    strncpy(fstem, buf, pos-buf);
-    fstem[pos-buf] = '\0';
+    strncpy(result, buf, pos-buf);
+    result[pos-buf] = '\0';
   }
   else {
-    strcpy(fstem, buf);
+    strncpy(result, buf, buffer_size);
+    result[strlen(result)] = '\0';
   }
 
   free(buf);
-  return strlen(fstem);
+  return strlen(result);
 }
 
-size_t suffix(const char* path, char* fout){
+size_t suffix(const char* path, char* fout, size_t buffer_size){
 
   if(path == NULL || strlen(path) == 0)
     return 0;
 
-  char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
-  file_name(path, buf);
+  char* buf = (char*) malloc(buffer_size);
+  file_name(path, buf, buffer_size);
 
   char* pos = strrchr(buf, '.');
   if (pos && pos != buf){
-    strcpy(fout, pos);
+    strncpy(fout, pos, buffer_size);
+    fout[strlen(fout)] = '\0';
   }
   else {
     fout[0] = '\0';
@@ -458,18 +463,18 @@ int create_symlink(const char* target, const char* link) {
 }
 
 
-size_t get_cwd(char* path) {
+size_t get_cwd(char* path, size_t buffer_size) {
 
 #ifdef _MSC_VER
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
-  if (_getcwd(path, MAXP) == NULL)
+  if (_getcwd(path, (DWORD)buffer_size) == NULL)
     return 0;
 #else
-  if (getcwd(path, MAXP) == NULL)
+  if (getcwd(path, buffer_size) == NULL)
     return 0;
 #endif
 
-  return normal(path, path);
+  return fs_normal(path, path, buffer_size);
 }
 
 bool fs_remove(const char* path) {
@@ -527,22 +532,23 @@ bool touch(const char* path) {
   return is_file(path);
 }
 
-size_t with_suffix(const char* path, const char* suffix, char* result){
+size_t with_suffix(const char* path, const char* suffix, char* result, size_t buffer_size){
   if(path == NULL || suffix == NULL)
     return 0;
 
   if(strlen(suffix) == 0)
-    return stem(path, result);
+    return stem(path, result, buffer_size);
 
   if(path[0] == '.'){
     // workaround for leading dot filename
-    strcpy(result, path);
-    strcat(result, suffix);
+    strncpy(result, path, buffer_size);
+    result[strlen(result)] = '\0';
+    strncat(result, suffix, buffer_size);
     return strlen(result);
   }
 
   cwk_path_set_style(CWK_STYLE_UNIX);
-  return cwk_path_change_extension(path, suffix, result, MAXP);
+  return cwk_path_change_extension(path, suffix, result, buffer_size);
 }
 
 // as_windows() needed for system calls with MSVC

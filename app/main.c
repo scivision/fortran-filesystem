@@ -14,19 +14,23 @@ int main(int argc, char* argv[]){
       return EXIT_FAILURE;
   }
   else if (strcmp(argv[1], "homedir") == 0) {
-    if(get_homedir(p))
+    if(get_homedir(p, MAXP))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "tempdir") == 0) {
-    if(get_tempdir(p))
+    if(get_tempdir(p, MAXP))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "tempdir") == 0) {
-    get_tempdir(p);
+    get_tempdir(p, MAXP);
     printf("%s\n", p);
   }
   else if (strcmp(argv[1], "lib_path") == 0){
-    if(lib_path(p))
+    if(fs_lib_path(p, MAXP))
+      printf("%s\n", p);
+  }
+  else if (strcmp(argv[1], "exe_path") == 0){
+    if(fs_exe_path(p, MAXP))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "is_linux") ==0){
@@ -60,11 +64,11 @@ int main(int argc, char* argv[]){
     printf("%d\n", is_symlink(argv[2]));
   }
   else if (strcmp(argv[1], "relative_to") ==0 && argc == 4){
-    if(relative_to(argv[2], argv[3], p))
+    if(relative_to(argv[2], argv[3], p, MAXP))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "normal") ==0 && argc==3){
-    if(normal(argv[2], p))
+    if(fs_normal(argv[2], p, MAXP))
       printf("%s\n", p);
   }
   else{

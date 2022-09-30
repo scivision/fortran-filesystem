@@ -21,101 +21,96 @@ namespace fs = std::filesystem;
 
 #include "ffilesystem.h"
 
+#define TRACE 0
 
-void fs_filesep(char* sep) {
-  fs::path p("/");
 
-  std::strcpy(sep, p.make_preferred().string().c_str());
+size_t path2str(const fs::path p, char* result, size_t buffer_size){
+
+  auto s = p.generic_string();
+  std::strncpy(result, s.c_str(), buffer_size);
+  size_t L = std::strlen(result);
+  result[L] = '\0';
+
+  return L;
 }
 
 
-size_t normal(const char* path, char* normalized) {
+size_t fs_filesep(char* sep) {
+
+  fs::path p("/");
+
+  std::strncpy(sep, p.make_preferred().string().c_str(), 1);
+  sep[1] = '\0';
+
+  return 1;
+}
+
+
+size_t fs_normal(const char* path, char* result, size_t buffer_size) {
   // normalize path
   fs::path p(path);
 
-  auto s = p.lexically_normal().string();
-
-  std::replace(s.begin(), s.end(), '\\', '/');
-  // Windows separator to Unix separator
-
-  // std::cout << "TRACE: normal: " << path << " => " << s << std::endl;
-
-  std::strcpy(normalized, s.c_str());
-
-  return strlen(normalized);
+  return path2str(p.lexically_normal(), result, buffer_size);
 }
 
 
-size_t file_name(const char* path, char* filename) {
+size_t file_name(const char* path, char* result, size_t buffer_size) {
+
   fs::path p(path);
 
-  std::strcpy(filename, p.filename().string().c_str());
-  return strlen(filename);
+  return path2str(p.filename(), result, buffer_size);
 }
 
 
-size_t stem(const char* path, char* fstem) {
+size_t stem(const char* path, char* result, size_t buffer_size) {
+
   fs::path p(path);
 
-  auto fn = p.filename();
-  auto s = fn.stem();
-
-  // std::cout << "TRACE:suffix: filename = " << fn << " stem = " << s << std::endl;
-
-  std::strcpy(fstem, s.string().c_str());
-  return strlen(fstem);
+  return path2str(p.filename().stem(), result, buffer_size);
 }
 
 
-size_t join(const char* path, const char* other, char* result) {
+size_t join(const char* path, const char* other, char* result, size_t buffer_size) {
+
   fs::path p1(path);
   fs::path p2(other);
 
-  auto p = p1 / p2;
-
-  return normal(p.string().c_str(), result);
+  return path2str(p1 / p2, result, buffer_size);
 }
 
-size_t parent(const char* path, char* fparent) {
+size_t parent(const char* path, char* result, size_t buffer_size) {
+
   fs::path p(path);
 
   p = p.lexically_normal();
 
-  if(p.has_parent_path()){
-    normal(p.parent_path().string().c_str(), fparent);
-  }
-  else{
-    std::strcpy(fparent, ".");
-  }
+  if(p.has_parent_path())
+    return path2str(p.parent_path(), result, buffer_size);
 
-  return strlen(fparent);
+  std::strncpy(result, ".", buffer_size);
+  size_t L = std::strlen(result);
+  result[L] = '\0';
+
+  return L;
 }
 
 
-size_t suffix(const char* path, char* fsuffix) {
+size_t suffix(const char* path, char* result, size_t buffer_size) {
 
   fs::path p(path);
 
-  auto f = p.filename();
-  auto ext = f.extension();
-
-  //std::cout << "TRACE:suffix: filename = " << f << " suffix = " << ext << std::endl;
-
-  std::strcpy(fsuffix, ext.string().c_str());
-  return strlen(fsuffix);
+  return path2str(p.filename().extension(), result, buffer_size);
 }
 
 
-size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
+size_t with_suffix(const char* path, const char* new_suffix, char* result, size_t buffer_size) {
 
-  if( path == nullptr )
+  if(path == nullptr)
     return 0;
 
   fs::path p(path);
 
-  std::strcpy(swapped, p.replace_extension(new_suffix).string().c_str());
-
-  return strlen(swapped);
+  return path2str(p.replace_extension(new_suffix), result, buffer_size);
 }
 
 
@@ -223,19 +218,15 @@ int create_directories(const char* path) {
 }
 
 
-size_t root(const char* path, char* result) {
+size_t root(const char* path, char* result, size_t buffer_size) {
   fs::path p(path);
-  fs::path r;
 
 #ifdef _WIN32
-  r = p.root_name();
+  return path2str(p.root_name(), result, buffer_size);
 #else
-  r = p.root_path();
+  return path2str(p.root_path(), result, buffer_size);
 #endif
 
-  std::strcpy(result, r.string().c_str());
-
-  return strlen(result);
 }
 
 bool exists(const char* path) {
@@ -243,7 +234,8 @@ bool exists(const char* path) {
 
   auto e = fs::exists(path, ec);
 
-  if(ec) return false;
+  if(ec)
+    return false;
 
   return e;
 }
@@ -256,21 +248,25 @@ bool is_absolute(const char* path) {
 bool is_file(const char* path) {
   std::error_code ec;
 
-  if (!exists(path)) return false;
+  if (!exists(path))
+    return false;
 
   return fs::is_regular_file(path);
 }
 
 bool is_dir(const char* path) {
-  if(std::strlen(path) == 0) return false;
+  if(std::strlen(path) == 0)
+    return false;
 
   fs::path p(path);
 
 #ifdef _WIN32
-  if (p.root_name() == p) return true;
+  if (p.root_name() == p)
+    return true;
 #endif
 
-  if (!exists(path)) return false;
+  if (!exists(path))
+    return false;
 
   return fs::is_directory(path);
 
@@ -289,16 +285,16 @@ bool fs_remove(const char* path) {
   return e;
 }
 
-size_t canonical(const char* path, bool strict, char* result) {
+size_t canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
   if( path == nullptr || strlen(path) == 0 )
     return 0;
 
-  char* ex = new char[MAXP];
-  expanduser(path, ex);
+  char* ex = new char[buffer_size];
+  expanduser(path, ex, buffer_size);
 
-  // std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
+  if(TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
 
   fs::path p;
   std::error_code ec;
@@ -311,14 +307,14 @@ size_t canonical(const char* path, bool strict, char* result) {
   }
   delete[] ex;
 
-  // std::cout << "TRACE:canonical: " << p << std::endl;
+  if(TRACE) std::cout << "TRACE:canonical: " << p << std::endl;
 
   if(ec) {
     std::cerr << "ERROR:filesystem:canonical: " << ec.message() << std::endl;
     return 0;
   }
 
-  return normal(p.string().c_str(), result);
+  return path2str(p, result, buffer_size);
 }
 
 
@@ -329,7 +325,8 @@ bool equivalent(const char* path1, const char* path2) {
 
   std::error_code ec;
 
-  if (! (fs::exists(p1, ec) && fs::exists(p2, ec)) ) return false;
+  if (! (fs::exists(p1, ec) && fs::exists(p2, ec)) )
+    return false;
 
   if(ec) {
     std::cerr << "ERROR:filesystem:equivalent: " << ec.message() << std::endl;
@@ -399,7 +396,7 @@ int copy_file(const char* source, const char* destination, bool overwrite) {
 }
 
 
-size_t relative_to(const char* to, const char* from, char* result) {
+size_t relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
 
   // undefined case, avoid bugs with MacOS
   if( to == nullptr || (strlen(to) == 0) || from == nullptr || (strlen(from) == 0) )
@@ -412,18 +409,16 @@ size_t relative_to(const char* to, const char* from, char* result) {
   if(tp.is_absolute() != fp.is_absolute())
     return 0;
 
-  fs::path r;
-
   std::error_code ec;
 
-  r = fs::relative(tp, fp, ec);
+  auto r = fs::relative(tp, fp, ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
     return 0;
   }
 
-  return normal(r.string().c_str(), result);
+  return path2str(r, result, buffer_size);
 }
 
 
@@ -477,17 +472,18 @@ bool touch(const char* path) {
 }
 
 
-size_t get_tempdir(char* result) {
+size_t get_tempdir(char* result, size_t buffer_size) {
 
   std::error_code ec;
 
-  auto t = fs::temp_directory_path(ec);
+  auto r = fs::temp_directory_path(ec);
+
   if(ec) {
     std::cerr << "filesystem:get_tempdir: " << ec.message() << std::endl;
     return 0;
   }
 
-  return normal(t.string().c_str(), result);
+  return path2str(r, result, buffer_size);
 }
 
 
@@ -515,16 +511,17 @@ uintmax_t file_size(const char* path) {
 }
 
 
-size_t get_cwd(char* result) {
+size_t get_cwd(char* result, size_t buffer_size) {
   std::error_code ec;
 
-  auto c = fs::current_path(ec);
+  auto r = fs::current_path(ec);
+
   if(ec) {
     std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << std::endl;
     return 0;
   }
 
-  return normal(c.string().c_str(), result);
+  return path2str(r, result, buffer_size);
 }
 
 
@@ -533,7 +530,9 @@ bool is_exe(const char* path) {
   std::error_code ec;
 
   auto s = fs::status(p, ec);
-  if (s.type() == fs::file_type::not_found) return false;
+  if (s.type() == fs::file_type::not_found)
+    return false;
+
   if(ec) {
     std::cerr << "ERROR:filesystem:is_exe: " << ec.message() << std::endl;
     return false;
@@ -553,7 +552,7 @@ bool is_exe(const char* path) {
 }
 
 
-size_t get_homedir(char* result) {
+size_t get_homedir(char* result, size_t buffer_size) {
 
 #ifdef _WIN32
   auto k = "USERPROFILE";
@@ -561,33 +560,33 @@ size_t get_homedir(char* result) {
   auto k = "HOME";
 #endif
 
-  auto e = std::getenv(k);
+  auto r = std::getenv(k);
 
-  if(e == nullptr) {
+  if(r == nullptr) {
     std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined" << std::endl;
     return 0;
   }
 
-  return normal(e, result);
+  return fs_normal(r, result, buffer_size);
 }
 
 
-size_t expanduser(const char* path, char* result){
+size_t expanduser(const char* path, char* result, size_t buffer_size){
 
   std::string p(path);
 
-  // std::cout << "TRACE:expanduser: path: " << p << " length: " << strlen(path) << std::endl;
+  if(TRACE)  std::cout << "TRACE:expanduser: path: " << p << " length: " << strlen(path) << std::endl;
 
   if( path == nullptr || strlen(path) == 0 )
     return 0;
 
   if(p.front() != '~')
-    return normal(path, result);
+    return fs_normal(path, result, buffer_size);
 
-  char* h = new char[MAXP];
-  if (!get_homedir(h)){
+  char* h = new char[buffer_size];
+  if (!get_homedir(h, buffer_size)){
     delete[] h;
-    return normal(path, result);
+    return fs_normal(path, result, buffer_size);
   }
 
   fs::path home(h);
@@ -601,20 +600,14 @@ size_t expanduser(const char* path, char* result){
   std::replace(p.begin(), p.end(), '\\', '/');
   p = std::regex_replace(p, r, "/");
 
-  // std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
+  if(TRACE) std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
 
-  if (p.length() == 1) {
+  if (p.length() < 3) {
     // ~ alone
-    return normal(home.string().c_str(), result);
-  }
-  else if (p.length() == 2) {
-    // ~/ alone
-    return normal((home.string() + "/").c_str(), result);
+    return path2str(home, result, buffer_size);
   }
 
-  // std::cout << "TRACE:expanduser: trailing path: " << p1 << std::endl;
-
-  return normal((home / p.substr(2)).string().c_str(), result);
+  return fs_normal((home / p.substr(2)).generic_string().c_str(), result, buffer_size);
 }
 
 bool chmod_exe(const char* path) {
