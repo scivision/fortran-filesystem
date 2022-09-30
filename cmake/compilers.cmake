@@ -26,6 +26,14 @@ if(cpp AND fortran AND NOT abi_ok)
   endif()
 endif()
 
+#--- is dladdr available for lib_path() optional function
+unset(CMAKE_REQUIRED_FLAGS)
+if(NOT WIN32)
+  set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
+  set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+  check_function_exists(dladdr HAVE_DLADDR)
+endif()
+
 # --- some compilers require these manual settings
 unset(CMAKE_REQUIRED_LIBRARIES)
 unset(CMAKE_REQUIRED_DEFINITIONS)
@@ -47,13 +55,6 @@ if(cpp)
   cpp_check()
 else()
   unset(HAVE_CXX_FILESYSTEM CACHE)
-endif()
-
-#--- is dladdr available for lib_path() optional function
-if(NOT WIN32)
-  set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
-  set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
-  check_function_exists(dladdr HAVE_DLADDR)
 endif()
 
 # fixes errors about needing -fPIE
