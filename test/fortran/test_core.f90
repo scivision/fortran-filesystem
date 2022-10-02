@@ -253,6 +253,11 @@ if(with_suffix(".h5", ".h5") /= ".h5.h5") then
   error stop
 endif
 
+if(with_suffix('c:\a\hi.nc', '.h5') /= 'c:/a/hi.h5') then
+  write(stderr,*) "with_suffix c:\a\hi.nc to .h5: " // with_suffix('c:\a\hi.nc', '.h5')
+  error stop
+endif
+
 p1 = path_t("my/file.h5")
 p2 = p1%with_suffix(".hdf5")
 

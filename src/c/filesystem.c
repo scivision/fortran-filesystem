@@ -184,7 +184,7 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size){
 
 size_t fs_with_suffix(const char* path, const char* suffix, char* result, size_t buffer_size){
   if(path == NULL || suffix == NULL){
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 
@@ -200,7 +200,9 @@ size_t fs_with_suffix(const char* path, const char* suffix, char* result, size_t
   }
 
   cwk_path_set_style(CWK_STYLE_UNIX);
-  return cwk_path_change_extension(path, suffix, result, buffer_size);
+  cwk_path_change_extension(path, suffix, result, buffer_size);
+
+  return fs_normal(result, result, buffer_size);
 }
 
 

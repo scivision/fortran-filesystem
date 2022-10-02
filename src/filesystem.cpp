@@ -118,7 +118,7 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size) {
 size_t fs_with_suffix(const char* path, const char* new_suffix, char* result, size_t buffer_size) {
 
   if(path == nullptr){
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 
