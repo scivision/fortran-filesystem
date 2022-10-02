@@ -55,7 +55,7 @@ if(HAVE_CXX_FILESYSTEM)
 
   target_sources(ffilesystem PRIVATE $<TARGET_OBJECTS:filesystem_cpp>)
 else()
-  add_library(filesystem_c OBJECT src/c/filesystem.c src/c/sys.c
+  add_library(filesystem_c OBJECT src/c/filesystem.c src/c/env.c src/c/sys.c
   src/c/cwalk.c
   )
   target_include_directories(filesystem_c PRIVATE
