@@ -10,6 +10,16 @@ integer(C_INT) function max_path() bind(C, name="fs_get_maxp")
 import
 end function
 
+subroutine fs_as_posix(path) bind(C)
+import
+character(kind=C_CHAR), intent(inout) :: path(*)
+end subroutine
+
+subroutine fs_as_windows(path) bind(C)
+import
+character(kind=C_CHAR), intent(inout) :: path(*)
+end subroutine
+
 integer(C_SIZE_T) function fs_canonical(path, strict, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -203,6 +213,21 @@ module procedure get_max_path
 get_max_path = int(max_path())
 end procedure
 
+module procedure as_posix
+character(kind=c_char, len=:), allocatable :: cbuf
+allocate(character(len(path)+1) :: cbuf)
+cbuf = trim(path) // C_NULL_CHAR
+call fs_as_posix(cbuf)
+r = cbuf(:len(path))
+end procedure
+
+module procedure as_windows
+character(kind=c_char, len=:), allocatable :: cbuf
+allocate(character(len(path)+1) :: cbuf)
+cbuf = trim(path) // C_NULL_CHAR
+call fs_as_windows(cbuf)
+r = cbuf(:len(path))
+end procedure
 
 module procedure canonical
 character(kind=c_char, len=:), allocatable :: cbuf
@@ -375,8 +400,8 @@ character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
 N = fs_parent(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
-allocate(character(N) :: parent)
-parent = cbuf(:N)
+allocate(character(N) :: r)
+r = cbuf(:N)
 end procedure
 
 module procedure normal

@@ -7,7 +7,7 @@ implicit none
 private
 public :: path_t  !< base class
 public :: get_homedir, canonical, get_cwd !< utility procedures
-public :: normal, expanduser, &
+public :: normal, expanduser, as_posix, as_windows, &
 is_absolute, is_dir, is_file, is_exe, &
 is_symlink, &
 exists, &
@@ -44,6 +44,8 @@ contains
 
 procedure, public :: path=>get_path
 procedure, public :: length
+procedure, public :: as_posix=>f_as_posix
+procedure, public :: as_windows=>f_as_windows
 procedure, public :: join=>f_join
 procedure, public :: relative_to=>f_relative_to
 procedure, public :: normal=>f_normal
@@ -86,11 +88,23 @@ integer module function get_max_path()
 !! returns dynamic MAX_PATH for this computer
 end function
 
-module function parent(path)
+module function as_posix(path) result(r)
+!! force Posix file separator "/"
+character(*), intent(in) :: path
+character(:), allocatable :: r
+end function
+
+module function as_windows(path) result(r)
+!! force Windows file separator "\"
+character(*), intent(in) :: path
+character(:), allocatable :: r
+end function
+
+module function parent(path) result(r)
 !! returns parent directory of path
 character(*), intent(in) :: path
-character(:), allocatable :: parent
-end function parent
+character(:), allocatable :: r
+end function
 
 module function relative_to(a, b)
 !! returns b relative to a
@@ -101,24 +115,24 @@ module function relative_to(a, b)
 
 character(*), intent(in) :: a, b
 character(:), allocatable :: relative_to
-end function relative_to
+end function
 
 module function file_name(path)
 !! returns file name without path
 character(*), intent(in) :: path
 character(:), allocatable :: file_name
-end function file_name
+end function
 
 module function stem(path)
 character(*), intent(in) :: path
 character(:), allocatable :: stem
-end function stem
+end function
 
 module function suffix(path)
 !! extracts path suffix, including the final "." dot
 character(*), intent(in) :: path
 character(:), allocatable :: suffix
-end function suffix
+end function
 
 module function normal(path)
 !! lexically normalize path
@@ -149,25 +163,6 @@ character(:), allocatable :: expanduser
 character(*), intent(in) :: path
 end function
 
-end interface
-
-
-interface !< find.f90
-
-module function get_filename(path, name, suffixes)
-!! given a path, stem and vector of suffixes, find the full filename
-!! assumes:
-!! * if present, "name" is the file name we wish to find (without suffix or directories)
-!! * if name not present, "path" is the directory + filename without suffix
-!!
-!! suffixes is a vector of suffixes to check. Default is [character(4) :: '.h5', '.nc', '.dat']
-!! if file not found, empty character is returned
-
-character(*), intent(in) :: path
-character(*), intent(in), optional :: name, suffixes(:)
-character(:), allocatable :: get_filename
-end function
-
 module function make_absolute(path, top_path)
 !! if path is absolute, return expanded path
 !! if path is relative, top_path / path
@@ -178,43 +173,12 @@ character(:), allocatable :: make_absolute
 character(*), intent(in) :: path, top_path
 end function
 
-end interface
-
-
-interface !< io.f90
-
-module subroutine touch(path)
-character(*), intent(in) :: path
-end subroutine
-
-module function read_text(filename, max_length)
-!! read text file
-character(*), intent(in) :: filename
-character(:), allocatable :: read_text
-integer, optional :: max_length
-end function
-
-module subroutine write_text(filename, text)
-!! create or overwrite file with text
-character(*), intent(in) :: filename, text
-end subroutine
-
-end interface
-
-
-interface !< envvar.f90
 module function get_homedir()
 !! returns home directory, or empty string if not found
 !!
 !! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
 character(:), allocatable :: get_homedir
 end function
-
-
-end interface
-
-
-interface
 
 module function canonical(path, strict)
 character(:), allocatable :: canonical
@@ -252,10 +216,6 @@ character(*), intent(in) :: path
 character(:), allocatable :: root
 end function
 
-end interface
-
-
-interface !< filesystem.cpp
 
 logical(C_BOOL) function fs_cpp() bind(C)
 import C_BOOL
@@ -356,6 +316,43 @@ character(*), intent(in) :: path
 logical, intent(out), optional :: ok
 end subroutine
 
+module subroutine touch(path)
+character(*), intent(in) :: path
+end subroutine
+
+end interface
+
+
+interface !< find.f90
+module function get_filename(path, name, suffixes)
+!! given a path, stem and vector of suffixes, find the full filename
+!! assumes:
+!! * if present, "name" is the file name we wish to find (without suffix or directories)
+!! * if name not present, "path" is the directory + filename without suffix
+!!
+!! suffixes is a vector of suffixes to check. Default is [character(4) :: '.h5', '.nc', '.dat']
+!! if file not found, empty character is returned
+
+character(*), intent(in) :: path
+character(*), intent(in), optional :: name, suffixes(:)
+character(:), allocatable :: get_filename
+end function
+end interface
+
+
+interface !< io.f90
+
+module function read_text(filename, max_length)
+!! read text file
+character(*), intent(in) :: filename
+character(:), allocatable :: read_text
+integer, optional :: max_length
+end function
+
+module subroutine write_text(filename, text)
+!! create or overwrite file with text
+character(*), intent(in) :: filename, text
+end subroutine
 
 end interface
 
@@ -396,6 +393,20 @@ end function get_path
 
 
 !> one-liner methods calling actual procedures
+
+function f_as_posix(self) result(r)
+!! force Posix "/" file separator
+class(path_t), intent(in) :: self
+type(path_t) :: r
+r%path_str = as_posix(self%path_str)
+end function
+
+function f_as_windows(self) result(r)
+!! force Windows "\" file separator
+class(path_t), intent(in) :: self
+type(path_t) :: r
+r%path_str = as_windows(self%path_str)
+end function
 
 function f_relative_to(self, other) result(r)
 !! returns other relative to self

@@ -57,8 +57,8 @@ extern bool fs_is_linux();
 extern bool fs_is_unix();
 extern bool fs_is_windows();
 
-extern char* fs_as_posix(const char*);
-extern char* fs_as_windows(const char*);
+extern void fs_as_posix(char*);
+extern void fs_as_windows(char*);
 
 extern size_t fs_filesep(char*);
 

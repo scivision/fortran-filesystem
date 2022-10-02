@@ -648,11 +648,12 @@ int fs_create_directories(const char* path) {
     return 0;
 
   char* p = (char*) malloc(strlen(path) + 1);
+  strcpy(p, path);
+#ifdef _WIN32
+  fs_as_windows(p);
+#endif
 
-  #ifdef _MSC_VER
-
-  p = fs_as_windows(path);
-
+#ifdef _MSC_VER
   STARTUPINFO si = { 0 };
   PROCESS_INFORMATION pi;
   si.cb = sizeof(si);
@@ -660,42 +661,37 @@ int fs_create_directories(const char* path) {
   char* cmd = (char*) malloc(strlen(p) + 1 + 13);
   strcpy(cmd, "cmd /c mkdir ");
   strcat(cmd, p);
+  free(p);
 
-  if(TRACE) printf("TRACE:mkdir %s\n", cmd);
-  if (!CreateProcess(NULL, cmd, NULL, NULL, FALSE,
-                     0, 0, 0, &si, &pi)) {
-    free(p);
+if(TRACE) printf("TRACE:mkdir %s\n", cmd);
+
+  if (!CreateProcess(NULL, cmd, NULL, NULL, FALSE, 0, 0, 0, &si, &pi))
     return -1;
-  }
 
-  if(TRACE) printf("TRACE:mkdir waiting to complete %s\n", cmd);
+if(TRACE) printf("TRACE:mkdir waiting to complete %s\n", cmd);
   // Wait until child process exits.
   WaitForSingleObject( pi.hProcess, 2000 );
-  free(p);
   CloseHandle(pi.hThread);
   CloseHandle(pi.hProcess);
   if(TRACE) printf("TRACE:mkdir completed %s\n", cmd);
 
   return 0;
 
-  #else
+#else
 // from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
 
-  #ifdef _WIN32
-  p = fs_as_windows(path);
+#ifdef _WIN32
   char *const args[5] = {"cmd", "/c", "mkdir", p, NULL};
   int ret = execvp("cmd", args);
-  #else
-  strcpy(p, path);
+#else
   char *const args[4] = {"mkdir", "-p", p, NULL};
   int ret = execvp("mkdir", args);
-  #endif
-
+#endif
   free(p);
 
   if(ret != -1)
     return 0;
 
   return ret;
-  #endif
+#endif
 }

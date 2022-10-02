@@ -3,7 +3,7 @@ program test_filesystem
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
 is_absolute, with_suffix, relative_to, is_dir, is_windows, exists, filesep, parent, &
-assert_is_dir, normal
+assert_is_dir, normal, as_posix, as_windows
 
 implicit none
 
@@ -13,6 +13,9 @@ print *, "OK: getter setter"
 
 call test_filesep()
 print *, "OK: filesystem: filesep"
+
+call test_separator()
+print *, "OK: filesyste: separator"
 
 call test_join()
 print *, "OK: test_join"
@@ -54,7 +57,27 @@ if (p1%path(2,3) /= "/b") error stop "getter start,end"
 if (p1%path(3,3) /= "b") error stop "getter same"
 if (p1%path(2) /= "/b/c") error stop "getter start only"
 
-end subroutine test_setter_getter
+end subroutine
+
+
+subroutine test_separator()
+
+type(path_t) :: p
+
+if (as_posix("") /= "") error stop "as_posix empty"
+if (as_windows("") /= "") error stop "as_windows empty"
+
+if (as_posix("a\b") /= "a/b") error stop "as_posix()"
+p = path_t("a\b")
+p = p%as_posix()
+if (p%path() /= "a/b") error stop "%as_posix"
+
+if (as_windows("a/b") /= "a\b") error stop "as_windows(): " // as_windows("a/b")
+p = path_t("a/b")
+p = p%as_windows()
+if (p%path() /= "a\b") error stop "%as_windows"
+
+end subroutine
 
 
 subroutine test_join()

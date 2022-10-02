@@ -43,34 +43,25 @@ bool fs_is_windows() {
 size_t fs_get_maxp(){ return MAXP; }
 
 
-char* fs_as_posix(const char* path) {
+void fs_as_posix(char* path) {
 // force posix file seperator
   char s = '\\';
-  char* buf = (char*) malloc(strlen(path)+1);  // +1 for null terminator
-  strcpy(buf, path);
-
-  char *p = strchr(buf, s);
+  char *p = strchr(path, s);
   while (p) {
     *p = '/';
     p = strchr(p+1, s);
   }
-  return buf;
 }
 
-
-char* fs_as_windows(const char* path) {
+void fs_as_windows(char* path) {
 // as_windows() needed for system calls with MSVC
 // force Windows file seperator
   char s = '/';
-  char* buf = (char*) malloc(strlen(path)+1);  // +1 for null terminator
-  strcpy(buf, path);
-
-  char *p = strchr(buf, s);
+  char *p = strchr(path, s);
   while (p) {
     *p = '\\';
     p = strchr(p+1, s);
   }
-  return buf;
 }
 
 
