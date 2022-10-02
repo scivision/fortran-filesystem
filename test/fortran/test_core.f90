@@ -212,8 +212,7 @@ subroutine test_parent()
 
 type(path_t) :: p1, p2
 
-
-if(parent("") /= ".") error stop "parent empty: " // parent("")
+if(parent("") /= "") error stop "parent empty: " // parent("")
 
 p1 = path_t("a/b/c")
 if (p1%parent() /= "a/b") then
@@ -223,14 +222,20 @@ endif
 p2 = path_t(p1%parent())
 if (p2%parent() /= "a") error stop "parent nest failed" // p2%parent()
 p2 = path_t("a")
-if (p2%parent() /= ".") error stop "parent idempotent failed. Expected '.', but got: " // p2%parent()
+if (p2%parent() /= "") error stop "parent idempotent failed. Expected '', but got: " // p2%parent()
 
-if(parent("./.parent") /= ".") error stop "parent leading dot filename cwd: " // parent("./.parent")
-if(parent(".parent.txt") /= ".") error stop "parent leading dot filename w/ext"
-if(parent("./.parent.txt") /= ".") error stop "parent leading dot filename w/ext and cwd"
+if(parent("ab/.parent") /= "ab") error stop "parent leading dot filename cwd: " // parent("./.parent")
+if(parent("ab/.parent.txt") /= "ab") error stop "parent leading dot filename w/ext"
 if(parent("a/b/../.parent.txt") /= "a") then
   write(stderr,*) "parent leading dot filename w/ext up ",  parent("a/b/../.parent.txt")
   error stop
+endif
+
+if(is_windows()) then
+  if(parent("c:\a\b\..\.parent.txt") /= "c:/a") then
+    write(stderr,*) "parent leading dot filename w/ext up ",  parent("c:\a\b\..\.parent.txt")
+    error stop
+  endif
 endif
 
 end subroutine test_parent

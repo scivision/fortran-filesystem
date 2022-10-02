@@ -103,16 +103,7 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size) {
 
   fs::path p(path);
 
-  p = p.lexically_normal();
-
-  if(p.has_parent_path())
-    return path2str(p.parent_path(), result, buffer_size);
-
-  std::strncpy(result, ".", buffer_size);
-  size_t L = std::strlen(result);
-  result[L] = '\0';
-
-  return L;
+  return path2str(p.lexically_normal().parent_path(), result, buffer_size);
 }
 
 

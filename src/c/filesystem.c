@@ -48,7 +48,11 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size) {
     return 0;
   }
 
+#ifdef _WIN32
+  cwk_path_set_style(CWK_STYLE_WINDOWS);
+#else
   cwk_path_set_style(CWK_STYLE_UNIX);
+#endif
   size_t L = cwk_path_normalize(path, result, buffer_size);
   fs_as_posix(result);
 
@@ -118,7 +122,7 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size){
 
 size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size){
   if(path == NULL || other == NULL){
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 
@@ -129,28 +133,28 @@ size_t fs_join(const char* path, const char* other, char* result, size_t buffer_
 
 size_t fs_parent(const char* path, char* result, size_t buffer_size){
 
-  if(path == NULL || strlen(path) == 0) {
-    strcpy(result, ".");
-    return 1;
-  }
-
   char* buf = (char*) malloc(buffer_size);
   if(fs_normal(path, buf, buffer_size) == 0){
     free(buf);
+    result = NULL;
     return 0;
   }
 
-  char* pos = strrchr(buf, '/');
-  if (pos){
-    strncpy(result, buf, pos-buf);
-    result[pos-buf] = '\0';
-  }
-  else {
-    strcpy(result, ".");
+  size_t L;
+
+  cwk_path_get_dirname(buf, &L);
+  if(L == 0){
+    result[0] = '\0';
+    return 0;
   }
 
+  size_t M = min(L-1, buffer_size);
+  strncpy(result, buf, M);
   free(buf);
-  return strlen(result);
+  result[M] = '\0';
+
+if(TRACE) printf("TRACE: parent: %s => %s  %ju\n", path, result, M);
+  return M;
 }
 
 
