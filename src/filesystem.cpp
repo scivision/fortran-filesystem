@@ -31,6 +31,7 @@ bool fs_cpp(){
 size_t path2str(const fs::path p, char* result, size_t buffer_size){
 
   auto s = p.generic_string();
+  std::replace(s.begin(), s.end(), '\\', '/');
   std::strncpy(result, s.c_str(), buffer_size);
   size_t L = std::strlen(result);
   result[L] = '\0';
@@ -346,7 +347,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 
   if(ec) {
     std::cerr << "ERROR:filesystem:canonical: " << ec.message() << std::endl;
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 
@@ -442,7 +443,7 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
 
   if(ec) {
     std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 
@@ -501,7 +502,7 @@ size_t fs_get_tempdir(char* result, size_t buffer_size) {
 
   if(ec) {
     std::cerr << "filesystem:get_tempdir: " << ec.message() << std::endl;
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 
@@ -536,7 +537,7 @@ size_t fs_get_cwd(char* result, size_t buffer_size) {
 
   if(ec) {
     std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << std::endl;
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 
@@ -556,7 +557,7 @@ size_t fs_get_homedir(char* result, size_t buffer_size) {
 
   if(r == nullptr) {
     std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined" << std::endl;
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 

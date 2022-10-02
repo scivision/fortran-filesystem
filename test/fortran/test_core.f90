@@ -249,12 +249,12 @@ if(with_suffix("", ".h5") /= ".h5") error stop "with_suffix empty: " // with_suf
 if(with_suffix("foo.h5", "") /= "foo") error stop "with_suffix foo.h5 to empty: " // with_suffix("foo.h5", "")
 if(with_suffix(".h5", "") /= ".h5") error stop "with_suffix .h5 to .h5"
 if(with_suffix(".h5", ".h5") /= ".h5.h5") then
-  write(stderr,*) "with_suffix .h5.h5: " // with_suffix(".h5", ".h5")
+  write(stderr,*) "ERROR: with_suffix .h5.h5: " // with_suffix(".h5", ".h5")
   error stop
 endif
 
 if(with_suffix('c:\a\hi.nc', '.h5') /= 'c:/a/hi.h5') then
-  write(stderr,*) "with_suffix c:\a\hi.nc to .h5: " // with_suffix('c:\a\hi.nc', '.h5')
+  write(stderr,*) "ERROR: with_suffix c:\a\hi.nc to .h5: " // with_suffix('c:\a\hi.nc', '.h5')
   error stop
 endif
 
@@ -276,13 +276,13 @@ if(root("") /= "") error stop "root empty"
 
 if(is_windows()) then
   if(root("/etc") /= "/") then
-    write(stderr,'(a,i0)') "windows root /etc failed: "// p1%root() // " length: ", len_trim(p1%root())
+    write(stderr,'(a,i0)') "ERROR: windows root /etc failed: "// p1%root() // " length: ", len_trim(p1%root())
     error stop
   endif
 
   r = root("c:/etc")
   if(r /= "c:/") then
-    write(stderr, '(a)') "windows root c:/etc failed: " // r
+    write(stderr, '(a)') "ERROR: windows root c:/etc failed: " // r
     error stop
   endif
 else

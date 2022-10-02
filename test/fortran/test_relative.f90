@@ -43,7 +43,7 @@ if(rel /= "") error stop "empty path should be empty: " // rel
 print *, "OK: relative_to: empty"
 
 if(is_windows()) then
-  rel  = relative_to("c:/a/b", "c")
+  rel  = relative_to("c:\a\b", "c")
   if(rel /= "") error stop "abs path with rel base should be empty: " // rel
 
   rel = relative_to("c", "c:/a/b")
@@ -58,7 +58,7 @@ if(is_windows()) then
    ! error stop
   endif
 
-  rel = relative_to("c:/a/b/c/d", "c:/a/b")
+  rel = relative_to("c:\a/b\c/d", "c:/a\b")
   if(rel /= "c/d") error stop "rel to parent 2: " // rel
 
   p1 = path_t("c:/a/b/c/d")

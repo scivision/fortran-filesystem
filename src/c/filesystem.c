@@ -209,7 +209,12 @@ size_t fs_with_suffix(const char* path, const char* suffix, char* result, size_t
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
-  if( path == NULL || strlen(path) == 0 ){
+  if(path == NULL){
+    result = NULL;
+    return 0;
+  }
+
+  if(strlen(path) == 0){
     result[0] = '\0';
     return 0;
   }
@@ -220,7 +225,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   char* buf = (char*) malloc(buffer_size);
   if(fs_expanduser(path, buf, buffer_size) == 0){
     free(buf);
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 
@@ -228,7 +233,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 
   if(strict && !fs_exists(buf)) {
     free(buf);
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 
@@ -242,12 +247,12 @@ char* buf2 = (char*) malloc(buffer_size);
     fprintf(stderr, "ERROR:canonical: %s => %s\n", buf, strerror(errno));
     free(buf);
     free(buf2);
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
+  free(buf);
 
   size_t L = fs_normal(buf2, result, buffer_size);
-  free(buf);
   free(buf2);
   return L;
 }
@@ -256,7 +261,12 @@ char* buf2 = (char*) malloc(buffer_size);
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
 
   // undefined case, avoid bugs with MacOS
-  if( to == NULL || (strlen(to) == 0) || from ==NULL || (strlen(from) == 0) ){
+  if(to == NULL || from == NULL){
+    result = NULL;
+    return 0;
+  }
+
+  if((strlen(to) == 0) || (strlen(from) == 0)){
     result[0] = '\0';
     return 0;
   }
@@ -273,8 +283,14 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
     return 1;
   }
 
+#ifdef _WIN32
+  cwk_path_set_style(CWK_STYLE_WINDOWS);
+#else
   cwk_path_set_style(CWK_STYLE_UNIX);
-  return cwk_path_get_relative(from, to, result, buffer_size);
+#endif
+  cwk_path_get_relative(from, to, result, buffer_size);
+
+  return fs_normal(result, result, buffer_size);
 }
 
 
