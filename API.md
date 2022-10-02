@@ -401,27 +401,28 @@ text = read_text(filename)
 
 ## System
 
+Is Ffilesystem using C or C++ filesystem backend:
+
+```fortran
+logical :: as_cpp()
+```
+
 Filessystem file separator:
 
 ```fortran
-character :: sep
-sep = filesep()
+character :: filesep()
 ```
 
 Get home directory, or empty string if not found
 
 ```fortran
-character(:), allocatable :: home
-
-home = get_homedir()
+character(:), allocatable :: get_homedir()
 ```
 
 Get full path of main executable, regardless of current working directory
 
 ```fortran
-character(:), allocatable :: exe
-
-exe = exe_path()
+character(:), allocatable :: exe_path()
 ```
 
 Get full path of **SHARED LIBRARY**, regardless of current working directory.
@@ -429,25 +430,19 @@ If static library, works like exe_path().
 To use `lib_path()`, build Ffilesystem with `cmake -DBUILD_SHARED_LIBS=on`
 
 ```fortran
-character(:), allocatable :: bin
-
-bin = lib_path()
+character(:), allocatable :: lib_path()
 ```
 
 Get current working directory
 
 ```fortran
-use filesystem, only : get_cwd
-
-character(:), allocatable :: cur
-
-cur = get_cwd()
+character(:), allocatable :: get_cwd()
 ```
 
 Get system temporary directory:
 
 ```fortran
-character(:), allocatable :: get_tempdir
+character(:), allocatable :: get_tempdir()
 ```
 
 Make a path absolute if relative:

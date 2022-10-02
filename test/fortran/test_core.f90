@@ -231,29 +231,28 @@ end subroutine test_with_suffix
 
 subroutine test_root()
 
-type(path_t) :: p1, p2
+type(path_t) :: p1
 character(:), allocatable :: r
 
 if(root("") /= "") error stop "root empty"
 
-p1 = path_t("/etc")
-p2 = path_t("c:/etc")
-
 if(is_windows()) then
-  if(p1%root() == "/") error stop "windows %root failed"
+  if(root("/etc") /= "/") then
+    write(stderr,'(a,i0)') "windows root /etc failed: "// p1%root() // " length: ", len_trim(p1%root())
+    error stop
+  endif
 
-  r = p2%root()
-  if( r/= "c:") error stop "windows %root drive: " // r
-  if(root("c:/etc") /= "c:") error stop "windows root() failed"
+  r = root("c:/etc")
+  if(r /= "c:/") then
+    write(stderr, '(a)') "windows root c:/etc failed: " // r
+    error stop
+  endif
 else
-  r = p1%root()
-  if(r /= "/") error stop "unix %root failed 1: " // r
-
-  r = p2%root()
-  if(r /= "") error stop "unix %root empty: " // r
+  r = root("c:/etc")
+  if(r /= "") error stop "unix root c:/etc failed : " // r
 
   r = root("/etc")
-  if(r /= "/") error stop "unix root() failed: " // r
+  if(r /= "/") error stop "unix root /etc failed: " // r
 endif
 
 end subroutine test_root
@@ -271,7 +270,8 @@ character(:), allocatable :: iwa
 if(is_dir("")) error stop "is_dir empty should be false"
 
 if(is_windows()) then
-  r = root(get_cwd()) // "/"
+  r = root(get_cwd())
+  print '(3A,i0)', "root(get_cwd()) = ", r, " length = ", len_trim(r)
   if(.not. is_dir(r)) error stop "is_dir('" // r // "') failed"
 else
   if(.not. is_dir("/")) error stop "is_dir('/') failed"

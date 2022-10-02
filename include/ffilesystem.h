@@ -49,13 +49,16 @@ extern "C" {
 #define MAXP min(PMAX, PATH_LIMIT)
 // end maximum path length
 
-
+extern bool fs_cpp();
 extern size_t fs_get_maxp();
 
 extern bool fs_is_macos();
 extern bool fs_is_linux();
 extern bool fs_is_unix();
 extern bool fs_is_windows();
+
+extern char* fs_as_posix(const char*);
+extern char* fs_as_windows(const char*);
 
 extern size_t fs_filesep(char*);
 

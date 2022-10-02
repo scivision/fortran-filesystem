@@ -7,13 +7,15 @@
 
 Platform independent (Linux, macOS, Windows, Cygwin, WSL, ...), object-oriented Fortran filesystem "Ffilesystem" path manipulation library.
 The library also provides header
-[filesystem.h](./include/filesystem.h)
+[ffilesystem.h](./include/ffilesystem.h)
 that can be used from C and C++ project code--see
 [example](./example).
-This Fortran library uses
+Ffilesystem uses
 [C++ stdlib filesystem](https://en.cppreference.com/w/cpp/filesystem)
-internally.
-Also inspired by
+or vendored
+[CWalk](https://github.com/likle/cwalk)
+and C runtime library.
+Inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html).
 
 Fortran "filesystem" module contains Fortran type "path_t" that contains properties and methods.
@@ -29,23 +31,17 @@ p = path_t("my/path")  !< setter
 print *, "path: ", p%path() !< getter
 ```
 
-Due to compiler limitations, currently Ffilesystem only officially supports ASCII characters.
-
 ## Compiler support
 
 Ffilesystem supports compilers including:
 
-* GCC &ge; 8 (gcc/g++, gfortran)
+* GCC &ge; 7 (gcc/g++, gfortran)
 * LLVM Clang &ge; 7 (clang/clang++, flang or gfortran)
 * Intel oneAPI (icx, ifx, ifort)
-* Flang
+* AMD AOCC (clang/clang++, flang)
 * NVidia HPC SDK (nvc++, nvfortran)
 * Visual Studio (C/C++)
 * Cray: using Cray compilers alone (cc, CC, ftn) or using GCC or Intel backend
-
-For systems without C++ stdlib filesystem support, using vendored
-[CWalk](https://github.com/likle/cwalk)
-and C runtime library:
 
 ```sh
 cmake -Bbuild -Dcpp=no
@@ -119,6 +115,8 @@ then a priori know the relative path to the data file(s).
 A few topics on unsupported features:
 
 ### non-ASCII characters
+
+Due to compiler limitations, currently Ffilesystem only officially supports ASCII characters.
 
 The UCS
 [selected_char_kind('ISO_10646')](https://gcc.gnu.org/onlinedocs/gfortran/SELECTED_005fCHAR_005fKIND.html),

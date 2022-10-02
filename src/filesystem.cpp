@@ -23,6 +23,11 @@ namespace fs = std::filesystem;
 
 #define TRACE 0
 
+bool fs_cpp(){
+// tell if fs core is C or C++
+  return true;
+}
+
 size_t path2str(const fs::path p, char* result, size_t buffer_size){
 
   auto s = p.generic_string();
@@ -241,12 +246,7 @@ int fs_create_directories(const char* path) {
 size_t fs_root(const char* path, char* result, size_t buffer_size) {
   fs::path p(path);
 
-#ifdef _WIN32
-  return path2str(p.root_name(), result, buffer_size);
-#else
   return path2str(p.root_path(), result, buffer_size);
-#endif
-
 }
 
 
@@ -499,7 +499,6 @@ bool fs_touch(const char* path) {
   }
 
   return true;
-
 }
 
 
@@ -605,7 +604,7 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
   std::replace(p.begin(), p.end(), '\\', '/');
   p = std::regex_replace(p, r, "/");
 
-  if(TRACE) std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
+if(TRACE) std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
 
   if (p.length() < 3) {
     // ~ alone

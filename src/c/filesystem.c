@@ -26,7 +26,10 @@
 #define TRACE 0
 
 
-char* as_windows(const char*);
+bool fs_cpp(){
+// tell if fs core is C or C++
+  return false;
+}
 
 size_t fs_filesep(char* sep) {
 #ifdef _WIN32
@@ -436,22 +439,21 @@ if(path == NULL || strlen(path) == 0)
 
 size_t fs_root(const char* path, char* result, size_t buffer_size) {
 
-if (fs_is_absolute(path)){
+  size_t L;
 
 #ifdef _WIN32
-  strncpy(result, &path[0], buffer_size);
-  result[2] = '\0';
+  cwk_path_set_style(CWK_STYLE_WINDOWS);
 #else
-  strncpy(result, &path[0], buffer_size);
-  result[1] = '\0';
+  cwk_path_set_style(CWK_STYLE_UNIX);
 #endif
+  cwk_path_get_root(path, &L);
 
-}
-else {
-  result = "";
-}
+  size_t M = min(L, buffer_size);
+  strncpy(result, path, M);
+  result[M] = '\0';
 
-  return strlen(result);
+if(TRACE) printf("TRACE: root: %s => %s  %ju\n", path, result, M);
+  return M;
 }
 
 
@@ -589,23 +591,6 @@ bool fs_touch(const char* path) {
 }
 
 
-// as_windows() needed for system calls with MSVC
-
-// force Windows file seperator
-char* as_windows(const char* path) {
-  char s = '/';
-  char* buf = (char*) malloc(strlen(path)+1);  // +1 for null terminator
-  strcpy(buf, path);
-
-  char *p = strchr(buf, s);
-  while (p) {
-    *p = '\\';
-    p = strchr(p+1, s);
-  }
-  return buf;
-}
-
-
 // --- system calls for mkdir and copy_file
 int fs_copy_file(const char* source, const char* destination, bool overwrite) {
 
@@ -666,7 +651,7 @@ int fs_create_directories(const char* path) {
 
   #ifdef _MSC_VER
 
-  p = as_windows(path);
+  p = fs_as_windows(path);
 
   STARTUPINFO si = { 0 };
   PROCESS_INFORMATION pi;
@@ -697,7 +682,7 @@ int fs_create_directories(const char* path) {
 // from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
 
   #ifdef _WIN32
-  p = as_windows(path);
+  p = fs_as_windows(path);
   char *const args[5] = {"cmd", "/c", "mkdir", p, NULL};
   int ret = execvp("cmd", args);
   #else

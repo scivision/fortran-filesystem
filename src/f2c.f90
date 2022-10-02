@@ -404,8 +404,9 @@ if (.not. e) write(stderr, '(a)') "filesystem:unlink: " // path // " may not hav
 end procedure
 
 module procedure root
-character(kind=c_char, len=3) :: cbuf
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
 N = fs_root(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: root)
 root = cbuf(:N)

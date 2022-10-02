@@ -13,6 +13,9 @@ int main(int argc, char* argv[]){
       fprintf(stderr, "fs_cli <function_name> [<arg1> ...]");
       return EXIT_FAILURE;
   }
+  else if (strcmp(argv[1], "cpp") == 0){
+    printf("%d\n", fs_cpp());
+  }
   else if (strcmp(argv[1], "homedir") == 0) {
     if(fs_get_homedir(p, MAXP))
       printf("%s\n", p);
@@ -44,6 +47,10 @@ int main(int argc, char* argv[]){
   }
   else if (strcmp(argv[1], "is_windows") ==0){
     printf("%d\n", fs_is_windows());
+  }
+  else if (strcmp(argv[1], "root") == 0 && argc == 3){
+    if(fs_root(argv[2], p, MAXP))
+      printf("%s\n", p);
   }
   else if (strcmp(argv[1], "file_size") ==0 && argc == 3){
     printf("%ju\n", fs_file_size(argv[2]));

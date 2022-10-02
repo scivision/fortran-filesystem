@@ -21,7 +21,7 @@ assert_is_file, assert_is_dir, &
 touch, create_symlink, &
 remove, get_tempdir, filesep, &
 chmod_exe, chmod_no_exe, &
-is_macos, is_windows, is_linux, is_unix, &
+fs_cpp, is_macos, is_windows, is_linux, is_unix, &
 get_max_path, exe_path, lib_path
 !! functional API
 
@@ -256,6 +256,10 @@ end interface
 
 
 interface !< filesystem.cpp
+
+logical(C_BOOL) function fs_cpp() bind(C)
+import C_BOOL
+end function
 
 logical(C_BOOL) function is_macos() bind(C, name="fs_is_macos")
 import C_BOOL
