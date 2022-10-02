@@ -130,6 +130,7 @@ subroutine test_filename()
 type(path_t) :: p1, p2
 
 if(file_name("") /= "") error stop "filename empty: " // file_name("")
+print *, "PASS:filename:empty"
 
 p1 = path_t("a/b/c")
 p2 = path_t("a")
@@ -150,6 +151,10 @@ if(file_name("./file_name.txt") /= "file_name.txt") error stop "file_name leadin
 if(file_name("../file_name.txt") /= "file_name.txt") then
   write(stderr, *) "file_name leading dot filename w/ext up ", file_name("../file_name.txt")
   error stop
+endif
+
+if(is_windows()) then
+  if(file_name("c:\my\path") /= "path") error stop "file_name windows: " // file_name("c:\my\path")
 endif
 
 end subroutine test_filename

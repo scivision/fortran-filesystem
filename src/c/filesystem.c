@@ -44,43 +44,44 @@ size_t fs_filesep(char* sep) {
 
 size_t fs_normal(const char* path, char* result, size_t buffer_size) {
   if(path == NULL){
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 
   cwk_path_set_style(CWK_STYLE_UNIX);
   size_t L = cwk_path_normalize(path, result, buffer_size);
+  fs_as_posix(result);
 
-  if(TRACE) printf("TRACE:normal in: %s  out: %s\n", path, result);
-
-// force posix file seperator
-  char s='\\';
-  char *p = strchr(result, s);
-  while (p) {
-      *p = '/';
-      p = strchr(p+1, s);
-  }
+if(TRACE) printf("TRACE:normal in: %s  out: %s\n", path, result);
 
   return L;
-
 }
 
 
 size_t fs_file_name(const char* path, char* result, size_t buffer_size){
 
-  if(path == NULL || strlen(path) == 0){
+  if(path == NULL){
+    result = NULL;
+    return 0;
+  }
+
+  if(strlen(path) == 0){
     result[0] = '\0';
     return 0;
   }
 
   const char *base;
 
-  if(TRACE) printf("TRACE:file_name: %s\n", path);
+if(TRACE) printf("TRACE:file_name: %s\n", path);
 
+#ifdef _WIN32
+  cwk_path_set_style(CWK_STYLE_WINDOWS);
+#else
   cwk_path_set_style(CWK_STYLE_UNIX);
+#endif
   cwk_path_get_basename(path, &base, NULL);
 
-  if(TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
+if(TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
 
   strncpy(result, base, buffer_size);
   size_t L = strlen(result);
@@ -92,8 +93,8 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size){
 
 size_t fs_stem(const char* path, char* result, size_t buffer_size){
 
-  if(path == NULL || strlen(path) == 0){
-    result[0] = '\0';
+  if(path == NULL){
+    result = NULL;
     return 0;
   }
 
