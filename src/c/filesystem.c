@@ -325,7 +325,7 @@ bool fs_equivalent(const char* path1, const char* path2){
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
 
   if(path == NULL){
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 
@@ -374,7 +374,7 @@ size_t L;
   if(getenv_s(&L, buf, buffer_size, "USERPROFILE") != 0){
     fprintf(stderr, "ERROR:get_homedir: %s\n", strerror(errno));
     free(buf);
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 #else
@@ -398,7 +398,7 @@ size_t L;
   if(GetTempPath((DWORD)buffer_size, buf) == 0){
     fprintf(stderr, "ERROR:get_tempdir: %s\n", strerror(errno));
     free(buf);
-    result[0] = '\0';
+    result = NULL;
     return 0;
   }
 #else
@@ -484,21 +484,12 @@ bool fs_is_absolute(const char* path){
   if(path == NULL)
     return false;
 
-  size_t L = strlen(path);
-  if(L < 1)
-    return false;
-
 #ifdef _WIN32
-  if(L < 2)
+  if (path[0] == '/')
     return false;
-  if(path[1] != ':')
-    return false;
-  if(!isalpha(path[0]))
-    return false;
-  return true;
 #endif
 
-  return path[0] == '/';
+  return cwk_path_is_absolute(path);
 }
 
 

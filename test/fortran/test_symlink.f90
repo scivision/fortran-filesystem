@@ -31,13 +31,7 @@ if (is_symlink(link)) then
   print *, "deleting old symlink " // link
   call remove(link)
 endif
-call create_symlink(tgt, link, status=i)
-if(i < 0) then
-  write(stderr,'(a,i0)') "platform does not support symlinks: ", i
-  stop 77
-elseif(i /= 0) then
-  error stop "could not create symlink " // link
-endif
+call create_symlink(tgt, link)
 
 if (p_sym%is_symlink()) then
   print *, "deleting old symlink " // p_sym%path()
