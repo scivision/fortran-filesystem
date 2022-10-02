@@ -2,6 +2,8 @@
 #define FILESYSTEM_H
 
 
+#define TRACE 0
+
 #ifdef __cplusplus
 extern "C" {
 #else

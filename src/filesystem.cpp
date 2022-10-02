@@ -21,7 +21,6 @@ namespace fs = std::filesystem;
 
 #include "ffilesystem.h"
 
-#define TRACE 0
 
 bool fs_cpp(){
 // tell if fs core is C or C++
