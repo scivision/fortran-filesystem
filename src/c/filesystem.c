@@ -7,7 +7,6 @@
 #include <errno.h>
 
 #ifdef _MSC_VER
-#include <direct.h>
 #include <io.h>
 #else
 #include <unistd.h>
