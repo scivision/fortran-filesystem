@@ -70,6 +70,11 @@ int main(int argc, char* argv[]){
   else if (strcmp(argv[1], "is_symlink") ==0 && argc == 3){
     printf("%d\n", fs_is_symlink(argv[2]));
   }
+  else if (strcmp(argv[1], "mkdir") == 0 && argc == 3){
+    printf("mkdir %s\n", argv[2]);
+    if(fs_create_directories(argv[2]) != 0)
+      fprintf(stderr, "Failed mkdir %s\n", argv[2]);
+  }
   else if (strcmp(argv[1], "relative_to") ==0 && argc == 4){
     if(fs_relative_to(argv[2], argv[3], p, MAXP))
       printf("%s\n", p);
