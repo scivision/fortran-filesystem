@@ -140,6 +140,7 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size){
 
   cwk_path_get_dirname(buf, &L);
   if(L == 0){
+    free(buf);
     result[0] = '\0';
     return 0;
   }
