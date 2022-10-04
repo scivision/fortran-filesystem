@@ -57,21 +57,4 @@ endif
 end procedure get_filename
 
 
-module procedure make_absolute
-
-character(:), allocatable :: p
-
-allocate(character(get_max_path()) :: p)
-allocate(character(get_max_path()) :: make_absolute)
-
-p = expanduser(path)
-if (is_absolute(p)) then
-  make_absolute = p
-else
-  make_absolute = expanduser(top_path) // '/' // p
-endif
-
-end procedure make_absolute
-
-
 end submodule find_filesystem

@@ -8,7 +8,7 @@ int test_exe_path(void){
 
   char binpath[MAXP];
 
-  exe_path(binpath);
+  fs_exe_path(binpath, MAXP);
   if (!strstr(binpath, "test_binpath")) {
     fprintf(stderr, "ERROR:test_binpath: exe_path not found correctly: %s\n", binpath);
     return 1;
@@ -34,18 +34,15 @@ int test_lib_path(int argc, char* argv[]){
     return 0;
   }
 
-  lib_path(binpath);
+  fs_lib_path(binpath, MAXP);
 
-  char name[18];
-  if (is_macos()) {
-    strcpy(name, "ffilesystem.dylib");
-  }
-  else if(is_windows()) {
-    strcpy(name, "ffilesystem.dll");
-  }
-  else{
-    strcpy(name, "libffilesystem.so");
-  }
+#ifdef __APPLE__
+#define name "ffilesystem.dylib"
+#elif defined(_WIN32)
+#define name "ffilesystem.dll"
+#else
+#define name "libffilesystem.so"
+#endif
 
   if(!strstr(binpath, name)){
     fprintf(stderr, "ERROR:test_binpath: lib_path not found correctly: %s with name %s\n", binpath, name);

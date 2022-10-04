@@ -7,7 +7,7 @@ add_test(NAME filesystem_core COMMAND test_core)
 set_property(TEST filesystem_core PROPERTY FIXTURES_SETUP core_fxt)
 
 # --- C++ filesystem methods
-add_executable(test_env test_cpp_fs.f90)
+add_executable(test_env test_env.f90)
 target_link_libraries(test_env PRIVATE ffilesystem)
 add_test(NAME environment COMMAND test_env)
 
@@ -92,7 +92,6 @@ endforeach()
 
 get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
 set_property(TEST ${test_names} PROPERTY RUN_SERIAL true)
-set_property(TEST ${test_names} PROPERTY TIMEOUT 15)
 # tests run much faster in serial, especially on Windows
 
 # --- Windows shared DLLs

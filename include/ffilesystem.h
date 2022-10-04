@@ -2,6 +2,8 @@
 #define FILESYSTEM_H
 
 
+#define TRACE 0
+
 #ifdef __cplusplus
 extern "C" {
 #else
@@ -49,58 +51,62 @@ extern "C" {
 #define MAXP min(PMAX, PATH_LIMIT)
 // end maximum path length
 
+extern bool fs_cpp();
+extern size_t fs_get_maxp();
 
-extern size_t get_maxp();
+extern bool fs_is_macos();
+extern bool fs_is_linux();
+extern bool fs_is_unix();
+extern bool fs_is_windows();
 
-extern bool is_macos();
-extern bool is_linux();
-extern bool is_unix();
-extern bool is_windows();
+extern void fs_as_posix(char*);
+extern void fs_as_windows(char*);
 
-extern bool sys_posix();
-extern void fs_filesep(char*);
+extern size_t fs_filesep(char*);
 
-extern size_t join(const char*, const char*, char*);
+extern size_t fs_normal(const char*, char*, size_t);
 
-extern size_t file_name(const char*, char*);
-extern size_t stem(const char*, char*);
-extern size_t parent(const char*, char*);
-extern size_t suffix(const char*, char*);
-extern size_t root(const char*, char*);
+extern size_t fs_join(const char*, const char*, char*, size_t);
+extern size_t fs_make_absolute(const char*, const char*, char*, size_t);
 
-extern size_t with_suffix(const char*, const char*, char*);
-extern size_t normal(const char*, char*);
+extern size_t fs_file_name(const char*, char*, size_t);
+extern size_t fs_stem(const char*, char*, size_t);
+extern size_t fs_parent(const char*, char*, size_t);
+extern size_t fs_suffix(const char*, char*, size_t);
+extern size_t fs_root(const char*, char*, size_t);
 
-extern bool is_symlink(const char*);
-extern int create_symlink(const char*, const char*);
+extern size_t fs_with_suffix(const char*, const char*, char*, size_t);
 
-extern int create_directories(const char*);
-extern bool exists(const char*);
-extern bool is_absolute(const char*);
-extern bool is_dir(const char*);
-extern bool is_file(const char*);
-extern bool is_exe(const char*);
+extern bool fs_is_symlink(const char*);
+extern int fs_create_symlink(const char*, const char*);
 
-extern bool chmod_exe(const char*);
-extern bool chmod_no_exe(const char*);
+extern int fs_create_directories(const char*);
+extern bool fs_exists(const char*);
+extern bool fs_is_absolute(const char*);
+extern bool fs_is_dir(const char*);
+extern bool fs_is_file(const char*);
+extern bool fs_is_exe(const char*);
+
+extern bool fs_chmod_exe(const char*);
+extern bool fs_chmod_no_exe(const char*);
 
 extern bool fs_remove(const char*);
-extern size_t canonical(const char*, bool, char*);
-extern bool equivalent(const char*, const char*);
-extern int copy_file(const char*, const char*, bool);
-extern size_t relative_to(const char*, const char*, char*);
-extern bool touch(const char*);
+extern size_t fs_canonical(const char*, bool, char*, size_t);
+extern bool fs_equivalent(const char*, const char*);
+extern int fs_copy_file(const char*, const char*, bool);
+extern size_t fs_relative_to(const char*, const char*, char*, size_t);
+extern bool fs_touch(const char*);
 
-extern size_t get_cwd(char*);
-extern size_t get_homedir(char*);
-extern size_t get_tempdir(char*);
+extern size_t fs_get_cwd(char*, size_t);
+extern size_t fs_get_homedir(char*, size_t);
+extern size_t fs_get_tempdir(char*, size_t);
 
-extern size_t expanduser(const char*, char*);
+extern size_t fs_expanduser(const char*, char*, size_t);
 
-extern uintmax_t file_size(const char*);
+extern uintmax_t fs_file_size(const char*);
 
-extern size_t exe_path(char* path);
-extern size_t lib_path(char* path);
+extern size_t fs_exe_path(char* path, size_t);
+extern size_t fs_lib_path(char* path, size_t);
 
 #ifdef __cplusplus
 }

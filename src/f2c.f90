@@ -6,172 +6,203 @@ implicit none
 
 interface
 
-integer(C_INT) function max_path() bind(C, name="get_maxp")
+integer(C_INT) function max_path() bind(C, name="fs_get_maxp")
 import
 end function
 
-integer(C_SIZE_T) function cfs_canonical(path, strict, canonicalized) bind(C, name="canonical")
+subroutine fs_as_posix(path) bind(C)
+import
+character(kind=C_CHAR), intent(inout) :: path(*)
+end subroutine
+
+subroutine fs_as_windows(path) bind(C)
+import
+character(kind=C_CHAR), intent(inout) :: path(*)
+end subroutine
+
+integer(C_SIZE_T) function fs_canonical(path, strict, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 logical(C_BOOL), intent(in), value :: strict
-character(kind=C_CHAR), intent(out) :: canonicalized(*)
+character(kind=C_CHAR), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-logical(C_BOOL) function cfs_chmod_exe(path) bind(C, name="chmod_exe")
+logical(C_BOOL) function fs_chmod_exe(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(C_BOOL) function cfs_chmod_no_exe(path) bind(C, name="chmod_no_exe")
+logical(C_BOOL) function fs_chmod_no_exe(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-integer(C_INT) function cfs_copy_file(source, dest, overwrite) bind(C, name="copy_file")
+integer(C_INT) function fs_copy_file(source, dest, overwrite) bind(C)
 import
 character(kind=c_char), intent(in) :: source(*), dest(*)
 logical(c_bool), intent(in), value :: overwrite
 end function
 
 
-logical(C_BOOL) function cfs_equivalent(path1, path2) bind(C, name="equivalent")
+logical(C_BOOL) function fs_equivalent(path1, path2) bind(C)
 import C_BOOL, C_CHAR
 character(kind=C_CHAR), intent(in) :: path1(*), path2(*)
 end function
 
-subroutine fs_filesep(sep) bind(C)
+integer(C_SIZE_T) function fs_filesep(sep) bind(C)
 import
 character(kind=C_CHAR), intent(out) :: sep(*)
-end subroutine
+end function
 
-logical(C_BOOL) function cfs_is_symlink(path) bind(C, name="is_symlink")
+logical(C_BOOL) function fs_is_symlink(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-integer(C_INT) function cfs_create_symlink(target, link) bind(C, name="create_symlink")
+integer(C_INT) function fs_create_symlink(target, link) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: target(*), link(*)
 end function
 
-integer(C_INT) function cfs_create_directories(path) bind(C, name="create_directories")
+integer(C_INT) function fs_create_directories(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(C_BOOL) function cfs_remove(path) bind(C, name="fs_remove")
+logical(C_BOOL) function fs_remove(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(C_BOOL) function cfs_exists(path) bind(C, name="exists")
+logical(C_BOOL) function fs_exists(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-integer(C_SIZE_T) function cfs_expanduser(path, result) bind(C, name="expanduser")
+integer(C_SIZE_T) function fs_expanduser(path, result, buffer_size) bind(C)
 import
 character(kind=c_char), intent(in) :: path(*)
 character(kind=c_char), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_file_name(path, filename) bind(C, name="file_name")
+integer(C_SIZE_T) function fs_file_name(path, filename, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 character(kind=C_CHAR), intent(out) :: filename(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_file_size(path) bind(C, name="file_size")
+integer(C_SIZE_T) function fs_file_size(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-integer(C_SIZE_T) function cfs_get_cwd(path) bind(C, name="get_cwd")
+integer(C_SIZE_T) function fs_get_cwd(path, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(out) :: path(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_get_homedir(path) bind(C, name="get_homedir")
+integer(C_SIZE_T) function fs_get_homedir(path, buffer_size) bind(C)
 import
 character(kind=c_char), intent(out) :: path(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_get_tempdir(path) bind(C, name="get_tempdir")
+integer(C_SIZE_T) function fs_get_tempdir(path, buffer_size) bind(C)
 import
 character(kind=c_char), intent(out) :: path(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-logical(c_bool) function cfs_is_absolute(path) bind(C, name="is_absolute")
+logical(c_bool) function fs_is_absolute(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(C_BOOL) function cfs_is_file(path) bind(C, name="is_file")
+logical(C_BOOL) function fs_is_file(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(C_BOOL) function cfs_is_dir(path) bind(C, name="is_dir")
+logical(C_BOOL) function fs_is_dir(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-logical(c_bool) function cfs_is_exe(path) bind(C, name="is_exe")
+logical(c_bool) function fs_is_exe(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
-integer(C_SIZE_T) function cfs_join(path, other, result) bind(C, name="join")
+integer(C_SIZE_T) function fs_join(path, other, result, buffer_size) bind(C)
 import
 character(kind=c_char), intent(in) :: path(*), other(*)
 character(kind=c_char), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_normal(path, normalized) bind(C, name="normal")
+integer(C_SIZE_T) function fs_make_absolute(path, top_path, result, buffer_size) bind(C)
 import
-character(kind=C_CHAR), intent(in) :: path(*)
-character(kind=C_CHAR), intent(out) :: normalized(*)
-end function
-
-integer(C_SIZE_T) function cfs_parent(path, fparent) bind(C, name="parent")
-import
-character(kind=C_CHAR), intent(in) :: path(*)
-character(kind=C_CHAR), intent(out) :: fparent(*)
-end function
-
-integer(C_SIZE_T) function cfs_relative_to(path, base, result) bind(C, name="relative_to")
-import
-character(kind=c_char), intent(in) :: path(*), base(*)
+character(kind=c_char), intent(in) :: path(*), top_path(*)
 character(kind=c_char), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_root(path, result) bind(C, name="root")
+integer(C_SIZE_T) function fs_normal(path, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 character(kind=C_CHAR), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_stem(path, fstem) bind(C, name="stem")
+integer(C_SIZE_T) function fs_parent(path, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
-character(kind=C_CHAR), intent(out) :: fstem(*)
+character(kind=C_CHAR), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function cfs_suffix(path, fsuffix) bind(C, name="suffix")
+integer(C_SIZE_T) function fs_relative_to(path, base, result, buffer_size) bind(C)
+import
+character(kind=c_char), intent(in) :: path(*), base(*)
+character(kind=c_char), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
+integer(C_SIZE_T) function fs_root(path, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
-character(kind=C_CHAR), intent(out) :: fsuffix(*)
+character(kind=C_CHAR), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-logical(c_bool) function cfs_touch(path) bind(C, name="touch")
+integer(C_SIZE_T) function fs_stem(path, result, buffer_size) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+character(kind=C_CHAR), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
+integer(C_SIZE_T) function fs_suffix(path, result, buffer_size) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+character(kind=C_CHAR), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
+logical(c_bool) function fs_touch(path) bind(C)
 import
 character(kind=c_char), intent(in) :: path(*)
 end function
 
-integer(C_SIZE_T) function cfs_with_suffix(path, new_suffix, swapped) bind(C, name="with_suffix")
+integer(C_SIZE_T) function fs_with_suffix(path, new_suffix, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*), new_suffix
-character(kind=C_CHAR), intent(out) :: swapped(*)
+character(kind=C_CHAR), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
 end interface
@@ -182,6 +213,21 @@ module procedure get_max_path
 get_max_path = int(max_path())
 end procedure
 
+module procedure as_posix
+character(kind=c_char, len=:), allocatable :: cbuf
+allocate(character(len(path)+1) :: cbuf)
+cbuf = trim(path) // C_NULL_CHAR
+call fs_as_posix(cbuf)
+r = cbuf(:len(path))
+end procedure
+
+module procedure as_windows
+character(kind=c_char, len=:), allocatable :: cbuf
+allocate(character(len(path)+1) :: cbuf)
+cbuf = trim(path) // C_NULL_CHAR
+call fs_as_windows(cbuf)
+r = cbuf(:len(path))
+end procedure
 
 module procedure canonical
 character(kind=c_char, len=:), allocatable :: cbuf
@@ -190,20 +236,20 @@ logical(c_bool) :: s
 allocate(character(max_path()) :: cbuf)
 s = .false.
 if(present(strict)) s = strict
-N = cfs_canonical(trim(path) // C_NULL_CHAR, s, cbuf)
+N = fs_canonical(trim(path) // C_NULL_CHAR, s, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: canonical)
 canonical = cbuf(:N)
 end procedure canonical
 
 module procedure chmod_exe
 logical :: s
-s = cfs_chmod_exe(trim(path) // C_NULL_CHAR)
+s = fs_chmod_exe(trim(path) // C_NULL_CHAR)
 if(present(ok)) ok = s
 end procedure
 
 module procedure chmod_no_exe
 logical :: s
-s = cfs_chmod_no_exe(trim(path) // C_NULL_CHAR)
+s = fs_chmod_no_exe(trim(path) // C_NULL_CHAR)
 if(present(ok)) ok = s
 end procedure
 
@@ -211,24 +257,21 @@ end procedure
 module procedure copy_file
 logical(c_bool) :: ow
 integer(C_INT) :: ierr
-
 ow = .false.
 if(present(overwrite)) ow = overwrite
-
-ierr = cfs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
+ierr = fs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
 if (present(status)) then
   status = ierr
 elseif(ierr /= 0) then
   error stop "failed to copy file: " // src // " to " // dest
 endif
-
-end procedure copy_file
+end procedure
 
 
 module procedure mkdir
 integer :: ierr
 
-ierr = cfs_create_directories(trim(path) // C_NULL_CHAR)
+ierr = fs_create_directories(trim(path) // C_NULL_CHAR)
 if(present(status)) then
   status = ierr
 elseif (ierr /= 0) then
@@ -241,7 +284,7 @@ end procedure mkdir
 module procedure create_symlink
 integer(C_INT) :: ierr
 
-ierr = cfs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)
+ierr = fs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)
 if(present(status)) then
   status = ierr
 elseif (ierr < 0) then
@@ -249,24 +292,27 @@ elseif (ierr < 0) then
 elseif (ierr /= 0) then
   error stop "ERROR:filesystem:create_symlink: " // link
 endif
-end procedure create_symlink
+end procedure
+
 
 module procedure exists
-exists = cfs_exists(trim(path) // C_NULL_CHAR)
+exists = fs_exists(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure expanduser
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_expanduser(trim(path) // C_NULL_CHAR, cbuf)
+N = fs_expanduser(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: expanduser)
 expanduser = cbuf(:N)
 end procedure
 
 module procedure filesep
 character(kind=C_CHAR) :: cbuf(2)
-call fs_filesep(cbuf)
+integer(C_SIZE_T) :: L
+L = fs_filesep(cbuf)
+if (L /= 1) error stop "ERROR:filesystem:filesep: failed to get file separator"
 filesep = cbuf(1)
 end procedure
 
@@ -274,20 +320,20 @@ module procedure file_name
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_file_name(trim(path) // C_NULL_CHAR, cbuf)
+N = fs_file_name(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: file_name)
 file_name = cbuf(:N)
 end procedure
 
 module procedure file_size
-file_size = cfs_file_size(trim(path) // C_NULL_CHAR)
+file_size = fs_file_size(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure get_cwd
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_get_cwd(cbuf)
+N = fs_get_cwd(cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: get_cwd)
 get_cwd = cbuf(:N)
 end procedure
@@ -296,7 +342,7 @@ module procedure get_homedir
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_get_homedir(cbuf)
+N = fs_get_homedir(cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: get_homedir)
 get_homedir = cbuf(:N)
 end procedure
@@ -305,55 +351,64 @@ module procedure get_tempdir
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_get_tempdir(cbuf)
+N = fs_get_tempdir(cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: get_tempdir)
 get_tempdir = cbuf(:N)
 end procedure
 
 module procedure is_absolute
 !! no expanduser to be consistent with Python filesystem etc.
-is_absolute = cfs_is_absolute(trim(path) // C_NULL_CHAR)
+is_absolute = fs_is_absolute(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_dir
-is_dir = cfs_is_dir(trim(path) // C_NULL_CHAR)
+is_dir = fs_is_dir(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_exe
-is_exe = cfs_is_exe(trim(path) // C_NULL_CHAR)
+is_exe = fs_is_exe(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_file
-is_file = cfs_is_file(trim(path) // C_NULL_CHAR)
+is_file = fs_is_file(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_symlink
-is_symlink = cfs_is_symlink(trim(path) // C_NULL_CHAR)
+is_symlink = fs_is_symlink(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure join
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_join(trim(path) // C_NULL_CHAR, trim(other) // C_NULL_CHAR, cbuf)
+N = fs_join(trim(path) // C_NULL_CHAR, trim(other) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: join)
 join = cbuf(:N)
+end procedure
+
+module procedure make_absolute
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = fs_make_absolute(trim(path) // C_NULL_CHAR, trim(top_path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+allocate(character(N) :: make_absolute)
+make_absolute = cbuf(:N)
 end procedure
 
 module procedure parent
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_parent(trim(path) // C_NULL_CHAR, cbuf)
-allocate(character(N) :: parent)
-parent = cbuf(:N)
+N = fs_parent(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+allocate(character(N) :: r)
+r = cbuf(:N)
 end procedure
 
 module procedure normal
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_normal(trim(path) // C_NULL_CHAR, cbuf)
+N = fs_normal(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: normal)
 normal = cbuf(:N)
 end procedure
@@ -362,34 +417,35 @@ module procedure relative_to
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_relative_to(trim(a) // C_NULL_CHAR, trim(b) // C_NULL_CHAR, cbuf)
+N = fs_relative_to(trim(a) // C_NULL_CHAR, trim(b) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: relative_to)
 relative_to = cbuf(:N)
 end procedure
 
 module procedure remove
 logical(c_bool) :: e
-e = cfs_remove(trim(path) // C_NULL_CHAR)
+e = fs_remove(trim(path) // C_NULL_CHAR)
 if (.not. e) write(stderr, '(a)') "filesystem:unlink: " // path // " may not have been deleted."
 end procedure
 
 module procedure root
-character(kind=c_char, len=3) :: cbuf
+character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
-N = cfs_root(trim(path) // C_NULL_CHAR, cbuf)
+allocate(character(max_path()) :: cbuf)
+N = fs_root(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: root)
 root = cbuf(:N)
 end procedure
 
 module procedure same_file
-same_file = cfs_equivalent(trim(path1) // C_NULL_CHAR, trim(path2) // C_NULL_CHAR)
+same_file = fs_equivalent(trim(path1) // C_NULL_CHAR, trim(path2) // C_NULL_CHAR)
 end procedure
 
 module procedure stem
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_stem(trim(path) // C_NULL_CHAR, cbuf)
+N = fs_stem(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: stem)
 stem = cbuf(:N)
 end procedure
@@ -398,20 +454,20 @@ module procedure suffix
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_suffix(trim(path) // C_NULL_CHAR, cbuf)
+N = fs_suffix(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: suffix)
 suffix = cbuf(:N)
 end procedure
 
 module procedure touch
-if(.not. cfs_touch(trim(path) // C_NULL_CHAR)) error stop "filesystem:touch: " // path
+if(.not. fs_touch(trim(path) // C_NULL_CHAR)) error stop "filesystem:touch: " // path
 end procedure
 
 module procedure with_suffix
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = cfs_with_suffix(trim(path) // C_NULL_CHAR, trim(new) // C_NULL_CHAR, cbuf)
+N = fs_with_suffix(trim(path) // C_NULL_CHAR, trim(new) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: with_suffix)
 with_suffix = cbuf(:N)
 end procedure with_suffix

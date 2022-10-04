@@ -1,7 +1,7 @@
 program cpp_relative_to
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use filesystem, only : path_t, relative_to, sys_posix
+use filesystem, only : path_t, relative_to, is_windows
 
 implicit none
 
@@ -42,7 +42,28 @@ if(rel /= "") error stop "empty path should be empty: " // rel
 
 print *, "OK: relative_to: empty"
 
-if(sys_posix()) then
+if(is_windows()) then
+  rel  = relative_to("c:\a\b", "c")
+  if(rel /= "") error stop "abs path with rel base should be empty: " // rel
+
+  rel = relative_to("c", "c:/a/b")
+  if(rel /= "") error stop "rel path with abs base should be empty: " // rel
+
+  rel = relative_to("c:/a/b", "c:/a/b")
+  if(rel /= ".") error stop "same path should be . but got: "  // rel
+
+  rel = relative_to("c:/a/b", "c:/a")
+  if(rel /= "b") then
+    write(stderr,*) "ERROR: rel to parent 1: " // rel
+   ! error stop
+  endif
+
+  rel = relative_to("c:\a/b\c/d", "c:/a\b")
+  if(rel /= "c/d") error stop "rel to parent 2: " // rel
+
+  p1 = path_t("c:/a/b/c/d")
+  if (p1%relative_to("c:/a/b") /= rel) error stop " OO rel to parent"
+else
   rel = relative_to("/a/b", "c")
   if(rel /= "") error stop "abs path with rel base should be empty: " // rel
 
@@ -60,28 +81,6 @@ if(sys_posix()) then
 
   p1 = path_t("/a/b/c/d")
   if (p1%relative_to("/a/b") /= rel) error stop " OO rel to parent"
-else
-  rel  = relative_to("c:/a/b", "c")
-  if(rel /= "") error stop "abs path with rel base should be empty: " // rel
-
-  rel = relative_to("c", "c:/a/b")
-  if(rel /= "") error stop "rel path with abs base should be empty: " // rel
-
-  rel = relative_to("c:/a/b", "c:/a/b")
-  if(rel /= ".") error stop "same path should be . but got: "  // rel
-
-  rel = relative_to("c:/a/b", "c:/a")
-  if(rel /= "b") then
-    write(stderr,*) "ERROR: rel to parent 1: " // rel
-   ! error stop
-  endif
-
-  rel = relative_to("c:/a/b/c/d", "c:/a/b")
-  if(rel /= "c/d") error stop "rel to parent 2: " // rel
-
-  p1 = path_t("c:/a/b/c/d")
-  if (p1%relative_to("c:/a/b") /= rel) error stop " OO rel to parent"
-
 endif
 
 end subroutine test_relative_to

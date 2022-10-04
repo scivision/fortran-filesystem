@@ -5,14 +5,16 @@ use filesystem, only : path_t, read_text, write_text
 implicit none
 
 character(1000) :: filename
-character(:), allocatable :: text, rtext
 integer :: L, i
-type(path_t) :: p1
 
 if (command_argument_count() /= 1) error stop "please input test filename"
 call get_command_argument(1, filename, status=i)
 if (i/=0) error stop "please input test filename"
 
+block
+
+type(path_t) :: p1
+character(:), allocatable :: text, rtext
 !> empty
 call write_text(filename, "")
 rtext = read_text(filename)
@@ -35,4 +37,8 @@ if (rtext /= text) error stop "read_text() is not equal to write text"
 
 p1 = path_t(filename)
 if (p1%read_text() /= text) error stop "%read_text is not equal to write text"
+end block
+
+print *, "OK: read_text/write_text"
+
 end program

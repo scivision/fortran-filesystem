@@ -22,105 +22,116 @@ namespace fs = std::filesystem;
 #include "ffilesystem.h"
 
 
-void fs_filesep(char* sep) {
-  fs::path p("/");
+bool fs_cpp(){
+// tell if fs core is C or C++
+  return true;
+}
 
-  std::strcpy(sep, p.make_preferred().string().c_str());
+size_t path2str(const fs::path p, char* result, size_t buffer_size){
+
+  auto s = p.generic_string();
+  std::replace(s.begin(), s.end(), '\\', '/');
+  std::strncpy(result, s.c_str(), buffer_size);
+  size_t L = std::strlen(result);
+  result[L] = '\0';
+
+  return L;
 }
 
 
-size_t normal(const char* path, char* normalized) {
+size_t fs_filesep(char* sep) {
+
+  fs::path p("/");
+
+  std::strncpy(sep, p.make_preferred().string().c_str(), 1);
+  sep[1] = '\0';
+
+  return 1;
+}
+
+
+size_t fs_normal(const char* path, char* result, size_t buffer_size) {
   // normalize path
   fs::path p(path);
 
-  auto s = p.lexically_normal().string();
-
-  std::replace(s.begin(), s.end(), '\\', '/');
-  // Windows separator to Unix separator
-
-  // std::cout << "TRACE: normal: " << path << " => " << s << std::endl;
-
-  std::strcpy(normalized, s.c_str());
-
-  return strlen(normalized);
+  return path2str(p.lexically_normal(), result, buffer_size);
 }
 
 
-size_t file_name(const char* path, char* filename) {
+size_t fs_file_name(const char* path, char* result, size_t buffer_size) {
+
   fs::path p(path);
 
-  std::strcpy(filename, p.filename().string().c_str());
-  return strlen(filename);
+  return path2str(p.filename(), result, buffer_size);
 }
 
 
-size_t stem(const char* path, char* fstem) {
+size_t fs_stem(const char* path, char* result, size_t buffer_size) {
+
   fs::path p(path);
 
-  auto fn = p.filename();
-  auto s = fn.stem();
-
-  // std::cout << "TRACE:suffix: filename = " << fn << " stem = " << s << std::endl;
-
-  std::strcpy(fstem, s.string().c_str());
-  return strlen(fstem);
+  return path2str(p.filename().stem(), result, buffer_size);
 }
 
 
-size_t join(const char* path, const char* other, char* result) {
+size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size) {
+
+  size_t L1 = strlen(path);
+  size_t L2 = strlen(other);
+
+  if (L1 == 0 && L2 == 0){
+    result[0] = '\0';
+    return 0;
+  }
+
   fs::path p1(path);
   fs::path p2(other);
 
-  auto p = p1 / p2;
+  if (TRACE) std::cout << "TRACE:fs_join: " << path << " + " << other << std::endl;
 
-  return normal(p.string().c_str(), result);
-}
+  if(L1 == 0)
+    return path2str(p2, result, buffer_size);
 
-size_t parent(const char* path, char* fparent) {
-  fs::path p(path);
+  if(L2 == 0)
+    return path2str(p1, result, buffer_size);
 
-  p = p.lexically_normal();
-
-  if(p.has_parent_path()){
-    normal(p.parent_path().string().c_str(), fparent);
-  }
-  else{
-    std::strcpy(fparent, ".");
-  }
-
-  return strlen(fparent);
+  return path2str(p1 / p2, result, buffer_size);
 }
 
 
-size_t suffix(const char* path, char* fsuffix) {
+size_t fs_parent(const char* path, char* result, size_t buffer_size) {
 
   fs::path p(path);
 
-  auto f = p.filename();
-  auto ext = f.extension();
-
-  //std::cout << "TRACE:suffix: filename = " << f << " suffix = " << ext << std::endl;
-
-  std::strcpy(fsuffix, ext.string().c_str());
-  return strlen(fsuffix);
+  return path2str(p.lexically_normal().parent_path(), result, buffer_size);
 }
 
 
-size_t with_suffix(const char* path, const char* new_suffix, char* swapped) {
+size_t fs_suffix(const char* path, char* result, size_t buffer_size) {
 
-  if( path == nullptr )
+  fs::path p(path);
+
+  return path2str(p.filename().extension(), result, buffer_size);
+}
+
+
+size_t fs_with_suffix(const char* path, const char* new_suffix, char* result, size_t buffer_size) {
+
+  if(path == nullptr){
+    result = NULL;
     return 0;
+  }
 
   fs::path p(path);
 
-  std::strcpy(swapped, p.replace_extension(new_suffix).string().c_str());
-
-  return strlen(swapped);
+  return path2str(p.replace_extension(new_suffix), result, buffer_size);
 }
 
 
-bool is_symlink(const char* path) {
-if(!exists(path)) return false;
+bool fs_is_symlink(const char* path) {
+
+if(!fs_exists(path))
+  return false;
 
 #ifdef __MINGW32__
 // c++ filesystem is_symlink doesn't work on MinGW GCC, but this C method does work
@@ -138,7 +149,7 @@ if(!exists(path)) return false;
   return e;
 }
 
-int create_symlink(const char* target, const char* link) {
+int fs_create_symlink(const char* target, const char* link) {
 
   if(target==nullptr || strlen(target) == 0) {
     std::cerr << "ERROR:filesystem:create_symlink: target path must not be empty" << std::endl;
@@ -151,7 +162,7 @@ int create_symlink(const char* target, const char* link) {
 
 #ifdef _WIN32
   // C++ filesystem doesn't work for create_symlink, but this C method does work
-  if(is_dir(target)) {
+  if(fs_is_dir(target)) {
     return !(CreateSymbolicLink(link, target,
       SYMBOLIC_LINK_FLAG_DIRECTORY | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
   }
@@ -163,7 +174,7 @@ int create_symlink(const char* target, const char* link) {
 
   std::error_code ec;
 
-  if (is_dir(target)) {
+  if (fs_is_dir(target)) {
     fs::create_directory_symlink(target, link, ec);
   }
   else {
@@ -177,7 +188,7 @@ int create_symlink(const char* target, const char* link) {
   return 0;
 }
 
-int create_directories(const char* path) {
+int fs_create_directories(const char* path) {
 
   if(strlen(path) == 0) {
     std::cerr << "ERROR:filesystem:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
@@ -195,7 +206,7 @@ int create_directories(const char* path) {
   }
 
   if(fs::exists(s)) {
-    if(is_dir(path)) return 0;
+    if(fs_is_dir(path)) return 0;
 
     std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " already exists but is not a directory" << std::endl;
     return 1;
@@ -209,7 +220,7 @@ int create_directories(const char* path) {
 
   if( !ok ) {
     // old MacOS return != 0 even if directory was created
-    if(is_dir(path)) {
+    if(fs_is_dir(path)) {
       return 0;
     }
     else
@@ -223,58 +234,76 @@ int create_directories(const char* path) {
 }
 
 
-size_t root(const char* path, char* result) {
+size_t fs_root(const char* path, char* result, size_t buffer_size) {
   fs::path p(path);
-  fs::path r;
 
-#ifdef _WIN32
-  r = p.root_name();
-#else
-  r = p.root_path();
-#endif
-
-  std::strcpy(result, r.string().c_str());
-
-  return strlen(result);
+  return path2str(p.root_path(), result, buffer_size);
 }
 
-bool exists(const char* path) {
+
+bool fs_exists(const char* path) {
   std::error_code ec;
 
   auto e = fs::exists(path, ec);
 
-  if(ec) return false;
+  if(ec) {
+    std::cerr << "ERROR:filesystem:exists: " << ec.message() << std::endl;
+    return false;
+  }
 
   return e;
 }
 
-bool is_absolute(const char* path) {
+
+bool fs_is_absolute(const char* path) {
   fs::path p(path);
   return p.is_absolute();
 }
 
-bool is_file(const char* path) {
+
+bool fs_is_dir(const char* path) {
+
+  if(std::strlen(path) == 0)
+    return false;
+
+#ifdef _WIN32
+  fs::path p(path);
+  if (p.root_name() == p)
+    return true;
+#endif
+
+  if (!fs_exists(path))
+    return false;
+
+  return fs::is_directory(path);
+}
+
+
+bool fs_is_exe(const char* path) {
+
+  if (!fs_is_file(path))
+    return false;
+
+  auto s = fs::status(path);
+
+  auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
+  auto isexe = i != fs::perms::none;
+
+  if(TRACE) std::cout << "TRACE:is_exe: " << path << " " << isexe << std::endl;
+
+  return isexe;
+}
+
+
+bool fs_is_file(const char* path) {
   std::error_code ec;
 
-  if (!exists(path)) return false;
+  if (!fs_exists(path))
+    return false;
 
   return fs::is_regular_file(path);
 }
 
-bool is_dir(const char* path) {
-  if(std::strlen(path) == 0) return false;
-
-  fs::path p(path);
-
-#ifdef _WIN32
-  if (p.root_name() == p) return true;
-#endif
-
-  if (!exists(path)) return false;
-
-  return fs::is_directory(path);
-
-}
 
 bool fs_remove(const char* path) {
   std::error_code ec;
@@ -289,16 +318,18 @@ bool fs_remove(const char* path) {
   return e;
 }
 
-size_t canonical(const char* path, bool strict, char* result) {
+size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
-  if( path == nullptr || strlen(path) == 0 )
+  if( path == nullptr || strlen(path) == 0 ){
+    result[0] = '\0';
     return 0;
+  }
 
-  char* ex = new char[MAXP];
-  expanduser(path, ex);
+  char* ex = new char[buffer_size];
+  fs_expanduser(path, ex, buffer_size);
 
-  // std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
+  if(TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
 
   fs::path p;
   std::error_code ec;
@@ -311,32 +342,27 @@ size_t canonical(const char* path, bool strict, char* result) {
   }
   delete[] ex;
 
-  // std::cout << "TRACE:canonical: " << p << std::endl;
+  if(TRACE) std::cout << "TRACE:canonical: " << p << std::endl;
 
   if(ec) {
     std::cerr << "ERROR:filesystem:canonical: " << ec.message() << std::endl;
+    result = NULL;
     return 0;
   }
 
-  return normal(p.string().c_str(), result);
+  return path2str(p, result, buffer_size);
 }
 
 
-bool equivalent(const char* path1, const char* path2) {
+bool fs_equivalent(const char* path1, const char* path2) {
   // check existance to avoid error if not exist
-  fs::path p1(path1);
-  fs::path p2(path2);
+
+  if (! (fs_exists(path1) && fs_exists(path2)) )
+    return false;
 
   std::error_code ec;
 
-  if (! (fs::exists(p1, ec) && fs::exists(p2, ec)) ) return false;
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:equivalent: " << ec.message() << std::endl;
-    return false;
-  }
-
-  auto e = fs::equivalent(p1, p2, ec);
+  auto e = fs::equivalent(path1, path2, ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:equivalent: " << ec.message() << std::endl;
@@ -347,7 +373,7 @@ bool equivalent(const char* path1, const char* path2) {
 }
 
 
-int copy_file(const char* source, const char* destination, bool overwrite) {
+int fs_copy_file(const char* source, const char* destination, bool overwrite) {
 
   if(strlen(source) == 0) {
     std::cerr << "filesystem:copy_file: source path must not be empty" << std::endl;
@@ -358,26 +384,20 @@ int copy_file(const char* source, const char* destination, bool overwrite) {
     return 1;
   }
 
-  fs::path d(destination);
-
   auto opt = fs::copy_options::none;
 
-  std::error_code ec;
-
   if (overwrite) {
-
 // WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
-  if(fs::exists(d, ec)) fs::remove(d, ec);
+    if(fs_exists(destination)){
+      if (!fs_remove(destination))
+        return 1;
+    }
 
-  if(ec) {
-    std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << std::endl;
-    return ec.value();
+    opt |= fs::copy_options::overwrite_existing;
   }
 
-  opt |= fs::copy_options::overwrite_existing;
-  }
-
-  auto ok = fs::copy_file(source, d, opt, ec);
+  std::error_code ec;
+  auto ok = fs::copy_file(source, destination, opt, ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << std::endl;
@@ -385,7 +405,7 @@ int copy_file(const char* source, const char* destination, bool overwrite) {
   }
 
   if( !ok ) {
-    if(is_file(destination)) {
+    if(fs_is_file(destination)) {
       return 0;
     }
     else
@@ -399,43 +419,45 @@ int copy_file(const char* source, const char* destination, bool overwrite) {
 }
 
 
-size_t relative_to(const char* to, const char* from, char* result) {
+size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
 
   // undefined case, avoid bugs with MacOS
-  if( to == nullptr || (strlen(to) == 0) || from == nullptr || (strlen(from) == 0) )
+  if( to == nullptr || (strlen(to) == 0) || from == nullptr || (strlen(from) == 0) ){
+    result[0] = '\0';
     return 0;
+  }
 
   fs::path tp(to);
   fs::path fp(from);
 
   // cannot be relative, avoid bugs with MacOS
-  if(tp.is_absolute() != fp.is_absolute())
-    return 0;
-
-  fs::path r;
-
-  std::error_code ec;
-
-  r = fs::relative(tp, fp, ec);
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
+  if(tp.is_absolute() != fp.is_absolute()){
+    result[0] = '\0';
     return 0;
   }
 
-  return normal(r.string().c_str(), result);
+  std::error_code ec;
+
+  auto r = fs::relative(tp, fp, ec);
+
+  if(ec) {
+    std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
+    result = NULL;
+    return 0;
+  }
+
+  return path2str(r, result, buffer_size);
 }
 
 
-bool touch(const char* path) {
+bool fs_touch(const char* path) {
 
   if(path == nullptr || strlen(path) == 0)
     return false;
 
-  fs::path p(path);
   std::error_code ec;
 
-  auto s = fs::status(p, ec);
+  auto s = fs::status(path, ec);
   if(s.type() != fs::file_type::not_found){
     if(ec) {
       std::cerr << "ERROR:filesystem:touch:status: " << ec.message() << std::endl;
@@ -448,66 +470,58 @@ bool touch(const char* path) {
 
   if(!fs::is_regular_file(s)) {
     std::ofstream ost;
-    ost.open(p);
+    ost.open(path);
     ost.close();
     // ensure user can access file, as default permissions may be mode 600 or such
-    fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add, ec);
+    fs::permissions(path, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add, ec);
   }
   if(ec) {
     std::cerr << "filesystem:touch:permissions: " << ec.message() << std::endl;
     return false;
   }
 
-  if (!fs::is_regular_file(p, ec)) return false;
-  // here p because we want to check the new file
-  if(ec) {
-    std::cerr << "filesystem:touch:is_regular_file: " << ec.message() << std::endl;
+  if (!fs_is_file(path))
     return false;
-  }
 
-
-  fs::last_write_time(p, fs::file_time_type::clock::now(), ec);
+  fs::last_write_time(path, fs::file_time_type::clock::now(), ec);
   if(ec) {
     std::cerr << "filesystem:touch:last_write_time: " << path << " was created, but modtime was not updated: " << ec.message() << std::endl;
     return false;
   }
 
   return true;
-
 }
 
 
-size_t get_tempdir(char* result) {
+size_t fs_get_tempdir(char* result, size_t buffer_size) {
 
   std::error_code ec;
 
-  auto t = fs::temp_directory_path(ec);
+  auto r = fs::temp_directory_path(ec);
+
   if(ec) {
     std::cerr << "filesystem:get_tempdir: " << ec.message() << std::endl;
+    result = NULL;
     return 0;
   }
 
-  return normal(t.string().c_str(), result);
+  return path2str(r, result, buffer_size);
 }
 
 
-uintmax_t file_size(const char* path) {
+uintmax_t fs_file_size(const char* path) {
   // need to check is_regular_file for MSVC/Intel Windows
-  fs::path p(path);
+
+  if (!fs_is_file(path)) {
+    std::cerr << "filesystem:file_size: " << path << " is not a regular file" << std::endl;
+    return 0;
+  }
+
   std::error_code ec;
 
-  if (!fs::is_regular_file(p, ec)) {
-    std::cerr << "filesystem:file_size: " << p << " is not a regular file" << std::endl;
-    return 0;
-  }
-  if(ec) {
-    std::cerr << "ERROR:filesystem:file_size: " << ec.message() << std::endl;
-    return 0;
-  }
-
-  auto fsize = fs::file_size(p, ec);
+  auto fsize = fs::file_size(path, ec);
   if (ec) {
-    std::cerr << "ERROR:filesystem:file_size: " << p << " could not get file size: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:file_size: " << path << " could not get file size: " << ec.message() << std::endl;
     return 0;
   }
 
@@ -515,45 +529,22 @@ uintmax_t file_size(const char* path) {
 }
 
 
-size_t get_cwd(char* result) {
+size_t fs_get_cwd(char* result, size_t buffer_size) {
   std::error_code ec;
 
-  auto c = fs::current_path(ec);
+  auto r = fs::current_path(ec);
+
   if(ec) {
     std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << std::endl;
+    result = NULL;
     return 0;
   }
 
-  return normal(c.string().c_str(), result);
+  return path2str(r, result, buffer_size);
 }
 
 
-bool is_exe(const char* path) {
-  fs::path p(path);
-  std::error_code ec;
-
-  auto s = fs::status(p, ec);
-  if (s.type() == fs::file_type::not_found) return false;
-  if(ec) {
-    std::cerr << "ERROR:filesystem:is_exe: " << ec.message() << std::endl;
-    return false;
-  }
-
-  if (!fs::is_regular_file(s)) {
-    std::cerr << "filesystem:is_exe: " << p << " is not a regular file" << std::endl;
-    return false;
-  }
-
-  auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
-  auto isexe = i != fs::perms::none;
-
-  // std::cout << "TRACE:is_exe: " << p << " " << isexe << std::endl;
-
-  return isexe;
-}
-
-
-size_t get_homedir(char* result) {
+size_t fs_get_homedir(char* result, size_t buffer_size) {
 
 #ifdef _WIN32
   auto k = "USERPROFILE";
@@ -561,33 +552,36 @@ size_t get_homedir(char* result) {
   auto k = "HOME";
 #endif
 
-  auto e = std::getenv(k);
+  auto r = std::getenv(k);
 
-  if(e == nullptr) {
+  if(r == nullptr) {
     std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined" << std::endl;
+    result = NULL;
     return 0;
   }
 
-  return normal(e, result);
+  return fs_normal(r, result, buffer_size);
 }
 
 
-size_t expanduser(const char* path, char* result){
+size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
 
   std::string p(path);
 
-  // std::cout << "TRACE:expanduser: path: " << p << " length: " << strlen(path) << std::endl;
+  if(TRACE)  std::cout << "TRACE:expanduser: path: " << p << " length: " << strlen(path) << std::endl;
 
-  if( path == nullptr || strlen(path) == 0 )
+  if( path == nullptr || strlen(path) == 0 ){
+    result[0] = '\0';
     return 0;
+  }
 
   if(p.front() != '~')
-    return normal(path, result);
+    return fs_normal(path, result, buffer_size);
 
-  char* h = new char[MAXP];
-  if (!get_homedir(h)){
+  char* h = new char[buffer_size];
+  if (!fs_get_homedir(h, buffer_size)){
     delete[] h;
-    return normal(path, result);
+    return fs_normal(path, result, buffer_size);
   }
 
   fs::path home(h);
@@ -601,41 +595,30 @@ size_t expanduser(const char* path, char* result){
   std::replace(p.begin(), p.end(), '\\', '/');
   p = std::regex_replace(p, r, "/");
 
-  // std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
+if(TRACE) std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
 
-  if (p.length() == 1) {
+  if (p.length() < 3) {
     // ~ alone
-    return normal(home.string().c_str(), result);
-  }
-  else if (p.length() == 2) {
-    // ~/ alone
-    return normal((home.string() + "/").c_str(), result);
+    return path2str(home, result, buffer_size);
   }
 
-  // std::cout << "TRACE:expanduser: trailing path: " << p1 << std::endl;
-
-  return normal((home / p.substr(2)).string().c_str(), result);
+  return fs_normal((home / p.substr(2)).generic_string().c_str(), result, buffer_size);
 }
 
-bool chmod_exe(const char* path) {
+bool fs_chmod_exe(const char* path) {
   // make path owner executable, if it's a file
 
-  fs::path p(path);
+  if(!fs_is_file(path)) {
+    std::cerr << "filesystem:chmod_exe: " << path << " is not a regular file" << std::endl;
+    return false;
+  }
+
   std::error_code ec;
 
-  if(!fs::is_regular_file(p, ec)) {
-    std::cerr << "filesystem:chmod_exe: " << p << " is not a regular file" << std::endl;
-    return false;
-  }
-  if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_exe: " << p << ": " << ec.message() << std::endl;
-    return false;
-  }
-
-  fs::permissions(p, fs::perms::owner_exec, fs::perm_options::add, ec);
+  fs::permissions(path, fs::perms::owner_exec, fs::perm_options::add, ec);
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_exe: " << p << ": " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:chmod_exe: " << path << ": " << ec.message() << std::endl;
     return false;
   }
 
@@ -643,25 +626,20 @@ bool chmod_exe(const char* path) {
 
 }
 
-bool chmod_no_exe(const char* path) {
+bool fs_chmod_no_exe(const char* path) {
   // make path not executable, if it's a file
 
-  fs::path p(path);
+  if(!fs_is_file(path)) {
+    std::cerr << "filesystem:chmod_no_exe: " << path << " is not a regular file" << std::endl;
+    return false;
+  }
+
   std::error_code ec;
 
-  if(!fs::is_regular_file(p, ec)) {
-    std::cerr << "filesystem:chmod_no_exe: " << p << " is not a regular file" << std::endl;
-    return false;
-  }
-  if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_no_exe: " << p << ": " << ec.message() << std::endl;
-    return false;
-  }
-
-  fs::permissions(p, fs::perms::owner_exec, fs::perm_options::remove, ec);
+  fs::permissions(path, fs::perms::owner_exec, fs::perm_options::remove, ec);
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_no_exe: " << p << ": " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:chmod_no_exe: " << path << ": " << ec.message() << std::endl;
     return false;
   }
 

@@ -4,6 +4,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake)
 
 set(ffilesystem_cpp @HAVE_CXX_FILESYSTEM@)
 
-target_link_libraries(ffilesystem::filesystem INTERFACE @NEED_stdfs@)
+target_link_libraries(ffilesystem::filesystem INTERFACE @GNU_stdfs@)
 
 check_required_components(@PROJECT_NAME@)

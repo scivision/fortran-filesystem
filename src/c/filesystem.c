@@ -7,7 +7,6 @@
 #include <errno.h>
 
 #ifdef _MSC_VER
-#include <direct.h>
 #include <io.h>
 #else
 #include <unistd.h>
@@ -16,73 +15,228 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "Shlwapi.h"
 #endif
 
 
 #include "ffilesystem.h"
 #include "cwalk.h"
 
-#define TRACE 0
 
+bool fs_cpp(){
+// tell if fs core is C or C++
+  return false;
+}
 
-char* as_windows(const char*);
-
-void fs_filesep(char* sep) {
+size_t fs_filesep(char* sep) {
 #ifdef _WIN32
   strcpy(sep, "\\");
 #else
   strcpy(sep, "/");
 #endif
+
+  return strlen(sep);
 }
 
 
-size_t normal(const char* path, char* normalized) {
-  if(path == NULL)
+size_t fs_normal(const char* path, char* result, size_t buffer_size) {
+  if(path == NULL){
+    result = NULL;
     return 0;
-
-  cwk_path_set_style(CWK_STYLE_UNIX);
-  size_t L = cwk_path_normalize(path, normalized, MAXP);
-
-  if(TRACE) printf("TRACE:normal in: %s  out: %s\n", path, normalized);
-
-// force posix file seperator
-  char s='\\';
-  char *p = strchr(normalized, s);
-  while (p) {
-      *p = '/';
-      p = strchr(p+1, s);
   }
 
-  return L;
+#ifdef _WIN32
+  cwk_path_set_style(CWK_STYLE_WINDOWS);
+#else
+  cwk_path_set_style(CWK_STYLE_UNIX);
+#endif
+  size_t L = cwk_path_normalize(path, result, buffer_size);
+  fs_as_posix(result);
 
+if(TRACE) printf("TRACE:normal in: %s  out: %s\n", path, result);
+
+  return L;
 }
 
-size_t canonical(const char* path, bool strict, char* result) {
+
+size_t fs_file_name(const char* path, char* result, size_t buffer_size){
+
+  if(path == NULL){
+    result = NULL;
+    return 0;
+  }
+
+  if(strlen(path) == 0){
+    result[0] = '\0';
+    return 0;
+  }
+
+  const char *base;
+
+if(TRACE) printf("TRACE:file_name: %s\n", path);
+
+#ifdef _WIN32
+  cwk_path_set_style(CWK_STYLE_WINDOWS);
+#else
+  cwk_path_set_style(CWK_STYLE_UNIX);
+#endif
+  cwk_path_get_basename(path, &base, NULL);
+
+if(TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
+
+  strncpy(result, base, buffer_size);
+  size_t L = strlen(result);
+  result[L] = '\0';
+
+  return L;
+}
+
+
+size_t fs_stem(const char* path, char* result, size_t buffer_size){
+
+  if(path == NULL){
+    result = NULL;
+    return 0;
+  }
+
+  char* buf = (char*) malloc(buffer_size);
+  fs_file_name(path, buf, buffer_size);
+
+  char* pos = strrchr(buf, '.');
+  if (pos && pos != buf){
+    strncpy(result, buf, pos-buf);
+    result[pos-buf] = '\0';
+  }
+  else {
+    strncpy(result, buf, buffer_size);
+    result[strlen(result)] = '\0';
+  }
+
+  free(buf);
+  return strlen(result);
+}
+
+
+size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size){
+  if(path == NULL || other == NULL){
+    result = NULL;
+    return 0;
+  }
+
+  cwk_path_set_style(CWK_STYLE_UNIX);
+  return cwk_path_join(path, other, result, buffer_size);
+}
+
+
+size_t fs_parent(const char* path, char* result, size_t buffer_size){
+
+  char* buf = (char*) malloc(buffer_size);
+  if(fs_normal(path, buf, buffer_size) == 0){
+    free(buf);
+    result = NULL;
+    return 0;
+  }
+
+  size_t L;
+
+  cwk_path_get_dirname(buf, &L);
+  if(L == 0){
+    free(buf);
+    result[0] = '\0';
+    return 0;
+  }
+
+  size_t M = min(L-1, buffer_size);
+  strncpy(result, buf, M);
+  free(buf);
+  result[M] = '\0';
+
+if(TRACE) printf("TRACE: parent: %s => %s  %ju\n", path, result, M);
+  return M;
+}
+
+
+size_t fs_suffix(const char* path, char* result, size_t buffer_size){
+
+  if(path == NULL || strlen(path) == 0){
+    result[0] = '\0';
+    return 0;
+  }
+
+  char* buf = (char*) malloc(buffer_size);
+  fs_file_name(path, buf, buffer_size);
+
+  char* pos = strrchr(buf, '.');
+  if (pos && pos != buf){
+    strncpy(result, pos, buffer_size);
+    result[strlen(result)] = '\0';
+  }
+  else {
+    result[0] = '\0';
+  }
+
+  free(buf);
+  return strlen(result);
+}
+
+
+size_t fs_with_suffix(const char* path, const char* suffix, char* result, size_t buffer_size){
+  if(path == NULL || suffix == NULL){
+    result = NULL;
+    return 0;
+  }
+
+  if(strlen(suffix) == 0)
+    return fs_stem(path, result, buffer_size);
+
+  if(path[0] == '.'){
+    // workaround for leading dot filename
+    strncpy(result, path, buffer_size);
+    result[strlen(result)] = '\0';
+    strncat(result, suffix, buffer_size);
+    return strlen(result);
+  }
+
+  cwk_path_set_style(CWK_STYLE_UNIX);
+  cwk_path_change_extension(path, suffix, result, buffer_size);
+
+  return fs_normal(result, result, buffer_size);
+}
+
+
+size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
-  if( path == NULL || strlen(path) == 0 )
+  if(path == NULL){
+    result = NULL;
     return 0;
+  }
+
+  if(strlen(path) == 0){
+    result[0] = '\0';
+    return 0;
+  }
 
   if(strlen(path) == 1 && path[0] == '.')
-    return get_cwd(result);
+    return fs_get_cwd(result, buffer_size);
 
-  char* buf = (char*) malloc(MAXP);
-  if(expanduser(path, buf) == 0){
+  char* buf = (char*) malloc(buffer_size);
+  if(fs_expanduser(path, buf, buffer_size) == 0){
     free(buf);
+    result = NULL;
     return 0;
   }
 
   if(TRACE) printf("TRACE:canonical in: %s  expanded: %s\n", path, buf);
 
-  if(strict && !exists(buf)) {
+  if(strict && !fs_exists(buf)) {
     free(buf);
+    result = NULL;
     return 0;
   }
 
-char* buf2 = (char*) malloc(MAXP);
+char* buf2 = (char*) malloc(buffer_size);
 #ifdef _WIN32
-  char* t = _fullpath(buf2, buf, MAXP);
+  char* t = _fullpath(buf2, buf, buffer_size);
 #else
   char* t = realpath(buf, buf2);
 #endif
@@ -90,64 +244,57 @@ char* buf2 = (char*) malloc(MAXP);
     fprintf(stderr, "ERROR:canonical: %s => %s\n", buf, strerror(errno));
     free(buf);
     free(buf2);
+    result = NULL;
     return 0;
   }
-
-  size_t L = normal(buf2, result);
   free(buf);
+
+  size_t L = fs_normal(buf2, result, buffer_size);
   free(buf2);
   return L;
 }
 
-size_t join(const char* path, const char* other, char* result){
-  if(path == NULL || other == NULL)
-    return 0;
 
-  cwk_path_set_style(CWK_STYLE_UNIX);
-  return cwk_path_join(path, other, result, MAXP);
-}
-
-
-size_t file_name(const char* path, char* result){
-
-  if(path == NULL)
-    return 0;
-
-  const char *base;
-  size_t L;
-
-  cwk_path_set_style(CWK_STYLE_UNIX);
-  cwk_path_get_basename(path, &base, &L);
-  strncpy(result, base, L);
-  result[L] = '\0';
-  return L;
-}
-
-size_t relative_to(const char* to, const char* from, char* result) {
+size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
 
   // undefined case, avoid bugs with MacOS
-  if( to == NULL || (strlen(to) == 0) || from ==NULL || (strlen(from) == 0) )
+  if(to == NULL || from == NULL){
+    result = NULL;
     return 0;
+  }
+
+  if((strlen(to) == 0) || (strlen(from) == 0)){
+    result[0] = '\0';
+    return 0;
+  }
 
   // cannot be relative, avoid bugs with MacOS
-  if(is_absolute(to) != is_absolute(from))
+  if(fs_is_absolute(to) != fs_is_absolute(from)){
+    result[0] = '\0';
     return 0;
+  }
 
   // short circuit if trivially equal
   if(strcmp(to, from) == 0){
     strcpy(result, ".");
-    return strlen(result);
+    return 1;
   }
 
+#ifdef _WIN32
+  cwk_path_set_style(CWK_STYLE_WINDOWS);
+#else
   cwk_path_set_style(CWK_STYLE_UNIX);
-  return cwk_path_get_relative(from, to, result, MAXP);
+#endif
+  cwk_path_get_relative(from, to, result, buffer_size);
+
+  return fs_normal(result, result, buffer_size);
 }
 
 
-uintmax_t file_size(const char* path) {
+uintmax_t fs_file_size(const char* path) {
   struct stat s;
 
-  if (!is_file(path))
+  if (!fs_is_file(path))
     return 0;
 
   if (stat(path, &s) != 0)
@@ -156,43 +303,47 @@ uintmax_t file_size(const char* path) {
   return s.st_size;;
 }
 
-bool equivalent(const char* path1, const char* path2){
+bool fs_equivalent(const char* path1, const char* path2){
 // this is for exisitng paths
 
   char* buf1 = (char*) malloc(MAXP);
   char* buf2 = (char*) malloc(MAXP);
 
-  canonical(path1, true, buf1);
-  canonical(path2, true, buf2);
+  size_t L1 = fs_canonical(path1, true, buf1, MAXP);
+  size_t L2 = fs_canonical(path2, true, buf2, MAXP);
 
-  bool eqv = (strlen(buf1) > 0) && (strlen(buf2) > 0) && strcmp(buf1, buf2) == 0;
+  bool eqv = (L1 > 0) && (L2 > 0) && strcmp(buf1, buf2) == 0;
   free(buf1);
   free(buf2);
   return eqv;
 
 }
 
-size_t expanduser(const char* path, char* result){
+size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
 
-  if( path == NULL)
+  if(path == NULL){
+    result = NULL;
     return 0;
+  }
 
   size_t L = strlen(path);
-  if(L == 0)
-    return L;
+  if(L == 0){
+    result[0] = '\0';
+    return 0;
+  }
 
   if(path[0] != '~')
-    return normal(path, result);
+    return fs_normal(path, result, buffer_size);
 
-  char* buf = (char*) malloc(MAXP);
-  if (!get_homedir(buf)){
+  char* buf = (char*) malloc(buffer_size);
+  if (!fs_get_homedir(buf, buffer_size)) {
     free(buf);
-    return normal(path, result);
+    return fs_normal(path, result, buffer_size);
   }
 
   // ~ alone
   if (L < 3){
-    L = normal(buf, result);
+    L = fs_normal(buf, result, buffer_size);
     if(TRACE) printf("TRACE:expanduser: orphan ~: homedir %s %s\n", buf, result);
     free(buf);
     return L;
@@ -203,66 +354,15 @@ size_t expanduser(const char* path, char* result){
   if(TRACE) printf("TRACE:expanduser: homedir %s\n", buf);
 
   strcat(buf, path+2);
-  L = normal(buf, result);
+  L = fs_normal(buf, result, buffer_size);
   if(TRACE) printf("TRACE:expanduser result: %s\n", result);
 
   free(buf);
   return L;
 }
 
-size_t get_homedir(char* result) {
 
-char* buf = (char*) malloc(MAXP);
-size_t L;
-
-#ifdef _WIN32
-  if(getenv_s(&L, buf, MAXP, "USERPROFILE") != 0){
-    fprintf(stderr, "ERROR:get_homedir: %s\n", strerror(errno));
-    free(buf);
-    return 0;
-  }
-#else
-  const char* e = getenv("HOME");
-  if(e)
-    strcpy(buf, e);
-  else
-    buf = NULL;
-#endif
-  L = normal(buf, result);
-  if(TRACE) printf("TRACE: get_homedir: %s %s\n", buf, result);
-  free(buf);
-  return L;
-}
-
-size_t get_tempdir(char* result) {
-
-char* buf = (char*) malloc(MAXP);
-size_t L;
-
-#ifdef _WIN32
-  if(GetTempPath(MAXP, buf) == 0){
-    fprintf(stderr, "ERROR:get_tempdir: %s\n", strerror(errno));
-    free(buf);
-    return 0;
-  }
-#else
-  const char* e = getenv("TMPDIR");
-  if(e)
-    strcpy(buf, e);
-  else{
-    fprintf(stderr, "ERROR:get_tempdir: %s\n", strerror(errno));
-    free(buf);
-    return 0;
-  }
-#endif
-
-  L = normal(buf, result);
-  free(buf);
-  return L;
-}
-
-
-bool is_dir(const char* path){
+bool fs_is_dir(const char* path){
   struct stat s;
 
   int i = stat(path, &s);
@@ -272,17 +372,7 @@ bool is_dir(const char* path){
 }
 
 
-bool is_file(const char* path){
-  struct stat s;
-
-  int i = stat(path, &s);
-
-  // NOTE: root() e.g. "C:" needs a trailing slash
-  return i == 0 && (s.st_mode & S_IFREG);
-}
-
-
-bool is_exe(const char* path){
+bool fs_is_exe(const char* path){
   struct stat s;
 
   if(stat(path, &s) != 0) return false;
@@ -295,7 +385,17 @@ bool is_exe(const char* path){
 }
 
 
-bool exists(const char* path) {
+bool fs_is_file(const char* path){
+  struct stat s;
+
+  int i = stat(path, &s);
+
+  // NOTE: root() e.g. "C:" needs a trailing slash
+  return i == 0 && (s.st_mode & S_IFREG);
+}
+
+
+bool fs_exists(const char* path) {
 // false empty just for clarity
 if(path == NULL || strlen(path) == 0)
   return false;
@@ -309,122 +409,43 @@ if(path == NULL || strlen(path) == 0)
 }
 
 
-size_t parent(const char* path, char* fparent){
+size_t fs_root(const char* path, char* result, size_t buffer_size) {
 
-  if(path == NULL || strlen(path) == 0) {
-    strcpy(fparent, ".");
-    return strlen(fparent);
-  }
-
-  char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
-  if(normal(path, buf) == 0){
-    free(buf);
-    return 0;
-  }
-
-  char* pos = strrchr(buf, '/');
-  if (pos){
-    strncpy(fparent, buf, pos-buf);
-    fparent[pos-buf] = '\0';
-  }
-  else {
-    strcpy(fparent, ".");
-  }
-
-  free(buf);
-  return strlen(fparent);
-}
-
-
-size_t root(const char* path, char* r) {
-
-if (is_absolute(path)){
+  size_t L;
 
 #ifdef _WIN32
-  strncpy(r, &path[0], 2);
-  r[2] = '\0';
+  cwk_path_set_style(CWK_STYLE_WINDOWS);
 #else
-  strncpy(r, &path[0], 1);
-  r[1] = '\0';
+  cwk_path_set_style(CWK_STYLE_UNIX);
 #endif
+  cwk_path_get_root(path, &L);
 
-}
-else {
-  r = "";
-}
+  size_t M = min(L, buffer_size);
+  strncpy(result, path, M);
+  result[M] = '\0';
 
-return strlen(r);
-}
-
-
-size_t stem(const char* path, char* fstem){
-
-  if(path == NULL || strlen(path) == 0)
-    return 0;
-
-  char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
-  file_name(path, buf);
-
-  char* pos = strrchr(buf, '.');
-  if (pos && pos != buf){
-    strncpy(fstem, buf, pos-buf);
-    fstem[pos-buf] = '\0';
-  }
-  else {
-    strcpy(fstem, buf);
-  }
-
-  free(buf);
-  return strlen(fstem);
-}
-
-size_t suffix(const char* path, char* fout){
-
-  if(path == NULL || strlen(path) == 0)
-    return 0;
-
-  char* buf = (char*) malloc(strlen(path) + 1);  // +1 for null terminator
-  file_name(path, buf);
-
-  char* pos = strrchr(buf, '.');
-  if (pos && pos != buf){
-    strcpy(fout, pos);
-  }
-  else {
-    fout[0] = '\0';
-  }
-
-  free(buf);
-  return strlen(fout);
+if(TRACE) printf("TRACE: root: %s => %s  %ju\n", path, result, M);
+  return M;
 }
 
 
-bool is_absolute(const char* path){
+bool fs_is_absolute(const char* path){
   if(path == NULL)
     return false;
 
-  size_t L = strlen(path);
-  if(L < 1)
-    return false;
-
 #ifdef _WIN32
-  if(L < 2)
+  if (path[0] == '/')
     return false;
-  if(path[1] != ':')
-    return false;
-  if(!isalpha(path[0]))
-    return false;
-  return true;
 #endif
 
-  return path[0] == '/';
+  return cwk_path_is_absolute(path);
 }
 
 
-bool is_symlink(const char* path){
+bool fs_is_symlink(const char* path){
   if(path==NULL)
     return false;
-  if(!exists(path))
+  if(!fs_exists(path))
     return false;
 
 #ifdef _WIN32
@@ -440,10 +461,11 @@ bool is_symlink(const char* path){
 #endif
 }
 
-int create_symlink(const char* target, const char* link) {
+
+int fs_create_symlink(const char* target, const char* link) {
 
 #ifdef _WIN32
-  if(is_dir(target)) {
+  if(fs_is_dir(target)) {
     return !(CreateSymbolicLink(link, target,
       SYMBOLIC_LINK_FLAG_DIRECTORY | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
   }
@@ -458,26 +480,12 @@ int create_symlink(const char* target, const char* link) {
 }
 
 
-size_t get_cwd(char* path) {
-
-#ifdef _MSC_VER
-// https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
-  if (_getcwd(path, MAXP) == NULL)
-    return 0;
-#else
-  if (getcwd(path, MAXP) == NULL)
-    return 0;
-#endif
-
-  return normal(path, path);
-}
-
 bool fs_remove(const char* path) {
-  if (!exists(path))
+  if (!fs_exists(path))
     return true;
 
 #ifdef _WIN32
-  if (is_dir(path)){
+  if (fs_is_dir(path)){
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-removedirectorya
     return RemoveDirectory(path) != 0;
   }
@@ -490,7 +498,7 @@ bool fs_remove(const char* path) {
 #endif
 }
 
-bool chmod_exe(const char* path){
+bool fs_chmod_exe(const char* path){
   struct stat s;
   if(stat(path, &s) != 0)
     return false;
@@ -502,7 +510,7 @@ bool chmod_exe(const char* path){
 #endif
 }
 
-bool chmod_no_exe(const char* path){
+bool fs_chmod_no_exe(const char* path){
   struct stat s;
   if(stat(path, &s) != 0)
     return false;
@@ -514,159 +522,15 @@ bool chmod_no_exe(const char* path){
 #endif
 }
 
-bool touch(const char* path) {
+bool fs_touch(const char* path) {
 
-  if (exists(path) && !is_file(path))
+  if (fs_exists(path) && !fs_is_file(path))
     return false;
 
-  if(!is_file(path)) {
+  if(!fs_is_file(path)) {
     FILE* fid = fopen(path, "a");
     fclose(fid);
   }
 
-  return is_file(path);
-}
-
-size_t with_suffix(const char* path, const char* suffix, char* result){
-  if(path == NULL || suffix == NULL)
-    return 0;
-
-  if(strlen(suffix) == 0)
-    return stem(path, result);
-
-  if(path[0] == '.'){
-    // workaround for leading dot filename
-    strcpy(result, path);
-    strcat(result, suffix);
-    return strlen(result);
-  }
-
-  cwk_path_set_style(CWK_STYLE_UNIX);
-  return cwk_path_change_extension(path, suffix, result, MAXP);
-}
-
-// as_windows() needed for system calls with MSVC
-
-// force Windows file seperator
-char* as_windows(const char* path) {
-  char s = '/';
-  char* buf = (char*) malloc(strlen(path)+1);  // +1 for null terminator
-  strcpy(buf, path);
-
-  char *p = strchr(buf, s);
-  while (p) {
-    *p = '\\';
-    p = strchr(p+1, s);
-  }
-  return buf;
-}
-
-
-// --- system calls for mkdir and copy_file
-int copy_file(const char* source, const char* destination, bool overwrite) {
-
-if(source == NULL || strlen(source) == 0) {
-  fprintf(stderr,"ERROR:filesystem:copy_file: source path %s must not be empty\n", source);
-  return 1;
-}
-if(destination == NULL || strlen(destination) == 0) {
-  fprintf(stderr, "ERROR:filesystem:copy_file: destination path %s must not be empty\n", destination);
-  return 1;
-}
-
-  if(overwrite){
-    if(is_file(destination)){
-      if(!fs_remove(destination)){
-        fprintf(stderr, "ERROR:filesystem:copy_file: could not remove existing file %s\n", destination);
-      }
-    }
-  }
-
-  #ifdef _WIN32
-  if(CopyFile(source, destination, true))
-    return 0;
-  return 1;
-  #else
-// from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
-
-  char* s = (char*) malloc(strlen(source) + 1);
-  char* d = (char*) malloc(strlen(destination) + 1);
-  strcpy(s, source);
-  strcpy(d, destination);
-
-  char *const args[4] = {"cp", s, d, NULL};
-
-  int ret = execvp("cp", args);
-  free(s);
-  free(d);
-
-  if(ret != -1)
-    return 0;
-
-  return ret;
-  #endif
-}
-
-int create_directories(const char* path) {
-  // Windows: note that SHCreateDirectory is deprecated, so use a system call like Unix
-
-  if(path == NULL || strlen(path) == 0) {
-    fprintf(stderr,"ERROR:filesystem:mkdir: path %s must not be empty\n", path);
-    return 1;
-  }
-
-  if(is_dir(path))
-    return 0;
-
-  char* p = (char*) malloc(strlen(path) + 1);
-
-  #ifdef _MSC_VER
-
-  p = as_windows(path);
-
-  STARTUPINFO si = { 0 };
-  PROCESS_INFORMATION pi;
-  si.cb = sizeof(si);
-
-  char* cmd = (char*) malloc(strlen(p) + 1 + 13);
-  strcpy(cmd, "cmd /c mkdir ");
-  strcat(cmd, p);
-
-  if(TRACE) printf("TRACE:mkdir %s\n", cmd);
-  if (!CreateProcess(NULL, cmd, NULL, NULL, FALSE,
-                     0, 0, 0, &si, &pi)) {
-    free(p);
-    return -1;
-  }
-
-  if(TRACE) printf("TRACE:mkdir waiting to complete %s\n", cmd);
-  // Wait until child process exits.
-  WaitForSingleObject( pi.hProcess, 2000 );
-  free(p);
-  CloseHandle(pi.hThread);
-  CloseHandle(pi.hProcess);
-  if(TRACE) printf("TRACE:mkdir completed %s\n", cmd);
-
-  return 0;
-
-  #else
-// from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
-
-  #ifdef _WIN32
-  p = as_windows(path);
-  char *const args[5] = {"cmd", "/c", "mkdir", p, NULL};
-  int ret = execvp("cmd", args);
-  #else
-  strcpy(p, path);
-  char *const args[4] = {"mkdir", "-p", p, NULL};
-  int ret = execvp("mkdir", args);
-  #endif
-
-  free(p);
-
-  if(ret != -1)
-    return 0;
-
-  return ret;
-  #endif
+  return fs_is_file(path);
 }

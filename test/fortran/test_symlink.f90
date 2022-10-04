@@ -6,6 +6,8 @@ use filesystem, only : path_t, is_symlink, is_file, is_dir, parent, create_symli
 implicit none
 
 integer :: i, L
+
+block
 type(path_t) :: p_sym, p_tgt
 character(1000) :: buf
 
@@ -31,13 +33,7 @@ if (is_symlink(link)) then
   print *, "deleting old symlink " // link
   call remove(link)
 endif
-call create_symlink(tgt, link, status=i)
-if(i < 0) then
-  write(stderr,'(a,i0)') "platform does not support symlinks: ", i
-  stop 77
-elseif(i /= 0) then
-  error stop "could not create symlink " // link
-endif
+call create_symlink(tgt, link)
 
 if (p_sym%is_symlink()) then
   print *, "deleting old symlink " // p_sym%path()
@@ -73,6 +69,7 @@ if(.not. is_dir(link_dir)) error stop "is_dir() should be true for existing regu
 
 if(.not. is_symlink(link_dir)) error stop "is_symlink() should be true for symlink dir: " // link_dir
 if(.not. is_dir(link_dir)) error stop "is_dir() should be true for existing symlink dir: " // link_dir
+end block
 
 print *, "OK: filesystem symbolic links"
 

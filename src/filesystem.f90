@@ -7,7 +7,7 @@ implicit none
 private
 public :: path_t  !< base class
 public :: get_homedir, canonical, get_cwd !< utility procedures
-public :: normal, expanduser, &
+public :: normal, expanduser, as_posix, as_windows, &
 is_absolute, is_dir, is_file, is_exe, &
 is_symlink, &
 exists, &
@@ -18,10 +18,10 @@ file_name, parent, stem, suffix, with_suffix, &
 read_text, write_text, &
 get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
-sys_posix, touch, create_symlink, &
+touch, create_symlink, &
 remove, get_tempdir, filesep, &
 chmod_exe, chmod_no_exe, &
-is_macos, is_windows, is_linux, is_unix, &
+fs_cpp, is_macos, is_windows, is_linux, is_unix, &
 get_max_path, exe_path, lib_path
 !! functional API
 
@@ -44,38 +44,43 @@ contains
 
 procedure, public :: path=>get_path
 procedure, public :: length
-procedure, public :: join=>fs_join
-procedure, public :: relative_to=>fs_relative_to
-procedure, public :: normal=>fs_normal
-procedure, public :: exists=>fs_exists
-procedure, public :: is_file=>fs_is_file
-procedure, public :: is_dir=>fs_is_dir
-procedure, public :: is_absolute=>fs_is_absolute
-procedure, public :: is_symlink=>fs_is_symlink
-procedure, public :: create_symlink=>fs_create_symlink
-procedure, public :: copy_file=>fs_copy_file
-procedure, public :: mkdir=>fs_mkdir
-procedure, public :: touch=>fs_touch
-procedure, public :: parent=>fs_parent
-procedure, public :: file_name=>fs_file_name
-procedure, public :: stem=>fs_stem
-procedure, public :: root=>fs_root
-procedure, public :: suffix=>fs_suffix
-procedure, public :: expanduser=>fs_expanduser
-procedure, public :: with_suffix=>fs_with_suffix
-procedure, public :: resolve=>fs_resolve
-procedure, public :: same_file=>fs_same_file
-procedure, public :: is_exe=>fs_is_exe
+procedure, public :: as_posix=>f_as_posix
+procedure, public :: as_windows=>f_as_windows
+procedure, public :: join=>f_join
+procedure, public :: relative_to=>f_relative_to
+procedure, public :: normal=>f_normal
+procedure, public :: exists=>f_exists
+procedure, public :: is_file=>f_is_file
+procedure, public :: is_exe=>f_is_exe
+procedure, public :: is_dir=>f_is_dir
+procedure, public :: is_absolute=>f_is_absolute
+procedure, public :: is_symlink=>f_is_symlink
+procedure, public :: create_symlink=>f_create_symlink
+procedure, public :: copy_file=>f_copy_file
+procedure, public :: mkdir=>f_mkdir
+procedure, public :: touch=>f_touch
+procedure, public :: parent=>f_parent
+procedure, public :: file_name=>f_file_name
+procedure, public :: stem=>f_stem
+procedure, public :: root=>f_root
+procedure, public :: suffix=>f_suffix
+procedure, public :: expanduser=>f_expanduser
+procedure, public :: with_suffix=>f_with_suffix
+procedure, public :: resolve=>f_resolve
+procedure, public :: same_file=>f_same_file
 procedure, public :: remove=>fs_unlink
-procedure, public :: file_size=>fs_file_size
+procedure, public :: file_size=>f_file_size
 procedure, public :: read_text=>fs_read_text
 procedure, public :: write_text=>fs_write_text
-procedure, public :: chmod_exe=>fs_chmod_exe
-procedure, public :: chmod_no_exe=>fs_chmod_no_exe
+procedure, public :: chmod_exe=>f_chmod_exe
+procedure, public :: chmod_no_exe=>f_chmod_no_exe
+
+final :: destructor
 
 end type path_t
 
 interface path_t
+!! constructor
   module procedure set_path
 end interface
 
@@ -86,11 +91,23 @@ integer module function get_max_path()
 !! returns dynamic MAX_PATH for this computer
 end function
 
-module function parent(path)
+module function as_posix(path) result(r)
+!! force Posix file separator "/"
+character(*), intent(in) :: path
+character(:), allocatable :: r
+end function
+
+module function as_windows(path) result(r)
+!! force Windows file separator "\"
+character(*), intent(in) :: path
+character(:), allocatable :: r
+end function
+
+module function parent(path) result(r)
 !! returns parent directory of path
 character(*), intent(in) :: path
-character(:), allocatable :: parent
-end function parent
+character(:), allocatable :: r
+end function
 
 module function relative_to(a, b)
 !! returns b relative to a
@@ -101,24 +118,24 @@ module function relative_to(a, b)
 
 character(*), intent(in) :: a, b
 character(:), allocatable :: relative_to
-end function relative_to
+end function
 
 module function file_name(path)
 !! returns file name without path
 character(*), intent(in) :: path
 character(:), allocatable :: file_name
-end function file_name
+end function
 
 module function stem(path)
 character(*), intent(in) :: path
 character(:), allocatable :: stem
-end function stem
+end function
 
 module function suffix(path)
 !! extracts path suffix, including the final "." dot
 character(*), intent(in) :: path
 character(:), allocatable :: suffix
-end function suffix
+end function
 
 module function normal(path)
 !! lexically normalize path
@@ -149,25 +166,6 @@ character(:), allocatable :: expanduser
 character(*), intent(in) :: path
 end function
 
-end interface
-
-
-interface !< find.f90
-
-module function get_filename(path, name, suffixes)
-!! given a path, stem and vector of suffixes, find the full filename
-!! assumes:
-!! * if present, "name" is the file name we wish to find (without suffix or directories)
-!! * if name not present, "path" is the directory + filename without suffix
-!!
-!! suffixes is a vector of suffixes to check. Default is [character(4) :: '.h5', '.nc', '.dat']
-!! if file not found, empty character is returned
-
-character(*), intent(in) :: path
-character(*), intent(in), optional :: name, suffixes(:)
-character(:), allocatable :: get_filename
-end function
-
 module function make_absolute(path, top_path)
 !! if path is absolute, return expanded path
 !! if path is relative, top_path / path
@@ -178,43 +176,12 @@ character(:), allocatable :: make_absolute
 character(*), intent(in) :: path, top_path
 end function
 
-end interface
-
-
-interface !< io.f90
-
-module subroutine touch(path)
-character(*), intent(in) :: path
-end subroutine
-
-module function read_text(filename, max_length)
-!! read text file
-character(*), intent(in) :: filename
-character(:), allocatable :: read_text
-integer, optional :: max_length
-end function
-
-module subroutine write_text(filename, text)
-!! create or overwrite file with text
-character(*), intent(in) :: filename, text
-end subroutine
-
-end interface
-
-
-interface !< envvar.f90
 module function get_homedir()
 !! returns home directory, or empty string if not found
 !!
 !! https://en.wikipedia.org/wiki/Home_directory#Default_home_directory_per_operating_system
 character(:), allocatable :: get_homedir
 end function
-
-
-end interface
-
-
-interface
 
 module function canonical(path, strict)
 character(:), allocatable :: canonical
@@ -252,28 +219,24 @@ character(*), intent(in) :: path
 character(:), allocatable :: root
 end function
 
-end interface
 
-
-interface !< filesystem.cpp
-
-logical(C_BOOL) function is_macos() bind(C)
+logical(C_BOOL) function fs_cpp() bind(C)
 import C_BOOL
 end function
 
-logical(C_BOOL) function is_windows() bind(C)
+logical(C_BOOL) function is_macos() bind(C, name="fs_is_macos")
 import C_BOOL
 end function
 
-logical(C_BOOL) function is_linux() bind(C)
+logical(C_BOOL) function is_windows() bind(C, name="fs_is_windows")
 import C_BOOL
 end function
 
-logical(C_BOOL) function is_unix() bind(C)
+logical(C_BOOL) function is_linux() bind(C, name="fs_is_linux")
 import C_BOOL
 end function
 
-logical(C_BOOL) function sys_posix() bind(C)
+logical(C_BOOL) function is_unix() bind(C, name="fs_is_unix")
 import C_BOOL
 end function
 
@@ -356,11 +319,53 @@ character(*), intent(in) :: path
 logical, intent(out), optional :: ok
 end subroutine
 
+module subroutine touch(path)
+character(*), intent(in) :: path
+end subroutine
+
+end interface
+
+
+interface !< find.f90
+module function get_filename(path, name, suffixes)
+!! given a path, stem and vector of suffixes, find the full filename
+!! assumes:
+!! * if present, "name" is the file name we wish to find (without suffix or directories)
+!! * if name not present, "path" is the directory + filename without suffix
+!!
+!! suffixes is a vector of suffixes to check. Default is [character(4) :: '.h5', '.nc', '.dat']
+!! if file not found, empty character is returned
+
+character(*), intent(in) :: path
+character(*), intent(in), optional :: name, suffixes(:)
+character(:), allocatable :: get_filename
+end function
+end interface
+
+
+interface !< io.f90
+
+module function read_text(filename, max_length)
+!! read text file
+character(*), intent(in) :: filename
+character(:), allocatable :: read_text
+integer, optional :: max_length
+end function
+
+module subroutine write_text(filename, text)
+!! create or overwrite file with text
+character(*), intent(in) :: filename, text
+end subroutine
 
 end interface
 
 
 contains
+
+subroutine destructor(self)
+type(path_t), intent(inout) :: self
+if(allocated(self%path_str)) deallocate(self%path_str)
+end subroutine destructor
 
 !! non-functional API
 
@@ -397,89 +402,97 @@ end function get_path
 
 !> one-liner methods calling actual procedures
 
-function fs_relative_to(self, other)
+function f_as_posix(self) result(r)
+!! force Posix "/" file separator
+class(path_t), intent(in) :: self
+type(path_t) :: r
+r%path_str = as_posix(self%path_str)
+end function
+
+function f_as_windows(self) result(r)
+!! force Windows "\" file separator
+class(path_t), intent(in) :: self
+type(path_t) :: r
+r%path_str = as_windows(self%path_str)
+end function
+
+function f_relative_to(self, other) result(r)
 !! returns other relative to self
 class(path_t), intent(in) :: self
 character(*), intent(in) :: other
-character(:), allocatable :: fs_relative_to
+character(:), allocatable :: r
 
-fs_relative_to = relative_to(self%path_str, other)
+r = relative_to(self%path_str, other)
 end function
 
 
-function fs_stem(self)
+function f_stem(self) result(r)
 class(path_t), intent(in) :: self
-character(:), allocatable :: fs_stem
-
-fs_stem = stem(self%path_str)
+character(:), allocatable :: r
+r = stem(self%path_str)
 end function
 
 
-function fs_suffix(self)
+function f_suffix(self) result(r)
 !! extracts path suffix, including the final "." dot
 class(path_t), intent(in) :: self
-character(:), allocatable :: fs_suffix
-
-fs_suffix = suffix(self%path_str)
+character(:), allocatable :: r
+r = suffix(self%path_str)
 end function
 
 
-function fs_file_name(self)
+function f_file_name(self) result (r)
 !! returns file name without path
 class(path_t), intent(in) :: self
-character(:), allocatable :: fs_file_name
-
-fs_file_name = file_name(self%path_str)
+character(:), allocatable :: r
+r = file_name(self%path_str)
 end function
 
 
-function fs_parent(self)
+function f_parent(self) result(r)
 !! returns parent directory of path
 class(path_t), intent(in) :: self
-character(:), allocatable :: fs_parent
-
-fs_parent = parent(self%path_str)
+character(:), allocatable :: r
+r = parent(self%path_str)
 end function
 
 
-logical function fs_is_absolute(self)
+logical function f_is_absolute(self) result(r)
 !! is path absolute
 !! do NOT expanduser() to be consistent with Python etc. filesystem
 class(path_t), intent(in) :: self
-
-fs_is_absolute = is_absolute(self%path_str)
+r = is_absolute(self%path_str)
 end function
 
 
-function fs_with_suffix(self, new)
+function f_with_suffix(self, new) result(r)
 !! replace file suffix with new suffix
 class(path_t), intent(in) :: self
-type(path_t) :: fs_with_suffix
+type(path_t) :: r
 character(*), intent(in) :: new
-
-fs_with_suffix%path_str = with_suffix(self%path_str, new)
+r%path_str = with_suffix(self%path_str, new)
 end function
 
-function fs_normal(self)
+function f_normal(self) result(r)
 !! lexically normalize path
 class(path_t), intent(in) :: self
-type(path_t) :: fs_normal
-fs_normal%path_str = normal(self%path_str)
+type(path_t) :: r
+r%path_str = normal(self%path_str)
 end function
 
-function fs_root(self)
+function f_root(self) result(r)
 !! returns root of path
 class(path_t), intent(in) :: self
-character(:), allocatable :: fs_root
-fs_root = root(self%path_str)
+character(:), allocatable :: r
+r = root(self%path_str)
 end function
 
-function fs_join(self, other)
+function f_join(self, other) result(r)
 !! returns path_t object with other appended to self using posix separator
-type(path_t) :: fs_join
+type(path_t) :: r
 class(path_t), intent(in) :: self
 character(*), intent(in) :: other
-fs_join%path_str = join(self%path_str, other)
+r%path_str = join(self%path_str, other)
 end function
 
 
@@ -490,38 +503,38 @@ call remove(self%path_str)
 end subroutine
 
 
-logical function fs_exists(self)
+logical function f_exists(self) result(r)
 class(path_t), intent(in) :: self
-fs_exists = exists(self%path_str)
+r = exists(self%path_str)
 end function
 
 
-function fs_resolve(self)
+function f_resolve(self) result(r)
 class(path_t), intent(in) :: self
-type(path_t) :: fs_resolve
-fs_resolve%path_str = canonical(self%path_str)
+type(path_t) :: r
+r%path_str = canonical(self%path_str)
 end function
 
 
-logical function fs_same_file(self, other)
+logical function f_same_file(self, other) result(r)
 class(path_t), intent(in) :: self, other
-fs_same_file = same_file(self%path_str, other%path_str)
+r = same_file(self%path_str, other%path_str)
 end function
 
 
-logical function fs_is_dir(self)
+logical function f_is_dir(self) result(r)
 class(path_t), intent(in) :: self
-fs_is_dir = is_dir(self%path_str)
+r = is_dir(self%path_str)
 end function
 
 
-logical function fs_is_symlink(self)
+logical function f_is_symlink(self) result(r)
 class(path_t), intent(in) :: self
-fs_is_symlink = is_symlink(self%path_str)
+r = is_symlink(self%path_str)
 end function
 
 
-subroutine fs_create_symlink(self, link, status)
+subroutine f_create_symlink(self, link, status)
 class(path_t), intent(in) :: self
 character(*), intent(in) :: link
 integer, intent(out), optional :: status
@@ -529,31 +542,31 @@ call create_symlink(self%path_str, link, status)
 end subroutine
 
 
-logical function fs_is_file(self)
+logical function f_is_file(self) result(r)
 class(path_t), intent(in) :: self
-fs_is_file = is_file(self%path_str)
+r = is_file(self%path_str)
 end function
 
-integer(int64) function fs_file_size(self)
+integer(int64) function f_file_size(self) result(r)
 class(path_t), intent(in) :: self
-fs_file_size = file_size(self%path_str)
-end function
-
-
-logical function fs_is_exe(self)
-class(path_t), intent(in) :: self
-fs_is_exe = is_exe(self%path_str)
+r = file_size(self%path_str)
 end function
 
 
-subroutine fs_mkdir(self)
+logical function f_is_exe(self) result(r)
+class(path_t), intent(in) :: self
+r = is_exe(self%path_str)
+end function
+
+
+subroutine f_mkdir(self)
 !! create a directory, with parents if needed
 class(path_t), intent(in) :: self
 call mkdir(self%path_str)
 end subroutine
 
 
-subroutine fs_copy_file(self, dest, overwrite)
+subroutine f_copy_file(self, dest, overwrite)
 !! copy file from source to destination
 !! OVERWRITES existing destination files
 class(path_t), intent(in) :: self
@@ -563,12 +576,12 @@ call copy_file(self%path_str, dest, overwrite)
 end subroutine
 
 
-function fs_expanduser(self)
+function f_expanduser(self) result(r)
 !! resolve home directory as Fortran does not understand tilde
 !! works for Linux, Mac, Windows, etc.
 class(path_t), intent(in) :: self
-type(path_t) :: fs_expanduser
-fs_expanduser%path_str = expanduser(self%path_str)
+type(path_t) :: r
+r%path_str = expanduser(self%path_str)
 end function
 
 
@@ -588,7 +601,7 @@ error stop 'filesystem:assert_is_dir: directory does not exist ' // path
 end subroutine
 
 
-subroutine fs_touch(self)
+subroutine f_touch(self)
 class(path_t), intent(in) :: self
 call touch(self%path_str)
 end subroutine
@@ -618,13 +631,13 @@ length = len_trim(self%path_str)
 end function
 
 
-subroutine fs_chmod_exe(self)
+subroutine f_chmod_exe(self)
 class(path_t), intent(in) :: self
 call chmod_exe(self%path_str)
 end subroutine
 
 
-subroutine fs_chmod_no_exe(self)
+subroutine f_chmod_no_exe(self)
 class(path_t), intent(in) :: self
 call chmod_no_exe(self%path_str)
 end subroutine

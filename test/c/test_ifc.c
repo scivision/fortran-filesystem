@@ -17,7 +17,7 @@ int main(void) {
   char fpath[MAXP];
   char cpath[MAXP];
 
-  get_cwd(fpath);
+  fs_get_cwd(fpath, MAXP);
   printf("Fortran: current working dir %s\n", fpath);
 
 #ifdef _MSC_VER
@@ -28,7 +28,7 @@ int main(void) {
     return EXIT_FAILURE;
 #endif
 
-  normal(cpath, cpath);
+  fs_normal(cpath, cpath, MAXP);
 
   if (strcmp(fpath, cpath) != 0) {
     fprintf(stderr, "C cwd %s != Fortran cwd %s\n", cpath, fpath);

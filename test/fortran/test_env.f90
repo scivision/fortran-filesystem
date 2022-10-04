@@ -1,8 +1,7 @@
-program test_cpp_fs
-!! test methods from C++ filesystem
+program test_env
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use filesystem, only : path_t, get_cwd, exists, sys_posix, get_tempdir, get_homedir
+use filesystem, only : path_t, get_cwd, exists, get_tempdir, get_homedir
 
 implicit none
 
@@ -10,12 +9,12 @@ call test_exists()
 print *, "OK fs: exists"
 
 if (len_trim(get_homedir()) == 0) error stop "get_homedir failed"
-print *, "OK: get_homedir"
+print *, "OK: get_homedir: " // get_homedir()
 
 if (len_trim(get_tempdir()) == 0) then
   write(stderr,*) "get_tempdir failed"
 else
-  print *, "OK: get_tempdir"
+  print *, "OK: get_tempdir: " // get_tempdir()
 endif
 
 contains

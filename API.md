@@ -121,6 +121,24 @@ call create_symlink(target, link)
 These methods emit a new "path_t" object.
 It can be a new path_t object, or reassign to the existing path_t object.
 
+Force file separators (if any) to Posix "/"
+
+```fortran
+p = path_t('my\path')
+p = p%as_posix()
+
+! my/path
+```
+
+Force file separators (if any) to Windows "\"
+
+```fortran
+p = path_t('my/path')
+p = p%as_windows()
+
+! my\path
+```
+
 Expand home directory, swapping file separators "\" for "/" and drop redundant file separators "//".
 
 ```fortran
@@ -302,6 +320,20 @@ These procedures emit a string.
 
 ---
 
+Force file separators (if any) to Posix "/"
+
+```fortran
+as_posix('my\path')
+! my/path
+```
+
+Force file separators (if any) to Windows "\"
+
+```fortran
+as_windows('my/path')
+! my\path
+```
+
 Join path_t with other path string using posix separators.
 The paths are treated like strings.
 No path resolution is used, so non-sensical paths are possible for non-sensical input.
@@ -401,27 +433,28 @@ text = read_text(filename)
 
 ## System
 
+Is Ffilesystem using C or C++ filesystem backend:
+
+```fortran
+logical :: as_cpp()
+```
+
 Filessystem file separator:
 
 ```fortran
-character :: sep
-sep = filesep()
+character :: filesep()
 ```
 
 Get home directory, or empty string if not found
 
 ```fortran
-character(:), allocatable :: home
-
-home = get_homedir()
+character(:), allocatable :: get_homedir()
 ```
 
 Get full path of main executable, regardless of current working directory
 
 ```fortran
-character(:), allocatable :: exe
-
-exe = exe_path()
+character(:), allocatable :: exe_path()
 ```
 
 Get full path of **SHARED LIBRARY**, regardless of current working directory.
@@ -429,44 +462,19 @@ If static library, works like exe_path().
 To use `lib_path()`, build Ffilesystem with `cmake -DBUILD_SHARED_LIBS=on`
 
 ```fortran
-character(:), allocatable :: bin
-
-bin = lib_path()
+character(:), allocatable :: lib_path()
 ```
 
 Get current working directory
 
 ```fortran
-use filesystem, only : get_cwd
-
-character(:), allocatable :: cur
-
-cur = get_cwd()
+character(:), allocatable :: get_cwd()
 ```
 
 Get system temporary directory:
 
 ```fortran
-character(:), allocatable :: get_tempdir
-```
-
-Find a file "name" under "path"
-
-```fortran
-use filesystem, only : get_filename
-
-function get_filename(path, name, suffixes)
-!! given a path, stem and vector of suffixes, find the full filename
-!! assumes:
-!! * if present, "name" is the file name we wish to find (without suffix or directories)
-!! * if name not present, "path" is the directory + filename without suffix
-!!
-!! suffixes is a vector of suffixes to check. Default is [character(4) :: '.h5', '.nc', '.dat']
-!! if file not found, empty character is returned
-
-character(*), intent(in) :: path
-character(*), intent(in), optional :: name, suffixes(:)
-character(:), allocatable :: get_filename
+character(:), allocatable :: get_tempdir()
 ```
 
 Make a path absolute if relative:
@@ -482,11 +490,6 @@ character(:), allocatable :: make_absolute
 character(*), intent(in) :: path, top_path
 ```
 
-Tell if system is POSIX-like (MacOS, Unix, Linux, BSD, ...) or not (Windows)
-
-```fortran
-pure logical function sys_posix()
-```
 
 ```fortran
 ! logical based on C++ preprocessor
