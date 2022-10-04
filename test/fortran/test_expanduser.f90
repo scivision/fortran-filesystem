@@ -5,11 +5,12 @@ use filesystem, only : path_t, expanduser, get_homedir
 
 implicit none
 
-type(path_t) :: p2, p3
 
 if(expanduser("") /= "") error stop "expanduser blank failed"
 if(expanduser(".") /= ".") error stop "expanduser dot failed: " // expanduser(".")
 
+block
+type(path_t) :: p2, p3
 
 p2 = path_t("~")
 p2 = p2%expanduser()
@@ -31,7 +32,7 @@ endif
 
 if (expanduser("~//") /= expanduser("~/")) error stop "expanduser double separator failed: " // &
    expanduser("~//") // " /= " // expanduser("~/")
-
+end block
 print *, "OK: filesystem: expanduser"
 
 end program

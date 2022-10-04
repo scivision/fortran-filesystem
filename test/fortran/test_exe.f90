@@ -4,9 +4,11 @@ use filesystem, only : path_t, is_exe
 
 implicit none
 
-type(path_t) :: p1, p2
 
 character(*), parameter :: exe_name = "dummy.exe", noexe_name = "dummy.no.exe"
+
+block
+type(path_t) :: p1, p2
 
 if(is_exe("")) error stop "is_ext('') should be false"
 
@@ -27,6 +29,7 @@ call p2%touch()
 call p2%chmod_no_exe()
 if(.not. p2%is_file()) error stop "test_executable: " // noexe_name // " is not a file."
 if (p1%is_exe()) error stop "did not detect non-executable file."
+end block
 
 print *, "OK: filesystem: executable"
 

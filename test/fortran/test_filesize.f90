@@ -5,16 +5,16 @@ use filesystem, only : path_t, file_size
 implicit none
 
 integer :: u, d(10)
-type(path_t) :: p1
-character(:), allocatable :: iwa
+character(*), parameter :: fn = "test_size.bin"
 
-iwa = "test_size.bin"
+block
+type(path_t) :: p1
 
 d = 0
 
-p1 = path_t(iwa)
+p1 = path_t(fn)
 
-open(newunit=u, file=iwa, status="replace", action="write", access="stream")
+open(newunit=u, file=fn, status="replace", action="write", access="stream")
 ! writing text made OS-specific newlines that could not be suppressed
 write(u) d
 close(u)
@@ -29,5 +29,8 @@ if (file_size(p1%parent()) > 0) error stop "directory has no file size"
 if (file_size("not-existing-file") > 0) error stop "size of non-existing file"
 
 if(file_size("") > 0) error stop "size of empty file"
+end block
+
+print *, "OK: file_size"
 
 end program

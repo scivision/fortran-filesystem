@@ -75,9 +75,12 @@ procedure, public :: write_text=>fs_write_text
 procedure, public :: chmod_exe=>f_chmod_exe
 procedure, public :: chmod_no_exe=>f_chmod_no_exe
 
+final :: destructor
+
 end type path_t
 
 interface path_t
+!! constructor
   module procedure set_path
 end interface
 
@@ -358,6 +361,11 @@ end interface
 
 
 contains
+
+subroutine destructor(self)
+type(path_t), intent(inout) :: self
+if(allocated(self%path_str)) deallocate(self%path_str)
+end subroutine destructor
 
 !! non-functional API
 
