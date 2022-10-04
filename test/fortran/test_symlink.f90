@@ -6,6 +6,8 @@ use filesystem, only : path_t, is_symlink, is_file, is_dir, parent, create_symli
 implicit none
 
 integer :: i, L
+
+block
 type(path_t) :: p_sym, p_tgt
 character(1000) :: buf
 
@@ -67,6 +69,7 @@ if(.not. is_dir(link_dir)) error stop "is_dir() should be true for existing regu
 
 if(.not. is_symlink(link_dir)) error stop "is_symlink() should be true for symlink dir: " // link_dir
 if(.not. is_dir(link_dir)) error stop "is_dir() should be true for existing symlink dir: " // link_dir
+end block
 
 print *, "OK: filesystem symbolic links"
 
