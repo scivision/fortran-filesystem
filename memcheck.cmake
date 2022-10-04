@@ -12,27 +12,36 @@ set(CTEST_TEST_TIMEOUT 60)
 # takes effect only if test property TIMEOUT is not set
 
 if(NOT DEFINED CTEST_MEMORYCHECK_TYPE)
-  foreach(c valgrind drmemory)
-    find_program(${c}_exe NAMES ${c}
-    HINTS ${MEMCHECK_ROOT}
-    PATH_SUFFIXES bin64 bin
-    )
-    if(${c}_exe)
-      set(CTEST_MEMORYCHECK_COMMAND ${${c}_exe})
-      break()
-    endif()
-  endforeach()
-endif()
-
-if(CTEST_MEMORYCHECK_COMMAND MATCHES "drmemory")
-  set(CTEST_MEMORYCHECK_TYPE "DrMemory")
-  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "-light -count_leaks")
-elseif(CTEST_MEMORYCHECK_COMMAND MATCHES "valgrind")
   set(CTEST_MEMORYCHECK_TYPE "Valgrind")
 endif()
 
-if(NOT CTEST_MEMORYCHECK_COMMAND)
-  message(FATAL_ERROR "No memory checker found")
+if(CTEST_MEMORYCHECK_TYPE STREQUAL "Valgrind")
+  find_program(exe NAMES valgrind HINTS ${MEMCHECK_ROOT} PATH_SUFFIXES bin REQUIRED)
+  set(CTEST_MEMORYCHECK_COMMAND ${exe})
+elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "DrMemory")
+  find_program(exe NAMES drmemory HINTS ${MEMCHECK_ROOT} PATH_SUFFIXES bin64 bin REQUIRED)
+  set(CTEST_MEMORYCHECK_COMMAND ${exe})
+  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "-light -count_leaks")
+elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "AddressSanitizer")
+  set(check_flags -fsanitize=address)
+elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "LeakSanitizer")
+  set(check_flags -fsanitize=leak)
+elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "MemorySanitizer")
+  set(check_flags -fsanitize=memory)
+elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "ThreadSanitizer")
+  set(check_flags -fsanitize=thread)
+elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "UndefinedBehaviorSanitizer")
+  set(check_flags -fsanitize=undefined)
+else()
+  message(FATAL_ERROR "Unknown memory checker type: ${CTEST_MEMORYCHECK_TYPE}")
+endif()
+
+if(CMAKE_C_FLAGS_DEBUG)
+  list(APPEND opts
+  -DCMAKE_C_FLAGS_DEBUG=${check_flags}
+  -DCMAKE_CXX_FLAGS_DEBUG=${check_flags}
+  -DCMAKE_EXE_LINKER_FLAGS_INIT=${check_flags}
+  )
 endif()
 
 set(CTEST_SOURCE_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
