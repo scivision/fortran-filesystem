@@ -38,13 +38,19 @@ size_t fs_exe_path(char* path, size_t buffer_size){
   return GetModuleFileName(NULL, path, (DWORD)buffer_size);
 #elif defined(__linux__)
   // https://man7.org/linux/man-pages/man2/readlink.2.html
-  if (readlink("/proc/self/exe", path, buffer_size) == -1)
+  size_t L = readlink("/proc/self/exe", path, buffer_size);
+  if (L <= 0){
+    path = NULL;
     return 0;
+  }
+  path[L] = '\0';
 #elif defined(__APPLE__)
   char buf[buffer_size];
   uint32_t mp = sizeof(buf);
-  if (_NSGetExecutablePath(buf, &mp) != 0)
+  if (_NSGetExecutablePath(buf, &mp) != 0){
+    path = NULL;
     return 0;
+  }
   if(realpath(buf, path) == NULL)
     return 0;
 #elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
@@ -57,15 +63,18 @@ size_t fs_exe_path(char* path, size_t buffer_size){
   size_t cb = sizeof(buf);
 
   if(sysctl(mib, 4, buf, &cb, NULL, 0) != 0){
+    path = NULL;
     free(buf);
     return 0;
   }
   if(realpath(buf, path) == NULL){
+    path = NULL;
     free(buf);
     return 0;
   }
   free(buf);
 #else
+  path = NULL;
   return 0;
 #endif
 
@@ -90,8 +99,7 @@ size_t fs_lib_path(char* path, size_t buffer_size){
   }
 #endif
 
-  (void)buffer_size;
-  (void)path;
-  return 0;
+  path[0] = '\0';
+  return 0*buffer_size;
 
 }

@@ -8,7 +8,6 @@ add_test(NAME CPP_interface COMMAND test_cpp_ifc)
 # --- props
 get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
 set_property(TEST ${test_names} PROPERTY RUN_SERIAL true)
-set_property(TEST ${test_names} PROPERTY TIMEOUT 15)
 # tests run much faster in serial, especially on Windows
 
 # --- Windows shared DLLs

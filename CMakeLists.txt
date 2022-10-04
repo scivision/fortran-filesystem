@@ -130,3 +130,10 @@ if(BUILD_TESTING)
 endif()
 
 include(cmake/install.cmake)
+
+include(FeatureSummary)
+
+add_feature_info(Fortran fortran "Fortran bindings")
+add_feature_info(CXX_FILESYSTEM HAVE_CXX_FILESYSTEM "C++17 filesystem")
+
+feature_summary(WHAT ALL)
