@@ -43,8 +43,8 @@ if(destination == NULL || strlen(destination) == 0) {
 
   char* s = (char*) malloc(strlen(source) + 1);
   char* d = (char*) malloc(strlen(destination) + 1);
-  strcpy(s, source);
-  strcpy(d, destination);
+  strcpy(s, source);  // NOLINT(clang-analyzer-security.insecureAPI.strcpy)
+  strcpy(d, destination);  // NOLINT(clang-analyzer-security.insecureAPI.strcpy)
 
   char *const args[4] = {"cp", s, d, NULL};
 
@@ -71,7 +71,7 @@ int fs_create_directories(const char* path) {
     return 0;
 
   char* p = (char*) malloc(strlen(path) + 1);
-  strcpy(p, path);
+  strcpy(p, path); // NOLINT(clang-analyzer-security.insecureAPI.strcpy)
 #ifdef _WIN32
   fs_as_windows(p);
 #endif

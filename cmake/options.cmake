@@ -5,6 +5,7 @@ option(fortran "use the Fortran interaces to C functions" on)
 option(cli "Build CLI" on)
 
 option(coverage "Code coverage tests")
+option(tidy "Run clang-tidy on the code")
 
 
 include(GNUInstallDirs)

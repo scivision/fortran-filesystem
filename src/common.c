@@ -81,7 +81,7 @@ size_t fs_make_absolute(const char* path, const char* top_path, char* result, si
 
   char* buf2 = (char*) malloc(buffer_size);
   L1 = fs_join(buf, result, buf2, buffer_size);
-  strncpy(result, buf2, buffer_size);
+  strncpy(result, buf2, buffer_size);  // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
   result[L1] = '\0';
   free(buf);
   free(buf2);

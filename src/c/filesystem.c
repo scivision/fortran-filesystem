@@ -21,6 +21,7 @@
 #include "ffilesystem.h"
 #include "cwalk.h"
 
+// NOLINTBEGIN(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,clang-analyzer-security.insecureAPI.strcpy)
 
 bool fs_cpp(){
 // tell if fs core is C or C++
@@ -534,3 +535,5 @@ bool fs_touch(const char* path) {
 
   return fs_is_file(path);
 }
+
+// NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,clang-analyzer-security.insecureAPI.strcpy)

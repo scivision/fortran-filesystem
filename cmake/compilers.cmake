@@ -144,3 +144,10 @@ if(coverage)
   append_coverage_compiler_flags()
   set(COVERAGE_EXCLUDES ${PROJECT_SOURCE_DIR}/src/tests)
 endif()
+
+# --- clang-tidy
+if(tidy)
+  find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
+  set(CMAKE_C_CLANG_TIDY ${CLANG_TIDY_EXE})
+  set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_EXE})
+endif()

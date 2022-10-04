@@ -93,7 +93,7 @@ size_t fs_lib_path(char* path, size_t buffer_size){
 
   if (dladdr( (void*)&dl_dummy_func, &info) != 0)
   {
-    strncpy(path, info.dli_fname, buffer_size);
+    strncpy(path, info.dli_fname, buffer_size); // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
     path[strlen(path)] = '\0';
     return strlen(path);
   }

@@ -16,7 +16,7 @@ int main(void){
   }
 
   L = fs_expanduser(".", r, MAXP);
-  if (strcmp(r, ".") != 0){
+  if (L != 1 || strcmp(r, ".") != 0){
     fprintf(stderr, "expanduser dot failed: %s\n", r);
     return 1;
   }
