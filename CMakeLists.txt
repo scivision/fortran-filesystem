@@ -86,8 +86,6 @@ target_link_libraries(ffilesystem
 INTERFACE
 ${GNU_stdfs}
 $<$<BOOL:${HAVE_DLADDR}>:${CMAKE_DL_LIBS}>
-PRIVATE
-$<$<BOOL:${WIN32}>:Shlwapi>
 )
 
 if(fortran)

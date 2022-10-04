@@ -16,6 +16,7 @@ if(NOT DEFINED CTEST_MEMORYCHECK_TYPE)
 endif()
 
 if(CTEST_MEMORYCHECK_TYPE STREQUAL "Valgrind")
+  # https://www.cprogramming.com/debugging/valgrind.html
   find_program(exe NAMES valgrind HINTS ${MEMCHECK_ROOT} PATH_SUFFIXES bin REQUIRED)
   set(CTEST_MEMORYCHECK_COMMAND ${exe})
 elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "DrMemory")
@@ -36,7 +37,7 @@ else()
   message(FATAL_ERROR "Unknown memory checker type: ${CTEST_MEMORYCHECK_TYPE}")
 endif()
 
-if(CMAKE_C_FLAGS_DEBUG)
+if(check_flags)
   list(APPEND opts
   -DCMAKE_C_FLAGS_DEBUG=${check_flags}
   -DCMAKE_CXX_FLAGS_DEBUG=${check_flags}
