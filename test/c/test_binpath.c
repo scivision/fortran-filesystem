@@ -20,7 +20,7 @@ int test_exe_path(void){
 
 int test_lib_path(int argc, char* argv[]){
 
-  char binpath[MAXP];
+  char binpath[MAXP], bindir[MAXP], p[MAXP];
 
   if(argc != 2){
     fprintf(stderr, "need argument 0 for static or 1 for shared.  Got: %s\n", argv[1]);
@@ -30,10 +30,11 @@ int test_lib_path(int argc, char* argv[]){
   int shared = atoi(argv[1]);
 
   size_t L = fs_lib_path(binpath, MAXP);
+  size_t L2 = fs_lib_dir(bindir, MAXP);
 
   if(!shared) {
-    if (L != 0){
-      fprintf(stderr, "ERROR:test_binpath: lib_path should be empty length 0: %s %ju\n", binpath, L);
+    if (L != 0 || L2 != 0) {
+      fprintf(stderr, "ERROR:test_binpath: lib_path and lib_dir should be empty length 0: %s %ju\n", binpath, L);
       return 1;
     }
     printf("SKIPPED: lib_path: due to static library\n");
@@ -53,7 +54,15 @@ int test_lib_path(int argc, char* argv[]){
     return 1;
   }
 
+  fs_parent(binpath, p, MAXP);
+
+  if(!fs_equivalent(bindir, p)){
+    fprintf(stderr, "ERROR:test_binpath: lib_dir and parent(lib_path) should be equivalent: %s %s\n", bindir, p);
+    return 1;
+  }
+
   printf("OK: lib_path: %s\n", binpath);
+  printf("OK: lib_dir: %s\n", bindir);
   return 0;
 }
 

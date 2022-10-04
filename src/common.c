@@ -87,3 +87,17 @@ size_t fs_make_absolute(const char* path, const char* top_path, char* result, si
   free(buf2);
   return L1;
 }
+
+
+size_t fs_lib_dir(char* path, size_t buffer_size){
+
+  char* buf = (char*) malloc(buffer_size);
+
+  fs_lib_path(buf, buffer_size);
+
+  size_t L = fs_parent(buf, path, buffer_size);
+
+  free(buf);
+  return L;
+
+}

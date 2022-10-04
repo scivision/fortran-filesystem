@@ -22,7 +22,7 @@ touch, create_symlink, &
 remove, get_tempdir, filesep, &
 chmod_exe, chmod_no_exe, &
 fs_cpp, is_macos, is_windows, is_linux, is_unix, &
-get_max_path, exe_path, lib_path
+get_max_path, exe_path, lib_path, lib_dir
 !! functional API
 
 !! Maximum path length is dynamically determined for this computer.
@@ -284,8 +284,13 @@ character(:), allocatable :: exe_path
 end function
 
 module function lib_path()
-!! get full path of shared library, or main executable if static
+!! get full path of shared library. Empty if not shared library.
 character(:), allocatable :: lib_path
+end function
+
+module function lib_dir() result(r)
+!! get directory containing shared library. Empty if not shared library.
+character(:), allocatable :: r
 end function
 
 module logical function exists(path)
