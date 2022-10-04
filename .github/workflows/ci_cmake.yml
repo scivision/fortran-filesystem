@@ -139,6 +139,10 @@ jobs:
     needs: linux-gcc
     timeout-minutes: 10
 
+    strategy:
+      matrix:
+        cpp: [true, false]
+
     steps:
     - uses: actions/checkout@v3
 
@@ -147,11 +151,7 @@ jobs:
         sudo apt update
         sudo apt install --no-install-recommends valgrind
 
-    - run: cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug
-    - run: cmake --build build --parallel
-
-    - name: Memory leak check
-      run: ctest -T memcheck --test-dir build -V
+    - run: ctest -Dopts="-Dcpp:BOOL=${{ matrix.cpp }}" -S memcheck.cmake -V
 
 
 # disabled coverage due to broken Jinja import
