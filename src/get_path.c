@@ -7,11 +7,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-#ifndef FS_DLL_NAME
-#define FS_DLL_NAME NULL
-#warning "FS_DLL_NAME not defined, using NULL -- this will work like fs_exe_path()"
-#endif
-
 #else
 #include <unistd.h>
 
@@ -26,7 +21,6 @@ static void dl_dummy_func() {}
 #elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 #include <sys/sysctl.h>
 #endif
-
 
 
 size_t fs_exe_path(char* path, size_t buffer_size){
@@ -85,7 +79,7 @@ size_t fs_exe_path(char* path, size_t buffer_size){
 
 size_t fs_lib_path(char* path, size_t buffer_size){
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(FS_DLL_NAME)
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
   return GetModuleFileName(GetModuleHandle(FS_DLL_NAME), path, (DWORD)buffer_size);
 #elif defined(HAVE_DLADDR)

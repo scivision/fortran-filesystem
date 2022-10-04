@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15...3.25)
 
 project(ffilesystem
 LANGUAGES C
-VERSION 4.0.0
+VERSION 4.1.0
 )
 
 include(CTest) # needed for "ctest -T memcheck"
@@ -23,11 +23,13 @@ include(cmake/compilers.cmake)
 add_library(get_path OBJECT src/get_path.c)
 target_include_directories(get_path PRIVATE include)
 target_compile_definitions(get_path PRIVATE _GNU_SOURCE)
-if(WIN32)
-  target_compile_definitions(get_path PRIVATE FS_DLL_NAME="$<TARGET_FILE_NAME:ffilesystem>")
-elseif(HAVE_DLADDR)
-  target_link_libraries(get_path PRIVATE ${CMAKE_DL_LIBS})
-  target_compile_definitions(get_path PRIVATE HAVE_DLADDR)
+if(BUILD_SHARED_LIBS)
+  if(WIN32)
+    target_compile_definitions(get_path PRIVATE FS_DLL_NAME="$<TARGET_FILE_NAME:ffilesystem>")
+  elseif(HAVE_DLADDR)
+    target_link_libraries(get_path PRIVATE ${CMAKE_DL_LIBS})
+    target_compile_definitions(get_path PRIVATE HAVE_DLADDR)
+  endif()
 endif()
 
 # --- filesystem library

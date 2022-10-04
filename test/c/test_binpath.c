@@ -29,12 +29,16 @@ int test_lib_path(int argc, char* argv[]){
 
   int shared = atoi(argv[1]);
 
+  size_t L = fs_lib_path(binpath, MAXP);
+
   if(!shared) {
-    printf("SKIPPED: lib_path: static library\n");
+    if (L != 0){
+      fprintf(stderr, "ERROR:test_binpath: lib_path should be empty length 0: %s %ju\n", binpath, L);
+      return 1;
+    }
+    printf("SKIPPED: lib_path: due to static library\n");
     return 0;
   }
-
-  fs_lib_path(binpath, MAXP);
 
 #ifdef __APPLE__
 #define name "ffilesystem.dylib"

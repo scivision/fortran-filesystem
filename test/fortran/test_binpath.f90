@@ -39,12 +39,14 @@ if(i/=0) error stop "ERROR:test_binpath: get_command_argument failed"
 if(L/=1) error stop "ERROR:test_binpath: expected argument 0 for static or 1 for shared"
 shared = s == '1'
 
+binpath = lib_path()
+
 if(.not. shared) then
+  if (len(binpath) /= 0) error stop "ERROR:test_binpath: lib_path should be empty for static library: " // binpath
   print *, "SKIPPED: lib_path: static library"
   return
 endif
 
-binpath = lib_path()
 
 if (is_macos()) then
   name = 'ffilesystem.dylib'

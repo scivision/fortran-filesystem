@@ -31,10 +31,12 @@ endif()
 
 #--- is dladdr available for lib_path() optional function
 unset(CMAKE_REQUIRED_FLAGS)
-if(NOT WIN32)
+if(BUILD_SHARED_LIBS AND NOT WIN32)
   set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
   set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
   check_function_exists(dladdr HAVE_DLADDR)
+else()
+  unset(HAVE_DLADDR CACHE)
 endif()
 
 # --- some compilers require these manual settings
