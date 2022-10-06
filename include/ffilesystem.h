@@ -5,7 +5,11 @@
 #define TRACE 0
 
 #ifdef __cplusplus
+
+#include <cstdint>
+
 extern "C" {
+
 #else
 
 #include <stdbool.h>
@@ -45,10 +49,14 @@ extern "C" {
 #endif
 #endif
 
+#ifdef __cplusplus
+#define MAXP std::min(PMAX, PATH_LIMIT)
+#else
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 #define MAXP min(PMAX, PATH_LIMIT)
+#endif
 // end maximum path length
 
 extern bool fs_cpp();
