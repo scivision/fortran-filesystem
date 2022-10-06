@@ -60,6 +60,12 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+integer(C_SIZE_T) function fs_exe_dir(path, buffer_size) bind(C)
+import
+character(kind=C_CHAR), intent(out) :: path(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
 integer(C_SIZE_T) function fs_lib_dir(path, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(out) :: path(*)
@@ -300,6 +306,14 @@ elseif (ierr /= 0) then
 endif
 end procedure
 
+module procedure exe_dir
+character(kind=C_CHAR, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = fs_exe_dir(cbuf, len(cbuf, kind=C_SIZE_T))
+allocate(character(N) :: r)
+r = cbuf(:N)
+end procedure
 
 module procedure exists
 exists = fs_exists(trim(path) // C_NULL_CHAR)

@@ -1,7 +1,7 @@
 program test_binpath
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use filesystem, only : exe_path, lib_path, lib_dir, is_macos, is_windows, parent, same_file
+use filesystem, only : exe_path, exe_dir, lib_path, lib_dir, is_macos, is_windows, parent, same_file
 
 implicit none
 
@@ -15,14 +15,30 @@ contains
 
 subroutine test_exe_path()
 
-character(:), allocatable :: binpath
-integer :: i
+character(:), allocatable :: binpath, bindir
+integer :: i, L
+character(256) :: exe_name
+
+call get_command_argument(2, exe_name, length=L, status=i)
+if(i/=0) error stop "ERROR:test_binpath: get_command_argument failed"
+if(L<1) error stop "ERROR:test_binpath: expected exe_name as second argument"
 
 binpath = exe_path()
-i = index(binpath, 'test_binpath')
-if (i<1) error stop "ERROR:test_binpath: exe_path not found correctly: " // binpath
+bindir = exe_dir()
+
+i = index(binpath, trim(exe_name))
+if (i<1) then
+  write(stderr, '(a,i3)') "ERROR:test_binpath: exe_path not found correctly: " // binpath // " " // trim(exe_name), i
+  error stop
+endif
+
+if(.not. same_file(bindir, parent(binpath))) then
+  write(stderr, '(a)') "ERROR:test_binpath: exe_dir not found correctly: " // bindir // " " // parent(binpath)
+  error stop
+endif
 
 print *, "OK: exe_path: ", binpath
+print *, "OK: exe_dir: ", bindir
 end subroutine
 
 
@@ -32,8 +48,6 @@ character(:), allocatable :: binpath, bindir, name
 integer :: i, L
 character :: s
 logical :: shared
-
-if(command_argument_count() /= 1) error stop "need argument 0 for static or 1 for shared"
 
 call get_command_argument(1, s, length=L, status=i)
 if(i/=0) error stop "ERROR:test_binpath: get_command_argument failed"

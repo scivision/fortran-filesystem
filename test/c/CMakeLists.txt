@@ -10,7 +10,7 @@ add_test(NAME C_expanduser COMMAND test_expanduser_c)
 
 add_executable(test_binpath_c test_binpath.c)
 target_link_libraries(test_binpath_c PRIVATE ffilesystem)
-add_test(NAME binpath_c COMMAND test_binpath_c $<BOOL:${BUILD_SHARED_LIBS}>)
+add_test(NAME binpath_c COMMAND test_binpath_c $<BOOL:${BUILD_SHARED_LIBS}> $<TARGET_FILE_NAME:test_binpath_c>)
 
 # --- props
 

@@ -1,20 +1,34 @@
-#include "ffilesystem.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int test_exe_path(void){
+#include "ffilesystem.h"
 
-  char binpath[MAXP];
+
+int test_exe_path(char* argv[]){
+
+  char binpath[MAXP], bindir[MAXP], p[MAXP];
 
   fs_exe_path(binpath, MAXP);
-  if (!strstr(binpath, "test_binpath")) {
+  if (!strstr(binpath, argv[2])) {
     fprintf(stderr, "ERROR:test_binpath: exe_path not found correctly: %s\n", binpath);
     return 1;
   }
 
+  size_t L = fs_exe_dir(bindir, MAXP);
+  if(L == 0){
+    fprintf(stderr, "ERROR:test_binpath: exe_dir not found correctly: %s\n", bindir);
+    return 1;
+  }
+  fs_parent(binpath, p, MAXP);
+
+  if(!fs_equivalent(bindir, p)){
+    fprintf(stderr, "ERROR:test_binpath: exe_dir and parent(exe_path) should be equivalent: %s %s\n", bindir, p);
+    return 1;
+  }
+
   printf("OK: exe_path: %s\n", binpath);
+  printf("OK: exe_dir: %s\n", bindir);
   return 0;
 }
 
@@ -22,7 +36,7 @@ int test_lib_path(int argc, char* argv[]){
 
   char binpath[MAXP], bindir[MAXP], p[MAXP];
 
-  if(argc != 2){
+  if(argc < 2){
     fprintf(stderr, "need argument 0 for static or 1 for shared.  Got: %s\n", argv[1]);
     return 1;
   }
@@ -68,7 +82,7 @@ int test_lib_path(int argc, char* argv[]){
 
 int main(int argc, char* argv[]){
 
-  int i = test_exe_path();
+  int i = test_exe_path(argv);
 
   i += test_lib_path(argc, argv);
 

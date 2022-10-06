@@ -76,9 +76,11 @@ add_test(NAME Find COMMAND test_find)
 set_property(TEST Find PROPERTY FIXTURES_REQUIRED ops_fxt)
 
 # --- binpath
-add_executable(test_binpath test_binpath.f90)
-target_link_libraries(test_binpath PRIVATE ffilesystem)
-add_test(NAME Binpath COMMAND test_binpath $<BOOL:${BUILD_SHARED_LIBS}>)
+add_executable(test_binpath_fortran test_binpath.f90)
+target_link_libraries(test_binpath_fortran PRIVATE ffilesystem)
+add_test(NAME binpath_fortran
+COMMAND test_binpath_fortran $<BOOL:${BUILD_SHARED_LIBS}> $<TARGET_FILE_NAME:test_binpath_fortran>
+)
 
 
 # --- props

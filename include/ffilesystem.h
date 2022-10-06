@@ -114,6 +114,7 @@ extern size_t fs_expanduser(const char*, char*, size_t);
 extern uintmax_t fs_file_size(const char*);
 
 extern size_t fs_exe_path(char* path, size_t);
+extern size_t fs_exe_dir(char* path, size_t);
 extern size_t fs_lib_path(char* path, size_t);
 extern size_t fs_lib_dir(char* path, size_t);
 

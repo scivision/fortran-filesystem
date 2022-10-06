@@ -457,6 +457,12 @@ Get full path of main executable, regardless of current working directory
 character(:), allocatable :: exe_path()
 ```
 
+Get directory of main executable, regardless of current working directory.
+
+```fortran
+character(:), allocatable :: exe_dir()
+```
+
 Get full path of **SHARED LIBRARY**, regardless of current working directory.
 If static library, returns empty string.
 To use `lib_path()`, build Ffilesystem with `cmake -DBUILD_SHARED_LIBS=on`
