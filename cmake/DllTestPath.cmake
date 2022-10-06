@@ -1,18 +1,26 @@
 function(locate_dll loc dll_mod)
 
 foreach(l IN LISTS loc)
-cmake_path(GET l PARENT_PATH ll)
-if(IS_DIRECTORY ${ll})
-  list(APPEND dll_mod "PATH=path_list_append:${ll}")
-  set(${dll_mod} ${${dll_mod}} PARENT_SCOPE)
-
-  cmake_path(SET d NORMALIZE ${ll}/../bin)
-  # can't check bin/stem.dll as some libs add arbitrary stuff to stem
-  if(IS_DIRECTORY ${d})
-    list(APPEND dll_mod "PATH=path_list_append:${d}")
-    set(${dll_mod} ${${dll_mod}} PARENT_SCOPE)
+  cmake_path(GET l PARENT_PATH lp)
+  if(NOT lp)
+    # empty generator expression ${l}
+    return()
   endif()
-endif()
+
+  foreach(dl IN ITEMS ${lp} ${lp}/Release ${lp}/Debug)
+    message(DEBUG "Looking for ${dll_mod} in ${dl} from ${l} and ${lp}")
+    if(IS_DIRECTORY ${dl})
+      list(APPEND dll_mod "PATH=path_list_append:${dl}")
+      set(${dll_mod} ${${dll_mod}} PARENT_SCOPE)
+
+      cmake_path(SET d NORMALIZE ${dl}/../bin)
+      # can't check bin/stem.dll as some libs add arbitrary stuff to stem
+      if(IS_DIRECTORY ${d})
+        list(APPEND dll_mod "PATH=path_list_append:${d}")
+        set(${dll_mod} ${${dll_mod}} PARENT_SCOPE)
+      endif()
+    endif()
+  endforeach()
 endforeach()
 
 endfunction(locate_dll)
@@ -30,6 +38,12 @@ set(dll_mod)
 
 foreach(lib IN LISTS libs)
 
+  if(EXISTS ${lib})
+    message(DEBUG "${lib} exists as a file")
+    list(APPEND dll_mod "PATH=path_list_append:$<TARGET_FILE_DIR:${lib}>")
+    continue()
+  endif()
+
   if(NOT TARGET ${lib})
     message(VERBOSE "${lib} is not a target, skipping")
     continue()
@@ -43,23 +57,20 @@ foreach(lib IN LISTS libs)
     continue()
   endif()
 
-  foreach(t RELEASE RELWITHDEBINFO DEBUG NOCONFIG)
-    get_target_property(imploc ${lib} IMPORTED_LOCATION_${t})
+  # do not use LOCATION property, will error CMake config
+  foreach(t IMPORTED_LOCATION IMPORTED_LOCATION_RELEASE IMPORTED_LOCATION_RELWITHDEBINFO IMPORTED_LOCATION_DEBUG IMPORTED_LOCATION_NOCONFIG)
+    get_target_property(imploc ${lib} ${t})
     if(imploc)
-      break()
+      message(DEBUG "${lib} ${t} is ${imploc}")
+      locate_dll(${imploc} dll_mod)
     endif()
   endforeach()
 
   get_target_property(intloc ${lib} INTERFACE_LINK_LIBRARIES)
 
-  if(imploc)
-    locate_dll(${imploc} dll_mod)
-  elseif(intloc)
+  if(intloc)
+    message(DEBUG "${lib} INTERFACE_LINK_LIBRARIES is ${intloc}")
     locate_dll(${intloc} dll_mod)
-  elseif(EXISTS ${lib})
-    list(APPEND dll_mod "PATH=path_list_append:$<TARGET_FILE_DIR:${lib}>")
-  else()
-    message(DEBUG "did not find library for ${lib} for ${test_names}")
   endif()
 
 endforeach()

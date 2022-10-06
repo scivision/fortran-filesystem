@@ -1,3 +1,5 @@
+include(${PROJECT_SOURCE_DIR}/cmake/DllTestPath.cmake)
+
 # --- C  interface
 add_subdirectory(c)
 

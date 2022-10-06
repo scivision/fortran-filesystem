@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.15...3.25)
 
 project(ffilesystemExample
-LANGUAGES C CXX Fortran
+LANGUAGES C CXX
 )
 
 enable_testing()
+
+option(fortran "Build Fortran example" ON)
+
+if(fortran)
+  enable_language(Fortran)
+endif()
 
 find_package(ffilesystem CONFIG REQUIRED)
 
@@ -13,6 +19,8 @@ include(${PROJECT_SOURCE_DIR}/../cmake/DllTestPath.cmake)
 set(CMAKE_CXX_STANDARD 17)
 
 # --- Fortran use
+if(fortran)
+
 add_executable(ex_fortran ex1.f90)
 target_link_libraries(ex_fortran PRIVATE ffilesystem::filesystem)
 set_property(TARGET ex_fortran PROPERTY LINKER_LANGUAGE Fortran)
@@ -24,6 +32,8 @@ target_link_libraries(test_binpath_f PRIVATE ffilesystem::filesystem)
 add_test(NAME binpath_fortran
 COMMAND test_binpath_f $<BOOL:${ffilesystem_shared}> $<TARGET_FILE_NAME:test_binpath_f> $<TARGET_FILE_NAME:ffilesystem::filesystem>
 )
+
+endif(fortran)
 
 # --- C++ use
 add_executable(ex_cpp ex2.cpp)
@@ -52,7 +62,10 @@ COMMAND test_binpath_cpp $<BOOL:${ffilesystem_shared}> $<TARGET_FILE_NAME:test_b
 get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
 
 # --- Windows shared DLLs
-dll_test_path(ffilesystem::filesystem "${test_names}")
+if(WIN32 AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
+  dll_test_path(ffilesystem::filesystem "${test_names}")
+  set_property(TEST ${test_names} PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_append:$<TARGET_FILE_DIR:ffilesystem::filesystem>")
+endif()
 
 # --- auto-ignore build directory
 if(NOT EXISTS ${PROJECT_BINARY_DIR}/.gitignore)
