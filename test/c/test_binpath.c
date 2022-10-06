@@ -32,14 +32,9 @@ int test_exe_path(char* argv[]){
   return 0;
 }
 
-int test_lib_path(int argc, char* argv[]){
+int test_lib_path(char* argv[]){
 
   char binpath[MAXP], bindir[MAXP], p[MAXP];
-
-  if(argc < 2){
-    fprintf(stderr, "need argument 0 for static or 1 for shared.  Got: %s\n", argv[1]);
-    return 1;
-  }
 
   int shared = atoi(argv[1]);
 
@@ -55,23 +50,16 @@ int test_lib_path(int argc, char* argv[]){
     return 0;
   }
 
-#ifdef __APPLE__
-#define name "ffilesystem.dylib"
-#elif defined(_WIN32)
-#define name "ffilesystem.dll"
-#else
-#define name "libffilesystem.so"
-#endif
 
-  if(!strstr(binpath, name)){
-    fprintf(stderr, "ERROR:test_binpath: lib_path not found correctly: %s with name %s\n", binpath, name);
+  if(!strstr(binpath, argv[3])){
+    fprintf(stderr, "ERROR:test_binpath: lib_path not found correctly: %s\n", binpath);
     return 1;
   }
 
   fs_parent(binpath, p, MAXP);
 
   if(!fs_equivalent(bindir, p)){
-    fprintf(stderr, "ERROR:test_binpath: lib_dir and parent(lib_path) should be equivalent: %s %s\n", bindir, p);
+    fprintf(stderr, "ERROR:test_binpath_c: lib_dir and parent(lib_path) should be equivalent: %s %s\n", bindir, p);
     return 1;
   }
 
@@ -82,9 +70,14 @@ int test_lib_path(int argc, char* argv[]){
 
 int main(int argc, char* argv[]){
 
+  if (argc < 4) {
+    fprintf(stderr, "ERROR: test_binpath_c: not enough arguments\n");
+    return 1;
+  }
+
   int i = test_exe_path(argv);
 
-  i += test_lib_path(argc, argv);
+  i += test_lib_path(argv);
 
   return i;
 }

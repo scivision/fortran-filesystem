@@ -6,7 +6,9 @@ add_test(NAME CPP_interface COMMAND test_cpp_ifc)
 
 add_executable(test_binpath_cpp test_binpath.cpp)
 target_link_libraries(test_binpath_cpp PRIVATE ffilesystem)
-add_test(NAME binpath_cpp COMMAND test_binpath_cpp $<BOOL:${BUILD_SHARED_LIBS}> $<TARGET_FILE_NAME:test_binpath_cpp>)
+add_test(NAME binpath_cpp
+COMMAND test_binpath_cpp $<BOOL:${BUILD_SHARED_LIBS}> $<TARGET_FILE_NAME:test_binpath_cpp>  $<TARGET_FILE_NAME:ffilesystem>
+)
 
 
 # --- props

@@ -35,15 +35,9 @@ int test_exe_path(char* argv[]){
   return 0;
 }
 
-int test_lib_path(int argc, char* argv[]){
+int test_lib_path(char* argv[]){
 
   char binpath[MAXP], bindir[MAXP];
-
-  if(argc < 2){
-    std::cerr << "need argument 0 for static or 1 for shared.  Got: " << argv[1] << std::endl;
-    return 1;
-  }
-
   int shared = std::stoi(argv[1]);
 
   size_t L = fs_lib_path(binpath, MAXP);
@@ -58,18 +52,10 @@ int test_lib_path(int argc, char* argv[]){
     return 0;
   }
 
-#ifdef __APPLE__
-#define name "ffilesystem.dylib"
-#elif defined(_WIN32)
-#define name "ffilesystem.dll"
-#else
-#define name "libffilesystem.so"
-#endif
-
   std::string bp(binpath);
 
-  if(bp.find(name) == std::string::npos){
-    std::cerr << "ERROR:test_binpath: lib_path not found correctly: " << binpath << " with name " << name << std::endl;
+  if(bp.find(argv[3]) == std::string::npos){
+    std::cerr << "ERROR:test_binpath: lib_path not found correctly: " << binpath << std::endl;
     return 1;
   }
 
@@ -89,9 +75,14 @@ int test_lib_path(int argc, char* argv[]){
 
 int main(int argc, char* argv[]){
 
+  if (argc < 4) {
+    std::cerr << "ERROR: test_binpath_cpp: not enough arguments" << std::endl;
+    return 1;
+  }
+
   int i = test_exe_path(argv);
 
-  i += test_lib_path(argc, argv);
+  i += test_lib_path(argv);
 
   return i;
 }

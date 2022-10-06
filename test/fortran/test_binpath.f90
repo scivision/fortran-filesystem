@@ -20,7 +20,7 @@ integer :: i, L
 character(256) :: exe_name
 
 call get_command_argument(2, exe_name, length=L, status=i)
-if(i/=0) error stop "ERROR:test_binpath: get_command_argument failed"
+if(i/=0) error stop "ERROR:test_binpath:test_exe_path: get_command_argument failed"
 if(L<1) error stop "ERROR:test_binpath: expected exe_name as second argument"
 
 binpath = exe_path()
@@ -44,13 +44,14 @@ end subroutine
 
 subroutine test_lib_path()
 
-character(:), allocatable :: binpath, bindir, name
+character(:), allocatable :: binpath, bindir
+character(256) :: name
 integer :: i, L
 character :: s
 logical :: shared
 
 call get_command_argument(1, s, length=L, status=i)
-if(i/=0) error stop "ERROR:test_binpath: get_command_argument failed"
+if(i/=0) error stop "ERROR:test_binpath:test_lib_path: get_command_argument failed"
 if(L/=1) error stop "ERROR:test_binpath: expected argument 0 for static or 1 for shared"
 shared = s == '1'
 
@@ -64,17 +65,12 @@ if(.not. shared) then
   return
 endif
 
+call get_command_argument(3, name, length=L, status=i)
+if(i/=0) error stop "ERROR:test_binpath:test_lib_path: get_command_argument failed"
+if(L<1) error stop "ERROR:test_binpath: expected lib_name as third argument"
 
-if (is_macos()) then
-  name = 'ffilesystem.dylib'
-elseif(is_windows()) then
-  name = 'ffilesystem.dll'
-else
-  name = 'libffilesystem.so'
-endif
-
-i = index(binpath, name)
-if (i<1) error stop "ERROR:test_binpath: lib_path not found correctly: " // binpath // ' with name ' // name
+i = index(binpath, trim(name))
+if (i<1) error stop "ERROR:test_binpath: lib_path not found correctly: " // binpath // ' with name ' // trim(name)
 
 if(.not. same_file(parent(binpath), bindir)) then
   write(stderr,*) "ERROR:test_binpath: lib_dir not found correctly: " // parent(binpath) // ' /= ' // bindir
