@@ -43,12 +43,13 @@ jobs:
       FC: gfortran-${{ matrix.gcc-version }}
 
     steps:
-    - uses: actions/checkout@v3
 
     - name: install compilers
       run: |
         sudo apt update
         sudo apt install --no-install-recommends ninja-build gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }} gfortran-${{ matrix.gcc-version }}
+
+    - uses: actions/checkout@v3
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
@@ -98,12 +99,13 @@ jobs:
       FC: gfortran
 
     steps:
-    - uses: actions/checkout@v3
 
     - name: install compilers
       run: |
         sudo apt update
         sudo apt install --no-install-recommends ninja-build clang-${{ matrix.clang-version }}
+
+    - uses: actions/checkout@v3
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
@@ -144,12 +146,13 @@ jobs:
         cpp: [true, false]
 
     steps:
-    - uses: actions/checkout@v3
 
     - name: install valgrind
       run: |
         sudo apt update
         sudo apt install --no-install-recommends valgrind
+
+    - uses: actions/checkout@v3
 
     - run: ctest -Dopts="-Dcpp:BOOL=${{ matrix.cpp }}" -S memcheck.cmake -V
 
@@ -202,11 +205,12 @@ jobs:
       CXX: ${{ matrix.compiler.cpp }}
 
     steps:
-    - uses: actions/checkout@v3
 
     - run: |
         brew install ninja
         brew reinstall gcc
+
+    - uses: actions/checkout@v3
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-

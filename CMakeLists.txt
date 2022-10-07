@@ -44,7 +44,7 @@ set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
 if(fortran)
   target_sources(ffilesystem PRIVATE
   src/get_path.f90
-  src/filesystem.f90 src/io.f90 src/find.f90 src/f2c.f90
+  src/filesystem.f90 src/io.f90 src/f2c.f90
   )
 endif()
 

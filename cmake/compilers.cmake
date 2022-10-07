@@ -138,12 +138,6 @@ add_compile_options(
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Release>>:-fno-backtrace>"
 )
 
-add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-maybe-uninitialized>)
-# spurious warning on character(:), allocatable :: C
-
-add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-uninitialized>)
-# spurious warning on character(:), allocatable :: C(:)
-
 endif()
 
 
