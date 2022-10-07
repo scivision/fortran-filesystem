@@ -102,9 +102,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CMAKE_POSITION_INDEPENDENT_CODE true)
 endif()
 
-# --- compile flags
-
-if(CMAKE_C_COMPILER_ID MATCHES "(Clang|GNU|Intel)")
+# --- C compile flags
+if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU|^Intel")
   add_compile_options(
   "$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<CONFIG:Debug>>:-Wextra>"
   "$<$<COMPILE_LANGUAGE:C,CXX>:-Wall>"
@@ -114,14 +113,21 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
   add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/W3>")
 endif()
 
+if(WIN32)
+  if(CMAKE_C_COMPILER_ID MATCHES "^Intel|MSVC")
+    add_compile_options($<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<CONFIG:Debug>>:/Od>)
+  endif()
+elseif(CMAKE_C_COMPILER_ID MATCHES "^Intel")
+  add_compile_options($<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<CONFIG:Debug>>:-O0>)
+endif()
+
+# --- Fortran compile flags
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
 
 add_compile_options(
 "$<$<COMPILE_LANGUAGE:Fortran>:-warn>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug>>:-traceback;-check;-debug>"
 )
-
-# -heap-arrays
 
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 
@@ -138,6 +144,13 @@ add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-maybe-uninitialized>)
 add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-uninitialized>)
 # spurious warning on character(:), allocatable :: C(:)
 
+endif()
+
+
+if(WIN32)
+  add_compile_options($<$<AND:$<COMPILE_LANG_AND_ID:Fortran,Intel,IntelLLVM>,$<CONFIG:Debug>>:/Od>)
+else()
+  add_compile_options($<$<AND:$<COMPILE_LANG_AND_ID:Fortran,Intel,IntelLLVM>,$<CONFIG:Debug>>:-O0>)
 endif()
 
 # --- code coverage
