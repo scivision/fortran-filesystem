@@ -66,12 +66,9 @@ subroutine test_copyfile()
 
 type(path_t) :: p1, p2
 integer :: u, i
-character(:), allocatable :: iwa
 
-iwa = 'test-filesystem.h5'
-
-p1 = path_t(iwa)
-open(newunit=u, file=iwa, status='replace')
+p1 = path_t('test-filesystem.h5')
+open(newunit=u, file=p1%path(), status='replace')
 close(u)
 
 if(.not. p1%is_file()) error stop "did not detect " // p1%path() // " as file"

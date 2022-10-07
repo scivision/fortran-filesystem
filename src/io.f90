@@ -7,35 +7,28 @@ contains
 
 
 module procedure write_text
-
 integer :: u
-character(:), allocatable :: iwa
 
-iwa = expanduser(filename)
-
-open(newunit=u, file=iwa, status='unknown', action='write')
+open(newunit=u, file=expanduser(filename), status='unknown', action='write')
 write(u,'(A)') text
 close(u)
 
-end procedure write_text
+end procedure
 
 
 module procedure read_text
 
 integer :: L,u
-character(:), allocatable :: iwa
 
 L = 16384
 if(present(max_length)) L = max_length
 
-iwa = expanduser(filename)
-
 allocate(character(L) :: read_text)
 
-open(newunit=u, file=iwa, status='old', action='read')
+open(newunit=u, file=expanduser(filename), status='old', action='read')
 read(u,'(A)') read_text
 close(u)
 
-end procedure read_text
+end procedure
 
 end submodule io_filesystem
