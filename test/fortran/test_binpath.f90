@@ -1,7 +1,7 @@
 program test_binpath
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use filesystem, only : exe_path, exe_dir, lib_path, lib_dir, is_macos, is_windows, parent, same_file
+use filesystem, only : exe_path, exe_dir, lib_path, lib_dir, is_macos, is_windows, parent, same_file, get_max_path
 
 implicit none
 
@@ -23,6 +23,9 @@ call get_command_argument(2, exe_name, length=L, status=i)
 if(i/=0) error stop "ERROR:test_binpath:test_exe_path: get_command_argument failed"
 if(L<1) error stop "ERROR:test_binpath: expected exe_name as second argument"
 
+allocate(character(get_max_path()) :: binpath)
+allocate(character(get_max_path()) :: bindir)
+
 binpath = exe_path()
 bindir = exe_dir()
 
@@ -39,6 +42,10 @@ endif
 
 print *, "OK: exe_path: ", binpath
 print *, "OK: exe_dir: ", bindir
+
+deallocate(binpath)
+deallocate(bindir)
+
 end subroutine
 
 
@@ -54,6 +61,9 @@ call get_command_argument(1, s, length=L, status=i)
 if(i/=0) error stop "ERROR:test_binpath:test_lib_path: get_command_argument failed"
 if(L/=1) error stop "ERROR:test_binpath: expected argument 0 for static or 1 for shared"
 shared = s == '1'
+
+allocate(character(get_max_path()) :: binpath)
+allocate(character(get_max_path()) :: bindir)
 
 binpath = lib_path()
 bindir = lib_dir()
@@ -79,6 +89,10 @@ endif
 
 print *, "OK: lib_path: ", binpath
 print *, "OK: lib_dir: ", bindir
+
+deallocate(binpath)
+deallocate(bindir)
+
 end subroutine
 
 end program

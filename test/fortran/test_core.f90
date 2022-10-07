@@ -3,7 +3,7 @@ program test_filesystem
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
 is_absolute, with_suffix, relative_to, is_dir, is_windows, exists, filesep, parent, &
-assert_is_dir, normal, as_posix, as_windows
+assert_is_dir, normal, as_posix, as_windows, get_max_path
 
 implicit none
 
@@ -269,14 +269,16 @@ end subroutine test_with_suffix
 
 subroutine test_root()
 
-type(path_t) :: p1
 character(:), allocatable :: r
 
 if(root("") /= "") error stop "root empty"
 
+allocate(character(get_max_path()) :: r)
+
 if(is_windows()) then
-  if(root("/etc") /= "/") then
-    write(stderr,'(a,i0)') "ERROR: windows root /etc failed: "// p1%root() // " length: ", len_trim(p1%root())
+  r = root("/etc")
+  if(r /= "/") then
+    write(stderr,'(a,i0)') "ERROR: windows root /etc failed: "// r // " length: ", len_trim(r)
     error stop
   endif
 
@@ -293,16 +295,18 @@ else
   if(r /= "/") error stop "unix root /etc failed: " // r
 endif
 
+deallocate(r)
+
 end subroutine test_root
 
 
 subroutine test_is_dir()
-
 character(:), allocatable :: r
-
 integer :: i
+type(path_t) :: p1,p2
 
-type(path_t) :: p1,p2,p3
+allocate(character(get_max_path()) :: r)
+
 
 if(is_dir("")) error stop "is_dir empty should be false"
 
@@ -327,8 +331,9 @@ close(i)
 if (p2%is_dir()) error stop "detected file as directory"
 call p2%remove()
 
-p3 = path_t("not-exist-dir")
-if(p3%is_dir()) error stop "not-exist-dir should not exist"
+if(is_dir("not-exist-dir")) error stop "not-exist-dir should not exist"
+
+deallocate(r)
 
 end subroutine test_is_dir
 

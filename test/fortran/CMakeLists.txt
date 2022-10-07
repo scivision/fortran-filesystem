@@ -1,5 +1,7 @@
 set_property(DIRECTORY PROPERTY LABELS fortran)
 
+add_compile_options($<$<COMPILE_LANG_AND_ID:Fortran,GNU>:-Wno-maybe-uninitialized>)
+
 # --- base class
 add_executable(test_core test_core.f90)
 target_link_libraries(test_core PRIVATE ffilesystem)
