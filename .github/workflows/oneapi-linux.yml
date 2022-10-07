@@ -38,7 +38,7 @@ jobs:
 
     - name: cache install oneAPI
       id: cache-install
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           /opt/intel/oneapi
@@ -65,6 +65,10 @@ jobs:
       run: >-
         cmake --preset multi --install-prefix=${{ runner.temp }}
         -Dcpp:BOOL=${{ matrix.cpp }}
+      env:
+        CFLAGS: -Werror
+        CXXFLAGS: -Werror
+        FCFLAGS: -warn errors
 
 
 # bug in CMake 3.24--this flag triggers Fortran errors as not supported
