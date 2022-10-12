@@ -19,6 +19,10 @@ if(CTEST_MEMORYCHECK_TYPE STREQUAL "Valgrind")
   # https://www.cprogramming.com/debugging/valgrind.html
   find_program(exe NAMES valgrind HINTS ${MEMCHECK_ROOT} PATH_SUFFIXES bin REQUIRED)
   set(CTEST_MEMORYCHECK_COMMAND ${exe})
+  set(supp ${CMAKE_CURRENT_LIST_DIR}/valgrind.supp)
+  if(EXISTS ${supp})
+    set(CTEST_MEMORYCHECK_COMMAND_OPTIONS --suppressions=${supp})
+  endif()
 elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "DrMemory")
   find_program(exe NAMES drmemory HINTS ${MEMCHECK_ROOT} PATH_SUFFIXES bin64 bin REQUIRED)
   set(CTEST_MEMORYCHECK_COMMAND ${exe})
@@ -69,7 +73,10 @@ if(NOT (ret EQUAL 0 AND err EQUAL 0))
   message(FATAL_ERROR "CMake configure failed:  ${ret}   ${err}")
 endif()
 
+cmake_host_system_information(RESULT Ncpu QUERY NUMBER_OF_PHYSICAL_CORES)
+
 ctest_build(
+PARALLEL_LEVEL ${Ncpu}
 RETURN_VALUE ret
 CAPTURE_CMAKE_ERROR err
 )
@@ -78,6 +85,10 @@ if(NOT (ret EQUAL 0 AND err EQUAL 0))
 endif()
 
 ctest_memcheck(
+INCLUDE ${include}
+INCLUDE_LABEL ${include_label}
+EXCLUDE ${exclude}
+EXCLUDE_LABEL ${exclude_label}
 RETURN_VALUE ret
 CAPTURE_CMAKE_ERROR err
 DEFECT_COUNT count
