@@ -1,7 +1,7 @@
 name = "ffilesystem"
 description = "Lightweight filesystem and path manipulations"
 categories = "io"
-version = "4.0.0"
+version = "4.1.0"
 
 [build]
 auto-tests = false
@@ -18,3 +18,39 @@ include-dir = ["include", "src/c"]
 [[test]]
 name = "core"
 main = "fortran/test_core.f90"
+
+[[test]]
+name = "canonical"
+main = "fortran/test_canonical.f90"
+
+[[test]]
+name = "env"
+main = "fortran/test_env.f90"
+
+[[test]]
+name = "exe"
+main = "fortran/test_exe.f90"
+
+[[test]]
+name = "expanduser"
+main = "fortran/test_expanduser.f90"
+
+[[test]]
+name = "fileop"
+main = "fortran/test_fileop.f90"
+
+[[test]]
+name = "filesize"
+main = "fortran/test_filesize.f90"
+
+[[test]]
+name = "find"
+main = "fortran/test_find.f90"
+
+[[test]]
+name = "relative"
+main = "fortran/test_relative.f90"
+
+[[test]]
+name = "same"
+main = "fortran/test_same.f90"
