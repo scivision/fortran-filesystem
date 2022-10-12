@@ -105,20 +105,35 @@ endif()
 # --- C compile flags
 if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU|^Intel")
   add_compile_options(
-  "$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<CONFIG:Debug>>:-Wextra>"
-  "$<$<COMPILE_LANGUAGE:C,CXX>:-Wall>"
+  "$<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-Wextra>"
+  "$<$<COMPILE_LANGUAGE:C>:-Wall>"
   "$<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration>"
   )
+  if(cpp)
+    add_compile_options(
+    "$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:-Wextra>"
+    "$<$<COMPILE_LANGUAGE:CXX>:-Wall>"
+    )
+  endif()
 elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-  add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/W3>")
+  add_compile_options("$<$<COMPILE_LANGUAGE:C>:/W3>")
+  if(cpp)
+    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/W3>")
+  endif()
 endif()
 
 if(WIN32)
   if(CMAKE_C_COMPILER_ID MATCHES "^Intel|MSVC")
-    add_compile_options($<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<CONFIG:Debug>>:/Od>)
+    add_compile_options($<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:/Od>)
+    if(cpp)
+      add_compile_options($<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:/Od>)
+    endif()
   endif()
 elseif(CMAKE_C_COMPILER_ID MATCHES "^Intel")
-  add_compile_options($<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<CONFIG:Debug>>:-O0>)
+  add_compile_options($<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-O0>)
+  if(cpp)
+    add_compile_options($<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:-O0>)
+  endif()
 endif()
 
 # --- Fortran compile flags
@@ -129,6 +144,12 @@ add_compile_options(
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug>>:-traceback;-check;-debug>"
 )
 
+if(WIN32)
+  add_compile_options($<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug>>:/Od>)
+else()
+  add_compile_options($<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug>>:-O0>)
+endif()
+
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 
 add_compile_options(
@@ -138,13 +159,6 @@ add_compile_options(
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Release>>:-fno-backtrace>"
 )
 
-endif()
-
-
-if(WIN32)
-  add_compile_options($<$<AND:$<COMPILE_LANG_AND_ID:Fortran,Intel,IntelLLVM>,$<CONFIG:Debug>>:/Od>)
-else()
-  add_compile_options($<$<AND:$<COMPILE_LANG_AND_ID:Fortran,Intel,IntelLLVM>,$<CONFIG:Debug>>:-O0>)
 endif()
 
 # --- code coverage

@@ -15,7 +15,6 @@ join, &
 copy_file, mkdir, &
 relative_to, root, same_file, file_size, &
 file_name, parent, stem, suffix, with_suffix, &
-read_text, write_text, &
 make_absolute, &
 assert_is_file, assert_is_dir, &
 touch, create_symlink, &
@@ -70,8 +69,6 @@ procedure, public :: resolve=>f_resolve
 procedure, public :: same_file=>f_same_file
 procedure, public :: remove=>fs_unlink
 procedure, public :: file_size=>f_file_size
-procedure, public :: read_text=>fs_read_text
-procedure, public :: write_text=>fs_write_text
 procedure, public :: chmod_exe=>f_chmod_exe
 procedure, public :: chmod_no_exe=>f_chmod_no_exe
 
@@ -336,23 +333,6 @@ end subroutine
 end interface
 
 
-interface !< io.f90
-
-module function read_text(filename, max_length)
-!! read text file
-character(*), intent(in) :: filename
-character(:), allocatable :: read_text
-integer, optional :: max_length
-end function
-
-module subroutine write_text(filename, text)
-!! create or overwrite file with text
-character(*), intent(in) :: filename, text
-end subroutine
-
-end interface
-
-
 contains
 
 subroutine destructor(self)
@@ -598,24 +578,6 @@ subroutine f_touch(self)
 class(path_t), intent(in) :: self
 call touch(self%path_str)
 end subroutine
-
-
-function fs_read_text(self, max_length)
-!! read text file
-class(path_t), intent(in) :: self
-character(:), allocatable :: fs_read_text
-integer, optional, intent(in) :: max_length
-fs_read_text = read_text(self%path_str, max_length)
-end function
-
-
-subroutine fs_write_text(self, text)
-!! create or overwrite file with text
-class(path_t), intent(in) :: self
-character(*), intent(in) :: text
-call write_text(self%path_str, text)
-end subroutine
-
 
 pure integer function length(self)
 !! returns string length len_trim(path)

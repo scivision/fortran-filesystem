@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.15...3.25)
+cmake_minimum_required(VERSION 3.11...3.25)
 
 project(ffilesystem
 LANGUAGES C
-VERSION 4.0.2
+VERSION 4.1.0
 )
 
 include(CTest) # needed for "ctest -T memcheck"
@@ -44,7 +44,7 @@ set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
 if(fortran)
   target_sources(ffilesystem PRIVATE
   src/get_path.f90
-  src/filesystem.f90 src/io.f90 src/f2c.f90
+  src/filesystem.f90 src/f2c.f90
   )
 endif()
 
@@ -94,7 +94,13 @@ if(fortran)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
-install(TARGETS ffilesystem EXPORT ${PROJECT_NAME}-targets)
+install(TARGETS ffilesystem EXPORT ${PROJECT_NAME}-targets
+LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
 
 add_library(ffilesystem::filesystem INTERFACE IMPORTED)
 
@@ -120,7 +126,9 @@ if(cli)
   set_property(TARGET filesystem_cli PROPERTY LINKER_LANGUAGE Fortran)
   # Intel/NVHPC needs linker_language fortran else error "undefined reference to `main'"
 
-  install(TARGETS filesystem_cli EXPORT ${PROJECT_NAME}-targets)
+  install(TARGETS filesystem_cli EXPORT ${PROJECT_NAME}-targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
   endif()
 endif()
 

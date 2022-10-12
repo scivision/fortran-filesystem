@@ -151,7 +151,7 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size){
   free(buf);
   result[M] = '\0';
 
-if(TRACE) printf("TRACE: parent: %s => %s  %ju\n", path, result, M);
+if(TRACE) printf("TRACE: parent: %s => %s  %zu\n", path, result, M);
   return M;
 }
 
@@ -425,7 +425,7 @@ size_t fs_root(const char* path, char* result, size_t buffer_size) {
   strncpy(result, path, M);
   result[M] = '\0';
 
-if(TRACE) printf("TRACE: root: %s => %s  %ju\n", path, result, M);
+if(TRACE) printf("TRACE: root: %s => %s  %zu\n", path, result, M);
   return M;
 }
 

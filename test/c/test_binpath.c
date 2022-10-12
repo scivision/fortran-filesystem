@@ -43,7 +43,7 @@ int test_lib_path(char* argv[]){
 
   if(!shared) {
     if (L != 0 || L2 != 0) {
-      fprintf(stderr, "ERROR:test_binpath: lib_path and lib_dir should be empty length 0: %s %ju\n", binpath, L);
+      fprintf(stderr, "ERROR:test_binpath: lib_path and lib_dir should be empty length 0: %s %zu\n", binpath, L);
       return 1;
     }
     printf("SKIPPED: lib_path: due to static library\n");
