@@ -8,17 +8,17 @@ call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo "configure %GITHUB_REPOSITORY%"
-cmake -B build -DCMAKE_INSTALL_PREFIX=%RUNNER_TEMP%
+cmake --preset default --install-prefix %RUNNER_TEMP%
 if %errorlevel% neq 0 (
   type build\CMakeFiles\CMakeError.log & exit /b %errorlevel%
 )
 
 echo "build %GITHUB_REPOSITORY%"
-cmake --build build --parallel
+cmake --build --preset default
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo "test %GITHUB_REPOSITORY%"
-ctest --test-dir build --preset default -V
+ctest --preset default
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo "install project"

@@ -53,16 +53,17 @@ jobs:
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
-        cmake --preset multi --install-prefix=${{ runner.temp }}
+        cmake
+        --preset multi
+        --install-prefix=${{ runner.temp }}
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
-        -DCMAKE_COMPILE_WARNING_AS_ERROR:BOOL=true
 
     - run: cmake --build --preset debug
-    - run: ctest --preset debug -V
+    - run: ctest --preset debug
 
     - run: cmake --build --preset release
-    - run: ctest --preset release -V
+    - run: ctest --preset release
 
     - name: install package
       run: cmake --install build
@@ -109,16 +110,17 @@ jobs:
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
-        cmake --preset multi --install-prefix=${{ runner.temp }}
+        cmake
+        --preset multi
+        --install-prefix=${{ runner.temp }}
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
-        -DCMAKE_COMPILE_WARNING_AS_ERROR:BOOL=true
 
     - run: cmake --build --preset debug
-    - run: ctest --preset debug -V
+    - run: ctest --preset debug
 
     - run: cmake --build --preset release
-    - run: ctest --preset release -V
+    - run: ctest --preset release
 
     - name: install package
       run: cmake --install build
@@ -217,13 +219,12 @@ jobs:
         cmake --preset multi --install-prefix=${{ runner.temp }}
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
-        -DCMAKE_COMPILE_WARNING_AS_ERROR:BOOL=true
 
     - run: cmake --build --preset debug
-    - run: ctest --preset debug -V
+    - run: ctest --preset debug
 
     - run: cmake --build --preset release
-    - run: ctest --preset release -V
+    - run: ctest --preset release
 
     - name: install package
       run: cmake --install build
@@ -273,17 +274,16 @@ jobs:
         cmake --preset multi --install-prefix=${{ runner.temp }}
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
-        -DCMAKE_COMPILE_WARNING_AS_ERROR:BOOL=true
 
     - name: Build Debug
       run: cmake --build --preset debug
     - name: Test Debug
-      run: ctest --preset debug -V
+      run: ctest --preset debug
 
     - name: Build Release
       run: cmake --build --preset release
     - name: Test Release
-      run: ctest --preset release -V
+      run: ctest --preset release
 
     - name: install package
       run: cmake --install build
@@ -315,21 +315,21 @@ jobs:
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
-        cmake -Bbuild --install-prefix=${{ runner.temp }}
-        -Dfortran=off
-        -DCMAKE_COMPILE_WARNING_AS_ERROR:BOOL=true
+        cmake --preset default
+        --install-prefix=${{ runner.temp }}
+        -Dfortran:BOOL=off
 
     - name: Build Debug
-      run: cmake --build build --config Debug --parallel
+      run: cmake --build --preset default --config Debug --parallel
     - name: Test Debug
-      run: ctest --test-dir build -C Debug -V
+      run: ctest --preset default -C Debug
     - name: Install Debug
       run: cmake --install build --config Debug
 
     - name: Build Release
-      run: cmake --build build --config Release --parallel
+      run: cmake --build --preset default --config Release --parallel
     - name: Test Release
-      run: ctest --test-dir build -C Release -V
+      run: ctest --preset default -C Release
     - name: Install Release
       run: cmake --install build --config Release
 
