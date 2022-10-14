@@ -14,18 +14,20 @@ env:
 on:
   push:
     paths:
-      - "**/*.cpp"
+      - "**.c"
+      - "**.cpp"
       - "**.f90"
       - "**.F90"
       - "**.cmake"
       - "**/CMakeLists.txt"
       - ".github/workflows/oneapi-linux.yml"
-      - "!cray.cmake"
+      - "!memcheck.cmake"
       - "!concepts/"
+
 
 jobs:
 
-  linux-intel-oneapi:
+  linux:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -51,7 +53,7 @@ jobs:
         .github/workflows/oneapi_setup_apt_repo_linux.sh
         sudo apt install ${{ env.LINUX_CPP_COMPONENTS }} ${{ env.LINUX_FORTRAN_COMPONENTS }}
 
-    - name: oneAPI env vars
+    - name: Setup Intel oneAPI environment
       run: |
         source /opt/intel/oneapi/setvars.sh
         printenv >> $GITHUB_ENV
@@ -65,7 +67,7 @@ jobs:
       run: >-
         cmake
         --preset multi
-        --install-prefix=${{ runner.temp }}
+        --install-prefix ${{ runner.temp }}
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DCMAKE_COMPILE_WARNING_AS_ERROR:BOOL=false
 # bug fixed in CMake 3.24.3 -- Fortran errors not supported for oneAPI
@@ -76,11 +78,13 @@ jobs:
 
     - name: Release build
       run: cmake --build --preset release
+
     - name: Release unit test
       run: ctest --preset release -E Find
 
     - name: debug build
       run: cmake --build --preset debug
+
     - name: debug unit test
       run: ctest --preset debug
 

@@ -1,4 +1,4 @@
-name: ci_cmake
+name: ci
 
 env:
   HOMEBREW_NO_INSTALL_CLEANUP: 1
@@ -11,7 +11,7 @@ on:
       - "**.f90"
       - "**/CMakeLists.txt"
       - "**.cmake"
-      - ".github/workflows/ci_cmake.yml"
+      - ".github/workflows/ci.yml"
       - "!cray.cmake"
       - "!concepts/"
 
@@ -72,9 +72,7 @@ jobs:
       run: >-
         cmake
         --preset default
-        -GNinja
         -DCMAKE_PREFIX_PATH=${{ runner.temp }}
-        -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
       working-directory: example
 
     - name: example build
@@ -138,9 +136,7 @@ jobs:
       run: >-
         cmake
         --preset default
-        -GNinja
         -DCMAKE_PREFIX_PATH:PATH=${{ runner.temp }}
-        -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
       working-directory: example
 
     - name: example build
@@ -249,9 +245,7 @@ jobs:
       run: >-
         cmake
         --preset default
-        -GNinja
         -DCMAKE_PREFIX_PATH=${{ runner.temp }}
-        -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
       working-directory: example
 
     - name: example build
@@ -273,9 +267,6 @@ jobs:
         shared: [false]
         cpp: [true, false]
       # github actions generally broken for shared lib, even when exe in cwd
-
-    env:
-      CMAKE_GENERATOR: Ninja
 
     steps:
     - uses: msys2/setup-msys2@v2
@@ -315,9 +306,7 @@ jobs:
       run: >-
         cmake
         --preset default
-        -GNinja
         -DCMAKE_PREFIX_PATH:PATH=${{ runner.temp }}
-        -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
       working-directory: example
 
     - name: example build
@@ -341,24 +330,27 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: install Ninja
+      run: pip install ninja
+
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
         cmake
-        --preset default
+        --preset multi
         --install-prefix=${{ runner.temp }}
         -Dfortran:BOOL=off
+        -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: Build Debug
-      run: cmake --build --preset default --config Debug --parallel
+      run: cmake --build --preset debug
     - name: Test Debug
-      run: ctest --preset default -C Debug
-    - name: Install Debug
-      run: cmake --install build --config Debug
+      run: ctest --preset debug
 
     - name: Build Release
-      run: cmake --build --preset default --config Release --parallel
+      run: cmake --build --preset release
     - name: Test Release
-      run: ctest --preset default -C Release
+      run: ctest --preset release
+
     - name: Install Release
       run: cmake --install build --config Release
 
@@ -368,11 +360,10 @@ jobs:
         --preset default
         -Dfortran:BOOL=false
         -DCMAKE_PREFIX_PATH=${{ runner.temp }}
-        -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
       working-directory: example
 
     - name: example build
-      run: cmake --build --preset default --parallel
+      run: cmake --build --preset default
       working-directory: example
 
     - name: example test
