@@ -70,15 +70,20 @@ jobs:
 
     - name: example config
       run: >-
-        cmake -B example/build -S example/
+        cmake
+        --preset default
+        -GNinja
         -DCMAKE_PREFIX_PATH=${{ runner.temp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      working-directory: example
 
     - name: example build
-      run: cmake --build example/build --parallel
+      run: cmake --build --preset default
+      working-directory: example
 
     - name: example test
-      run: ctest --test-dir example/build -V
+      run: ctest --preset default
+      working-directory: example
 
 
   linux-clang:
@@ -127,15 +132,20 @@ jobs:
 
     - name: example config
       run: >-
-        cmake -B example/build -S example/
+        cmake
+        --preset default
+        -GNinja
         -DCMAKE_PREFIX_PATH=${{ runner.temp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      working-directory: example
 
     - name: example build
-      run: cmake --build example/build --parallel
+      run: cmake --build --preset default
+      working-directory: example
 
     - name: example test
-      run: ctest --test-dir example/build -V
+      run: ctest --preset default
+      working-directory: example
 
 
   valgrind-memory:
@@ -216,7 +226,9 @@ jobs:
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
-        cmake --preset multi --install-prefix=${{ runner.temp }}
+        cmake
+        --preset multi
+        --install-prefix=${{ runner.temp }}
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
@@ -231,15 +243,20 @@ jobs:
 
     - name: example config
       run: >-
-        cmake -B example/build -S example/
+        cmake
+        --preset default
+        -GNinja
         -DCMAKE_PREFIX_PATH=${{ runner.temp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      working-directory: example
 
     - name: example build
-      run: cmake --build example/build --parallel
+      run: cmake --build --preset default
+      working-directory: example
 
     - name: example test
-      run: ctest --test-dir example/build -V
+      run: ctest --preset default
+      working-directory: example
 
 
   windows:
@@ -271,7 +288,9 @@ jobs:
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
-        cmake --preset multi --install-prefix=${{ runner.temp }}
+        cmake
+        --preset multi
+        --install-prefix=${{ runner.temp }}
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
@@ -290,15 +309,20 @@ jobs:
 
     - name: example config
       run: >-
-        cmake -B example/build -S example/
+        cmake
+        --preset default
+        -GNinja
         -DCMAKE_PREFIX_PATH=${{ runner.temp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      working-directory: example
 
     - name: example build
-      run: cmake --build example/build
+      run: cmake --build --preset default
+      working-directory: example
 
     - name: example test
-      run: ctest --test-dir example/build -V
+      run: ctest --preset default
+      working-directory: example
 
 
   windows-msvc:
@@ -315,7 +339,8 @@ jobs:
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
-        cmake --preset default
+        cmake
+        --preset default
         --install-prefix=${{ runner.temp }}
         -Dfortran:BOOL=off
 
@@ -335,13 +360,17 @@ jobs:
 
     - name: example config
       run: >-
-        cmake -B example/build -S example/
+        cmake
+        --preset default
         -Dfortran:BOOL=no
         -DCMAKE_PREFIX_PATH=${{ runner.temp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      working-directory: example
 
     - name: example build
-      run: cmake --build example/build --config Release
+      run: cmake --build --preset default --parallel
+      working-directory: example
 
     - name: example test
-      run: ctest --test-dir example/build -C Release -V
+      run: ctest --preset default
+      working-directory: example

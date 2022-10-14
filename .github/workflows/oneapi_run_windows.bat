@@ -14,7 +14,7 @@ if %errorlevel% neq 0 (
 )
 
 echo "build %GITHUB_REPOSITORY%"
-cmake --build --preset default
+cmake --build --preset default --parallel
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo "test %GITHUB_REPOSITORY%"
@@ -26,13 +26,14 @@ cmake --install build
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo "Example config"
-cmake -B example/build -S example -DCMAKE_PREFIX_PATH=%RUNNER_TEMP%
+cd example
+cmake --preset default -DCMAKE_PREFIX_PATH:PATH=%RUNNER_TEMP%
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo "Example build"
-cmake --build example/build
+cmake --build --preset default --parallel
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo "Example test"
-ctest --test-dir example/build -V
+ctest --preset default
 if %errorlevel% neq 0 exit /b %errorlevel%

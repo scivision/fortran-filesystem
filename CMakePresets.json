@@ -61,11 +61,11 @@
   "configurePreset": "default",
   "output": {
     "outputOnFailure": true,
-    "verbosity": "default"
+    "verbosity": "verbose"
   },
   "execution": {
     "noTestsAction": "error",
-    "scheduleRandom": false,
+    "scheduleRandom": true,
     "stopOnFailure": false,
     "timeout": 60
   }

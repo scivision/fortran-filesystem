@@ -23,11 +23,11 @@ ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}ConfigVersion.cmake
 DESTINATION cmake
 )
 
-# allow use of package from build directory without installing
-export(EXPORT ${PROJECT_NAME}-targets
-FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}-targets.cmake
-NAMESPACE ${PROJECT_NAME}::
-)
+# # allow use of package from build directory without installing
+# export(EXPORT ${PROJECT_NAME}-targets
+# FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}-targets.cmake
+# NAMESPACE ${PROJECT_NAME}::
+# )
 
 # --- CPack
 
