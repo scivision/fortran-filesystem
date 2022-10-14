@@ -38,7 +38,8 @@
   {
     "name": "reldebug",
     "configurePreset": "multi",
-    "configuration": "RelWithDebInfo"
+    "configuration": "RelWithDebInfo",
+    "displayName": "Release with Debug Info"
   },
   {
     "name": "debug",
@@ -78,7 +79,8 @@
 {
   "name": "reldebug", "inherits": "default",
   "configurePreset": "multi",
-  "configuration": "RelWithDebInfo"
+  "configuration": "RelWithDebInfo",
+  "displayName": "Release with Debug Info"
 },
 {
   "name": "debug", "inherits": "default",

@@ -1,14 +1,14 @@
 name: ci_cmake
 
 env:
-    HOMEBREW_NO_INSTALL_CLEANUP: 1
+  HOMEBREW_NO_INSTALL_CLEANUP: 1
 
 on:
   push:
     paths:
-      - "**.f90"
       - "**.c"
       - "**.cpp"
+      - "**.f90"
       - "**/CMakeLists.txt"
       - "**.cmake"
       - ".github/workflows/ci_cmake.yml"
@@ -117,15 +117,19 @@ jobs:
       run: >-
         cmake
         --preset multi
-        --install-prefix=${{ runner.temp }}
+        --install-prefix ${{ runner.temp }}
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
-    - run: cmake --build --preset debug
-    - run: ctest --preset debug
+    - name: Build Debug
+      run: cmake --build --preset debug
+    - name: Test Debug
+      run: ctest --preset debug
 
-    - run: cmake --build --preset release
-    - run: ctest --preset release
+    - name: Build Release
+      run: cmake --build --preset release
+    - name: Test Release
+      run: ctest --preset release
 
     - name: install package
       run: cmake --install build
@@ -135,7 +139,7 @@ jobs:
         cmake
         --preset default
         -GNinja
-        -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+        -DCMAKE_PREFIX_PATH:PATH=${{ runner.temp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
       working-directory: example
 
@@ -149,7 +153,7 @@ jobs:
 
 
   valgrind-memory:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: linux-gcc
     timeout-minutes: 10
 
@@ -290,7 +294,7 @@ jobs:
       run: >-
         cmake
         --preset multi
-        --install-prefix=${{ runner.temp }}
+        --install-prefix ${{ runner.temp }}
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
@@ -312,7 +316,7 @@ jobs:
         cmake
         --preset default
         -GNinja
-        -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+        -DCMAKE_PREFIX_PATH:PATH=${{ runner.temp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
       working-directory: example
 
