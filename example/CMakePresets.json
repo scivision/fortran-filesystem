@@ -10,13 +10,15 @@
 "buildPresets": [
   {
     "name": "default",
-    "configurePreset": "default"
+    "configurePreset": "default",
+    "configuration": "Release"
   }
 ],
 "testPresets": [
   {
     "name": "default",
     "configurePreset": "default",
+    "configuration": "Release",
     "output": {
       "outputOnFailure": true,
       "verbosity": "verbose"

@@ -362,7 +362,7 @@ jobs:
       run: >-
         cmake
         --preset default
-        -Dfortran:BOOL=no
+        -Dfortran:BOOL=false
         -DCMAKE_PREFIX_PATH=${{ runner.temp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
       working-directory: example
