@@ -324,8 +324,9 @@ jobs:
 
     strategy:
       matrix:
-        shared: [true, false]
+        shared: [false]
         cpp: [true, false]
+      # github actions generally broken for shared lib, even when exe in cwd
 
     steps:
     - uses: actions/checkout@v3
