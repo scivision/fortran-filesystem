@@ -15,7 +15,7 @@ join, &
 copy_file, mkdir, &
 relative_to, root, same_file, file_size, &
 file_name, parent, stem, suffix, with_suffix, &
-make_absolute, &
+get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
 touch, create_symlink, &
 remove, get_tempdir, filesep, &
@@ -330,6 +330,23 @@ module subroutine touch(path)
 character(*), intent(in) :: path
 end subroutine
 
+end interface
+
+
+interface !< find.f90
+module function get_filename(path, name)
+!! given a path, stem and vector of suffixes, find the full filename
+!! assumes:
+!! * if present, "name" is the file name we wish to find (without suffix or directories)
+!! * if name not present, "path" is the directory + filename without suffix
+!!
+!! suffixes to check: [character(4) :: '.h5', '.nc', '.dat']
+!! if file not found, empty character is returned
+
+character(*), intent(in) :: path
+character(*), intent(in), optional :: name
+character(:), allocatable :: get_filename
+end function
 end interface
 
 

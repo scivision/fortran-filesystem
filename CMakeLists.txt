@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11...3.25)
 
 project(ffilesystem
 LANGUAGES C
-VERSION 4.1.0
+VERSION 4.1.1
 )
 
 include(CTest) # needed for "ctest -T memcheck"
@@ -44,7 +44,7 @@ set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
 if(fortran)
   target_sources(ffilesystem PRIVATE
   src/get_path.f90
-  src/filesystem.f90 src/f2c.f90
+  src/filesystem.f90 src/f2c.f90 src/find.f90
   )
 endif()
 
