@@ -7,6 +7,7 @@ assert_is_dir, normal, as_posix, as_windows, get_max_path
 
 implicit none
 
+integer :: c = 0
 
 call test_setter_getter()
 print *, "OK: getter setter"
@@ -14,7 +15,7 @@ print *, "OK: getter setter"
 call test_filesep()
 print *, "OK: filesystem: filesep"
 
-call test_separator()
+call test_separator(c)
 print *, "OK: filesyste: separator"
 
 call test_join()
@@ -44,6 +45,11 @@ print *, "OK: filesystem: is_dir"
 call test_absolute()
 print *, "OK: filesystem: absolute"
 
+if (c>0) then
+  write(stderr,'(a,i0,a)') "ERRPR: test_core total of ", c, " errors"
+  error stop
+endif
+
 contains
 
 
@@ -60,22 +66,54 @@ if (p1%path(2) /= "/b/c") error stop "getter start only"
 end subroutine
 
 
-subroutine test_separator()
+subroutine test_separator(c)
 
+integer, intent(inout) :: c
 type(path_t) :: p
 
-if (as_posix("") /= "") error stop "as_posix empty"
-if (as_windows("") /= "") error stop "as_windows empty"
+character(:), allocatable :: b
 
-if (as_posix("a\b") /= "a/b") error stop "as_posix()"
-p = path_t("a\b")
+b = as_posix("")
+if (b /= "") then
+  write(stderr,*) "ERROR: as_posix empty: " // b, len_trim(b)
+  c = c+1
+endif
+
+b = as_windows("")
+if (b /= "") then
+  write(stderr,*) "ERROR:as_windows empty: " // b, len_trim(b)
+  c = c+1
+endif
+
+b = as_posix("a" // char(92) // "b")
+if (b /= "a/b") then
+  write(stderr,*) "ERROR: as_posix(a" // char(92) // "b): " // b
+  c = c+1
+endif
+
+p = path_t("a" // char(92) // "b")
 p = p%as_posix()
-if (p%path() /= "a/b") error stop "%as_posix"
+b = p%path()
+if (b /= "a/b") then
+  write(stderr,*) "ERROR: %as_posix(a" // char(92) // "b): " // b
+  c = c+1
+endif
 
-if (as_windows("a/b") /= "a\b") error stop "as_windows(): " // as_windows("a/b")
+b = as_windows("a/b")
+if (b /= "a" // char(92) // "b") then
+  write(stderr,*) "ERROR: as_windows(): " // b
+  c = c+1
+endif
+
 p = path_t("a/b")
 p = p%as_windows()
-if (p%path() /= "a\b") error stop "%as_windows"
+b = p%path()
+if (b /= "a" // char(92) // "b") then
+  write(stderr,*) "%as_windows: " // b
+  c = c+1
+endif
+
+if (c>0) write(stderr,'(a,i0,a)') "test_separator ", c, " errors"
 
 end subroutine
 
@@ -244,6 +282,7 @@ end subroutine test_parent
 subroutine test_with_suffix()
 
 type(path_t) :: p1, p2
+character(:), allocatable :: b
 
 if(with_suffix("", ".h5") /= ".h5") error stop "with_suffix empty: " // with_suffix("", ".h5")
 if(with_suffix("foo.h5", "") /= "foo") error stop "with_suffix foo.h5 to empty: " // with_suffix("foo.h5", "")
@@ -253,8 +292,9 @@ if(with_suffix(".h5", ".h5") /= ".h5.h5") then
   error stop
 endif
 
-if(with_suffix('c:\a\hi.nc', '.h5') /= 'c:/a/hi.h5') then
-  write(stderr,*) "ERROR: with_suffix c:\a\hi.nc to .h5: " // with_suffix('c:\a\hi.nc', '.h5')
+b = with_suffix('c:' // char(92) // 'a' // char(92) // 'hi.nc', '.h5')
+if(b /= 'c:/a/hi.h5') then
+  write(stderr,'(2a)') "ERROR: with_suffix c:\a\hi.nc to .h5: ", b
   error stop
 endif
 

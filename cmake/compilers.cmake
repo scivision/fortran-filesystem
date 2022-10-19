@@ -45,8 +45,9 @@ unset(CMAKE_REQUIRED_DEFINITIONS)
 
 if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "9.1.0") OR
    (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "9.1.0"))
-  set(GNU_stdfs stdc++fs)
+  set(GNU_stdfs stdc++fs stdc++)
 endif()
+# need -lstdc++ to avoid C main program link error
 
 if(CMAKE_C_COMPILER_ID STREQUAL "NVHPC")
   set(GNU_stdfs stdc++fs stdc++)

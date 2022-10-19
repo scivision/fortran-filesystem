@@ -227,18 +227,24 @@ end procedure
 
 module procedure as_posix
 character(kind=c_char, len=:), allocatable :: cbuf
-allocate(character(len(path)+1) :: cbuf)
+integer :: N
+N = len_trim(path)
+allocate(character(N+1) :: cbuf)
 cbuf = trim(path) // C_NULL_CHAR
 call fs_as_posix(cbuf)
-r = cbuf(:len(path))
+allocate(character(N) :: r)
+r = cbuf(:N)
 end procedure
 
 module procedure as_windows
 character(kind=c_char, len=:), allocatable :: cbuf
-allocate(character(len(path)+1) :: cbuf)
+integer :: N
+N = len_trim(path)
+allocate(character(N+1) :: cbuf)
 cbuf = trim(path) // C_NULL_CHAR
 call fs_as_windows(cbuf)
-r = cbuf(:len(path))
+allocate(character(N) :: r)
+r = cbuf(:N)
 end procedure
 
 module procedure canonical
