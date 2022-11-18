@@ -19,23 +19,17 @@ on:
 jobs:
 
   linux-gcc:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
 
     strategy:
       matrix:
-        gcc-version: [8, 9, 10, 11]
+        gcc-version: [9, 10, 11]
         shared: [true, false]
         cpp: [true, false]
         exclude:
         - cpp: false
           shared: true
-        - gcc-version: 8
-          shared: true
-        include:
-        - gcc-version: 7
-          cpp: false
-          shared: false
 
     env:
       CC: gcc-${{ matrix.gcc-version }}
@@ -47,7 +41,7 @@ jobs:
     - name: install compilers
       run: |
         sudo apt update
-        sudo apt install --no-install-recommends ninja-build gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }} gfortran-${{ matrix.gcc-version }}
+        sudo apt install --no-install-recommends ninja-build
 
     - uses: actions/checkout@v3
 
@@ -90,7 +84,7 @@ jobs:
 
     strategy:
       matrix:
-        clang-version: [11, 12, 13, 14]
+        clang-version: [12, 13, 14]
         shared: [true, false]
         cpp: [true, false]
         exclude:
@@ -107,7 +101,7 @@ jobs:
     - name: install compilers
       run: |
         sudo apt update
-        sudo apt install --no-install-recommends ninja-build clang-${{ matrix.clang-version }}
+        sudo apt install --no-install-recommends ninja-build
 
     - uses: actions/checkout@v3
 
