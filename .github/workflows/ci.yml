@@ -53,11 +53,11 @@ jobs:
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
-    - run: cmake --build --preset debug
-    - run: ctest --preset debug
+    - name: Debug workflow
+      run: cmake --workflow --preset debug
 
-    - run: cmake --build --preset release
-    - run: ctest --preset release
+    - name: Release workflow
+      run: cmake --workflow --preset release
 
     - name: install package
       run: cmake --install build
@@ -104,15 +104,11 @@ jobs:
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
-    - name: Build Debug
-      run: cmake --build --preset debug
-    - name: Test Debug
-      run: ctest --preset debug
+    - name: Debug workflow
+      run: cmake --workflow --preset debug
 
-    - name: Build Release
-      run: cmake --build --preset release
-    - name: Test Release
-      run: ctest --preset release
+    - name: Release workflow
+      run: cmake --workflow --preset release
 
     - name: install package
       run: cmake --install build
@@ -208,11 +204,11 @@ jobs:
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
-    - run: cmake --build --preset debug
-    - run: ctest --preset debug
+    - name: Debug workflow
+      run: cmake --workflow --preset debug
 
-    - run: cmake --build --preset release
-    - run: ctest --preset release
+    - name: Release workflow
+      run: cmake --workflow --preset release
 
     - name: install package
       run: cmake --install build
@@ -256,15 +252,11 @@ jobs:
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
-    - name: Build Debug
-      run: cmake --build --preset debug
-    - name: Test Debug
-      run: ctest --preset debug
+    - name: Debug workflow
+      run: cmake --workflow --preset debug
 
-    - name: Build Release
-      run: cmake --build --preset release
-    - name: Test Release
-      run: ctest --preset release
+    - name: Release workflow
+      run: cmake --workflow --preset release
 
     - name: install package
       run: cmake --install build
@@ -301,15 +293,11 @@ jobs:
   #       -Dfortran:BOOL=off
   #       -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
-  #   - name: Build Debug
-  #     run: cmake --build --preset debug
-  #   - name: Test Debug
-  #     run: ctest --preset debug
+    # - name: Debug workflow
+    #   run: cmake --workflow --preset debug
 
-  #   - name: Build Release
-  #     run: cmake --build --preset release
-  #   - name: Test Release
-  #     run: ctest --preset release
+    # - name: Release workflow
+    #   run: cmake --workflow --preset release
 
   #   - name: Install Release
   #     run: cmake --install build --config Release

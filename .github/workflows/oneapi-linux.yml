@@ -74,17 +74,11 @@ jobs:
       if: ${{ failure() }}
       run: cat build/CMakeFiles/CMakeError.log
 
-    - name: Release build
-      run: cmake --build --preset release
+    - name: Debug workflow
+      run: cmake --workflow --preset debug
 
-    - name: Release unit test
-      run: ctest --preset release -E Find
-
-    - name: debug build
-      run: cmake --build --preset debug
-
-    - name: debug unit test
-      run: ctest --preset debug
+    - name: Release workflow
+      run: cmake --workflow --preset release
 
     - name: install package
       run: cmake --install build
