@@ -69,8 +69,6 @@ jobs:
         --preset multi
         --install-prefix ${{ runner.temp }}
         -Dcpp:BOOL=${{ matrix.cpp }}
-        -DCMAKE_COMPILE_WARNING_AS_ERROR:BOOL=false
-# bug fixed in CMake 3.24.3 -- Fortran errors not supported for oneAPI
 
     - name: print config log
       if: ${{ failure() }}
@@ -91,22 +89,11 @@ jobs:
     - name: install package
       run: cmake --install build
 
-    - name: example config
-      run: >-
-        cmake
-        --preset default
-        -GNinja
-        -DCMAKE_PREFIX_PATH=${{ runner.temp }}
-        -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+    - name: example workflow
+      run: cmake --workflow --preset default
       working-directory: example
-
-    - name: example build
-      run: cmake --build --preset default
-      working-directory: example
-
-    - name: example test
-      run: ctest --preset default
-      working-directory: example
+      env:
+        CMAKE_PREFIX_PATH: ${{ runner.temp }}
 
 # BUILD_SHARED_LIBS=false since as with any C++ / Fortran program with Intel compiler,
 # need to have GCC environment carefully set

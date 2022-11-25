@@ -25,15 +25,8 @@ echo "install project"
 cmake --install build
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-echo "Example config"
+echo "Example config, build, test"
 cd example
-cmake --preset default -DCMAKE_PREFIX_PATH:PATH=%RUNNER_TEMP%
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-echo "Example build"
-cmake --build --preset default --parallel
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-echo "Example test"
-ctest --preset default
+set CMAKE_PREFIX_PATH=%RUNNER_TEMP%
+cmake --workflow --preset default
 if %errorlevel% neq 0 exit /b %errorlevel%

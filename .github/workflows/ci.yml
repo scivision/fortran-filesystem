@@ -62,20 +62,11 @@ jobs:
     - name: install package
       run: cmake --install build
 
-    - name: example config
-      run: >-
-        cmake
-        --preset default
-        -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+    - name: example workflow
+      run: cmake --workflow --preset default
       working-directory: example
-
-    - name: example build
-      run: cmake --build --preset default
-      working-directory: example
-
-    - name: example test
-      run: ctest --preset default
-      working-directory: example
+      env:
+        CMAKE_PREFIX_PATH: ${{ runner.temp }}
 
 
   linux-clang:
@@ -126,20 +117,11 @@ jobs:
     - name: install package
       run: cmake --install build
 
-    - name: example config
-      run: >-
-        cmake
-        --preset default
-        -DCMAKE_PREFIX_PATH:PATH=${{ runner.temp }}
+    - name: example workflow
+      run: cmake --workflow --preset default
       working-directory: example
-
-    - name: example build
-      run: cmake --build --preset default
-      working-directory: example
-
-    - name: example test
-      run: ctest --preset default
-      working-directory: example
+      env:
+        CMAKE_PREFIX_PATH: ${{ runner.temp }}
 
 
   valgrind-memory:
@@ -235,20 +217,11 @@ jobs:
     - name: install package
       run: cmake --install build
 
-    - name: example config
-      run: >-
-        cmake
-        --preset default
-        -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+    - name: example workflow
+      run: cmake --workflow --preset default
       working-directory: example
-
-    - name: example build
-      run: cmake --build --preset default
-      working-directory: example
-
-    - name: example test
-      run: ctest --preset default
-      working-directory: example
+      env:
+        CMAKE_PREFIX_PATH: ${{ runner.temp }}
 
 
   windows:
@@ -296,20 +269,11 @@ jobs:
     - name: install package
       run: cmake --install build
 
-    - name: example config
-      run: >-
-        cmake
-        --preset default
-        -DCMAKE_PREFIX_PATH:PATH=${{ runner.temp }}
+    - name: example workflow
+      run: cmake --workflow --preset default
       working-directory: example
-
-    - name: example build
-      run: cmake --build --preset default
-      working-directory: example
-
-    - name: example test
-      run: ctest --preset default
-      working-directory: example
+      env:
+        CMAKE_PREFIX_PATH: ${{ runner.temp }}
 
 # Github Actions Exit code 0xc0000139 -- does not happen on real Windows PCs.
 
@@ -350,18 +314,8 @@ jobs:
   #   - name: Install Release
   #     run: cmake --install build --config Release
 
-  #   - name: example config
-  #     run: >-
-  #       cmake
-  #       --preset default
-  #       -Dfortran:BOOL=false
-  #       -DCMAKE_PREFIX_PATH=${{ runner.temp }}
-  #     working-directory: example
-
-  #   - name: example build
-  #     run: cmake --build --preset default
-  #     working-directory: example
-
-  #   - name: example test
-  #     run: ctest --preset default
-  #     working-directory: example
+    # - name: example workflow
+    #   run: cmake --workflow --preset default
+    #   working-directory: example
+    #   env:
+    #     CMAKE_PREFIX_PATH: ${{ runner.temp }}
