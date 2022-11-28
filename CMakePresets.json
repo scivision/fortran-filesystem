@@ -10,6 +10,10 @@
   }
 },
 {
+  "name": "ninja", "inherits": "default",
+  "generator": "Ninja"
+},
+{
   "name": "multi", "inherits": "default",
   "displayName": "Ninja Multi-Config",
   "generator": "Ninja Multi-Config"
@@ -29,6 +33,21 @@
   {
     "name": "default",
     "configurePreset": "default"
+  },
+  {
+    "name": "explain",
+    "configurePreset": "ninja",
+    "nativeToolOptions": ["-d", "explain"]
+  },
+  {
+    "name": "keep",
+    "configurePreset": "ninja",
+    "nativeToolOptions": ["-d", "keeprsp", "-d", "keepdepfile"]
+  },
+  {
+    "name": "stats",
+    "configurePreset": "ninja",
+    "nativeToolOptions": ["-d", "stats"]
   },
   {
     "name": "release",
