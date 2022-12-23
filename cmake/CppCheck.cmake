@@ -2,13 +2,6 @@
 
 function(cpp_check)
 
-# is the compiler basically C++17 enabled?
-check_cxx_symbol_exists(__has_include "" HAVE_INCLUDE_MACRO)
-if(NOT HAVE_INCLUDE_MACRO)
-  message(WARNING "C++ compiler not C++17 capable ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-  return()
-endif()
-
 # https://en.cppreference.com/w/cpp/feature_test
 check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_FS_FEATURE)
 
