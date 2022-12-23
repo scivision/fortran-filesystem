@@ -14,11 +14,6 @@ namespace fs = std::filesystem;
 #error "No C++ filesystem support"
 #endif
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#endif
-
 #include "ffilesystem.h"
 
 
@@ -135,7 +130,7 @@ if(!fs_exists(path))
 
 #ifdef __MINGW32__
 // c++ filesystem is_symlink doesn't work on MinGW GCC, but this C method does work
-  return GetFileAttributes(path) & FILE_ATTRIBUTE_REPARSE_POINT;
+  return _fs_win32_is_symlink(path);
 #endif
 
   std::error_code ec;
@@ -160,16 +155,9 @@ int fs_create_symlink(const char* target, const char* link) {
     return 1;
   }
 
-#ifdef _WIN32
-  // C++ filesystem doesn't work for create_symlink, but this C method does work
-  if(fs_is_dir(target)) {
-    return !(CreateSymbolicLink(link, target,
-      SYMBOLIC_LINK_FLAG_DIRECTORY | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
-  }
-  else {
-    return !(CreateSymbolicLink(link, target,
-      SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
-  }
+#ifdef __MINGW32__
+  // C++ filesystem doesn't work for create_symlink with MinGW, but this C method does work
+  return _fs_win32_create_symlink(target, link);
 #endif
 
   std::error_code ec;

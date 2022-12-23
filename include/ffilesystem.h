@@ -118,6 +118,10 @@ extern size_t fs_exe_dir(char* path, size_t);
 extern size_t fs_lib_path(char* path, size_t);
 extern size_t fs_lib_dir(char* path, size_t);
 
+// internal functions
+bool _fs_win32_is_symlink(const char*);
+bool _fs_win32_create_symlink(const char*, const char*);
+
 #ifdef __cplusplus
 }
 #endif

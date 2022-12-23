@@ -34,11 +34,11 @@ if(destination == NULL || strlen(destination) == 0) {
     }
   }
 
-  #ifdef _WIN32
+#ifdef _WIN32
   if(CopyFile(source, destination, true))
     return 0;
   return 1;
-  #else
+#else
 // from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
 
   char* s = (char*) malloc(strlen(source) + 1);
@@ -56,7 +56,7 @@ if(destination == NULL || strlen(destination) == 0) {
     return 0;
 
   return ret;
-  #endif
+#endif
 }
 
 int fs_create_directories(const char* path) {

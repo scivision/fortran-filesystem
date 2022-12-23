@@ -450,7 +450,7 @@ bool fs_is_symlink(const char* path){
     return false;
 
 #ifdef _WIN32
-  return GetFileAttributes(path) & FILE_ATTRIBUTE_REPARSE_POINT;
+  return _fs_win32_is_symlink(path);
 #else
   struct stat buf;
 
@@ -466,14 +466,7 @@ bool fs_is_symlink(const char* path){
 int fs_create_symlink(const char* target, const char* link) {
 
 #ifdef _WIN32
-  if(fs_is_dir(target)) {
-    return !(CreateSymbolicLink(link, target,
-      SYMBOLIC_LINK_FLAG_DIRECTORY | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
-  }
-  else {
-    return !(CreateSymbolicLink(link, target,
-      SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
-  }
+  return _fs_win32_create_symlink(target, link);
 #else
   return symlink(target, link);
 #endif

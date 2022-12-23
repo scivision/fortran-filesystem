@@ -5,6 +5,9 @@
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
+#elif defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 #endif
 
 bool fs_is_macos(){
@@ -113,4 +116,29 @@ size_t fs_lib_dir(char* path, size_t buffer_size){
   free(buf);
   return L;
 
+}
+
+bool _fs_win32_is_symlink(const char* path){
+#ifdef _WIN32
+  return GetFileAttributes(path) & FILE_ATTRIBUTE_REPARSE_POINT;
+#else
+  (void) path;
+  return false;
+#endif
+}
+
+bool _fs_win32_create_symlink(const char* target, const char* link){
+#ifdef _WIN32
+ if(fs_is_dir(target)) {
+    return !(CreateSymbolicLink(link, target,
+      SYMBOLIC_LINK_FLAG_DIRECTORY | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
+  }
+  else {
+    return !(CreateSymbolicLink(link, target,
+      SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
+  }
+#else
+  (void) target; (void) link;
+  return false;
+#endif
 }
