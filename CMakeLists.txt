@@ -36,30 +36,17 @@ endif()
 
 add_library(ffilesystem src/common.c
 $<TARGET_OBJECTS:get_path>
-$<$<BOOL:${HAVE_CXX_FILESYSTEM}>:src/filesystem.cpp>
+"$<IF:$<BOOL:${HAVE_CXX_FILESYSTEM}>,src/filesystem.cpp,src/c/filesystem.c;src/c/env.c;src/c/sys.c;src/c/cwalk.c>"
 "$<$<BOOL:${fortran}>:src/get_path.f90;src/filesystem.f90;src/f2c.f90;src/find.f90>"
 )
-target_include_directories(ffilesystem PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_compile_definitions(ffilesystem PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
+target_include_directories(ffilesystem PRIVATE ${PROJECT_SOURCE_DIR}/include
+$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:${PROJECT_SOURCE_DIR}/src/c>
+)
+target_compile_definitions(ffilesystem PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
+"$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:_GNU_SOURCE;CWK_EXPORTS>"
+)
 set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)
 set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
-
-if(NOT HAVE_CXX_FILESYSTEM)
-  add_library(filesystem_c OBJECT src/c/filesystem.c src/c/env.c src/c/sys.c
-  src/c/cwalk.c
-  )
-  target_include_directories(filesystem_c PRIVATE
-  ${PROJECT_SOURCE_DIR}/src/c
-  )
-  target_compile_definitions(filesystem_c PRIVATE
-  $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
-  _GNU_SOURCE
-  CWK_EXPORTS
-  )
-
-  target_sources(ffilesystem PRIVATE $<TARGET_OBJECTS:filesystem_c>)
-endif()
-
 set_property(TARGET ffilesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
 set_property(TARGET ffilesystem PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set_property(TARGET ffilesystem PROPERTY ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
