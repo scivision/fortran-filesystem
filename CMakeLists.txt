@@ -48,14 +48,9 @@ target_compile_definitions(ffilesystem PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_
 set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)
 set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
 set_property(TARGET ffilesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
-set_property(TARGET ffilesystem PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set_property(TARGET ffilesystem PROPERTY ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set_property(TARGET ffilesystem PROPERTY LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 target_include_directories(ffilesystem PUBLIC
-$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
-$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+"$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include;${PROJECT_SOURCE_DIR};${PROJECT_SOURCE_DIR}/include>"
 $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(ffilesystem
