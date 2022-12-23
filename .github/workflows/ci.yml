@@ -175,7 +175,7 @@ jobs:
 
     strategy:
       matrix:
-        compiler: [ {cpp: g++-11, c: gcc-11}, {cpp: clang++, c: clang} ]
+        compiler: [ {cpp: g++-12, c: gcc-12}, {cpp: clang++, c: clang} ]
         shared: [false]
         cpp: [true, false]
         include:
@@ -186,11 +186,11 @@ jobs:
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
-      FC: gfortran-11
+      FC: gfortran-12
 
     steps:
 
-    - run: brew install ninja
+    - run: brew install ninja gcc
 
     - uses: actions/checkout@v3
 
