@@ -175,24 +175,22 @@ jobs:
 
     strategy:
       matrix:
-        compiler: [ {cpp: g++, c: gcc}, {cpp: clang++, c: clang} ]
-        shared: [true, false]
+        compiler: [ {cpp: g++-11, c: gcc-11}, {cpp: clang++, c: clang} ]
+        shared: [false]
         cpp: [true, false]
-        exclude:
+        include:
         - shared: true
-          cpp: false
-        - shared: true
-          compiler: {cpp: g++, c: gcc}
+          cpp: true
+          compiler: {cpp: clang++, c: clang}
 
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
+      FC: gfortran-11
 
     steps:
 
-    - run: |
-        brew install ninja
-        brew reinstall gcc
+    - run: brew install ninja
 
     - uses: actions/checkout@v3
 
