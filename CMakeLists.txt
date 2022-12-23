@@ -36,32 +36,19 @@ endif()
 
 add_library(ffilesystem src/common.c
 $<TARGET_OBJECTS:get_path>
+$<$<BOOL:${HAVE_CXX_FILESYSTEM}>:src/filesystem.cpp>
+"$<$<BOOL:${fortran}>:src/get_path.f90;src/filesystem.f90;src/f2c.f90;src/find.f90>"
 )
+target_include_directories(ffilesystem PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_compile_definitions(ffilesystem PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
 set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)
 set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
 
-if(fortran)
-  target_sources(ffilesystem PRIVATE
-  src/get_path.f90
-  src/filesystem.f90 src/f2c.f90 src/find.f90
-  )
-endif()
-
-if(HAVE_CXX_FILESYSTEM)
-  add_library(filesystem_cpp OBJECT src/filesystem.cpp)
-  target_include_directories(filesystem_cpp PRIVATE ${PROJECT_SOURCE_DIR}/include)
-  target_compile_definitions(filesystem_cpp PRIVATE
-  $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
-  )
-
-  target_sources(ffilesystem PRIVATE $<TARGET_OBJECTS:filesystem_cpp>)
-else()
+if(NOT HAVE_CXX_FILESYSTEM)
   add_library(filesystem_c OBJECT src/c/filesystem.c src/c/env.c src/c/sys.c
   src/c/cwalk.c
   )
   target_include_directories(filesystem_c PRIVATE
-  ${PROJECT_SOURCE_DIR}/include
   ${PROJECT_SOURCE_DIR}/src/c
   )
   target_compile_definitions(filesystem_c PRIVATE
