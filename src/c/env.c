@@ -38,7 +38,7 @@ size_t fs_get_homedir(char* result, size_t buffer_size) {
 char* buf;
 size_t L;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   buf = (char*) malloc(buffer_size);
   if(getenv_s(&L, buf, buffer_size, "USERPROFILE") != 0){
     fprintf(stderr, "ERROR:get_homedir: %s\n", strerror(errno));
@@ -46,12 +46,14 @@ size_t L;
     result = NULL;
     return 0;
   }
+#elif _WIN32
+  buf = getenv("USERPROFILE");
 #else
   buf = getenv("HOME");
 #endif
   L = fs_normal(buf, result, buffer_size);
   if(TRACE) printf("TRACE: get_homedir: %s %s\n", buf, result);
-#ifdef _WIN32
+#ifdef _MSC_VER
   free(buf);
 #endif
   return L;
@@ -62,7 +64,7 @@ size_t fs_get_tempdir(char* result, size_t buffer_size) {
 char* buf;
 size_t L;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   buf = (char*) malloc(buffer_size);
   if(GetTempPath((DWORD)buffer_size, buf) == 0){
     fprintf(stderr, "ERROR:get_tempdir: %s\n", strerror(errno));
@@ -70,12 +72,14 @@ size_t L;
     result = NULL;
     return 0;
   }
+#elif _WIN32
+  buf = getenv("TEMP");
 #else
   buf = getenv("TMPDIR");
 #endif
 
   L = fs_normal(buf, result, buffer_size);
-#ifdef _WIN32
+#ifdef _MSC_VER
   free(buf);
 #endif
   return L;
