@@ -1,7 +1,7 @@
 !! a CLI frontent for ffilesystem
 !! helps people understand ffilesystem output
 
-program cli
+program filesystem_cli
 
 use filesystem
 

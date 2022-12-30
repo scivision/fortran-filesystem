@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11...3.25)
 
 project(ffilesystem
 LANGUAGES C
-VERSION 4.1.2
+VERSION 4.1.3
 )
 
 include(CTest) # needed for "ctest -T memcheck"
@@ -20,7 +20,7 @@ endif()
 include(cmake/compilers.cmake)
 
 # --- path finding
-add_library(get_path OBJECT src/get_path.c)
+add_library(get_path OBJECT src/common/get_path.c)
 target_include_directories(get_path PRIVATE include)
 target_compile_definitions(get_path PRIVATE _GNU_SOURCE)
 if(BUILD_SHARED_LIBS)
@@ -34,10 +34,10 @@ endif()
 
 # --- filesystem library
 
-add_library(ffilesystem src/common.c
+add_library(ffilesystem src/common/common.c
 $<TARGET_OBJECTS:get_path>
-"$<IF:$<BOOL:${HAVE_CXX_FILESYSTEM}>,src/filesystem.cpp,src/c/filesystem.c;src/c/env.c;src/c/sys.c;src/c/cwalk.c>"
-"$<$<BOOL:${fortran}>:src/get_path.f90;src/filesystem.f90;src/f2c.f90;src/find.f90>"
+"$<IF:$<BOOL:${HAVE_CXX_FILESYSTEM}>,src/common/filesystem.cpp,src/c/filesystem.c;src/c/env.c;src/c/sys.c;src/c/cwalk.c>"
+"$<$<BOOL:${fortran}>:src/common/fortran/get_path.f90;src/common/fortran/filesystem.f90;src/common/fortran/f2c.f90;src/common/fortran/find.f90>"
 )
 target_include_directories(ffilesystem PRIVATE ${PROJECT_SOURCE_DIR}/include
 $<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:${PROJECT_SOURCE_DIR}/src/c>
@@ -84,12 +84,12 @@ endif()
 # --- CLI
 
 if(cli)
-  add_executable(fs_cli app/cli.c)
+  add_executable(fs_cli app/c/main.c)
   target_compile_definitions(fs_cli PRIVATE "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>")
   target_link_libraries(fs_cli PRIVATE ffilesystem)
 
   if(fortran)
-  add_executable(filesystem_cli app/cli.f90)
+  add_executable(filesystem_cli app/fortran/filesystem_cli.f90)
   target_link_libraries(filesystem_cli PRIVATE ffilesystem)
   set_property(TARGET filesystem_cli PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
   set_property(TARGET filesystem_cli PROPERTY LINKER_LANGUAGE Fortran)

@@ -5,6 +5,7 @@ use filesystem, only : exe_path, exe_dir, lib_path, lib_dir, is_macos, is_window
 
 implicit none
 
+if(command_argument_count() < 1) stop "please specify command line parameters as in CMakeLists.txt"
 
 call test_exe_path()
 

@@ -21,7 +21,7 @@ set(CMAKE_CXX_STANDARD 17)
 # --- Fortran use
 if(fortran)
 
-add_executable(ex_fortran ex1.f90)
+add_executable(ex_fortran 1/main.f90)
 target_link_libraries(ex_fortran PRIVATE ffilesystem::filesystem)
 set_property(TARGET ex_fortran PROPERTY LINKER_LANGUAGE Fortran)
 # Intel needs linker_language fortran else error "undefined reference to `main'"
@@ -36,7 +36,7 @@ COMMAND test_binpath_f $<BOOL:${ffilesystem_shared}> $<TARGET_FILE_NAME:test_bin
 endif(fortran)
 
 # --- C++ use
-add_executable(ex_cpp ex2.cpp)
+add_executable(ex_cpp 2/main.cpp)
 target_link_libraries(ex_cpp PRIVATE ffilesystem::filesystem)
 add_test(NAME BasicCpp COMMAND ex_cpp)
 
@@ -47,7 +47,7 @@ COMMAND test_binpath_c $<BOOL:${ffilesystem_shared}> $<TARGET_FILE_NAME:test_bin
 )
 
 # --- C use
-add_executable(ex_c ex3.c)
+add_executable(ex_c 3/main.c)
 target_link_libraries(ex_c PRIVATE ffilesystem::filesystem)
 add_test(NAME BasicC COMMAND ex_c)
 
