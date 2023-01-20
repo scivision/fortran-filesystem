@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11...3.25)
+cmake_minimum_required(VERSION 3.14...3.25)
 
 project(ffilesystem
 LANGUAGES C
@@ -48,6 +48,7 @@ target_compile_definitions(ffilesystem PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_
 set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)
 set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
 set_property(TARGET ffilesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
+set_property(TARGET ffilesystem PROPERTY VERSION ${PROJECT_VERSION})
 
 target_include_directories(ffilesystem PUBLIC
 "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include;${PROJECT_SOURCE_DIR};${PROJECT_SOURCE_DIR}/include>"
@@ -63,13 +64,7 @@ if(fortran)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
-install(TARGETS ffilesystem EXPORT ${PROJECT_NAME}-targets
-LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
+install(TARGETS ffilesystem EXPORT ${PROJECT_NAME}-targets)
 
 add_library(ffilesystem::filesystem INTERFACE IMPORTED)
 
@@ -95,9 +90,7 @@ if(cli)
   set_property(TARGET filesystem_cli PROPERTY LINKER_LANGUAGE Fortran)
   # Intel/NVHPC needs linker_language fortran else error "undefined reference to `main'"
 
-  install(TARGETS filesystem_cli EXPORT ${PROJECT_NAME}-targets
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  )
+  install(TARGETS filesystem_cli EXPORT ${PROJECT_NAME}-targets)
   endif()
 endif()
 

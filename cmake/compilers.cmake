@@ -107,8 +107,7 @@ endif()
 if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU|^Intel")
   add_compile_options(
   "$<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-Wextra>"
-  "$<$<COMPILE_LANGUAGE:C>:-Wall>"
-  "$<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration>"
+  "$<$<COMPILE_LANGUAGE:C>:-Wall;-Werror=implicit-function-declaration>"
   )
   if(cpp)
     add_compile_options(
