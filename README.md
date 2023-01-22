@@ -70,6 +70,7 @@ scl enable gcc-toolset-10 "which g++"
 ## Build
 
 Ffilesystem can be built with CMake or Fortran Package Manager (FPM).
+One can also simply copy `src/common/[filesystem.cpp,common.c,get_path.c]` and `include/ffilesystem.h` into the user project.
 
 "libffilesystem.a" is the library binary built that contains the Fortran "filesystem" module--it is the only binary you need to use in your project.
 
