@@ -18,18 +18,18 @@
 int fs_copy_file(const char* source, const char* destination, bool overwrite) {
 
 if(source == NULL || strlen(source) == 0) {
-  fprintf(stderr,"ERROR:filesystem:copy_file: source path %s must not be empty\n", source);
+  fprintf(stderr,"ERROR:ffilesystem:copy_file: source path %s must not be empty\n", source);
   return 1;
 }
 if(destination == NULL || strlen(destination) == 0) {
-  fprintf(stderr, "ERROR:filesystem:copy_file: destination path %s must not be empty\n", destination);
+  fprintf(stderr, "ERROR:ffilesystem:copy_file: destination path %s must not be empty\n", destination);
   return 1;
 }
 
   if(overwrite){
     if(fs_is_file(destination)){
       if(!fs_remove(destination)){
-        fprintf(stderr, "ERROR:filesystem:copy_file: could not remove existing file %s\n", destination);
+        fprintf(stderr, "ERROR:ffilesystem:copy_file: could not remove existing file %s\n", destination);
       }
     }
   }
@@ -63,7 +63,7 @@ int fs_create_directories(const char* path) {
   // Windows: note that SHCreateDirectory is deprecated, so use a system call like Unix
 
   if(path == NULL || strlen(path) == 0) {
-    fprintf(stderr,"ERROR:filesystem:mkdir: path %s must not be empty\n", path);
+    fprintf(stderr,"ERROR:ffilesystem:mkdir: path %s must not be empty\n", path);
     return 1;
   }
 

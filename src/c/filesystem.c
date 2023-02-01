@@ -242,7 +242,7 @@ char* buf2 = (char*) malloc(buffer_size);
   char* t = realpath(buf, buf2);
 #endif
   if (strict && t == NULL) {
-    fprintf(stderr, "ERROR:canonical: %s => %s\n", buf, strerror(errno));
+    fprintf(stderr, "ERROR:ffilesystem:canonical: %s => %s\n", buf, strerror(errno));
     free(buf);
     free(buf2);
     result = NULL;
