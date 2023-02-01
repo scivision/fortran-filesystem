@@ -33,6 +33,6 @@ endif
 if (expanduser("~//") /= expanduser("~/")) error stop "expanduser double separator failed: " // &
    expanduser("~//") // " /= " // expanduser("~/")
 end block
-print *, "OK: filesystem: expanduser"
+print *, "OK: filesystem: expanduser  ", expanduser("~")
 
 end program

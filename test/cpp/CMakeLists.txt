@@ -1,8 +1,11 @@
 set_property(DIRECTORY PROPERTY LABELS cpp)
 
-add_executable(test_cpp_ifc test_ifc.cpp)
-target_link_libraries(test_cpp_ifc PRIVATE ffilesystem)
-add_test(NAME CPP_interface COMMAND test_cpp_ifc)
+
+foreach(t IN ITEMS expanduser ifc)
+  add_executable(test_CPP_${t} test_${t}.cpp)
+  target_link_libraries(test_CPP_${t} PRIVATE ffilesystem)
+  add_test(NAME CPP_${t} COMMAND test_CPP_${t})
+endforeach()
 
 add_executable(test_binpath_cpp test_binpath.cpp)
 target_link_libraries(test_binpath_cpp PRIVATE ffilesystem)

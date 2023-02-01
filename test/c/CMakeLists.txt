@@ -1,16 +1,14 @@
 set_property(DIRECTORY PROPERTY LABELS c)
 
-add_executable(test_c_ifc test_ifc.c)
-target_link_libraries(test_c_ifc PRIVATE ffilesystem)
-add_test(NAME C_interface COMMAND test_c_ifc)
-
-add_executable(test_expanduser_c test_expanduser.c)
-target_link_libraries(test_expanduser_c PRIVATE ffilesystem)
-add_test(NAME C_expanduser COMMAND test_expanduser_c)
+foreach(t IN ITEMS expanduser ifc)
+  add_executable(test_C_${t} test_${t}.c)
+  target_link_libraries(test_C_${t} PRIVATE ffilesystem)
+  add_test(NAME C_${t} COMMAND test_C_${t})
+endforeach()
 
 add_executable(test_binpath_c test_binpath.c)
 target_link_libraries(test_binpath_c PRIVATE ffilesystem)
-add_test(NAME binpath_c
+add_test(NAME C_binpath
 COMMAND test_binpath_c $<BOOL:${BUILD_SHARED_LIBS}> $<TARGET_FILE_NAME:test_binpath_c>  $<TARGET_FILE_NAME:ffilesystem>
 )
 

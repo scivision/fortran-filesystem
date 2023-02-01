@@ -30,7 +30,7 @@ int main() {
 
   fs_normal(cpath, cpath, MAXP);
 
-  if (strcmp(fpath, cpath) != 0) {
+  if (std::strcmp(fpath, cpath) != 0) {
     fprintf(stderr, "C cwd %s != Fortran cwd %s\n", cpath, fpath);
     return EXIT_FAILURE;
   }
