@@ -105,11 +105,13 @@ if(TRACE) printf("TRACE:mkdir waiting to complete %s\n", cmd);
 
 #ifdef _WIN32
   char *const args[5] = {"cmd", "/c", "mkdir", p, NULL};
-  int ret = execvp("cmd", args);
+  char cn[] = "cmd";
 #else
   char *const args[4] = {"mkdir", "-p", p, NULL};
-  int ret = execvp("mkdir", args);
+  char cn[] = "mkdir";
 #endif
+
+  int ret = execvp(cn, args);
   free(p);
 
   if(ret != -1)

@@ -30,10 +30,12 @@ bool fs_cpp(){
 
 size_t fs_filesep(char* sep) {
 #ifdef _WIN32
-  strcpy(sep, "\\");
+  char s[] = "\\";
 #else
-  strcpy(sep, "/");
+  char s[] = "/";
 #endif
+
+  strcpy(sep, s);
 
   return strlen(sep);
 }

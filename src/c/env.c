@@ -20,38 +20,45 @@ size_t _fs_getenv(const char* name, char* result, size_t buffer_size);
 
 size_t fs_get_cwd(char* result, size_t buffer_size) {
 
+  char* x;
+
 #ifdef _MSC_VER
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
-  if (_getcwd(result, (DWORD)buffer_size) == NULL){
-    result[0] = '\0';
-    return 0;
-  }
+  x = _getcwd(result, (DWORD)buffer_size);
 #else
-  if (getcwd(result, buffer_size) == NULL){
-    result[0] = '\0';
-    return 0;
-  }
+  x = getcwd(result, buffer_size);
 #endif
 
+  if (x == NULL){
+    result[0] = '\0';
+    return 0;
+  }
+
   return fs_normal(result, result, buffer_size);
+
 }
 
 size_t fs_get_homedir(char* result, size_t buffer_size) {
 
 #ifdef _WIN32
-  return _fs_getenv("USERPROFILE", result, buffer_size);
+  char name[] = "USERPROFILE";
 #else
-  return _fs_getenv("HOME", result, buffer_size);
+  char name[] = "HOME";
 #endif
+
+  return _fs_getenv(name, result, buffer_size);
+
 }
 
 size_t fs_get_tempdir(char* result, size_t buffer_size) {
 
 #ifdef _WIN32
-  return _fs_getenv("TEMP", result, buffer_size);
+  char name[] = "TEMP";
 #else
-  return _fs_getenv("TMPDIR", result, buffer_size);
+  char name[] = "TMPDIR";
 #endif
+
+  return _fs_getenv(name, result, buffer_size);
 
 }
 
