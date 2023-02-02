@@ -235,7 +235,7 @@ bool fs_exists(const char* path) {
   auto e = fs::exists(path, ec);
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:exists: " << ec.message() << std::endl;
+    std::cerr << "ERROR:ffilesystem:exists: " << ec.message() << std::endl;
     return false;
   }
 
@@ -260,10 +260,15 @@ bool fs_is_dir(const char* path) {
     return true;
 #endif
 
-  if (!fs_exists(path))
+  std::error_code ec;
+  auto e = fs::is_directory(path, ec);
+  if(ec) {
+    std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << std::endl;
     return false;
+  }
 
-  return fs::is_directory(path);
+  return e;
+
 }
 
 
