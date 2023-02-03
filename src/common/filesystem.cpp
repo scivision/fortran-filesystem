@@ -294,7 +294,12 @@ bool fs_is_file(const char* path) {
   if (!fs_exists(path))
     return false;
 
-  return fs::is_regular_file(path);
+  auto e = fs::is_regular_file(path, ec);
+  if(ec) {
+    std::cerr << "ERROR:filesystem:is_file: " << ec.message() << std::endl;
+    return false;
+  }
+  return e;
 }
 
 
