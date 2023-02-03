@@ -63,6 +63,8 @@ if(.not. is_symlink(link)) error stop "is_symlink() should be true for symlink f
 if(.not. p_sym%is_symlink()) error stop "%is_symlink() should be trum for symlink file: " // p_sym%path()
 if(.not. is_file(link)) error stop "is_file() should be true for existing symlink file: " // link
 
+print '(a)', "PASSED: test_symlink: file"
+
 !> directory symlinks
 if(is_symlink(tgt_dir)) error stop "is_symlink() should be false for non-symlink dir"
 if(.not. is_dir(link_dir)) error stop "is_dir() should be true for existing regular dir" // link_dir

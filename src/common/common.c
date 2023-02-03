@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "ffilesystem.h"
 
@@ -127,18 +128,27 @@ bool _fs_win32_is_symlink(const char* path){
 #endif
 }
 
-bool _fs_win32_create_symlink(const char* target, const char* link){
+int _fs_win32_create_symlink(const char* target, const char* link){
 #ifdef _WIN32
- if(fs_is_dir(target)) {
-    return !(CreateSymbolicLink(link, target,
-      SYMBOLIC_LINK_FLAG_DIRECTORY | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
+  int p = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
+
+  if(fs_is_dir(target))
+    p |= SYMBOLIC_LINK_FLAG_DIRECTORY;
+
+  bool s = CreateSymbolicLink(link, target, p);
+
+  if (s)
+    return 0;
+
+  DWORD err = GetLastError();
+  fprintf(stderr, "ERROR:ffilesystem:CreateSymbolicLink: %ld\n", err);
+  if(err == ERROR_PRIVILEGE_NOT_HELD){
+    fprintf(stderr, "Enable Windows developer mode to use symbolic links:\n"
+      "https://learn.microsoft.com/en-us/windows/apps/get-started/developer-mode-features-and-debugging\n");
   }
-  else {
-    return !(CreateSymbolicLink(link, target,
-      SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != 0);
-  }
+  return -1;
 #else
   (void) target; (void) link;
-  return false;
+  return 1;
 #endif
 }

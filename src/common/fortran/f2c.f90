@@ -306,9 +306,11 @@ ierr = fs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)
 if(present(status)) then
   status = ierr
 elseif (ierr < 0) then
-  error stop "ERROR:filesystem:create_symlink: platform is not capable of symlinks."
+  write(stderr, '(a,1x,i0)') "ERROR:filesystem:create_symlink: platform is not capable of symlinks: " // link, ierr
+  error stop
 elseif (ierr /= 0) then
-  error stop "ERROR:filesystem:create_symlink: " // link
+  write(stderr,'(a,1x,i0)') "ERROR:filesystem:create_symlink: " // link, ierr
+  error stop
 endif
 end procedure
 
