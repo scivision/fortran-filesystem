@@ -497,7 +497,9 @@ suffix = cbuf(:N)
 end procedure
 
 module procedure touch
-if(.not. fs_touch(trim(path) // C_NULL_CHAR)) error stop "filesystem:touch: " // path
+if(.not. fs_touch(trim(path) // C_NULL_CHAR)) then
+  error stop "filesystem:touch: " // trim(path)
+end if
 end procedure
 
 module procedure with_suffix

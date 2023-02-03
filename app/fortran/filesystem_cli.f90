@@ -3,6 +3,8 @@
 
 program filesystem_cli
 
+use, intrinsic :: iso_fortran_env, only: compiler_version, compiler_options
+
 use filesystem
 
 implicit none
@@ -19,23 +21,26 @@ call get_command_argument(1, fcn, length=L, status=i)
 if (L == 0 .or. i /= 0) error stop "invalid function name: " // trim(fcn)
 
 select case (fcn)
-case ("cpp", "get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos", &
+case ("cpp", "compiler", "get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos", &
     "max_path", "exe_path", "lib_path")
   if (argc /= 1) error stop "usage: ./filesystem_cli " // trim(fcn)
 case ("copy_file", "relative_to", "same_file", "with_suffix")
-  if (argc < 3) error stop "usage: ./filesystem_cli <function> <path> <path>"
+  if (argc /= 3) error stop "usage: ./filesystem_cli <function> <path> <path>"
   call get_command_argument(2, buf, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf)
   call get_command_argument(3, buf2, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf2)
 case default
-  if (argc < 2) error stop "usage: ./filesystem_cli <function> <path>"
+  !! 2 arguments
+  if (argc /= 2) error stop "usage: ./filesystem_cli <function> <path>"
   call get_command_argument(2, buf, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf)
 end select
 
 
 select case (fcn)
+case ("compiler")
+  print '(a,/,a)', compiler_version(), compiler_options()
 case ("cpp")
   print '(L1)', fs_cpp()
 case ('is_macos')
@@ -51,6 +56,9 @@ case ("copy_file")
   if (i /= 0) error stop "copy_file failed"
 case ("get_cwd")
   print '(A)', trim(get_cwd())
+case ("touch")
+  print *, "touch: " // trim(buf)
+  call touch(buf)
 case ("normal")
   print '(A)', normal(buf)
 case ("expanduser")
