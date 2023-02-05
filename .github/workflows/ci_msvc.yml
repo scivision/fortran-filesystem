@@ -1,0 +1,61 @@
+name: ci_msvc
+
+on:
+  push:
+    paths:
+      - "**.c"
+      - "**.cpp"
+      - "**/CMakeLists.txt"
+      - "**.cmake"
+      - ".github/workflows/ci_msvc.yml"
+      - "!cray.cmake"
+      - "!concepts/"
+
+jobs:
+
+  msvc:
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        cpp: [true, false]
+      # github actions generally broken for shared lib, even when exe in cwd
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: config cpp=${{ matrix.cpp }}
+      run: >-
+        cmake
+        -Bbuild
+        --install-prefix=${{ runner.temp }}
+        -Dfortran:BOOL=off
+        -Dcpp:BOOL=${{ matrix.cpp }}
+        -DBUILD_SHARED_LIBS:BOOL=off
+
+    - name: Debug build
+      run: cmake --build build --config Debug
+
+    - name: Debug test
+      run: ctest --test-dir build -C Debug -V
+
+    - name: Release build
+      run: cmake --build build --config Release
+
+    - name: Release test
+      run: ctest --test-dir build -C Release -V
+
+    - name: Install Release
+      run: cmake --install build --config Release
+
+    - name: example configure
+      run: cmake -S example -B example/build
+      env:
+        CMAKE_PREFIX_PATH: ${{ runner.temp }}
+
+    - name: example build
+      run: cmake --build example/build --config Release
+
+    - name: example test
+      run: ctest --test-dir example/build -C Release -V

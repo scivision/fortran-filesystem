@@ -266,39 +266,3 @@ jobs:
         CMAKE_PREFIX_PATH: ${{ runner.temp }}
 
 # Github Actions Exit code 0xc0000139 -- does not happen on real Windows PCs.
-
-  windows-msvc:
-    runs-on: windows-latest
-    timeout-minutes: 10
-
-    strategy:
-      matrix:
-        cpp: [true, false]
-      # github actions generally broken for shared lib, even when exe in cwd
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: install Ninja
-      run: pip install ninja
-
-    - name: config cpp=${{ matrix.cpp }}
-      run: >-
-        cmake --preset multi
-        --install-prefix=${{ runner.temp }}
-        -Dfortran:BOOL=off
-
-    - name: Debug workflow
-      run: cmake --workflow --preset debug
-
-    - name: Release workflow
-      run: cmake --workflow --preset release
-
-    - name: Install Release
-      run: cmake --install build --config Release
-
-    - name: example workflow
-      run: cmake --workflow --preset default
-      working-directory: example
-      env:
-        CMAKE_PREFIX_PATH: ${{ runner.temp }}
