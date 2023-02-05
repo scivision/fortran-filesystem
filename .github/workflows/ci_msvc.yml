@@ -1,5 +1,8 @@
 name: ci_msvc
 
+env:
+  CTEST_NO_TESTS_ACTION: error
+
 on:
   push:
     paths:
