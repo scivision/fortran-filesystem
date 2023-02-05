@@ -52,8 +52,11 @@ set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
 set_property(TARGET ffilesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
 set_property(TARGET ffilesystem PROPERTY VERSION ${PROJECT_VERSION})
 
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
+# include -Dfortran=off, the ffilesystem CMake package will fail on use if directory not exist
+
 target_include_directories(ffilesystem PUBLIC
-"$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include;${PROJECT_SOURCE_DIR};${PROJECT_SOURCE_DIR}/include>"
+"$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include;${PROJECT_SOURCE_DIR}/include>"
 $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(ffilesystem
