@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.14...3.25)
+cmake_minimum_required(VERSION 3.14...3.26)
 
 project(ffilesystem
 LANGUAGES C
-VERSION 4.1.3
+VERSION 4.1.4
 )
 
 include(CTest) # needed for "ctest -T memcheck"
@@ -39,10 +39,12 @@ $<TARGET_OBJECTS:get_path>
 "$<IF:$<BOOL:${HAVE_CXX_FILESYSTEM}>,src/common/filesystem.cpp,src/c/filesystem.c;src/c/env.c;src/c/sys.c;src/c/cwalk.c>"
 "$<$<BOOL:${fortran}>:src/common/fortran/get_path.f90;src/common/fortran/filesystem.f90;src/common/fortran/f2c.f90;src/common/fortran/find.f90>"
 )
-target_include_directories(ffilesystem PRIVATE ${PROJECT_SOURCE_DIR}/include
+target_include_directories(ffilesystem PRIVATE
+${PROJECT_SOURCE_DIR}/include
 $<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:${PROJECT_SOURCE_DIR}/src/c>
 )
-target_compile_definitions(ffilesystem PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
+target_compile_definitions(ffilesystem PRIVATE
+$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
 "$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:_GNU_SOURCE;CWK_EXPORTS>"
 )
 set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)

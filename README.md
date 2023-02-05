@@ -97,7 +97,15 @@ For user convenience, we provide a demo executable "filesystem_cli" that allows 
 ## Usage from other projects
 
 The [example](./example) directory contains a use pattern from external projects.
-One can either `cmake --install build` or use ExternalProject from the other project.
+One can either `cmake --install build` ffilesystem or use ExternalProject from the other project.
+To find ffilesystem in your CMake project:
+
+```cmake
+find_package(ffilesystem CONFIG REQUIRED)
+```
+
+Note the CMake package variables `ffilesystem_cpp` and `ffilesystem_fortran` indicate whether ffilesystem was built with C++ and/or Fortran support.
+
 [ffilesystem.cmake](./cmake/ffilesystem.cmake) would be included from the other project to find or build Ffilesystem automatically.
 It provides the appropriate imported targets for shared or static builds, including Windows DLL handling.
 
