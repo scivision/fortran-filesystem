@@ -77,9 +77,13 @@ int fs_create_directories(const char* path) {
 #endif
 
 #ifdef _MSC_VER
+
   STARTUPINFO si = { 0 };
   PROCESS_INFORMATION pi;
+
+  ZeroMemory( &si, sizeof(si) );
   si.cb = sizeof(si);
+  ZeroMemory( &pi, sizeof(pi) );
 
   char* cmd = (char*) malloc(strlen(p) + 1 + 13);
   strcpy(cmd, "cmd /c mkdir ");
@@ -88,14 +92,24 @@ int fs_create_directories(const char* path) {
 
 if(TRACE) printf("TRACE:mkdir %s\n", cmd);
 
-  if (!CreateProcess(NULL, cmd, NULL, NULL, FALSE, 0, 0, 0, &si, &pi))
+  if (!CreateProcess(NULL, //  No module name (use command line)
+    cmd,    // Command line
+    NULL,   // Process handle not inheritable
+    NULL,   // Thread handle not inheritable
+    FALSE,  // Set handle inheritance to FALSE
+    0,      // No creation flags
+    NULL,   // Use parent's environment block
+    NULL,   // Use parent's starting directory
+    &si,    // Pointer to STARTUPINFO structure
+    &pi )   // Pointer to PROCESS_INFORMATION structure
+    )
     return -1;
 
 if(TRACE) printf("TRACE:mkdir waiting to complete %s\n", cmd);
   // Wait until child process exits.
-  WaitForSingleObject( pi.hProcess, 2000 );
-  CloseHandle(pi.hThread);
-  CloseHandle(pi.hProcess);
+  WaitForSingleObject( pi.hProcess, 5000 );
+  if (!CloseHandle(pi.hThread) || !CloseHandle(pi.hProcess))
+    return EXIT_FAILURE;
   if(TRACE) printf("TRACE:mkdir completed %s\n", cmd);
 
   return 0;
@@ -105,13 +119,11 @@ if(TRACE) printf("TRACE:mkdir waiting to complete %s\n", cmd);
 
 #ifdef _WIN32
   char *const args[5] = {"cmd", "/c", "mkdir", p, NULL};
-  char cn[] = "cmd";
 #else
   char *const args[4] = {"mkdir", "-p", p, NULL};
-  char cn[] = "mkdir";
 #endif
 
-  int ret = execvp(cn, args);
+  int ret = execvp(args[0], args);
   free(p);
 
   if(ret != -1)

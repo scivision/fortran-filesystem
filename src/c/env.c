@@ -66,6 +66,7 @@ size_t fs_get_tempdir(char* result, size_t buffer_size) {
 size_t _fs_getenv(const char* name, char* result, size_t buffer_size) {
 
 char* buf;
+size_t L;
 
 #ifdef _MSC_VER
   buf = (char*) malloc(buffer_size);
@@ -79,7 +80,7 @@ char* buf;
   buf = getenv(name);
 #endif
 
-  size_t L = fs_normal(buf, result, buffer_size);
+  L = fs_normal(buf, result, buffer_size);
 
 #ifdef _MSC_VER
   free(buf);
