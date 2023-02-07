@@ -520,13 +520,14 @@ bool fs_chmod_no_exe(const char* path){
 
 bool fs_touch(const char* path) {
 
-  if (fs_exists(path) && !fs_is_file(path))
+  if (fs_exists(path)){
+    if(fs_is_file(path))
+      return true;
     return false;
-
-  if(!fs_is_file(path)) {
-    FILE* fid = fopen(path, "a");
-    fclose(fid);
   }
+
+  FILE* fid = fopen(path, "a");
+  fclose(fid);
 
   return fs_is_file(path);
 }
