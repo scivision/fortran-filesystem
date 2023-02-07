@@ -96,13 +96,12 @@ if(TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
 
 size_t fs_stem(const char* path, char* result, size_t buffer_size){
 
-  if(path == NULL){
+  char* buf = (char*) malloc(buffer_size);
+  if(fs_file_name(path, buf, buffer_size) == 0){
+    free(buf);
     result = NULL;
     return 0;
   }
-
-  char* buf = (char*) malloc(buffer_size);
-  fs_file_name(path, buf, buffer_size);
 
   char* pos = strrchr(buf, '.');
   if (pos && pos != buf){
@@ -446,8 +445,7 @@ bool fs_is_absolute(const char* path){
 
 
 bool fs_is_symlink(const char* path){
-  if(path==NULL)
-    return false;
+
   if(!fs_exists(path))
     return false;
 
