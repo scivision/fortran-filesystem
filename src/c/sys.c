@@ -5,9 +5,8 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#endif
-
-#ifndef _MSC_VER
+#include <process.h>
+#else
 #include <unistd.h>
 #endif
 
@@ -18,11 +17,11 @@
 int fs_copy_file(const char* source, const char* destination, bool overwrite) {
 
 if(source == NULL || strlen(source) == 0) {
-  fprintf(stderr,"ERROR:ffilesystem:copy_file: source path %s must not be empty\n", source);
+  fprintf(stderr,"ERROR:ffilesystem:copy_file: source path must not be empty\n");
   return 1;
 }
 if(destination == NULL || strlen(destination) == 0) {
-  fprintf(stderr, "ERROR:ffilesystem:copy_file: destination path %s must not be empty\n", destination);
+  fprintf(stderr, "ERROR:ffilesystem:copy_file: destination path must not be empty\n");
   return 1;
 }
 
@@ -41,16 +40,7 @@ if(destination == NULL || strlen(destination) == 0) {
 #else
 // from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
 
-  char* s = (char*) malloc(strlen(source) + 1);
-  char* d = (char*) malloc(strlen(destination) + 1);
-  strcpy(s, source);  // NOLINT(clang-analyzer-security.insecureAPI.strcpy)
-  strcpy(d, destination);  // NOLINT(clang-analyzer-security.insecureAPI.strcpy)
-
-  char *const args[4] = {"cp", s, d, NULL};
-
-  int ret = execvp("cp", args);
-  free(s);
-  free(d);
+  int ret = execlp("cp", "cp", source, destination, NULL);
 
   if(ret != -1)
     return 0;
@@ -60,10 +50,11 @@ if(destination == NULL || strlen(destination) == 0) {
 }
 
 int fs_create_directories(const char* path) {
-  // Windows: note that SHCreateDirectory is deprecated, so use a system call like Unix
+// Windows: SHCreateDirectory is deprecated, CreateDirectory needs parents to exist,
+// so use a system call like Unix
 
-  if(path == NULL || strlen(path) == 0) {
-    fprintf(stderr,"ERROR:ffilesystem:mkdir: path %s must not be empty\n", path);
+  if(!path || strlen(path) == 0) {
+    fprintf(stderr,"ERROR:ffilesystem:mkdir: path must not be empty\n");
     return 1;
   }
 
@@ -76,59 +67,18 @@ int fs_create_directories(const char* path) {
   fs_as_windows(p);
 #endif
 
-#ifdef _MSC_VER
-
-  STARTUPINFO si = { 0 };
-  PROCESS_INFORMATION pi;
-
-  ZeroMemory( &si, sizeof(si) );
-  si.cb = sizeof(si);
-  ZeroMemory( &pi, sizeof(pi) );
-
-  char* cmd = (char*) malloc(strlen(p) + 1 + 13);
-  strcpy(cmd, "cmd /c mkdir ");
-  strcat(cmd, p);
-  free(p);
-
-if(TRACE) printf("TRACE:mkdir %s\n", cmd);
-
-  if (!CreateProcess(NULL, //  No module name (use command line)
-    cmd,    // Command line
-    NULL,   // Process handle not inheritable
-    NULL,   // Thread handle not inheritable
-    FALSE,  // Set handle inheritance to FALSE
-    0,      // No creation flags
-    NULL,   // Use parent's environment block
-    NULL,   // Use parent's starting directory
-    &si,    // Pointer to STARTUPINFO structure
-    &pi )   // Pointer to PROCESS_INFORMATION structure
-    )
-    return -1;
-
-if(TRACE) printf("TRACE:mkdir waiting to complete %s\n", cmd);
-  // Wait until child process exits.
-  WaitForSingleObject( pi.hProcess, 5000 );
-  if (!CloseHandle(pi.hThread) || !CloseHandle(pi.hProcess))
-    return EXIT_FAILURE;
-  if(TRACE) printf("TRACE:mkdir completed %s\n", cmd);
-
-  return 0;
-
-#else
-// from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
-
+int r;
 #ifdef _WIN32
-  char *const args[5] = {"cmd", "/c", "mkdir", p, NULL};
+  intptr_t ir = _execlp("cmd", "cmd", "/c", "mkdir", p, NULL);
+  r = (int)ir;
 #else
-  char *const args[4] = {"mkdir", "-p", p, NULL};
+  r = execlp("mkdir", "mkdir", "-p", p, NULL);
 #endif
 
-  int ret = execvp(args[0], args);
   free(p);
 
-  if(ret != -1)
+  if(r != -1)
     return 0;
 
-  return ret;
-#endif
+  return r;
 }
