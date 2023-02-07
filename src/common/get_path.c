@@ -1,25 +1,20 @@
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 #ifdef _WIN32
-
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-
-#else
-#include <unistd.h>
-
-#ifdef HAVE_DLADDR
+#elif defined(HAVE_DLADDR)
 #include <dlfcn.h>
 static void dl_dummy_func() {}
-#endif
 #endif
 
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
 #elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 #include <sys/sysctl.h>
+#elif defined(__linux__)
+#include <unistd.h>
 #endif
 
 
