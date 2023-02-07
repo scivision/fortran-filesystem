@@ -113,7 +113,7 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size) {
 size_t fs_with_suffix(const char* path, const char* new_suffix, char* result, size_t buffer_size) {
 
   if(path == nullptr){
-    result = NULL;
+    result = nullptr;
     return 0;
   }
 
@@ -344,7 +344,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 
   if(ec) {
     std::cerr << "ERROR:filesystem:canonical: " << ec.message() << std::endl;
-    result = NULL;
+    result = nullptr;
     return 0;
   }
 
@@ -440,7 +440,7 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
 
   if(ec) {
     std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
-    result = NULL;
+    result = nullptr;
     return 0;
   }
 
@@ -511,7 +511,7 @@ size_t fs_get_tempdir(char* result, size_t buffer_size) {
 
   if(ec) {
     std::cerr << "filesystem:get_tempdir: " << ec.message() << std::endl;
-    result = NULL;
+    result = nullptr;
     return 0;
   }
 
@@ -546,7 +546,7 @@ size_t fs_get_cwd(char* result, size_t buffer_size) {
 
   if(ec) {
     std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << std::endl;
-    result = NULL;
+    result = nullptr;
     return 0;
   }
 
@@ -566,7 +566,7 @@ size_t fs_get_homedir(char* result, size_t buffer_size) {
 
   if(r == nullptr) {
     std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined" << std::endl;
-    result = NULL;
+    result = nullptr;
     return 0;
   }
 
