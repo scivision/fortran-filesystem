@@ -24,13 +24,22 @@ size_t fs_exe_path(char* path, size_t buffer_size)
   // https://stackoverflow.com/a/4031835
   // https://stackoverflow.com/a/1024937
 
+  if(buffer_size == 0){
+    path = NULL;
+    return 0;
+  }
+
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  return GetModuleFileName(NULL, path, (DWORD)buffer_size);
+  DWORD r = GetModuleFileName(NULL, path, (DWORD)buffer_size);
+  if (r == 0){
+    path = NULL;
+    return 0;
+  }
 #elif defined(__linux__)
   // https://man7.org/linux/man-pages/man2/readlink.2.html
   size_t L = readlink("/proc/self/exe", path, buffer_size);
-  if (L <= 0){
+  if (L < 1 || L >= buffer_size){
     path = NULL;
     return 0;
   }
@@ -42,7 +51,7 @@ size_t fs_exe_path(char* path, size_t buffer_size)
     path = NULL;
     return 0;
   }
-  if(realpath(buf, path) == NULL)
+  if(!realpath(buf, path))
     return 0;
 #elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
   char* buf = (char*) malloc(buffer_size);
@@ -58,7 +67,7 @@ size_t fs_exe_path(char* path, size_t buffer_size)
     free(buf);
     return 0;
   }
-  if(realpath(buf, path) == NULL){
+  if(!realpath(buf, path)){
     path = NULL;
     free(buf);
     return 0;
@@ -70,12 +79,16 @@ size_t fs_exe_path(char* path, size_t buffer_size)
 #endif
 
   return strlen(path);
-
 }
 
 
 size_t fs_lib_path(char* path, size_t buffer_size)
 {
+  if(buffer_size == 0){
+    path = NULL;
+    return 0;
+  }
+
 #if defined(_WIN32) && defined(FS_DLL_NAME)
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
   DWORD r = GetModuleFileName(GetModuleHandle(FS_DLL_NAME), path, (DWORD)buffer_size);

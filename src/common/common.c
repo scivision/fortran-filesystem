@@ -106,30 +106,30 @@ size_t fs_exe_dir(char* path, size_t buffer_size)
 {
   char* buf = (char*) malloc(buffer_size);
 
-  if(fs_exe_path(buf, buffer_size) == 0)
+  if(fs_exe_path(buf, buffer_size) == 0){
+    free(buf);
     return 0;
-  // need this check to avoid invalid memory access
+  }
 
   size_t L = fs_parent(buf, path, buffer_size);
 
   free(buf);
   return L;
-
 }
 
 size_t fs_lib_dir(char* path, size_t buffer_size)
 {
   char* buf = (char*) malloc(buffer_size);
 
-  if(fs_lib_path(buf, buffer_size) == 0)
+  if(fs_lib_path(buf, buffer_size) == 0){
+    free(buf);
     return 0;
-  // need this check to avoid invalid memory access
+  }
 
   size_t L = fs_parent(buf, path, buffer_size);
 
   free(buf);
   return L;
-
 }
 
 bool _fs_win32_is_symlink(const char* path)
