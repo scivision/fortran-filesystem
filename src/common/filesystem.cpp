@@ -277,7 +277,7 @@ bool fs_exists(const char* path) {
 
 
 bool fs_is_absolute(const char* path) {
-  if(path == nullptr)
+  if(!path)
     return 0;
 
   fs::path p(path);
@@ -340,7 +340,11 @@ bool fs_is_file(const char* path)
 }
 
 
-bool fs_remove(const char* path) {
+bool fs_remove(const char* path)
+{
+  if(path == nullptr)
+    return 0;
+
   std::error_code ec;
 
   auto e = fs::remove(path, ec);
@@ -358,7 +362,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   // also expands ~
 
   if( path == nullptr || std::strlen(path) == 0 ){
-    result[0] = '\0';
+    result = nullptr;
     return 0;
   }
 
@@ -542,14 +546,14 @@ bool fs_touch(const char* path)
 }
 
 
-size_t fs_get_tempdir(char* result, size_t buffer_size) {
-
+size_t fs_get_tempdir(char* result, size_t buffer_size)
+{
   std::error_code ec;
 
   auto r = fs::temp_directory_path(ec);
 
   if(ec) {
-    std::cerr << "filesystem:get_tempdir: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:get_tempdir: " << ec.message() << std::endl;
     result = nullptr;
     return 0;
   }
@@ -558,11 +562,12 @@ size_t fs_get_tempdir(char* result, size_t buffer_size) {
 }
 
 
-uintmax_t fs_file_size(const char* path) {
+uintmax_t fs_file_size(const char* path)
+{
   // need to check is_regular_file for MSVC/Intel Windows
 
   if (!fs_is_file(path)) {
-    std::cerr << "filesystem:file_size: " << path << " is not a regular file" << std::endl;
+    std::cerr << "ERROR:filesystem:file_size: " << path << " is not a regular file" << std::endl;
     return 0;
   }
 
@@ -578,7 +583,8 @@ uintmax_t fs_file_size(const char* path) {
 }
 
 
-size_t fs_get_cwd(char* result, size_t buffer_size) {
+size_t fs_get_cwd(char* result, size_t buffer_size)
+{
   std::error_code ec;
 
   auto r = fs::current_path(ec);
@@ -593,8 +599,8 @@ size_t fs_get_cwd(char* result, size_t buffer_size) {
 }
 
 
-size_t fs_get_homedir(char* result, size_t buffer_size) {
-
+size_t fs_get_homedir(char* result, size_t buffer_size)
+{
 #ifdef _WIN32
   auto k = "USERPROFILE";
 #else
@@ -603,7 +609,7 @@ size_t fs_get_homedir(char* result, size_t buffer_size) {
 
   auto r = std::getenv(k);
 
-  if(r == nullptr) {
+  if(!r) {
     std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined" << std::endl;
     result = nullptr;
     return 0;
@@ -615,7 +621,7 @@ size_t fs_get_homedir(char* result, size_t buffer_size) {
 
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 {
-  if(path == nullptr){
+  if(!path){
     result = nullptr;
     return 0;
   }
@@ -643,6 +649,7 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
   // std::cout << "TRACE:expanduser: path(home) " << home << std::endl;
 
 // drop duplicated separators
+// NOT .lexical_normal to handle "~/.."
   std::regex r("/{2,}");
 
   std::replace(p.begin(), p.end(), '\\', '/');

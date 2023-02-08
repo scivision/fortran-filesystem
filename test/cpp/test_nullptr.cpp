@@ -22,6 +22,11 @@ int main(){
     if (s != nullptr)
       return EXIT_FAILURE;
 
+    if(fs_is_absolute(s) != 0)
+      return EXIT_FAILURE;
+    if(fs_is_absolute(O) != 0)
+      return EXIT_FAILURE;
+
     if(fs_normal(s, p, MAXP) != 0)
       return EXIT_FAILURE;
     if(fs_normal(O, p, MAXP) != 0)
