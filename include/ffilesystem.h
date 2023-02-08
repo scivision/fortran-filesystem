@@ -71,8 +71,6 @@ extern bool fs_is_windows();
 extern void fs_as_posix(char*);
 extern void fs_as_windows(char*);
 
-extern size_t fs_filesep(char*);
-
 extern size_t fs_normal(const char*, char*, size_t);
 
 extern size_t fs_join(const char*, const char*, char*, size_t);

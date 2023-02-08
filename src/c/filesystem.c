@@ -28,22 +28,8 @@ bool fs_cpp(){
   return false;
 }
 
-size_t fs_filesep(char* sep) {
-
-#ifdef _WIN32
-  char s[] = "\\";
-#else
-  char s[] = "/";
-#endif
-
-  strcpy(sep, s);
-
-  return strlen(sep);
-}
-
-
-size_t fs_normal(const char* path, char* result, size_t buffer_size) {
-
+size_t fs_normal(const char* path, char* result, size_t buffer_size)
+{
   if(path == NULL){
     result = NULL;
     return 0;

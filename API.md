@@ -439,12 +439,6 @@ Is Ffilesystem using C or C++ filesystem backend:
 logical :: as_cpp()
 ```
 
-Filessystem file separator:
-
-```fortran
-character :: filesep()
-```
-
 Get home directory, or empty string if not found
 
 ```fortran

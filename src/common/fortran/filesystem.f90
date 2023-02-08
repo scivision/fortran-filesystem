@@ -18,7 +18,7 @@ file_name, parent, stem, suffix, with_suffix, &
 get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
 touch, create_symlink, &
-remove, get_tempdir, filesep, &
+remove, get_tempdir, &
 chmod_exe, chmod_no_exe, &
 fs_cpp, is_macos, is_windows, is_linux, is_unix, &
 get_max_path, exe_path, exe_dir, lib_path, lib_dir
@@ -308,10 +308,6 @@ end subroutine
 module function get_tempdir()
 !! get system temporary directory
 character(:), allocatable :: get_tempdir
-end function
-
-module character function filesep()
-!! get system file separator
 end function
 
 module subroutine chmod_exe(path, ok)

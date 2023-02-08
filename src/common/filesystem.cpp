@@ -19,13 +19,14 @@ namespace fs = std::filesystem;
 #include "ffilesystem.h"
 
 
-bool fs_cpp(){
+bool fs_cpp()
+{
 // tell if fs core is C or C++
   return true;
 }
 
-size_t _fs_path2str(const fs::path p, char* result, size_t buffer_size){
-
+size_t _fs_path2str(const fs::path p, char* result, size_t buffer_size)
+{
   auto s = p.generic_string();
   if(s.length() >= buffer_size){
     result = nullptr;
@@ -40,23 +41,13 @@ size_t _fs_path2str(const fs::path p, char* result, size_t buffer_size){
 }
 
 
-size_t fs_filesep(char* sep) {
-  if(sep == nullptr)
-    return 0;
-
-  fs::path p("/");
-
-  std::strncpy(sep, p.make_preferred().string().c_str(), 1);
-  sep[1] = '\0';
-
-  return 1;
-}
-
-
-size_t fs_normal(const char* path, char* result, size_t buffer_size) {
+size_t fs_normal(const char* path, char* result, size_t buffer_size)
+{
   // normalize path
-  if(path == nullptr)
+  if(path == nullptr){
+    result = nullptr;
     return 0;
+  }
 
   fs::path p(path);
 
@@ -64,10 +55,12 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size) {
 }
 
 
-size_t fs_file_name(const char* path, char* result, size_t buffer_size) {
-
-  if(path == nullptr)
+size_t fs_file_name(const char* path, char* result, size_t buffer_size)
+{
+  if(path == nullptr){
+    result = nullptr;
     return 0;
+  }
 
   fs::path p(path);
 
@@ -75,7 +68,12 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size) {
 }
 
 
-size_t fs_stem(const char* path, char* result, size_t buffer_size) {
+size_t fs_stem(const char* path, char* result, size_t buffer_size)
+{
+  if(path == nullptr){
+    result = nullptr;
+    return 0;
+  }
 
   fs::path p(path);
 
@@ -83,7 +81,12 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size) {
 }
 
 
-size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size) {
+size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size)
+{
+  if(path == nullptr || other == nullptr){
+    result = nullptr;
+    return 0;
+  }
 
   size_t L1 = std::strlen(path);
   size_t L2 = std::strlen(other);
@@ -96,7 +99,8 @@ size_t fs_join(const char* path, const char* other, char* result, size_t buffer_
   fs::path p1(path);
   fs::path p2(other);
 
-  if (TRACE) std::cout << "TRACE:fs_join: " << path << " + " << other << std::endl;
+  if (TRACE)
+    std::cout << "TRACE:fs_join: " << path << " + " << other << std::endl;
 
   if(L1 == 0)
     return _fs_path2str(p2, result, buffer_size);
@@ -108,7 +112,12 @@ size_t fs_join(const char* path, const char* other, char* result, size_t buffer_
 }
 
 
-size_t fs_parent(const char* path, char* result, size_t buffer_size) {
+size_t fs_parent(const char* path, char* result, size_t buffer_size)
+{
+  if(path == nullptr){
+    result = nullptr;
+    return 0;
+  }
 
   fs::path p(path);
 
@@ -116,7 +125,12 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size) {
 }
 
 
-size_t fs_suffix(const char* path, char* result, size_t buffer_size) {
+size_t fs_suffix(const char* path, char* result, size_t buffer_size)
+{
+  if(path == nullptr){
+    result = nullptr;
+    return 0;
+  }
 
   fs::path p(path);
 
@@ -124,8 +138,9 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size) {
 }
 
 
-size_t fs_with_suffix(const char* path, const char* new_suffix, char* result, size_t buffer_size) {
-
+size_t fs_with_suffix(const char* path, const char* new_suffix,
+                      char* result, size_t buffer_size)
+{
   if(path == nullptr){
     result = nullptr;
     return 0;
@@ -139,8 +154,8 @@ size_t fs_with_suffix(const char* path, const char* new_suffix, char* result, si
 
 bool fs_is_symlink(const char* path) {
 
-if(!fs_exists(path))
-  return false;
+  if(path == nullptr)
+    return 0;
 
 #ifdef __MINGW32__
 // c++ filesystem is_symlink doesn't work on MinGW GCC, but this C method does work
@@ -244,6 +259,10 @@ size_t fs_root(const char* path, char* result, size_t buffer_size) {
 
 
 bool fs_exists(const char* path) {
+
+  if(path == nullptr)
+    return 0;
+
   std::error_code ec;
 
   auto e = fs::exists(path, ec);
@@ -258,6 +277,9 @@ bool fs_exists(const char* path) {
 
 
 bool fs_is_absolute(const char* path) {
+  if(path == nullptr)
+    return 0;
+
   fs::path p(path);
   return p.is_absolute();
 }
@@ -303,10 +325,10 @@ bool fs_is_exe(const char* path) {
 
 
 bool fs_is_file(const char* path) {
-  std::error_code ec;
+  if(path == nullptr)
+    return 0;
 
-  if (!fs_exists(path))
-    return false;
+  std::error_code ec;
 
   auto e = fs::is_regular_file(path, ec);
   if(ec) {

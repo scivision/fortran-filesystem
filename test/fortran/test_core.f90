@@ -2,7 +2,7 @@ program test_filesystem
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
-is_absolute, with_suffix, relative_to, is_dir, is_windows, exists, filesep, parent, &
+is_absolute, with_suffix, relative_to, is_dir, is_windows, exists, parent, &
 assert_is_dir, normal, as_posix, as_windows, get_max_path
 
 implicit none
@@ -11,9 +11,6 @@ integer :: c = 0
 
 call test_setter_getter()
 print *, "OK: getter setter"
-
-call test_filesep()
-print *, "OK: filesystem: filesep"
 
 call test_separator(c)
 print *, "OK: filesyste: separator"
@@ -137,30 +134,6 @@ if (p2%path() /= "a/b/c/d") error stop "%join c/d: " // p2%path()
 if (join("a/b", "c/d") /= "a/b/c/d") error stop "join(c/d): " // join("a/b", "c/d")
 
 end subroutine test_join
-
-
-subroutine test_filesep()
-
-type(path_t) :: p1, p2
-
-if(is_windows()) then
-  if(filesep() /= char(92)) error stop "filesep windows: " // filesep()
-else
-  if (filesep() /= "/") error stop "filesep posix: " // filesep()
-endif
-
-p1 = path_t("")
-
-p2 = p1%normal()
-if (p2%path() /= "") error stop "%normal: empty"
-if (normal("") /= "") error stop "normal('') empty"
-
-if(normal("/") /= "/") then
-  write(stderr,*) "ERROR: normal '/' failed: " // normal("/")
-  error stop
-endif
-
-end subroutine test_filesep
 
 
 subroutine test_filename()
