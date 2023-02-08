@@ -428,9 +428,6 @@ bool fs_is_absolute(const char* path){
 
 bool fs_is_symlink(const char* path){
 
-  if(!fs_exists(path))
-    return false;
-
 #ifdef _WIN32
   return _fs_win32_is_symlink(path);
 #else

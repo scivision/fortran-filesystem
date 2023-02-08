@@ -106,7 +106,9 @@ size_t fs_exe_dir(char* path, size_t buffer_size)
 {
   char* buf = (char*) malloc(buffer_size);
 
-  fs_exe_path(buf, buffer_size);
+  if(fs_exe_path(buf, buffer_size) == 0)
+    return 0;
+  // need this check to avoid invalid memory access
 
   size_t L = fs_parent(buf, path, buffer_size);
 
@@ -119,7 +121,9 @@ size_t fs_lib_dir(char* path, size_t buffer_size)
 {
   char* buf = (char*) malloc(buffer_size);
 
-  fs_lib_path(buf, buffer_size);
+  if(fs_lib_path(buf, buffer_size) == 0)
+    return 0;
+  // need this check to avoid invalid memory access
 
   size_t L = fs_parent(buf, path, buffer_size);
 
@@ -130,12 +134,14 @@ size_t fs_lib_dir(char* path, size_t buffer_size)
 
 bool _fs_win32_is_symlink(const char* path)
 {
-  if (!path || strlen(path) == 0)
+  if (!path)
     return false;
-  // need zero length check on Windows else could return incorrect true.
 
 #ifdef _WIN32
-  return GetFileAttributes(path) & FILE_ATTRIBUTE_REPARSE_POINT;
+  DWORD a = GetFileAttributes(path);
+  if(a == INVALID_FILE_ATTRIBUTES)
+    return false;
+  return a & FILE_ATTRIBUTE_REPARSE_POINT;
 #endif
   return false;
 }

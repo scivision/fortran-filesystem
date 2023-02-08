@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -18,7 +19,8 @@ static void dl_dummy_func() {}
 #endif
 
 
-size_t fs_exe_path(char* path, size_t buffer_size){
+size_t fs_exe_path(char* path, size_t buffer_size)
+{
   // https://stackoverflow.com/a/4031835
   // https://stackoverflow.com/a/1024937
 
@@ -72,23 +74,38 @@ size_t fs_exe_path(char* path, size_t buffer_size){
 }
 
 
-size_t fs_lib_path(char* path, size_t buffer_size){
-
+size_t fs_lib_path(char* path, size_t buffer_size)
+{
 #if defined(_WIN32) && defined(FS_DLL_NAME)
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  return GetModuleFileName(GetModuleHandle(FS_DLL_NAME), path, (DWORD)buffer_size);
+  DWORD r = GetModuleFileName(GetModuleHandle(FS_DLL_NAME), path, (DWORD)buffer_size);
+  if (r == 0){
+    path = NULL;
+    return 0;
+  }
 #elif defined(HAVE_DLADDR)
   Dl_info info;
 
-  if (dladdr( (void*)&dl_dummy_func, &info) != 0)
-  {
-    strncpy(path, info.dli_fname, buffer_size); // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
-    path[strlen(path)] = '\0';
-    return strlen(path);
+  if (dladdr( (void*)&dl_dummy_func, &info) == 0){
+    path = NULL;
+    return 0;
   }
+
+  size_t L = strlen(info.dli_fname);
+
+  if(L >= buffer_size){
+    path = NULL;
+    fprintf(stderr, "ERROR:filesystem:fs_lib_path: buffer too small\n");
+    return 0;
+  }
+
+  strncpy(path, info.dli_fname, buffer_size); // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
+  path[L] = '\0';
+#else
+  path = NULL;
+  return 0*buffer_size;
+  // to avoid unused argument error
 #endif
 
-  path[0] = '\0';
-  return 0*buffer_size;
-
+  return strlen(path);
 }

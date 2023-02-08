@@ -114,7 +114,7 @@ size_t fs_join(const char* path, const char* other, char* result, size_t buffer_
 
 size_t fs_parent(const char* path, char* result, size_t buffer_size)
 {
-  if(path == nullptr){
+  if(!path){
     result = nullptr;
     return 0;
   }
