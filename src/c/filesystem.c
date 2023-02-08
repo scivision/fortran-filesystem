@@ -315,12 +315,6 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
     return 0;
   }
 
-  size_t L = strlen(path);
-  if(L == 0){
-    result[0] = '\0';
-    return 0;
-  }
-
   if(path[0] != '~')
     return fs_normal(path, result, buffer_size);
 
@@ -331,6 +325,7 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
   }
 
   // ~ alone
+  size_t L = strlen(path);
   if (L < 3){
     L = fs_normal(buf, result, buffer_size);
     if(TRACE) printf("TRACE:expanduser: orphan ~: homedir %s %s\n", buf, result);

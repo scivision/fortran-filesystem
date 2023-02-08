@@ -19,6 +19,13 @@ int main(){
       return EXIT_FAILURE;
     if(fs_normal(O, p, MAXP) != 0)
       return EXIT_FAILURE;
+    if(fs_normal(s, nullptr, 0) != 0)
+      return EXIT_FAILURE;
+
+    if(fs_file_name(s, p, MAXP) != 0)
+      return EXIT_FAILURE;
+    if(fs_file_name(O, p, MAXP) != 0)
+      return EXIT_FAILURE;
 
     return EXIT_SUCCESS;
 }
