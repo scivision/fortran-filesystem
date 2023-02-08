@@ -179,8 +179,8 @@ bool fs_is_symlink(const char* path)
 
 int fs_create_symlink(const char* target, const char* link)
 {
-  if(!target || std::strlen(target) == 0) {
-    std::cerr << "ERROR:filesystem:create_symlink: target path must not be empty" << std::endl;
+  if(!fs_exists(target)) {
+    std::cerr << "ERROR:filesystem:create_symlink: target path does not exist" << std::endl;
     return 1;
   }
   if(!link || std::strlen(link) == 0) {

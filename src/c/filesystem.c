@@ -379,9 +379,10 @@ bool fs_is_file(const char* path){
 }
 
 
-bool fs_exists(const char* path) {
+bool fs_exists(const char* path)
+{
 // false empty just for clarity
-if(path == NULL || strlen(path) == 0)
+if(!path || strlen(path) == 0)
   return false;
 
 #ifdef _MSC_VER
@@ -393,7 +394,12 @@ if(path == NULL || strlen(path) == 0)
 }
 
 
-size_t fs_root(const char* path, char* result, size_t buffer_size) {
+size_t fs_root(const char* path, char* result, size_t buffer_size)
+{
+  if(!path){
+    result = NULL;
+    return 0;
+  }
 
   size_t L;
 
@@ -442,20 +448,28 @@ bool fs_is_symlink(const char* path){
 }
 
 
-int fs_create_symlink(const char* target, const char* link) {
+int fs_create_symlink(const char* target, const char* link)
+{
+  if(!fs_exists(target)) {
+    fprintf(stderr, "ERROR:filesystem:create_symlink: target path does not exist\n");
+    return 1;
+  }
+  if(!link || strlen(link) == 0) {
+    fprintf(stderr, "ERROR:filesystem:create_symlink: link path must not be empty\n");
+    return 1;
+  }
 
 #ifdef _WIN32
   return _fs_win32_create_symlink(target, link);
 #else
   return symlink(target, link);
 #endif
-
 }
 
 
 bool fs_remove(const char* path) {
   if (!fs_exists(path))
-    return true;
+    return false;
 
 #ifdef _WIN32
   if (fs_is_dir(path)){

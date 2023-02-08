@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -78,6 +79,11 @@ size_t L;
   }
 #else
   buf = getenv(name);
+  if(!buf || strlen(buf) >= buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem:getenv\n");
+    result = NULL;
+    return 0;
+  }
 #endif
 
   L = fs_normal(buf, result, buffer_size);
