@@ -71,8 +71,8 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size) {
 
 size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size) {
 
-  size_t L1 = strlen(path);
-  size_t L2 = strlen(other);
+  size_t L1 = std::strlen(path);
+  size_t L2 = std::strlen(other);
 
   if (L1 == 0 && L2 == 0){
     result[0] = '\0';
@@ -146,11 +146,11 @@ if(!fs_exists(path))
 
 int fs_create_symlink(const char* target, const char* link) {
 
-  if(target==nullptr || strlen(target) == 0) {
+  if(target==nullptr || std::strlen(target) == 0) {
     std::cerr << "ERROR:filesystem:create_symlink: target path must not be empty" << std::endl;
     return 1;
   }
-  if(link==nullptr || strlen(link) == 0) {
+  if(link==nullptr || std::strlen(link) == 0) {
     std::cerr << "ERROR:filesystem:create_symlink: link path must not be empty" << std::endl;
     return 1;
   }
@@ -319,7 +319,7 @@ bool fs_remove(const char* path) {
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size) {
   // also expands ~
 
-  if( path == nullptr || strlen(path) == 0 ){
+  if( path == nullptr || std::strlen(path) == 0 ){
     result[0] = '\0';
     return 0;
   }
@@ -450,7 +450,7 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
 
 bool fs_touch(const char* path) {
 
-  if(path == nullptr || strlen(path) == 0)
+  if(path == nullptr || std::strlen(path) == 0)
     return false;
 
   fs::path p(path);
@@ -578,9 +578,10 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
 
   std::string p(path);
 
-  if(TRACE)  std::cout << "TRACE:expanduser: path: " << p << " length: " << strlen(path) << std::endl;
+  if(TRACE)
+    std::cout << "TRACE:expanduser: path: " << p << " length: " << std::strlen(path) << std::endl;
 
-  if( path == nullptr || strlen(path) == 0 ){
+  if( path == nullptr || std::strlen(path) == 0 ){
     result[0] = '\0';
     return 0;
   }

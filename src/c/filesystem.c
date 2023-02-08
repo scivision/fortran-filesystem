@@ -29,6 +29,7 @@ bool fs_cpp(){
 }
 
 size_t fs_filesep(char* sep) {
+
 #ifdef _WIN32
   char s[] = "\\";
 #else
@@ -42,6 +43,7 @@ size_t fs_filesep(char* sep) {
 
 
 size_t fs_normal(const char* path, char* result, size_t buffer_size) {
+
   if(path == NULL){
     result = NULL;
     return 0;
@@ -159,13 +161,12 @@ if(TRACE) printf("TRACE: parent: %s => %s  %zu\n", path, result, M);
 
 size_t fs_suffix(const char* path, char* result, size_t buffer_size){
 
-  if(path == NULL || strlen(path) == 0){
-    result[0] = '\0';
+  char* buf = (char*) malloc(buffer_size);
+  if(fs_file_name(path, buf, buffer_size) == 0){
+    free(buf);
+    result = NULL;
     return 0;
   }
-
-  char* buf = (char*) malloc(buffer_size);
-  fs_file_name(path, buf, buffer_size);
 
   char* pos = strrchr(buf, '.');
   if (pos && pos != buf){
@@ -182,12 +183,12 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size){
 
 
 size_t fs_with_suffix(const char* path, const char* suffix, char* result, size_t buffer_size){
-  if(path == NULL || suffix == NULL){
+  if(path == NULL){
     result = NULL;
     return 0;
   }
 
-  if(strlen(suffix) == 0)
+  if(suffix == NULL || strlen(suffix) == 0)
     return fs_stem(path, result, buffer_size);
 
   if(path[0] == '.'){
