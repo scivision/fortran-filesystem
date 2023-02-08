@@ -292,9 +292,9 @@ if(with_suffix(".h5", ".h5") /= ".h5.h5") then
   error stop
 endif
 
-b = with_suffix('c:' // char(92) // 'a' // char(92) // 'hi.nc', '.h5')
+b = with_suffix('c:/a/hi.nc', '.h5')
 if(b /= 'c:/a/hi.h5') then
-  write(stderr,'(2a)') "ERROR: with_suffix c:\a\hi.nc to .h5: ", b
+  write(stderr,'(2a)') "ERROR: with_suffix c:/a/hi.nc to .h5: ", b
   error stop
 endif
 

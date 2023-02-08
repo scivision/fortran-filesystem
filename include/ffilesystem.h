@@ -7,6 +7,7 @@
 #ifdef __cplusplus
 
 #include <cstdint>
+#include <algorithm>
 
 extern "C" {
 

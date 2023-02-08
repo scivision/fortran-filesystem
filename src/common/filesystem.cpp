@@ -1,5 +1,7 @@
 // functions from C++ filesystem
 
+// NOTE: this segfaults: std::filesystem::path p(nullptr);
+
 #include <iostream>
 #include <algorithm>
 #include <cstring>
@@ -22,10 +24,14 @@ bool fs_cpp(){
   return true;
 }
 
-size_t path2str(const fs::path p, char* result, size_t buffer_size){
+size_t _fs_path2str(const fs::path p, char* result, size_t buffer_size){
 
   auto s = p.generic_string();
-  std::replace(s.begin(), s.end(), '\\', '/');
+  if(s.length() >= buffer_size){
+    result = nullptr;
+    std::cerr << "ERROR:ffilesystem: output buffer too small for path: " << s << std::endl;
+    return 0;
+  }
   std::strncpy(result, s.c_str(), buffer_size);
   size_t L = std::strlen(result);
   result[L] = '\0';
@@ -35,6 +41,8 @@ size_t path2str(const fs::path p, char* result, size_t buffer_size){
 
 
 size_t fs_filesep(char* sep) {
+  if(sep == nullptr)
+    return 0;
 
   fs::path p("/");
 
@@ -47,17 +55,23 @@ size_t fs_filesep(char* sep) {
 
 size_t fs_normal(const char* path, char* result, size_t buffer_size) {
   // normalize path
+  if(path == nullptr)
+    return 0;
+
   fs::path p(path);
 
-  return path2str(p.lexically_normal(), result, buffer_size);
+  return _fs_path2str(p.lexically_normal(), result, buffer_size);
 }
 
 
 size_t fs_file_name(const char* path, char* result, size_t buffer_size) {
 
+  if(path == nullptr)
+    return 0;
+
   fs::path p(path);
 
-  return path2str(p.filename(), result, buffer_size);
+  return _fs_path2str(p.filename(), result, buffer_size);
 }
 
 
@@ -65,7 +79,7 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size) {
 
   fs::path p(path);
 
-  return path2str(p.filename().stem(), result, buffer_size);
+  return _fs_path2str(p.filename().stem(), result, buffer_size);
 }
 
 
@@ -85,12 +99,12 @@ size_t fs_join(const char* path, const char* other, char* result, size_t buffer_
   if (TRACE) std::cout << "TRACE:fs_join: " << path << " + " << other << std::endl;
 
   if(L1 == 0)
-    return path2str(p2, result, buffer_size);
+    return _fs_path2str(p2, result, buffer_size);
 
   if(L2 == 0)
-    return path2str(p1, result, buffer_size);
+    return _fs_path2str(p1, result, buffer_size);
 
-  return path2str(p1 / p2, result, buffer_size);
+  return _fs_path2str(p1 / p2, result, buffer_size);
 }
 
 
@@ -98,7 +112,7 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size) {
 
   fs::path p(path);
 
-  return path2str(p.lexically_normal().parent_path(), result, buffer_size);
+  return _fs_path2str(p.lexically_normal().parent_path(), result, buffer_size);
 }
 
 
@@ -106,7 +120,7 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size) {
 
   fs::path p(path);
 
-  return path2str(p.filename().extension(), result, buffer_size);
+  return _fs_path2str(p.filename().extension(), result, buffer_size);
 }
 
 
@@ -119,7 +133,7 @@ size_t fs_with_suffix(const char* path, const char* new_suffix, char* result, si
 
   fs::path p(path);
 
-  return path2str(p.replace_extension(new_suffix), result, buffer_size);
+  return _fs_path2str(p.replace_extension(new_suffix), result, buffer_size);
 }
 
 
@@ -225,7 +239,7 @@ int fs_create_directories(const char* path) {
 size_t fs_root(const char* path, char* result, size_t buffer_size) {
   fs::path p(path);
 
-  return path2str(p.root_path(), result, buffer_size);
+  return _fs_path2str(p.root_path(), result, buffer_size);
 }
 
 
@@ -348,7 +362,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
     return 0;
   }
 
-  return path2str(p, result, buffer_size);
+  return _fs_path2str(p, result, buffer_size);
 }
 
 
@@ -444,7 +458,7 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
     return 0;
   }
 
-  return path2str(r, result, buffer_size);
+  return _fs_path2str(r, result, buffer_size);
 }
 
 
@@ -515,7 +529,7 @@ size_t fs_get_tempdir(char* result, size_t buffer_size) {
     return 0;
   }
 
-  return path2str(r, result, buffer_size);
+  return _fs_path2str(r, result, buffer_size);
 }
 
 
@@ -550,7 +564,7 @@ size_t fs_get_cwd(char* result, size_t buffer_size) {
     return 0;
   }
 
-  return path2str(r, result, buffer_size);
+  return _fs_path2str(r, result, buffer_size);
 }
 
 
@@ -610,7 +624,7 @@ if(TRACE) std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
 
   if (p.length() < 3) {
     // ~ alone
-    return path2str(home, result, buffer_size);
+    return _fs_path2str(home, result, buffer_size);
   }
 
   return fs_normal((home / p.substr(2)).generic_string().c_str(), result, buffer_size);
