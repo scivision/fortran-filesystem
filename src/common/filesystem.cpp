@@ -28,6 +28,10 @@ bool fs_cpp()
 size_t _fs_path2str(const fs::path p, char* result, size_t buffer_size)
 {
   auto s = p.generic_string();
+
+  if(TRACE)
+    std::cout << "TRACE: _fs_path2str: " << s << " " << s.length() << " " << buffer_size << std::endl;
+
   if(s.length() >= buffer_size){
     result = nullptr;
     std::cerr << "ERROR:ffilesystem: output buffer too small for path: " << s << std::endl;
@@ -44,7 +48,7 @@ size_t _fs_path2str(const fs::path p, char* result, size_t buffer_size)
 size_t fs_normal(const char* path, char* result, size_t buffer_size)
 {
   // normalize path
-  if(path == nullptr){
+  if(!path){
     result = nullptr;
     return 0;
   }
@@ -57,7 +61,7 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size)
 
 size_t fs_file_name(const char* path, char* result, size_t buffer_size)
 {
-  if(path == nullptr){
+  if(!path){
     result = nullptr;
     return 0;
   }
@@ -70,7 +74,7 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size)
 
 size_t fs_stem(const char* path, char* result, size_t buffer_size)
 {
-  if(path == nullptr){
+  if(!path){
     result = nullptr;
     return 0;
   }
@@ -127,7 +131,7 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size)
 
 size_t fs_suffix(const char* path, char* result, size_t buffer_size)
 {
-  if(path == nullptr){
+  if(!path){
     result = nullptr;
     return 0;
   }
@@ -141,7 +145,7 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size)
 size_t fs_with_suffix(const char* path, const char* new_suffix,
                       char* result, size_t buffer_size)
 {
-  if(path == nullptr){
+  if(!path){
     result = nullptr;
     return 0;
   }
@@ -154,7 +158,7 @@ size_t fs_with_suffix(const char* path, const char* new_suffix,
 
 bool fs_is_symlink(const char* path)
 {
-  if(path == nullptr)
+  if(!path)
     return 0;
 
 #ifdef __MINGW32__
@@ -175,11 +179,11 @@ bool fs_is_symlink(const char* path)
 
 int fs_create_symlink(const char* target, const char* link)
 {
-  if(target==nullptr || std::strlen(target) == 0) {
+  if(!target || std::strlen(target) == 0) {
     std::cerr << "ERROR:filesystem:create_symlink: target path must not be empty" << std::endl;
     return 1;
   }
-  if(link==nullptr || std::strlen(link) == 0) {
+  if(!link || std::strlen(link) == 0) {
     std::cerr << "ERROR:filesystem:create_symlink: link path must not be empty" << std::endl;
     return 1;
   }
@@ -205,9 +209,9 @@ int fs_create_symlink(const char* target, const char* link)
   return 0;
 }
 
-int fs_create_directories(const char* path) {
-
-  if(path == nullptr || std::strlen(path) == 0) {
+int fs_create_directories(const char* path)
+{
+  if(!path || std::strlen(path) == 0) {
     std::cerr << "ERROR:filesystem:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
     return 1;
   }
@@ -251,17 +255,23 @@ int fs_create_directories(const char* path) {
 }
 
 
-size_t fs_root(const char* path, char* result, size_t buffer_size) {
+size_t fs_root(const char* path, char* result, size_t buffer_size)
+{
+  if(!path){
+    result = nullptr;
+    return 0;
+  }
+
   fs::path p(path);
 
   return _fs_path2str(p.root_path(), result, buffer_size);
 }
 
 
-bool fs_exists(const char* path) {
-
-  if(path == nullptr)
-    return 0;
+bool fs_exists(const char* path)
+{
+  if(!path)
+    return false;
 
   std::error_code ec;
 
@@ -276,7 +286,8 @@ bool fs_exists(const char* path) {
 }
 
 
-bool fs_is_absolute(const char* path) {
+bool fs_is_absolute(const char* path)
+{
   if(!path)
     return 0;
 
@@ -285,21 +296,22 @@ bool fs_is_absolute(const char* path) {
 }
 
 
-bool fs_is_dir(const char* path) {
-
-  if(std::strlen(path) == 0)
+bool fs_is_dir(const char* path)
+{
+  if(!path || std::strlen(path) == 0)
     return false;
 
-#ifdef _WIN32
   fs::path p(path);
+
+#ifdef _WIN32
   if (p.root_name() == p)
     return true;
 #endif
 
   std::error_code ec;
-  auto e = fs::is_directory(path, ec);
+  auto e = fs::is_directory(p, ec);
   if(ec) {
-    std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << " " << p << std::endl;
     return false;
   }
 
@@ -308,8 +320,8 @@ bool fs_is_dir(const char* path) {
 }
 
 
-bool fs_is_exe(const char* path) {
-
+bool fs_is_exe(const char* path)
+{
   if (!fs_is_file(path))
     return false;
 
@@ -326,8 +338,8 @@ bool fs_is_exe(const char* path) {
 
 bool fs_is_file(const char* path)
 {
-  if(path == nullptr)
-    return 0;
+  if(!path)
+    return false;
 
   std::error_code ec;
 
@@ -342,8 +354,8 @@ bool fs_is_file(const char* path)
 
 bool fs_remove(const char* path)
 {
-  if(path == nullptr)
-    return 0;
+  if(!path)
+    return false;
 
   std::error_code ec;
 
@@ -361,7 +373,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 {
   // also expands ~
 
-  if( path == nullptr || std::strlen(path) == 0 ){
+  if( !path || std::strlen(path) == 0 ){
     result = nullptr;
     return 0;
   }
@@ -416,11 +428,11 @@ bool fs_equivalent(const char* path1, const char* path2)
 
 int fs_copy_file(const char* source, const char* destination, bool overwrite)
 {
-  if(source == nullptr || std::strlen(source) == 0) {
+  if(!source || std::strlen(source) == 0) {
     std::cerr << "filesystem:copy_file: source path must not be empty" << std::endl;
     return 1;
   }
-  if(destination == nullptr || std::strlen(destination) == 0) {
+  if(!destination || std::strlen(destination) == 0) {
     std::cerr << "filesystem:copy_file: destination path must not be empty" << std::endl;
     return 1;
   }
@@ -463,7 +475,7 @@ int fs_copy_file(const char* source, const char* destination, bool overwrite)
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
 {
   // undefined case, avoid bugs with MacOS
-  if( to == nullptr || (std::strlen(to) == 0) || from == nullptr || (std::strlen(from) == 0) ){
+  if( !to || (std::strlen(to) == 0) || !from || (std::strlen(from) == 0) ){
     result = nullptr;
     return 0;
   }
@@ -493,7 +505,7 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
 
 bool fs_touch(const char* path)
 {
-  if(path == nullptr || std::strlen(path) == 0)
+  if(!path || std::strlen(path) == 0)
     return false;
 
   fs::path p(path);
@@ -551,7 +563,6 @@ size_t fs_get_tempdir(char* result, size_t buffer_size)
   std::error_code ec;
 
   auto r = fs::temp_directory_path(ec);
-
   if(ec) {
     std::cerr << "ERROR:filesystem:get_tempdir: " << ec.message() << std::endl;
     result = nullptr;
@@ -565,6 +576,9 @@ size_t fs_get_tempdir(char* result, size_t buffer_size)
 uintmax_t fs_file_size(const char* path)
 {
   // need to check is_regular_file for MSVC/Intel Windows
+
+  if(!path)
+    return 0;
 
   if (!fs_is_file(path)) {
     std::cerr << "ERROR:filesystem:file_size: " << path << " is not a regular file" << std::endl;
@@ -668,6 +682,8 @@ if(TRACE) std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
 bool fs_chmod_exe(const char* path)
 {
   // make path owner executable, if it's a file
+  if(!path)
+    return false;
 
   if(!fs_is_file(path)) {
     std::cerr << "ERROR:ffilesystem:chmod_exe: " << path << " is not a regular file" << std::endl;
@@ -690,6 +706,8 @@ bool fs_chmod_exe(const char* path)
 bool fs_chmod_no_exe(const char* path)
 {
   // make path not executable, if it's a file
+  if(!path)
+    return false;
 
   if(!fs_is_file(path)) {
     std::cerr << "ERROR:ffilesystem:chmod_no_exe: " << path << " is not a regular file" << std::endl;
