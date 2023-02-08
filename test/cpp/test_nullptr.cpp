@@ -15,6 +15,13 @@ int main(){
 
     O[0] = '\0';
 
+    fs_as_posix(s);
+    if (s != nullptr)
+      return EXIT_FAILURE;
+    fs_as_windows(s);
+    if (s != nullptr)
+      return EXIT_FAILURE;
+
     if(fs_normal(s, p, MAXP) != 0)
       return EXIT_FAILURE;
     if(fs_normal(O, p, MAXP) != 0)
