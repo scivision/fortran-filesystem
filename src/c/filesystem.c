@@ -510,6 +510,8 @@ bool fs_chmod_no_exe(const char* path){
 }
 
 bool fs_touch(const char* path) {
+  if(!path || strlen(path) == 0)
+    return false;
 
   if (fs_exists(path)){
     if(fs_is_file(path))
