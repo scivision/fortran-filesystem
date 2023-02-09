@@ -47,8 +47,12 @@ bool fs_is_windows() {
 size_t fs_get_maxp(){ return MAXP; }
 
 
-void fs_as_posix(char* path) {
+void fs_as_posix(char* path)
+{
 // force posix file seperator
+  if(!path)
+    return;
+
   char s = '\\';
   char *p = strchr(path, s);
   while (p) {
@@ -57,9 +61,13 @@ void fs_as_posix(char* path) {
   }
 }
 
-void fs_as_windows(char* path) {
+void fs_as_windows(char* path)
+{
 // as_windows() needed for system calls with MSVC
 // force Windows file seperator
+  if(!path)
+    return;
+
   char s = '/';
   char *p = strchr(path, s);
   while (p) {
@@ -69,8 +77,9 @@ void fs_as_windows(char* path) {
 }
 
 
-size_t fs_make_absolute(const char* path, const char* top_path, char* result, size_t buffer_size){
-
+size_t fs_make_absolute(const char* path, const char* top_path,
+                        char* result, size_t buffer_size)
+{
   size_t L1 = fs_expanduser(path, result, buffer_size);
 
   if (L1 > 0 && fs_is_absolute(result))
@@ -93,42 +102,52 @@ size_t fs_make_absolute(const char* path, const char* top_path, char* result, si
 }
 
 
-size_t fs_exe_dir(char* path, size_t buffer_size){
-
+size_t fs_exe_dir(char* path, size_t buffer_size)
+{
   char* buf = (char*) malloc(buffer_size);
 
-  fs_exe_path(buf, buffer_size);
+  if(fs_exe_path(buf, buffer_size) == 0){
+    free(buf);
+    return 0;
+  }
 
   size_t L = fs_parent(buf, path, buffer_size);
 
   free(buf);
   return L;
-
 }
 
-size_t fs_lib_dir(char* path, size_t buffer_size){
-
+size_t fs_lib_dir(char* path, size_t buffer_size)
+{
   char* buf = (char*) malloc(buffer_size);
 
-  fs_lib_path(buf, buffer_size);
+  if(fs_lib_path(buf, buffer_size) == 0){
+    free(buf);
+    return 0;
+  }
 
   size_t L = fs_parent(buf, path, buffer_size);
 
   free(buf);
   return L;
-
 }
 
-bool _fs_win32_is_symlink(const char* path){
+bool _fs_win32_is_symlink(const char* path)
+{
+  if (!path)
+    return false;
+
 #ifdef _WIN32
-  return GetFileAttributes(path) & FILE_ATTRIBUTE_REPARSE_POINT;
-#else
-  (void) path;
-  return false;
+  DWORD a = GetFileAttributes(path);
+  if(a == INVALID_FILE_ATTRIBUTES)
+    return false;
+  return a & FILE_ATTRIBUTE_REPARSE_POINT;
 #endif
+  return false;
 }
 
-int _fs_win32_create_symlink(const char* target, const char* link){
+int _fs_win32_create_symlink(const char* target, const char* link)
+{
 #ifdef _WIN32
   int p = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
 

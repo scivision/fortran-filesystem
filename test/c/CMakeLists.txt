@@ -1,6 +1,6 @@
 set_property(DIRECTORY PROPERTY LABELS c)
 
-foreach(t IN ITEMS expanduser ifc)
+foreach(t IN ITEMS expanduser ifc nullptr)
   add_executable(test_C_${t} test_${t}.c)
   target_link_libraries(test_C_${t} PRIVATE ffilesystem)
   add_test(NAME C_${t} COMMAND test_C_${t})

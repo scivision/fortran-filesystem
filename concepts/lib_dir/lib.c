@@ -27,5 +27,4 @@ size_t get_libpath(char* path)
  }
 #endif
 
-  return 0;
 }

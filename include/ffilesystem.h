@@ -7,6 +7,7 @@
 #ifdef __cplusplus
 
 #include <cstdint>
+#include <algorithm>
 
 extern "C" {
 
@@ -69,8 +70,6 @@ extern bool fs_is_windows();
 
 extern void fs_as_posix(char*);
 extern void fs_as_windows(char*);
-
-extern size_t fs_filesep(char*);
 
 extern size_t fs_normal(const char*, char*, size_t);
 

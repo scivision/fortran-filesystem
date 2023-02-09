@@ -50,11 +50,6 @@ import C_BOOL, C_CHAR
 character(kind=C_CHAR), intent(in) :: path1(*), path2(*)
 end function
 
-integer(C_SIZE_T) function fs_filesep(sep) bind(C)
-import
-character(kind=C_CHAR), intent(out) :: sep(*)
-end function
-
 logical(C_BOOL) function fs_is_symlink(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -334,14 +329,6 @@ allocate(character(max_path()) :: cbuf)
 N = fs_expanduser(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: expanduser)
 expanduser = cbuf(:N)
-end procedure
-
-module procedure filesep
-character(kind=C_CHAR) :: cbuf(2)
-integer(C_SIZE_T) :: L
-L = fs_filesep(cbuf)
-if (L /= 1) error stop "ERROR:filesystem:filesep: failed to get file separator"
-filesep = cbuf(1)
 end procedure
 
 module procedure file_name

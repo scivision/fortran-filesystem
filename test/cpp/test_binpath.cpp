@@ -45,7 +45,7 @@ int test_lib_path(char* argv[]){
 
   if(!shared) {
     if (L != 0 || L2 != 0) {
-      std::cerr << "ERROR:test_binpath_cpp: lib_path and lib_dir should be empty length 0: " << binpath << " " << L << std::endl;
+      std::cerr << "ERROR:test_binpath_cpp: lib_path and lib_dir should be empty length 0: " << binpath << " " << L << " " << L2 << std::endl;
       return 1;
     }
     std::cout << "SKIPPED: lib_path: due to static library" << std::endl;

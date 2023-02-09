@@ -1,5 +1,7 @@
 // functions from C++ filesystem
 
+// NOTE: this segfaults: std::filesystem::path p(nullptr);
+
 #include <iostream>
 #include <algorithm>
 #include <cstring>
@@ -17,15 +19,24 @@ namespace fs = std::filesystem;
 #include "ffilesystem.h"
 
 
-bool fs_cpp(){
+bool fs_cpp()
+{
 // tell if fs core is C or C++
   return true;
 }
 
-size_t path2str(const fs::path p, char* result, size_t buffer_size){
-
+size_t _fs_path2str(const fs::path p, char* result, size_t buffer_size)
+{
   auto s = p.generic_string();
-  std::replace(s.begin(), s.end(), '\\', '/');
+
+  if(TRACE)
+    std::cout << "TRACE: _fs_path2str: " << s << " " << s.length() << " " << buffer_size << std::endl;
+
+  if(s.length() >= buffer_size){
+    result = nullptr;
+    std::cerr << "ERROR:ffilesystem: output buffer too small for path: " << s << std::endl;
+    return 0;
+  }
   std::strncpy(result, s.c_str(), buffer_size);
   size_t L = std::strlen(result);
   result[L] = '\0';
@@ -34,45 +45,55 @@ size_t path2str(const fs::path p, char* result, size_t buffer_size){
 }
 
 
-size_t fs_filesep(char* sep) {
-
-  fs::path p("/");
-
-  std::strncpy(sep, p.make_preferred().string().c_str(), 1);
-  sep[1] = '\0';
-
-  return 1;
-}
-
-
-size_t fs_normal(const char* path, char* result, size_t buffer_size) {
+size_t fs_normal(const char* path, char* result, size_t buffer_size)
+{
   // normalize path
-  fs::path p(path);
-
-  return path2str(p.lexically_normal(), result, buffer_size);
-}
-
-
-size_t fs_file_name(const char* path, char* result, size_t buffer_size) {
+  if(!path){
+    result = nullptr;
+    return 0;
+  }
 
   fs::path p(path);
 
-  return path2str(p.filename(), result, buffer_size);
+  return _fs_path2str(p.lexically_normal(), result, buffer_size);
 }
 
 
-size_t fs_stem(const char* path, char* result, size_t buffer_size) {
+size_t fs_file_name(const char* path, char* result, size_t buffer_size)
+{
+  if(!path){
+    result = nullptr;
+    return 0;
+  }
 
   fs::path p(path);
 
-  return path2str(p.filename().stem(), result, buffer_size);
+  return _fs_path2str(p.filename(), result, buffer_size);
 }
 
 
-size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size) {
+size_t fs_stem(const char* path, char* result, size_t buffer_size)
+{
+  if(!path){
+    result = nullptr;
+    return 0;
+  }
 
-  size_t L1 = strlen(path);
-  size_t L2 = strlen(other);
+  fs::path p(path);
+
+  return _fs_path2str(p.filename().stem(), result, buffer_size);
+}
+
+
+size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size)
+{
+  if(path == nullptr || other == nullptr){
+    result = nullptr;
+    return 0;
+  }
+
+  size_t L1 = std::strlen(path);
+  size_t L2 = std::strlen(other);
 
   if (L1 == 0 && L2 == 0){
     result[0] = '\0';
@@ -82,51 +103,63 @@ size_t fs_join(const char* path, const char* other, char* result, size_t buffer_
   fs::path p1(path);
   fs::path p2(other);
 
-  if (TRACE) std::cout << "TRACE:fs_join: " << path << " + " << other << std::endl;
+  if (TRACE)
+    std::cout << "TRACE:fs_join: " << path << " + " << other << std::endl;
 
   if(L1 == 0)
-    return path2str(p2, result, buffer_size);
+    return _fs_path2str(p2, result, buffer_size);
 
   if(L2 == 0)
-    return path2str(p1, result, buffer_size);
+    return _fs_path2str(p1, result, buffer_size);
 
-  return path2str(p1 / p2, result, buffer_size);
+  return _fs_path2str(p1 / p2, result, buffer_size);
 }
 
 
-size_t fs_parent(const char* path, char* result, size_t buffer_size) {
-
-  fs::path p(path);
-
-  return path2str(p.lexically_normal().parent_path(), result, buffer_size);
-}
-
-
-size_t fs_suffix(const char* path, char* result, size_t buffer_size) {
-
-  fs::path p(path);
-
-  return path2str(p.filename().extension(), result, buffer_size);
-}
-
-
-size_t fs_with_suffix(const char* path, const char* new_suffix, char* result, size_t buffer_size) {
-
-  if(path == nullptr){
-    result = NULL;
+size_t fs_parent(const char* path, char* result, size_t buffer_size)
+{
+  if(!path){
+    result = nullptr;
     return 0;
   }
 
   fs::path p(path);
 
-  return path2str(p.replace_extension(new_suffix), result, buffer_size);
+  return _fs_path2str(p.lexically_normal().parent_path(), result, buffer_size);
 }
 
 
-bool fs_is_symlink(const char* path) {
+size_t fs_suffix(const char* path, char* result, size_t buffer_size)
+{
+  if(!path){
+    result = nullptr;
+    return 0;
+  }
 
-if(!fs_exists(path))
-  return false;
+  fs::path p(path);
+
+  return _fs_path2str(p.filename().extension(), result, buffer_size);
+}
+
+
+size_t fs_with_suffix(const char* path, const char* new_suffix,
+                      char* result, size_t buffer_size)
+{
+  if(!path){
+    result = nullptr;
+    return 0;
+  }
+
+  fs::path p(path);
+
+  return _fs_path2str(p.replace_extension(new_suffix), result, buffer_size);
+}
+
+
+bool fs_is_symlink(const char* path)
+{
+  if(!path)
+    return 0;
 
 #ifdef __MINGW32__
 // c++ filesystem is_symlink doesn't work on MinGW GCC, but this C method does work
@@ -144,13 +177,13 @@ if(!fs_exists(path))
   return e;
 }
 
-int fs_create_symlink(const char* target, const char* link) {
-
-  if(target==nullptr || strlen(target) == 0) {
-    std::cerr << "ERROR:filesystem:create_symlink: target path must not be empty" << std::endl;
+int fs_create_symlink(const char* target, const char* link)
+{
+  if(!fs_exists(target)) {
+    std::cerr << "ERROR:filesystem:create_symlink: target path does not exist" << std::endl;
     return 1;
   }
-  if(link==nullptr || strlen(link) == 0) {
+  if(!link || std::strlen(link) == 0) {
     std::cerr << "ERROR:filesystem:create_symlink: link path must not be empty" << std::endl;
     return 1;
   }
@@ -176,9 +209,9 @@ int fs_create_symlink(const char* target, const char* link) {
   return 0;
 }
 
-int fs_create_directories(const char* path) {
-
-  if(strlen(path) == 0) {
+int fs_create_directories(const char* path)
+{
+  if(!path || std::strlen(path) == 0) {
     std::cerr << "ERROR:filesystem:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
     return 1;
   }
@@ -222,14 +255,24 @@ int fs_create_directories(const char* path) {
 }
 
 
-size_t fs_root(const char* path, char* result, size_t buffer_size) {
+size_t fs_root(const char* path, char* result, size_t buffer_size)
+{
+  if(!path){
+    result = nullptr;
+    return 0;
+  }
+
   fs::path p(path);
 
-  return path2str(p.root_path(), result, buffer_size);
+  return _fs_path2str(p.root_path(), result, buffer_size);
 }
 
 
-bool fs_exists(const char* path) {
+bool fs_exists(const char* path)
+{
+  if(!path)
+    return false;
+
   std::error_code ec;
 
   auto e = fs::exists(path, ec);
@@ -243,27 +286,32 @@ bool fs_exists(const char* path) {
 }
 
 
-bool fs_is_absolute(const char* path) {
+bool fs_is_absolute(const char* path)
+{
+  if(!path)
+    return 0;
+
   fs::path p(path);
   return p.is_absolute();
 }
 
 
-bool fs_is_dir(const char* path) {
-
-  if(std::strlen(path) == 0)
+bool fs_is_dir(const char* path)
+{
+  if(!path || std::strlen(path) == 0)
     return false;
 
-#ifdef _WIN32
   fs::path p(path);
+
+#ifdef _WIN32
   if (p.root_name() == p)
     return true;
 #endif
 
   std::error_code ec;
-  auto e = fs::is_directory(path, ec);
+  auto e = fs::is_directory(p, ec);
   if(ec) {
-    std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << " " << p << std::endl;
     return false;
   }
 
@@ -272,8 +320,8 @@ bool fs_is_dir(const char* path) {
 }
 
 
-bool fs_is_exe(const char* path) {
-
+bool fs_is_exe(const char* path)
+{
   if (!fs_is_file(path))
     return false;
 
@@ -288,11 +336,12 @@ bool fs_is_exe(const char* path) {
 }
 
 
-bool fs_is_file(const char* path) {
-  std::error_code ec;
-
-  if (!fs_exists(path))
+bool fs_is_file(const char* path)
+{
+  if(!path)
     return false;
+
+  std::error_code ec;
 
   auto e = fs::is_regular_file(path, ec);
   if(ec) {
@@ -303,7 +352,11 @@ bool fs_is_file(const char* path) {
 }
 
 
-bool fs_remove(const char* path) {
+bool fs_remove(const char* path)
+{
+  if(!path)
+    return false;
+
   std::error_code ec;
 
   auto e = fs::remove(path, ec);
@@ -316,11 +369,12 @@ bool fs_remove(const char* path) {
   return e;
 }
 
-size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size) {
+size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size)
+{
   // also expands ~
 
-  if( path == nullptr || strlen(path) == 0 ){
-    result[0] = '\0';
+  if( !path || std::strlen(path) == 0 ){
+    result = nullptr;
     return 0;
   }
 
@@ -344,15 +398,16 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 
   if(ec) {
     std::cerr << "ERROR:filesystem:canonical: " << ec.message() << std::endl;
-    result = NULL;
+    result = nullptr;
     return 0;
   }
 
-  return path2str(p, result, buffer_size);
+  return _fs_path2str(p, result, buffer_size);
 }
 
 
-bool fs_equivalent(const char* path1, const char* path2) {
+bool fs_equivalent(const char* path1, const char* path2)
+{
   // check existance to avoid error if not exist
 
   if (! (fs_exists(path1) && fs_exists(path2)) )
@@ -371,13 +426,13 @@ bool fs_equivalent(const char* path1, const char* path2) {
 }
 
 
-int fs_copy_file(const char* source, const char* destination, bool overwrite) {
-
-  if(strlen(source) == 0) {
+int fs_copy_file(const char* source, const char* destination, bool overwrite)
+{
+  if(!source || std::strlen(source) == 0) {
     std::cerr << "filesystem:copy_file: source path must not be empty" << std::endl;
     return 1;
   }
-  if(strlen(destination) == 0) {
+  if(!destination || std::strlen(destination) == 0) {
     std::cerr << "filesystem:copy_file: destination path must not be empty" << std::endl;
     return 1;
   }
@@ -417,11 +472,11 @@ int fs_copy_file(const char* source, const char* destination, bool overwrite) {
 }
 
 
-size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
-
+size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
+{
   // undefined case, avoid bugs with MacOS
-  if( to == nullptr || (strlen(to) == 0) || from == nullptr || (strlen(from) == 0) ){
-    result[0] = '\0';
+  if( !to || (std::strlen(to) == 0) || !from || (std::strlen(from) == 0) ){
+    result = nullptr;
     return 0;
   }
 
@@ -440,17 +495,17 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
 
   if(ec) {
     std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
-    result = NULL;
+    result = nullptr;
     return 0;
   }
 
-  return path2str(r, result, buffer_size);
+  return _fs_path2str(r, result, buffer_size);
 }
 
 
-bool fs_touch(const char* path) {
-
-  if(path == nullptr || strlen(path) == 0)
+bool fs_touch(const char* path)
+{
+  if(!path || std::strlen(path) == 0)
     return false;
 
   fs::path p(path);
@@ -503,27 +558,30 @@ bool fs_touch(const char* path) {
 }
 
 
-size_t fs_get_tempdir(char* result, size_t buffer_size) {
-
+size_t fs_get_tempdir(char* result, size_t buffer_size)
+{
   std::error_code ec;
 
   auto r = fs::temp_directory_path(ec);
-
   if(ec) {
-    std::cerr << "filesystem:get_tempdir: " << ec.message() << std::endl;
-    result = NULL;
+    std::cerr << "ERROR:filesystem:get_tempdir: " << ec.message() << std::endl;
+    result = nullptr;
     return 0;
   }
 
-  return path2str(r, result, buffer_size);
+  return _fs_path2str(r, result, buffer_size);
 }
 
 
-uintmax_t fs_file_size(const char* path) {
+uintmax_t fs_file_size(const char* path)
+{
   // need to check is_regular_file for MSVC/Intel Windows
 
+  if(!path)
+    return 0;
+
   if (!fs_is_file(path)) {
-    std::cerr << "filesystem:file_size: " << path << " is not a regular file" << std::endl;
+    std::cerr << "ERROR:filesystem:file_size: " << path << " is not a regular file" << std::endl;
     return 0;
   }
 
@@ -539,23 +597,24 @@ uintmax_t fs_file_size(const char* path) {
 }
 
 
-size_t fs_get_cwd(char* result, size_t buffer_size) {
+size_t fs_get_cwd(char* result, size_t buffer_size)
+{
   std::error_code ec;
 
   auto r = fs::current_path(ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << std::endl;
-    result = NULL;
+    result = nullptr;
     return 0;
   }
 
-  return path2str(r, result, buffer_size);
+  return _fs_path2str(r, result, buffer_size);
 }
 
 
-size_t fs_get_homedir(char* result, size_t buffer_size) {
-
+size_t fs_get_homedir(char* result, size_t buffer_size)
+{
 #ifdef _WIN32
   auto k = "USERPROFILE";
 #else
@@ -564,9 +623,9 @@ size_t fs_get_homedir(char* result, size_t buffer_size) {
 
   auto r = std::getenv(k);
 
-  if(r == nullptr) {
+  if(!r) {
     std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined" << std::endl;
-    result = NULL;
+    result = nullptr;
     return 0;
   }
 
@@ -574,16 +633,20 @@ size_t fs_get_homedir(char* result, size_t buffer_size) {
 }
 
 
-size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
+size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
+{
+  if(!path){
+    result = nullptr;
+    return 0;
+  }
 
-  std::string p(path);
-
-  if(TRACE)  std::cout << "TRACE:expanduser: path: " << p << " length: " << strlen(path) << std::endl;
-
-  if( path == nullptr || strlen(path) == 0 ){
+  if(strlen(path) == 0){
+    // string does not handle empty string '\0'
     result[0] = '\0';
     return 0;
   }
+
+  std::string p(path);
 
   if(p.front() != '~')
     return fs_normal(path, result, buffer_size);
@@ -600,6 +663,7 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size){
   // std::cout << "TRACE:expanduser: path(home) " << home << std::endl;
 
 // drop duplicated separators
+// NOT .lexical_normal to handle "~/.."
   std::regex r("/{2,}");
 
   std::replace(p.begin(), p.end(), '\\', '/');
@@ -609,17 +673,20 @@ if(TRACE) std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
 
   if (p.length() < 3) {
     // ~ alone
-    return path2str(home, result, buffer_size);
+    return _fs_path2str(home, result, buffer_size);
   }
 
   return fs_normal((home / p.substr(2)).generic_string().c_str(), result, buffer_size);
 }
 
-bool fs_chmod_exe(const char* path) {
+bool fs_chmod_exe(const char* path)
+{
   // make path owner executable, if it's a file
+  if(!path)
+    return false;
 
   if(!fs_is_file(path)) {
-    std::cerr << "filesystem:chmod_exe: " << path << " is not a regular file" << std::endl;
+    std::cerr << "ERROR:ffilesystem:chmod_exe: " << path << " is not a regular file" << std::endl;
     return false;
   }
 
@@ -636,11 +703,14 @@ bool fs_chmod_exe(const char* path) {
 
 }
 
-bool fs_chmod_no_exe(const char* path) {
+bool fs_chmod_no_exe(const char* path)
+{
   // make path not executable, if it's a file
+  if(!path)
+    return false;
 
   if(!fs_is_file(path)) {
-    std::cerr << "filesystem:chmod_no_exe: " << path << " is not a regular file" << std::endl;
+    std::cerr << "ERROR:ffilesystem:chmod_no_exe: " << path << " is not a regular file" << std::endl;
     return false;
   }
 
