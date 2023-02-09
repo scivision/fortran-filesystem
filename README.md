@@ -36,13 +36,18 @@ print *, "path: ", p%path() !< getter
 
 Ffilesystem supports compilers including:
 
-* GCC &ge; 7 (gcc/g++, gfortran)
-* LLVM Clang &ge; 7 (clang/clang++, flang or gfortran)
+* GCC &ge; 8 (gcc/g++, gfortran)
+* LLVM Clang &ge; 9 (clang/clang++, flang or gfortran)
 * Intel oneAPI (icx, ifx, ifort)
 * AMD AOCC (clang/clang++, flang)
 * NVidia HPC SDK (nvc++, nvfortran)
 * Visual Studio (C/C++)
 * Cray: using Cray compilers alone (cc, CC, ftn) or using GCC or Intel backend
+
+To reduce maintenance burden, C++ interface requires compiler to support `<filesystem>`.
+The older `<experimental/filesystem>` is NOT supported.
+C++ support is automatically disabled if it's not working.
+To manually disable C++ support:
 
 ```sh
 cmake -Bbuild -Dcpp=no
@@ -71,7 +76,6 @@ scl enable gcc-toolset-10 "which g++"
 ## Build
 
 Ffilesystem can be built with CMake or Fortran Package Manager (FPM).
-One can also simply copy `src/common/[filesystem.cpp,common.c,get_path.c]` and `include/ffilesystem.h` into the user project.
 
 "libffilesystem.a" is the library binary built that contains the Fortran "filesystem" module--it is the only binary you need to use in your project.
 
