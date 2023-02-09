@@ -20,8 +20,13 @@
 
 size_t _fs_getenv(const char* name, char* path, size_t buffer_size)
 {
-char* buf;
-size_t L;
+  if(buffer_size == 0){
+    path = NULL;
+    return 0;
+  }
+
+  char* buf;
+  size_t L;
 
 #ifdef _MSC_VER
   buf = (char*) malloc(buffer_size);
@@ -48,8 +53,6 @@ size_t L;
 
 return L;
 }
-
-
 
 
 size_t fs_get_cwd(char* path, size_t buffer_size)
