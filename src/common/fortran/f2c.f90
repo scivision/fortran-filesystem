@@ -55,6 +55,12 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+integer(C_SIZE_T) function fs_compiler(path, buffer_size) bind(C)
+import
+character(kind=C_CHAR), intent(out) :: path(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
 integer(C_SIZE_T) function fs_exe_dir(path, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(out) :: path(*)
@@ -238,6 +244,15 @@ N = len_trim(path)
 allocate(character(N+1) :: cbuf)
 cbuf = trim(path) // C_NULL_CHAR
 call fs_as_windows(cbuf)
+allocate(character(N) :: r)
+r = cbuf(:N)
+end procedure
+
+module procedure compiler
+character(kind=C_CHAR, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = fs_compiler(cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: r)
 r = cbuf(:N)
 end procedure

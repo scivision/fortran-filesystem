@@ -40,7 +40,7 @@ end select
 
 select case (fcn)
 case ("compiler")
-  print '(a,/,a)', compiler_version(), compiler_options()
+  print '(a,/,a)', compiler(), compiler_version()
 case ("cpp")
   print '(L1)', fs_cpp()
 case ('is_macos')

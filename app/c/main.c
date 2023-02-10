@@ -2,16 +2,32 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
+
 #include "ffilesystem.h"
 
 
 int main(int argc, char* argv[]){
+#ifdef _MSC_VER
+  _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+  _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+  _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+#endif
 
   char p[MAXP];
 
   if (argc == 1) {
       fprintf(stderr, "fs_cli <function_name> [<arg1> ...]");
       return EXIT_FAILURE;
+  }
+  else if (strcmp(argv[1], "compiler") == 0){
+    fs_compiler(p, MAXP);
+    printf("%s\n", p);
   }
   else if (strcmp(argv[1], "cpp") == 0){
     printf("%d\n", fs_cpp());

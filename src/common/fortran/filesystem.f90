@@ -21,7 +21,7 @@ touch, create_symlink, &
 remove, get_tempdir, &
 chmod_exe, chmod_no_exe, &
 fs_cpp, is_macos, is_windows, is_linux, is_unix, &
-get_max_path, exe_path, exe_dir, lib_path, lib_dir
+get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler
 !! functional API
 
 !! Maximum path length is dynamically determined for this computer.
@@ -274,6 +274,11 @@ module subroutine create_symlink(tgt, link, status)
 character(*), intent(in) :: tgt, link
 integer, intent(out), optional :: status
 end subroutine
+
+module function compiler() result(r)
+!! get compiler version from C preprocessor
+character(:), allocatable :: r
+end function
 
 module function exe_path()
 !! get full path of main executable
