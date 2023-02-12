@@ -200,11 +200,13 @@ int main(){
       return EXIT_FAILURE;
     if(fs_get_cwd(O, 1) != 0)
       return EXIT_FAILURE;
+    printf("PASS: get_cwd\n");
 
     if(fs_get_homedir(s, 0) != 0)
       return EXIT_FAILURE;
     if(fs_get_homedir(O, 1) != 0)
       return EXIT_FAILURE;
+    printf("PASS: get_homedir\n");
 
     if(fs_exe_dir(s, 0) != 0)
       return EXIT_FAILURE;
@@ -225,6 +227,8 @@ int main(){
       return EXIT_FAILURE;
     if(fs_chmod_no_exe(O))
       return EXIT_FAILURE;
+
+    printf("OK: test_c_nullptr\n");
 
     return EXIT_SUCCESS;
 }

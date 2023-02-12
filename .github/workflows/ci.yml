@@ -25,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        gcc-version: [9, 10, 11]
+        gcc-version: [9, 10, 11, 12]
         shared: [true, false]
         cpp: [true, false]
         exclude:

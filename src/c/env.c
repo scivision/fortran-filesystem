@@ -38,8 +38,12 @@ size_t _fs_getenv(const char* name, char* path, size_t buffer_size)
   }
 #else
   buf = getenv(name);
-  if(!buf || strlen(buf) >= buffer_size){
-    fprintf(stderr, "ERROR:ffilesystem:getenv\n");
+  if(!buf){
+    path = NULL;
+    return 0;
+  }
+  if(strlen(buf) >= buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem:getenv: buffer too small\n");
     path = NULL;
     return 0;
   }
@@ -101,5 +105,19 @@ size_t fs_get_tempdir(char* path, size_t buffer_size)
   char name[] = "TMPDIR";
 #endif
 
-  return _fs_getenv(name, path, buffer_size);
+  size_t L = _fs_getenv(name, path, buffer_size);
+  if(L > 0){
+    return L;
+  }
+  else if (fs_is_dir("/tmp") && buffer_size > 4){
+    strncpy(path, "/tmp", buffer_size);
+    path[4] = '\0';
+    return 4;
+  }
+  else{
+    fprintf(stderr, "ERROR:ffilesystem:get_tempdir: could not find temp dir\n");
+    path = NULL;
+    return 0;
+  }
+
 }
