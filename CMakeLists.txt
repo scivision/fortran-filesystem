@@ -7,6 +7,7 @@ VERSION 4.2.0
 
 include(CTest) # needed for "ctest -T memcheck"
 
+set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 
 include(cmake/options.cmake)

@@ -58,12 +58,6 @@ if(GNU_stdfs)
   message(STATUS "adding library ${GNU_stdfs}")
 endif()
 
-if(MSVC)
-  set(CMAKE_REQUIRED_FLAGS /std:c++17)
-else()
-  set(CMAKE_REQUIRED_FLAGS -std=c++17)
-endif()
-
 if(cpp)
   cpp_check()
 else()

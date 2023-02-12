@@ -2,6 +2,12 @@
 
 function(cpp_check)
 
+if(MSVC)
+  set(CMAKE_REQUIRED_FLAGS /std:c++17)
+else()
+  set(CMAKE_REQUIRED_FLAGS -std=c++17)
+endif()
+
 # https://en.cppreference.com/w/cpp/feature_test
 check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_FS_FEATURE)
 
