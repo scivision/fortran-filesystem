@@ -3,6 +3,7 @@ include(CheckCXXSymbolExists)
 include(CheckCXXSourceCompiles)
 
 include(${CMAKE_CURRENT_LIST_DIR}/CppCheck.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/CCheck.cmake)
 
 # --- abi check: C++ and Fortran compiler ABI compatibility
 
@@ -62,6 +63,7 @@ if(cpp)
   cpp_check()
 else()
   unset(HAVE_CXX_FILESYSTEM CACHE)
+  c_check()
 endif()
 
 

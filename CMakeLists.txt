@@ -47,6 +47,7 @@ $<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:${PROJECT_SOURCE_DIR}/src/c>
 target_compile_definitions(ffilesystem PRIVATE
 $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
 "$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:_GNU_SOURCE;CWK_EXPORTS>"
+$<$<BOOL:${HAVE_GETENV_S}>:HAVE_GETENV_S>
 )
 set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)
 set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)

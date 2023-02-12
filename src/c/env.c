@@ -1,3 +1,5 @@
+#define __STDC_WANT_LIB_EXT1__ 1
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +30,7 @@ size_t _fs_getenv(const char* name, char* path, size_t buffer_size)
   char* buf;
   size_t L;
 
-#ifdef _MSC_VER
+#ifdef HAVE_GETENV_S
   buf = (char*) malloc(buffer_size);
   if(getenv_s(&L, buf, buffer_size, name) != 0){
     fprintf(stderr, "ERROR:ffilesystem:getenv: %s\n", strerror(errno));
@@ -51,11 +53,11 @@ size_t _fs_getenv(const char* name, char* path, size_t buffer_size)
 
   L = fs_normal(buf, path, buffer_size);
 
-#ifdef _MSC_VER
+#ifdef HAVE_GETENV_S
   free(buf);
 #endif
 
-return L;
+  return L;
 }
 
 
