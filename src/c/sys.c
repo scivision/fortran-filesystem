@@ -61,14 +61,14 @@ int fs_create_directories(const char* path) {
   if(fs_is_dir(path))
     return 0;
 
-  char* p = (char*) malloc(strlen(path) + 1);
-  strcpy(p, path); // NOLINT(clang-analyzer-security.insecureAPI.strcpy)
+  char* p = (char*) malloc(MAXP);
+  strncpy(p, path, MAXP-1);
+  size_t L = strlen(path);
+  p[L] = '\0';
+
+  int r;
 #ifdef _WIN32
   fs_as_windows(p);
-#endif
-
-int r;
-#ifdef _WIN32
   intptr_t ir = _execlp("cmd", "cmd", "/c", "mkdir", p, NULL);
   r = (int)ir;
 #else
