@@ -406,6 +406,7 @@ if(!path || strlen(path) == 0)
 #ifdef _MSC_VER
   return _access_s(path, 0) == 0;
 #else
+  // <unistd.h>
   return access(path, F_OK) == 0;
 #endif
 
@@ -484,6 +485,7 @@ int fs_create_symlink(const char* target, const char* link)
 #ifdef _WIN32
   return _fs_win32_create_symlink(target, link);
 #else
+  // <unistd.h>
   return symlink(target, link);
 #endif
 }

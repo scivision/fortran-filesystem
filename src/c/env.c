@@ -18,8 +18,6 @@
 #include "ffilesystem.h"
 
 
-
-
 size_t _fs_getenv(const char* name, char* path, size_t buffer_size)
 {
   if(buffer_size == 0){
@@ -72,7 +70,7 @@ size_t fs_get_cwd(char* path, size_t buffer_size)
 
 #ifdef _MSC_VER
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
-  x = _getcwd(path, (DWORD)buffer_size);
+  x = _getcwd(path, (int)buffer_size);
 #else
   x = getcwd(path, buffer_size);
 #endif

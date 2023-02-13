@@ -166,15 +166,15 @@ size_t fs_lib_dir(char* path, size_t buffer_size)
 
 bool _fs_win32_is_symlink(const char* path)
 {
-  if (!path)
-    return false;
-
 #ifdef _WIN32
   DWORD a = GetFileAttributes(path);
   if(a == INVALID_FILE_ATTRIBUTES)
     return false;
   return a & FILE_ATTRIBUTE_REPARSE_POINT;
+#else
+  (void) path;
 #endif
+
   return false;
 }
 
@@ -197,9 +197,9 @@ int _fs_win32_create_symlink(const char* target, const char* link)
     fprintf(stderr, "Enable Windows developer mode to use symbolic links:\n"
       "https://learn.microsoft.com/en-us/windows/apps/get-started/developer-mode-features-and-debugging\n");
   }
-  return -1;
 #else
   (void) target; (void) link;
-  return 1;
 #endif
+
+  return -1;
 }
