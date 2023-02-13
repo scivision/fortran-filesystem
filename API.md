@@ -485,13 +485,6 @@ Get system or user temporary directory:
 character(:), allocatable :: get_tempdir()
 ```
 
-Get a filename in the system or user temporary filename--it is not created.
-Note: MinGW (Windows GCC) has a bug where the directory is omitted.
-
-```fortran
-character(:), allocatable :: temp_filename()
-```
-
 Make a path absolute if relative:
 
 ```fortran

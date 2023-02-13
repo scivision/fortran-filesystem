@@ -107,7 +107,6 @@ extern bool fs_touch(const char*);
 extern size_t fs_get_cwd(char*, size_t);
 extern size_t fs_get_homedir(char*, size_t);
 extern size_t fs_get_tempdir(char*, size_t);
-extern size_t fs_temp_filename(char*, size_t);
 
 extern size_t fs_expanduser(const char*, char*, size_t);
 

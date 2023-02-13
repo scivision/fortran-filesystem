@@ -573,26 +573,6 @@ size_t fs_get_tempdir(char* path, size_t buffer_size)
 }
 
 
-size_t fs_temp_filename(char* path, size_t buffer_size)
-{
-  if(buffer_size < L_tmpnam){
-    std::cerr << "ERROR:filesystem:temp_filename: buffer size must be at least " << L_tmpnam << std::endl;
-    path = nullptr;
-    return 0;
-  }
-
-  auto r = std::tmpnam(path);
-  if (!r) {
-    std::cerr << "ERROR:filesystem:temp_filename" << std::endl;
-    path = nullptr;
-    return 0;
-  }
-
-  return _fs_path2str(r, path, buffer_size);
-}
-
-
-
 uintmax_t fs_file_size(const char* path)
 {
   // need to check is_regular_file for MSVC/Intel Windows

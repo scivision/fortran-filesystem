@@ -130,12 +130,6 @@ character(kind=c_char), intent(out) :: path(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function fs_temp_filename(path, buffer_size) bind(C)
-import
-character(kind=c_char), intent(out) :: path(*)
-integer(C_SIZE_T), intent(in), value :: buffer_size
-end function
-
 logical(c_bool) function fs_is_absolute(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -390,15 +384,6 @@ allocate(character(max_path()) :: cbuf)
 N = fs_get_tempdir(cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: get_tempdir)
 get_tempdir = cbuf(:N)
-end procedure
-
-module procedure temp_filename
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-allocate(character(max_path()) :: cbuf)
-N = fs_temp_filename(cbuf, len(cbuf, kind=C_SIZE_T))
-allocate(character(N) :: temp_filename)
-temp_filename = cbuf(:N)
 end procedure
 
 module procedure is_absolute
