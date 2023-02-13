@@ -21,7 +21,6 @@
 #include "ffilesystem.h"
 #include "cwalk.h"
 
-// NOLINTBEGIN(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,clang-analyzer-security.insecureAPI.strcpy)
 
 bool fs_cpp(){
 // tell if fs core is C or C++
@@ -260,15 +259,16 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
     return 0;
   }
 
-  // cannot be relative, avoid bugs with MacOS
   if(fs_is_absolute(to) != fs_is_absolute(from)){
+    // cannot be relative, avoid bugs with MacOS
     result[0] = '\0';
     return 0;
   }
 
-  // short circuit if trivially equal
   if(strcmp(to, from) == 0){
-    strcpy(result, ".");
+    // short circuit if trivially equal
+    result[0] = '.';
+    result[1] = '\0';
     return 1;
   }
 
@@ -578,5 +578,3 @@ bool fs_touch(const char* path)
 
   return fs_is_file(path);
 }
-
-// NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,clang-analyzer-security.insecureAPI.strcpy)
