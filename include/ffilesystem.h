@@ -107,17 +107,18 @@ extern bool fs_touch(const char*);
 extern size_t fs_get_cwd(char*, size_t);
 extern size_t fs_get_homedir(char*, size_t);
 extern size_t fs_get_tempdir(char*, size_t);
+extern size_t fs_temp_filename(char*, size_t);
 
 extern size_t fs_expanduser(const char*, char*, size_t);
 
 extern uintmax_t fs_file_size(const char*);
 
-extern size_t fs_exe_path(char* path, size_t);
-extern size_t fs_exe_dir(char* path, size_t);
-extern size_t fs_lib_path(char* path, size_t);
-extern size_t fs_lib_dir(char* path, size_t);
+extern size_t fs_exe_path(char*, size_t);
+extern size_t fs_exe_dir(char*, size_t);
+extern size_t fs_lib_path(char*, size_t);
+extern size_t fs_lib_dir(char*, size_t);
 
-size_t fs_compiler(char* name, size_t buffer_size);
+extern size_t fs_compiler(char*, size_t);
 
 // internal functions
 bool _fs_win32_is_symlink(const char*);

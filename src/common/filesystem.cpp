@@ -558,19 +558,39 @@ bool fs_touch(const char* path)
 }
 
 
-size_t fs_get_tempdir(char* result, size_t buffer_size)
+size_t fs_get_tempdir(char* path, size_t buffer_size)
 {
   std::error_code ec;
 
   auto r = fs::temp_directory_path(ec);
   if(ec) {
     std::cerr << "ERROR:filesystem:get_tempdir: " << ec.message() << std::endl;
-    result = nullptr;
+    path = nullptr;
     return 0;
   }
 
-  return _fs_path2str(r, result, buffer_size);
+  return _fs_path2str(r, path, buffer_size);
 }
+
+
+size_t fs_temp_filename(char* path, size_t buffer_size)
+{
+  if(buffer_size < L_tmpnam){
+    std::cerr << "ERROR:filesystem:temp_filename: buffer size must be at least " << L_tmpnam << std::endl;
+    path = nullptr;
+    return 0;
+  }
+
+  auto r = std::tmpnam(path);
+  if (!r) {
+    std::cerr << "ERROR:filesystem:temp_filename" << std::endl;
+    path = nullptr;
+    return 0;
+  }
+
+  return _fs_path2str(r, path, buffer_size);
+}
+
 
 
 uintmax_t fs_file_size(const char* path)
@@ -597,7 +617,7 @@ uintmax_t fs_file_size(const char* path)
 }
 
 
-size_t fs_get_cwd(char* result, size_t buffer_size)
+size_t fs_get_cwd(char* path, size_t buffer_size)
 {
   std::error_code ec;
 
@@ -605,15 +625,15 @@ size_t fs_get_cwd(char* result, size_t buffer_size)
 
   if(ec) {
     std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << std::endl;
-    result = nullptr;
+    path = nullptr;
     return 0;
   }
 
-  return _fs_path2str(r, result, buffer_size);
+  return _fs_path2str(r, path, buffer_size);
 }
 
 
-size_t fs_get_homedir(char* result, size_t buffer_size)
+size_t fs_get_homedir(char* path, size_t buffer_size)
 {
 #ifdef _WIN32
   auto k = "USERPROFILE";
@@ -625,11 +645,11 @@ size_t fs_get_homedir(char* result, size_t buffer_size)
 
   if(!r) {
     std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined" << std::endl;
-    result = nullptr;
+    path = nullptr;
     return 0;
   }
 
-  return fs_normal(r, result, buffer_size);
+  return fs_normal(r, path, buffer_size);
 }
 
 

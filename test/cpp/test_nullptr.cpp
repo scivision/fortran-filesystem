@@ -162,6 +162,11 @@ int main(){
     if(fs_get_tempdir(O, 1) != 0)
       return EXIT_FAILURE;
 
+    if(fs_temp_filename(s, 0) != 0)
+      return EXIT_FAILURE;
+    if(fs_temp_filename(O, 1) != 0)
+      return EXIT_FAILURE;
+
     if(fs_file_size(s) != 0)
       return EXIT_FAILURE;
     if(fs_file_size(O) != 0)

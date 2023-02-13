@@ -191,6 +191,11 @@ int main(){
       return EXIT_FAILURE;
     printf("PASS: get_tempdir\n");
 
+    if(fs_temp_filename(s, 0) != 0)
+      return EXIT_FAILURE;
+    if(fs_temp_filename(O, 1) != 0)
+      return EXIT_FAILURE;
+
     if(fs_file_size(s) != 0)
       return EXIT_FAILURE;
     if(fs_file_size(O) != 0)

@@ -37,6 +37,7 @@ size_t _fs_getenv(const char* name, char* path, size_t buffer_size)
     return 0;
   }
 #else
+  // <stdlib.h>
   buf = getenv(name);
   if(!buf){
     path = NULL;

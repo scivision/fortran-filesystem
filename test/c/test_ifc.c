@@ -35,5 +35,8 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
-  return 0;
+  fs_temp_filename(cpath, MAXP);
+  printf("temp_filename %s\n", cpath);
+
+  return EXIT_SUCCESS;
 }

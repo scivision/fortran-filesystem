@@ -1,7 +1,7 @@
 program test_env
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use filesystem, only : path_t, get_cwd, exists, get_tempdir, get_homedir
+use filesystem, only : path_t, get_cwd, exists, get_tempdir, get_homedir, temp_filename
 
 implicit none
 
@@ -11,11 +11,13 @@ print *, "OK fs: exists"
 if (len_trim(get_homedir()) == 0) error stop "get_homedir failed"
 print *, "OK: get_homedir: " // get_homedir()
 
-if (len_trim(get_tempdir()) == 0) then
-  write(stderr,*) "get_tempdir failed"
-else
-  print *, "OK: get_tempdir: " // get_tempdir()
-endif
+if (len_trim(get_tempdir()) == 0) error stop "get_tempdir failed"
+print *, "OK: get_tempdir: " // get_tempdir()
+
+if (len_trim(temp_filename()) == 0) error stop "temp_filename failed"
+print *, "OK: temp_filename: " // temp_filename()
+
+
 
 contains
 

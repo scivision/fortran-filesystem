@@ -283,6 +283,25 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
 }
 
 
+size_t fs_temp_filename(char* path, size_t buffer_size)
+{
+  if(buffer_size < L_tmpnam){
+    fprintf(stderr, "ERROR:filesystem:temp_filename: buffer size too small\n");
+    path = NULL;
+    return 0;
+  }
+
+  char* r = tmpnam(path);
+  if (!r) {
+    fprintf(stderr, "ERROR:filesystem:temp_filename\n");
+    path = NULL;
+    return 0;
+  }
+
+  return fs_normal(r, path, buffer_size);
+}
+
+
 uintmax_t fs_file_size(const char* path)
 {
   struct stat s;
@@ -312,6 +331,7 @@ bool fs_equivalent(const char* path1, const char* path2)
   return eqv;
 
 }
+
 
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 {
