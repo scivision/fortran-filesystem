@@ -246,8 +246,8 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 }
 
 
-size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size) {
-
+size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
+{
   // undefined case, avoid bugs with MacOS
   if(to == NULL || from == NULL){
     result = NULL;
@@ -530,6 +530,7 @@ bool fs_remove(const char* path)
 #endif
 }
 
+
 bool fs_chmod_exe(const char* path)
 {
   if(!path)
@@ -545,6 +546,7 @@ bool fs_chmod_exe(const char* path)
   return chmod(path, s.st_mode | S_IXUSR) == 0;
 #endif
 }
+
 
 bool fs_chmod_no_exe(const char* path)
 {
@@ -562,16 +564,14 @@ bool fs_chmod_no_exe(const char* path)
 #endif
 }
 
+
 bool fs_touch(const char* path)
 {
   if(!path || strlen(path) == 0)
     return false;
 
-  if (fs_exists(path)){
-    if(fs_is_file(path))
-      return true;
-    return false;
-  }
+  if (fs_exists(path))
+    return fs_is_file(path);
 
   FILE* fid = fopen(path, "a");
   fclose(fid);
