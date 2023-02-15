@@ -166,7 +166,9 @@ endif()
 
 # --- clang-tidy
 if(tidy)
-  find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
+  find_program(CLANG_TIDY_EXE NAMES clang-tidy REQUIRED
+  PATHS /opt/homebrew/opt/llvm/bin
+  )
   set(CMAKE_C_CLANG_TIDY ${CLANG_TIDY_EXE})
   set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_EXE})
 endif()
