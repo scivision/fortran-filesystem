@@ -18,15 +18,13 @@ if(NOT abi_ok)
   if(abi_ok)
     message(CHECK_PASS "OK")
   else()
-    set(err_log ${CMAKE_CURRENT_BINARY_DIR}/abi_check/CMakeError.log)
+    message(CONFIGURE_LOG "ABI check failed:
+    ${abi_log}")
     message(FATAL_ERROR "ABI-incompatible compilers:
     C compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}
     C++ compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}
-    Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION}
-    For logged errors see ${err_log}
-    "
+    Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION}"
     )
-    file(WRITE ${err_log} ${abi_log})
   endif()
 endif()
 
@@ -80,16 +78,14 @@ if(HAVE_CXX_FILESYSTEM AND NOT DEFINED fs_abi_ok)
   if(fs_abi_ok)
     message(CHECK_PASS "OK")
   else()
-    set(err_log ${CMAKE_CURRENT_BINARY_DIR}/fs_check/CMakeError.log)
+    message(CONFIGURE_LOG "FS ABI check failed:
+    ${abi_log}")
     message(WARNING "
     Disabling C++ filesystem due to ABI-incompatible compilers:
     C compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}
     C++ compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}
-    Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION}
-    For logged errors see ${err_log}
-    "
+    Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION}"
     )
-    file(WRITE ${err_log} ${abi_log})
     set(HAVE_CXX_FILESYSTEM false CACHE BOOL "ABI problem with C++ filesystem" FORCE)
   endif()
 endif()

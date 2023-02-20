@@ -1,3 +1,4 @@
+#include <cstring>
 #include <regex>
 
 #if __has_include(<filesystem>)
@@ -14,4 +15,11 @@ bool has_filename(const char* path){
   return p.has_filename();
 }
 
-void dummy() { std::regex r("/{2,}"); }
+void check_regex(char* s) {
+  // some broken C++ platforms don't have std::regex linking properly
+  std::string p(s);
+  std::regex r("/{2,}");
+  std::replace(p.begin(), p.end(), '\\', '/');
+  p = std::regex_replace(p, r, "/");
+  std::strcpy(s, p.c_str());
+}
