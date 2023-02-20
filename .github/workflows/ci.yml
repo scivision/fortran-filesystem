@@ -13,7 +13,6 @@ on:
       - "**/CMakeLists.txt"
       - "**.cmake"
       - ".github/workflows/ci.yml"
-      - "!cray.cmake"
       - "!concepts/"
 
 
