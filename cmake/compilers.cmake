@@ -13,13 +13,10 @@ if(NOT abi_ok)
   ${CMAKE_CURRENT_BINARY_DIR}/abi_check ${CMAKE_CURRENT_LIST_DIR}/abi_check
   abi_check
   CMAKE_FLAGS -Dcpp:BOOL=${cpp} -Dfortran:BOOL=${fortran}
-  OUTPUT_VARIABLE abi_log
   )
   if(abi_ok)
     message(CHECK_PASS "OK")
   else()
-    message(CONFIGURE_LOG "ABI check failed:
-    ${abi_log}")
     message(FATAL_ERROR "ABI-incompatible compilers:
     C compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}
     C++ compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}
@@ -73,13 +70,10 @@ if(HAVE_CXX_FILESYSTEM AND NOT DEFINED fs_abi_ok)
   ${CMAKE_CURRENT_BINARY_DIR}/fs_check ${CMAKE_CURRENT_LIST_DIR}/fs_check
   fs_check
   CMAKE_FLAGS -DGNU_stdfs=${GNU_stdfs} -Dfortran:BOOL=${fortran}
-  OUTPUT_VARIABLE abi_log
   )
   if(fs_abi_ok)
     message(CHECK_PASS "OK")
   else()
-    message(CONFIGURE_LOG "FS ABI check failed:
-    ${abi_log}")
     message(WARNING "
     Disabling C++ filesystem due to ABI-incompatible compilers:
     C compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}
