@@ -63,7 +63,7 @@ static size_t cwk_path_output_sized(char *buffer, size_t buffer_size,
   // always append a '\0', this way we are guaranteed to have a valid string at
   // all times.
   if (amount_written > 0) {
-    memmove(&buffer[position], str, amount_written);  // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
+    memmove(&buffer[position], str, amount_written);
   }
 
   // Return the theoretical length which would have been written when everything

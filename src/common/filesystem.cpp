@@ -18,6 +18,10 @@ namespace fs = std::filesystem;
 
 #include "ffilesystem.h"
 
+#ifdef __MINGW32__
+#include "windows.c"
+#endif
+
 
 bool fs_cpp()
 {
@@ -25,12 +29,12 @@ bool fs_cpp()
   return true;
 }
 
-size_t _fs_path2str(const fs::path p, char* result, size_t buffer_size)
+static size_t fs_path2str(const fs::path p, char* result, size_t buffer_size)
 {
   auto s = p.generic_string();
 
   if(TRACE)
-    std::cout << "TRACE: _fs_path2str: " << s << " " << s.length() << " " << buffer_size << std::endl;
+    std::cout << "TRACE:fs_path2str: " << s << " " << s.length() << " " << buffer_size << std::endl;
 
   if(s.length() >= buffer_size){
     result = nullptr;
@@ -55,7 +59,7 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size)
 
   fs::path p(path);
 
-  return _fs_path2str(p.lexically_normal(), result, buffer_size);
+  return fs_path2str(p.lexically_normal(), result, buffer_size);
 }
 
 
@@ -68,7 +72,7 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size)
 
   fs::path p(path);
 
-  return _fs_path2str(p.filename(), result, buffer_size);
+  return fs_path2str(p.filename(), result, buffer_size);
 }
 
 
@@ -81,7 +85,7 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size)
 
   fs::path p(path);
 
-  return _fs_path2str(p.filename().stem(), result, buffer_size);
+  return fs_path2str(p.filename().stem(), result, buffer_size);
 }
 
 
@@ -107,12 +111,12 @@ size_t fs_join(const char* path, const char* other, char* result, size_t buffer_
     std::cout << "TRACE:fs_join: " << path << " + " << other << std::endl;
 
   if(L1 == 0)
-    return _fs_path2str(p2, result, buffer_size);
+    return fs_path2str(p2, result, buffer_size);
 
   if(L2 == 0)
-    return _fs_path2str(p1, result, buffer_size);
+    return fs_path2str(p1, result, buffer_size);
 
-  return _fs_path2str(p1 / p2, result, buffer_size);
+  return fs_path2str(p1 / p2, result, buffer_size);
 }
 
 
@@ -125,7 +129,7 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size)
 
   fs::path p(path);
 
-  return _fs_path2str(p.lexically_normal().parent_path(), result, buffer_size);
+  return fs_path2str(p.lexically_normal().parent_path(), result, buffer_size);
 }
 
 
@@ -138,7 +142,7 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size)
 
   fs::path p(path);
 
-  return _fs_path2str(p.filename().extension(), result, buffer_size);
+  return fs_path2str(p.filename().extension(), result, buffer_size);
 }
 
 
@@ -152,7 +156,7 @@ size_t fs_with_suffix(const char* path, const char* new_suffix,
 
   fs::path p(path);
 
-  return _fs_path2str(p.replace_extension(new_suffix), result, buffer_size);
+  return fs_path2str(p.replace_extension(new_suffix), result, buffer_size);
 }
 
 
@@ -163,7 +167,7 @@ bool fs_is_symlink(const char* path)
 
 #ifdef __MINGW32__
 // c++ filesystem is_symlink doesn't work on MinGW GCC, but this C method does work
-  return _fs_win32_is_symlink(path);
+  return fs_win32_is_symlink(path);
 #endif
 
   std::error_code ec;
@@ -190,7 +194,7 @@ int fs_create_symlink(const char* target, const char* link)
 
 #ifdef __MINGW32__
   // C++ filesystem doesn't work for create_symlink with MinGW, but this C method does work
-  return _fs_win32_create_symlink(target, link);
+  return fs_win32_create_symlink(target, link);
 #endif
 
   std::error_code ec;
@@ -264,7 +268,7 @@ size_t fs_root(const char* path, char* result, size_t buffer_size)
 
   fs::path p(path);
 
-  return _fs_path2str(p.root_path(), result, buffer_size);
+  return fs_path2str(p.root_path(), result, buffer_size);
 }
 
 
@@ -399,7 +403,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
     goto retnull;
   }
 
-  return _fs_path2str(p, result, buffer_size);
+  return fs_path2str(p, result, buffer_size);
 
 retnull:
   result = nullptr;
@@ -497,7 +501,7 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
     goto retnull;
   }
 
-  return _fs_path2str(r, result, buffer_size);
+  return fs_path2str(r, result, buffer_size);
 
 retnull:
   result = nullptr;
@@ -571,7 +575,7 @@ size_t fs_get_tempdir(char* path, size_t buffer_size)
     return 0;
   }
 
-  return _fs_path2str(r, path, buffer_size);
+  return fs_path2str(r, path, buffer_size);
 }
 
 
@@ -611,7 +615,7 @@ size_t fs_get_cwd(char* path, size_t buffer_size)
     return 0;
   }
 
-  return _fs_path2str(r, path, buffer_size);
+  return fs_path2str(r, path, buffer_size);
 }
 
 
@@ -675,7 +679,7 @@ if(TRACE) std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
 
   if (p.length() < 3) {
     // ~ alone
-    return _fs_path2str(home, result, buffer_size);
+    return fs_path2str(home, result, buffer_size);
   }
 
   return fs_normal((home / p.substr(2)).generic_string().c_str(), result, buffer_size);

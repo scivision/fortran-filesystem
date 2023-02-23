@@ -1,5 +1,15 @@
 ---
 Checks: '
+  ,bugprone*,
+  ,-bugprone-branch-clone,
+  ,-bugprone-easily-swappable-parameters,
+  ,-bugprone-reserved-identifier,
+  ,clang-analyzer-security*,
+  ,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+  ,core*,
+  ,cplusplus*,
+  ,deadcode*,
+  ,llvm-header-guard,
   ,modernize-avoid-bind,
   ,modernize-deprecated-headers,
   ,modernize-loop-convert,
@@ -7,6 +17,7 @@ Checks: '
   ,modernize-make-unique,
   ,modernize-pass-by-value,
   ,modernize-use-nullptr,
+  ,osx*,
   ,readability-avoid-const-params-in-decls,
   ,readability-inconsistent-declaration-parameter-name,
   ,readability-redundant-string-cstr,
@@ -16,6 +27,8 @@ Checks: '
   ,readability-static-accessed-through-instance,
   ,readability-uniqueptr-delete-release,
   ,readability-uniqueptr-delete-null,
+  ,security*,
+  ,unix*,
 '
 FormatStyle: 'file'
 HeaderFilterRegex: '.*'

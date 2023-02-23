@@ -6,9 +6,6 @@
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
-#elif defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 #endif
 
 bool fs_is_macos(){
@@ -126,7 +123,7 @@ size_t fs_make_absolute(const char* path, const char* top_path,
 
   char* buf2 = (char*) malloc(buffer_size);
   L1 = fs_join(buf, result, buf2, buffer_size);
-  strncpy(result, buf2, buffer_size);  // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
+  strncpy(result, buf2, buffer_size);
   result[L1] = '\0';
   free(buf);
   free(buf2);
@@ -162,44 +159,4 @@ size_t fs_lib_dir(char* path, size_t buffer_size)
 
   free(buf);
   return L;
-}
-
-bool _fs_win32_is_symlink(const char* path)
-{
-#ifdef _WIN32
-  DWORD a = GetFileAttributes(path);
-  if(a == INVALID_FILE_ATTRIBUTES)
-    return false;
-  return a & FILE_ATTRIBUTE_REPARSE_POINT;
-#else
-  (void) path;
-#endif
-
-  return false;
-}
-
-int _fs_win32_create_symlink(const char* target, const char* link)
-{
-#ifdef _WIN32
-  int p = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
-
-  if(fs_is_dir(target))
-    p |= SYMBOLIC_LINK_FLAG_DIRECTORY;
-
-  bool s = CreateSymbolicLink(link, target, p);
-
-  if (s)
-    return 0;
-
-  DWORD err = GetLastError();
-  fprintf(stderr, "ERROR:ffilesystem:CreateSymbolicLink: %ld\n", err);
-  if(err == ERROR_PRIVILEGE_NOT_HELD){
-    fprintf(stderr, "Enable Windows developer mode to use symbolic links:\n"
-      "https://learn.microsoft.com/en-us/windows/apps/get-started/developer-mode-features-and-debugging\n");
-  }
-#else
-  (void) target; (void) link;
-#endif
-
-  return -1;
 }

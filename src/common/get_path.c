@@ -96,7 +96,7 @@ size_t fs_lib_path(char* path, size_t buffer_size)
     goto retnull;
   }
 
-  strncpy(path, info.dli_fname, buffer_size); // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
+  strncpy(path, info.dli_fname, buffer_size);
   path[L] = '\0';
 #else
   goto retnull;

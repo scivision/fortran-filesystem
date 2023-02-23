@@ -1,5 +1,5 @@
-#ifndef FILESYSTEM_H
-#define FILESYSTEM_H
+#ifndef FFILESYSTEM_H
+#define FFILESYSTEM_H
 
 
 #define TRACE 0
@@ -7,12 +7,14 @@
 #ifdef __cplusplus
 
 #include <cstdint>
+#include <cstdlib>
 #include <algorithm>
 
 extern "C" {
 
 #else
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -33,10 +35,13 @@ extern "C" {
 #include <sys/syslimits.h>
 #define PMAX PATH_MAX
 #elif defined (_MSC_VER)
-#include <stdlib.h>
 #define PMAX _MAX_PATH
 #else
+#ifdef __cplusplus
+#include <climits>
+#else
 #include <limits.h>
+#endif
 #ifdef PATH_MAX
 #define PMAX PATH_MAX
 #endif
@@ -118,10 +123,6 @@ extern size_t fs_lib_path(char*, size_t);
 extern size_t fs_lib_dir(char*, size_t);
 
 extern size_t fs_compiler(char*, size_t);
-
-// internal functions
-bool _fs_win32_is_symlink(const char*);
-int _fs_win32_create_symlink(const char*, const char*);
 
 #ifdef __cplusplus
 }

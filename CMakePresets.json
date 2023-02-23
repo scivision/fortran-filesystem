@@ -27,6 +27,16 @@
     "CMAKE_BUILD_TYPE": "Debug",
     "ENABLE_COVERAGE": true
   }
+},
+{
+  "name": "tidy", "inherits": "default",
+  "displayName": "Clang-Tidy",
+  "description": "Build with clang-tidy enabled.",
+  "cacheVariables": {
+    "BUILD_SHARED_LIBS": true,
+    "CMAKE_BUILD_TYPE": "Debug",
+    "tidy": true
+  }
 }
 ],
 "buildPresets": [
@@ -58,6 +68,10 @@
     "name": "debug",
     "configurePreset": "multi",
     "configuration": "Debug"
+  },
+  {
+    "name": "tidy",
+    "configurePreset": "tidy"
   },
   {
     "name": "coverage",
@@ -144,6 +158,19 @@
       {
         "type": "test",
         "name": "release"
+      }
+    ]
+  },
+  {
+    "name": "tidy",
+    "steps": [
+      {
+        "type": "configure",
+        "name": "tidy"
+      },
+      {
+        "type": "build",
+        "name": "tidy"
       }
     ]
   }

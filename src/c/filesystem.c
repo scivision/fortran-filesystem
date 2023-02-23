@@ -15,12 +15,11 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "../common/windows.c"
 #endif
 
-
 #include "ffilesystem.h"
-#include "cwalk.h"
-
+#include <cwalk.h>
 
 bool fs_cpp(){
 // tell if fs core is C or C++
@@ -459,7 +458,7 @@ bool fs_is_symlink(const char* path)
     return false;
 
 #ifdef _WIN32
-  return _fs_win32_is_symlink(path);
+  return fs_win32_is_symlink(path);
 #else
   struct stat buf;
 
@@ -484,7 +483,7 @@ int fs_create_symlink(const char* target, const char* link)
   }
 
 #ifdef _WIN32
-  return _fs_win32_create_symlink(target, link);
+  return fs_win32_create_symlink(target, link);
 #else
   // <unistd.h>
   return symlink(target, link);

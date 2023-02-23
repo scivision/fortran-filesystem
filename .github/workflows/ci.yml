@@ -19,7 +19,7 @@ on:
 jobs:
 
   linux-gcc:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
 
     strategy:
@@ -70,7 +70,7 @@ jobs:
 
 
   linux-clang:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
 
     strategy:
@@ -121,7 +121,7 @@ jobs:
 
 
   valgrind-memory:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs: linux-gcc
     timeout-minutes: 10
 
@@ -130,7 +130,6 @@ jobs:
         cpp: [true, false]
 
     steps:
-
     - name: install valgrind
       run: |
         sudo apt update
@@ -140,6 +139,20 @@ jobs:
 
     - run: ctest -Dopts="-Dcpp:BOOL=${{ matrix.cpp }}" -S memcheck.cmake -V
 
+  clang-tidy:
+    runs-on: ubuntu-latest
+    needs: linux-gcc
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        cpp: [true, false]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - run: cmake --preset tidy -Dcpp:BOOL=${{ matrix.cpp }}
+    - run: cmake --build --preset tidy
 
 # disabled coverage due to broken Jinja import
   # linux-coverage:

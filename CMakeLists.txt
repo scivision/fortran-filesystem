@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14...3.26)
 
 project(ffilesystem
 LANGUAGES C
-VERSION 4.2.0
+VERSION 4.2.1
 )
 
 include(CTest) # needed for "ctest -T memcheck"
