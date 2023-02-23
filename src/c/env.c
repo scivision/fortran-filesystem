@@ -39,7 +39,7 @@ size_t _fs_getenv(const char* name, char* path, size_t buffer_size)
 #else
   // <stdlib.h>
   buf = getenv(name);
-  if(!buf){
+  if(!buf){ // not error because sometimes we just check if envvar is defined
     path = NULL;
     return 0;
   }
@@ -62,28 +62,21 @@ size_t _fs_getenv(const char* name, char* path, size_t buffer_size)
 
 size_t fs_get_cwd(char* path, size_t buffer_size)
 {
-  if(buffer_size == 0){
-    path = NULL;
-    return 0;
-  }
+  if(buffer_size == 0) goto nullret;
 
-  char* x;
-
-#ifdef _MSC_VER
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
-  x = _getcwd(path, (int)buffer_size);
-#else
-  x = getcwd(path, buffer_size);
-#endif
+  char* x = getcwd(path, buffer_size);
 
   if(!x || strlen(x) >= buffer_size){
     fprintf(stderr, "ERROR:ffilesystem:getcwd\n");
-    path = NULL;
-    return 0;
+    goto nullret;
   }
 
   return fs_normal(path, path, buffer_size);
 
+nullret:
+  path = NULL;
+  return 0;
 }
 
 size_t fs_get_homedir(char* path, size_t buffer_size)
