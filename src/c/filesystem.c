@@ -163,6 +163,7 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size){
   }
 
   free(buf);
+
   return strlen(result);
 }
 
@@ -197,10 +198,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 {
   // also expands ~
 
-  if(!path){
-    result = NULL;
-    return 0;
-  }
+  if(!path) goto retnull;
 
   if(strlen(path) == 0){
     result[0] = '\0';
@@ -213,16 +211,14 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   char* buf = (char*) malloc(buffer_size);
   if(fs_expanduser(path, buf, buffer_size) == 0){
     free(buf);
-    result = NULL;
-    return 0;
+    goto retnull;
   }
 
   if(TRACE) printf("TRACE:canonical in: %s  expanded: %s\n", path, buf);
 
   if(strict && !fs_exists(buf)) {
     free(buf);
-    result = NULL;
-    return 0;
+    goto retnull;
   }
 
   char* buf2 = (char*) malloc(buffer_size);
@@ -235,14 +231,17 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
     fprintf(stderr, "ERROR:ffilesystem:canonical: %s => %s\n", buf, strerror(errno));
     free(buf);
     free(buf2);
-    result = NULL;
-    return 0;
+    goto retnull;
   }
   free(buf);
 
   size_t L = fs_normal(buf2, result, buffer_size);
   free(buf2);
   return L;
+
+retnull:
+  result = NULL;
+  return 0;
 }
 
 
@@ -309,8 +308,8 @@ bool fs_equivalent(const char* path1, const char* path2)
   bool eqv = (L1 > 0) && (L2 > 0) && strcmp(buf1, buf2) == 0;
   free(buf1);
   free(buf2);
-  return eqv;
 
+  return eqv;
 }
 
 
@@ -348,6 +347,7 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
   if(TRACE) printf("TRACE:expanduser result: %s\n", result);
 
   free(buf);
+
   return L;
 }
 
