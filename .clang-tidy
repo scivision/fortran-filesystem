@@ -9,7 +9,7 @@ Checks: '
   ,core*,
   ,cplusplus*,
   ,deadcode*,
-  ,llvm-header-guard,
+  ,-llvm-header-guard,
   ,modernize-avoid-bind,
   ,modernize-deprecated-headers,
   ,modernize-loop-convert,

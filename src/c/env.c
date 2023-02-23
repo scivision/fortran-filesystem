@@ -11,7 +11,7 @@
 #include "ffilesystem.h"
 
 
-size_t _fs_getenv(const char* name, char* path, size_t buffer_size)
+static size_t fs_getenv(const char* name, char* path, size_t buffer_size)
 {
   if(buffer_size == 0) goto retnull;
 
@@ -63,7 +63,7 @@ size_t fs_get_homedir(char* path, size_t buffer_size)
   char name[] = "HOME";
 #endif
 
-  return _fs_getenv(name, path, buffer_size);
+  return fs_getenv(name, path, buffer_size);
 
 }
 
@@ -75,7 +75,7 @@ size_t fs_get_tempdir(char* path, size_t buffer_size)
   char name[] = "TMPDIR";
 #endif
 
-  size_t L = _fs_getenv(name, path, buffer_size);
+  size_t L = fs_getenv(name, path, buffer_size);
   if(L > 0){
     return L;
   }
