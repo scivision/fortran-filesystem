@@ -1,13 +1,6 @@
-#define __STDC_WANT_LIB_EXT1__ 1
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#endif
 
 #ifdef _MSC_VER
 #include <direct.h>
@@ -20,43 +13,25 @@
 
 size_t _fs_getenv(const char* name, char* path, size_t buffer_size)
 {
-  if(buffer_size == 0){
-    path = NULL;
-    return 0;
-  }
+  if(buffer_size == 0) goto retnull;
 
   char* buf;
-  size_t L;
 
-#ifdef HAVE_GETENV_S
-  buf = (char*) malloc(buffer_size);
-  if(getenv_s(&L, buf, buffer_size, name) != 0){
-    fprintf(stderr, "ERROR:ffilesystem:getenv: %s\n", strerror(errno));
-    free(buf);
-    path = NULL;
-    return 0;
-  }
-#else
   // <stdlib.h>
   buf = getenv(name);
-  if(!buf){ // not error because sometimes we just check if envvar is defined
-    path = NULL;
-    return 0;
-  }
+  if(!buf) // not error because sometimes we just check if envvar is defined
+    goto retnull;
+
   if(strlen(buf) >= buffer_size){
     fprintf(stderr, "ERROR:ffilesystem:getenv: buffer too small\n");
-    path = NULL;
-    return 0;
+    goto retnull;
   }
-#endif
 
-  L = fs_normal(buf, path, buffer_size);
+  return fs_normal(buf, path, buffer_size);
 
-#ifdef HAVE_GETENV_S
-  free(buf);
-#endif
-
-  return L;
+retnull:
+  path = NULL;
+  return 0;
 }
 
 
@@ -65,6 +40,7 @@ size_t fs_get_cwd(char* path, size_t buffer_size)
   if(buffer_size == 0) goto nullret;
 
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
+  // <direct.h> / <unistd.h>
   char* x = getcwd(path, buffer_size);
 
   if(!x || strlen(x) >= buffer_size){

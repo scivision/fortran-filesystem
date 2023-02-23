@@ -3,7 +3,6 @@ include(CheckCXXSymbolExists)
 include(CheckCXXSourceCompiles)
 
 include(${CMAKE_CURRENT_LIST_DIR}/CppCheck.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/CCheck.cmake)
 
 # --- abi check: C++ and Fortran compiler ABI compatibility
 
@@ -57,7 +56,6 @@ if(cpp)
   cpp_check()
 else()
   unset(HAVE_CXX_FILESYSTEM CACHE)
-  c_check()
 endif()
 
 
@@ -101,23 +99,9 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU|^Intel")
     )
   endif()
 elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-  add_compile_options("$<$<COMPILE_LANGUAGE:C>:/W3>")
+  add_compile_options("$<$<COMPILE_LANGUAGE:C>:/W3;/wd4996>")
   if(cpp)
-    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/W3>")
-  endif()
-endif()
-
-if(WIN32)
-  if(CMAKE_C_COMPILER_ID MATCHES "^Intel|MSVC")
-    add_compile_options($<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:/Od>)
-    if(cpp)
-      add_compile_options($<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:/Od>)
-    endif()
-  endif()
-elseif(CMAKE_C_COMPILER_ID MATCHES "^Intel")
-  add_compile_options($<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-O0>)
-  if(cpp)
-    add_compile_options($<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:-O0>)
+    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/W3;/wd4996>")
   endif()
 endif()
 
