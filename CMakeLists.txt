@@ -23,7 +23,6 @@ include(cmake/compilers.cmake)
 # --- path finding
 add_library(get_path OBJECT src/common/get_path.c)
 target_include_directories(get_path PRIVATE include)
-target_compile_definitions(get_path PRIVATE _GNU_SOURCE)
 if(BUILD_SHARED_LIBS)
   if(WIN32)
     target_compile_definitions(get_path PRIVATE FS_DLL_NAME="$<TARGET_FILE_NAME:ffilesystem>")
@@ -46,7 +45,7 @@ $<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:${PROJECT_SOURCE_DIR}/src/c>
 )
 target_compile_definitions(ffilesystem PRIVATE
 "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>"
-"$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:_GNU_SOURCE;CWK_EXPORTS>"
+"$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:CWK_EXPORTS>"
 $<$<BOOL:${HAVE_GETENV_S}>:HAVE_GETENV_S>
 )
 set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)
