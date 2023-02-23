@@ -29,8 +29,8 @@ jobs:
 
     - name: config cpp=${{ matrix.cpp }}
       run: >-
-        cmake
-        -Bbuild
+        cmake -Bbuild
+        -Dfallback:BOOL=off
         --install-prefix=${{ runner.temp }}
         -Dfortran:BOOL=off
         -Dcpp:BOOL=${{ matrix.cpp }}

@@ -6,7 +6,8 @@
   "name": "default",
   "binaryDir": "${sourceDir}/build",
   "cacheVariables": {
-    "CMAKE_COMPILE_WARNING_AS_ERROR": true
+    "CMAKE_COMPILE_WARNING_AS_ERROR": true,
+    "fallback": false
   }
 },
 {
@@ -25,7 +26,8 @@
   "description": "Build with code coverage enabled.",
   "cacheVariables": {
     "CMAKE_BUILD_TYPE": "Debug",
-    "ENABLE_COVERAGE": true
+    "ENABLE_COVERAGE": true,
+    "fallback": false
   }
 },
 {

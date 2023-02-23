@@ -4,7 +4,7 @@ option(cpp "Use C++ filesystem for full functionality" on)
 option(fortran "use the Fortran interaces to C functions" on)
 option(cli "Build CLI" on)
 option(BUILD_SHARED_LIBS "Build shared libraries" on)
-option(fallback "Fallback to non-C++ filesystem.c if C++ stdlib is not working")
+option(fallback "Fallback to non-C++ filesystem.c if C++ stdlib is not working" on)
 
 option(coverage "Code coverage tests")
 option(tidy "Run clang-tidy on the code")
