@@ -373,18 +373,16 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 {
   // also expands ~
 
-  if( !path || std::strlen(path) == 0 ){
-    result = nullptr;
-    return 0;
-  }
+  fs::path p;
+  std::error_code ec;
+  char* ex;
 
-  char* ex = new char[buffer_size];
+  if ( !path || std::strlen(path) == 0 ) goto retnull;
+
+  ex = new char[buffer_size];
   fs_expanduser(path, ex, buffer_size);
 
   if(TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
-
-  fs::path p;
-  std::error_code ec;
 
   if(strict){
     p = fs::canonical(ex, ec);
@@ -398,11 +396,14 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 
   if(ec) {
     std::cerr << "ERROR:filesystem:canonical: " << ec.message() << std::endl;
-    result = nullptr;
-    return 0;
+    goto retnull;
   }
 
   return _fs_path2str(p, result, buffer_size);
+
+retnull:
+  result = nullptr;
+  return 0;
 }
 
 
@@ -474,14 +475,14 @@ int fs_copy_file(const char* source, const char* destination, bool overwrite)
 
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
 {
-  // undefined case, avoid bugs with MacOS
-  if( !to || (std::strlen(to) == 0) || !from || (std::strlen(from) == 0) ){
-    result = nullptr;
-    return 0;
-  }
+  fs::path tp, fp, r;
+  std::error_code ec;
 
-  fs::path tp(to);
-  fs::path fp(from);
+  // undefined case, avoid bugs with MacOS
+  if( !to || (std::strlen(to) == 0) || !from || (std::strlen(from) == 0) ) goto retnull;
+
+  tp = to;
+  fp = from;
 
   // cannot be relative, avoid bugs with MacOS
   if(tp.is_absolute() != fp.is_absolute()){
@@ -489,17 +490,18 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
     return 0;
   }
 
-  std::error_code ec;
-
-  auto r = fs::relative(tp, fp, ec);
+  r = fs::relative(tp, fp, ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
-    result = nullptr;
-    return 0;
+    goto retnull;
   }
 
   return _fs_path2str(r, result, buffer_size);
+
+retnull:
+  result = nullptr;
+  return 0;
 }
 
 
