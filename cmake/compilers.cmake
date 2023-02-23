@@ -81,6 +81,12 @@ if(HAVE_CXX_FILESYSTEM AND NOT DEFINED fs_abi_ok)
   endif()
 endif()
 
+if(cpp AND NOT fallback AND NOT HAVE_CXX_FILESYSTEM)
+  message(FATAL_ERROR "C++ filesystem not available. To fallback to C filesystem, set:
+  cmake -Dfallback=on"
+  )
+endif()
+
 # fixes errors about needing -fPIE
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CMAKE_POSITION_INDEPENDENT_CODE true)
