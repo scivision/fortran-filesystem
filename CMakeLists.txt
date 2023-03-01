@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14...3.26)
 
 project(ffilesystem
 LANGUAGES C
-VERSION 4.3.0
+VERSION 4.3.1
 )
 
 include(CTest) # needed for "ctest -T memcheck"
@@ -71,7 +71,8 @@ endif()
 
 install(TARGETS ffilesystem EXPORT ${PROJECT_NAME}-targets)
 
-add_library(ffilesystem::filesystem INTERFACE IMPORTED)
+# GLOBAL for use from FetchContent
+add_library(ffilesystem::filesystem INTERFACE IMPORTED GLOBAL)
 
 target_link_libraries(ffilesystem::filesystem INTERFACE ffilesystem)
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.19)
