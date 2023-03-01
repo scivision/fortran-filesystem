@@ -101,7 +101,9 @@ For user convenience, we provide a demo executable "filesystem_cli" that allows 
 ## Usage from other projects
 
 The [example](./example) directory contains a use pattern from external projects.
-One can either `cmake --install build` ffilesystem or use CMake ExternalProject or FetchContent from the other project.
+One can either `cmake --install build` ffilesystem or use CMake ExternalProject or
+[FetchContent](https://gist.github.com/scivision/8bce2a0e3e5fdc217473aaa53600eeb6)
+from the other project.
 To find ffilesystem in your CMake project:
 
 ```cmake
