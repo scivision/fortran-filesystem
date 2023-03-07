@@ -7,7 +7,7 @@
 #include <Windows.h>
 
 #ifndef TRACE
-#define TRACE 0
+#define TRACE 1
 #endif
 
 int msvc_call(const char* path){
