@@ -51,10 +51,12 @@ if(destination == NULL || strlen(destination) == 0) {
 
 int fs_create_directories(const char* path) {
 // Windows: SHCreateDirectory is deprecated, CreateDirectory needs parents to exist,
-// so use a system call like Unix
+// so use a system call
+//
+// return 0 if successful, non-zero if not successful
 
   if(!path || strlen(path) == 0) {
-    fprintf(stderr,"ERROR:ffilesystem:mkdir: path must not be empty\n");
+    fprintf(stderr,"ERROR:ffilesystem:create_directories: path must not be empty\n");
     return 1;
   }
 
@@ -69,7 +71,13 @@ int fs_create_directories(const char* path) {
   int r;
 #ifdef _WIN32
   fs_as_windows(p);
-  intptr_t ir = _execlp("cmd", "cmd", "/c", "mkdir", p, NULL);
+  // don't directly specify "cmd.exe" in exec() for security reasons
+  char* comspec = getenv("COMSPEC");
+  if(!comspec){
+    fprintf(stderr, "ERROR:ffilesystem:create_directories:exec: environment variable COMSPEC not defined\n");
+    return 1;
+  }
+  intptr_t ir = _execl(comspec, "cmd", "/c", "mkdir", p, NULL);
   r = (int)ir;
 #else
   r = execlp("mkdir", "mkdir", "-p", p, NULL);
