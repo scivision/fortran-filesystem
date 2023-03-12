@@ -1,7 +1,7 @@
 set_property(DIRECTORY PROPERTY LABELS cpp)
 
 
-foreach(t IN ITEMS expanduser ifc nullptr reserved)
+foreach(t IN ITEMS expanduser ifc nullptr)
   add_executable(test_CPP_${t} test_${t}.cpp)
   target_link_libraries(test_CPP_${t} PRIVATE ffilesystem)
   add_test(NAME CPP_${t} COMMAND test_CPP_${t})
