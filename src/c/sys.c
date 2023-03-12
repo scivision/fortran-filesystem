@@ -60,8 +60,13 @@ int fs_create_directories(const char* path) {
     return 1;
   }
 
-  if(fs_is_dir(path))
-    return 0;
+  if (fs_exists(path))
+  {
+    if(fs_is_dir(path))
+      return 0;
+    fprintf(stderr, "ERROR:filesystem:mkdir:create_directories: %s already exists but is not a directory\n", path);
+    return 1;
+  }
 
   char* p = (char*) malloc(MAXP);
   strncpy(p, path, MAXP-1);
