@@ -370,13 +370,15 @@ type(path_t), intent(inout) :: self
 if(allocated(self%path_str)) deallocate(self%path_str)
 end subroutine destructor
 
-!! non-functional API
+!> non-functional API
 
-function set_path(path)
-type(path_t) :: set_path
+type(path_t) function set_path(path)
 character(*), intent(in) :: path
+
 allocate(character(get_max_path()) :: set_path%path_str)
+
 set_path%path_str = path
+
 end function set_path
 
 
