@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <regex>
+#include <set>
 
 #if __has_include(<filesystem>)
 #include <filesystem>
@@ -277,6 +278,9 @@ bool fs_exists(const char* path)
   if(!path)
     return false;
 
+  if(fs_is_reserved(path))
+    return true;
+
   std::error_code ec;
 
   auto e = fs::exists(path, ec);
@@ -345,6 +349,9 @@ bool fs_is_file(const char* path)
   if(!path)
     return false;
 
+  if(fs_is_reserved(path))
+    return false;
+
   std::error_code ec;
 
   auto e = fs::is_regular_file(path, ec);
@@ -353,6 +360,34 @@ bool fs_is_file(const char* path)
     return false;
   }
   return e;
+}
+
+
+bool fs_is_reserved(const char* path)
+// https://learn.microsoft.com/en-gb/windows/win32/fileio/naming-a-file#naming-conventions
+{
+
+#ifndef _WIN32
+  return false;
+#endif
+
+  if(!path)
+    return false;
+
+  std::set<std::string> reserved {
+      "CON", "PRN", "AUX", "NUL",
+      "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+      "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
+
+  auto s = std::string(path);
+  std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+
+#if __cplusplus >= 202002L
+  return reserved.contains(s);
+#else
+  return reserved.find(s) != reserved.end();
+#endif
+
 }
 
 
@@ -382,6 +417,13 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   char* ex;
 
   if ( !path || std::strlen(path) == 0 ) goto retnull;
+
+  if ( fs_is_reserved(path) ) {
+    std::strncpy(result, path, buffer_size);
+    size_t L = std::strlen(result);
+    result[L] = '\0';
+    return L;
+  }
 
   ex = new char[buffer_size];
   fs_expanduser(path, ex, buffer_size);
@@ -492,6 +534,16 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
   if(tp.is_absolute() != fp.is_absolute()){
     result[0] = '\0';
     return 0;
+  }
+
+  // Windows special case for reserved paths
+  if(fs_is_reserved(to) || fs_is_reserved(from)){
+    if(std::strcmp(to, from) == 0){
+      result[0] = '.';
+      result[1] = '\0';
+      return 1;
+    }
+    goto retnull;
   }
 
   r = fs::relative(tp, fp, ec);

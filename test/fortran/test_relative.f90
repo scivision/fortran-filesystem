@@ -40,7 +40,24 @@ if(rel /= "") error stop "empty path and base should be empty: " // rel
 rel = relative_to("", "/")
 if(rel /= "") error stop "empty path should be empty: " // rel
 
-print *, "OK: relative_to: empty"
+print '(a)', "OK: relative_to: empty"
+
+rel = relative_to("/", "/")
+if(rel /= ".") error stop "same path '/' should be . but got: "  // rel
+
+rel = relative_to("Hello", "Hello")
+if(rel /= ".") error stop "same path 'Hello'should be . but got: "  // rel
+
+rel = relative_to("Hello", "Hello/")
+if(rel /= ".") error stop "same path 'Hello' vs. 'Hello/' should be . but got: "  // rel
+
+rel = relative_to("NUL", "NUL")
+if(rel /= ".") error stop "same path 'NUL' should be . but got: "  // rel
+
+rel = relative_to("/dev/null", "/dev/null")
+if(rel /= ".") error stop "same path '/dev/null' should be . but got: "  // rel
+
+print '(a)', "OK: relative_to: same"
 
 if(is_windows()) then
   rel  = relative_to("c:\a\b", "c")

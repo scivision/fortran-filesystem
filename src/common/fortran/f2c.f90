@@ -150,6 +150,11 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+logical(c_bool) function fs_is_reserved(path) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+end function
+
 integer(C_SIZE_T) function fs_join(path, other, result, buffer_size) bind(C)
 import
 character(kind=c_char), intent(in) :: path(*), other(*)
@@ -401,6 +406,10 @@ end procedure
 
 module procedure is_file
 is_file = fs_is_file(trim(path) // C_NULL_CHAR)
+end procedure
+
+module procedure is_reserved
+is_reserved = fs_is_reserved(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_symlink

@@ -248,6 +248,14 @@ p%is_file()
 is_file("my/file.txt")
 ```
 
+On Windows, is the path a reserved name (like "NUL")?
+
+```fortran
+p%is_reserved()
+! or
+is_reserved("NUL")
+```
+
 Error stop if file does not exist
 
 ```fortran

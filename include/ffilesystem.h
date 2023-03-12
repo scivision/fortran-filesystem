@@ -98,6 +98,7 @@ extern bool fs_is_absolute(const char*);
 extern bool fs_is_dir(const char*);
 extern bool fs_is_file(const char*);
 extern bool fs_is_exe(const char*);
+extern bool fs_is_reserved(const char*);
 
 extern bool fs_chmod_exe(const char*);
 extern bool fs_chmod_no_exe(const char*);

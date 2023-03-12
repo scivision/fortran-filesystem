@@ -397,6 +397,25 @@ bool fs_is_file(const char* path)
 }
 
 
+bool fs_is_reserved(const char* path)
+{
+#ifndef _WIN32
+  return false;
+#endif
+
+  if (!path)
+    return false;
+
+  if(strcmp(path, "CON") == 0) return true;
+  if(strcmp(path, "PRN") == 0) return true;
+  if(strcmp(path, "AUX") == 0) return true;
+  if(strcmp(path, "NUL") == 0) return true;
+  if(strncmp(path, "COM", 3) == 0) return true;
+  if(strncmp(path, "LPT", 3) == 0) return true;
+
+  return false;
+}
+
 bool fs_exists(const char* path)
 {
 // false empty just for clarity

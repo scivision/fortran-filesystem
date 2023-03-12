@@ -87,9 +87,14 @@ int main(){
     if(fs_with_suffix(s, s, NULL, 0) != 0)
       return EXIT_FAILURE;
 
-    if(fs_is_symlink(s) != 0)
+    if(fs_is_reserved(s))
       return EXIT_FAILURE;
-    if(fs_is_symlink(O) != 0)
+    if(fs_is_reserved(O))
+      return EXIT_FAILURE;
+
+    if(fs_is_symlink(s))
+      return EXIT_FAILURE;
+    if(fs_is_symlink(O))
       return EXIT_FAILURE;
     printf("PASS: is_symlink\n");
 

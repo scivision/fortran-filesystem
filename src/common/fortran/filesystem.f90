@@ -8,7 +8,7 @@ private
 public :: path_t  !< base class
 public :: get_homedir, canonical, get_cwd !< utility procedures
 public :: normal, expanduser, as_posix, as_windows, &
-is_absolute, is_dir, is_file, is_exe, &
+is_absolute, is_dir, is_file, is_exe, is_reserved, &
 is_symlink, &
 exists, &
 join, &
@@ -52,6 +52,7 @@ procedure, public :: exists=>f_exists
 procedure, public :: is_file=>f_is_file
 procedure, public :: is_exe=>f_is_exe
 procedure, public :: is_dir=>f_is_dir
+procedure, public :: is_reserved=>f_is_reserved
 procedure, public :: is_absolute=>f_is_absolute
 procedure, public :: is_symlink=>f_is_symlink
 procedure, public :: create_symlink=>f_create_symlink
@@ -246,6 +247,11 @@ end function
 module logical function is_dir(path)
 !! .true.: "path" is a directory OR symlink pointing to a directory
 !! .false.: "path" is a broken symlink, does not exist, or is some other type of filesystem entity
+character(*), intent(in) :: path
+end function
+
+module logical function is_reserved(path)
+!! .true.: "path" is a reserved name on this platform
 character(*), intent(in) :: path
 end function
 
@@ -518,6 +524,10 @@ class(path_t), intent(in) :: self
 r = is_dir(self%path_str)
 end function
 
+logical function f_is_reserved(self) result(r)
+class(path_t), intent(in) :: self
+r = is_reserved(self%path_str)
+end function
 
 logical function f_is_symlink(self) result(r)
 class(path_t), intent(in) :: self
