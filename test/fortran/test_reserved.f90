@@ -5,11 +5,13 @@ use filesystem, only : path_t, is_char_device, is_reserved, is_unix, is_windows
 implicit none
 
 logical :: b
-type(path_t) :: p
+
+block
+type(path_t) :: p1, p
 
 if (is_reserved("a")) error stop "a is not reserved"
-p = path_t("a")
-if (p%is_reserved()) error stop "a is not reserved"
+p1 = path_t("a")
+if (p1%is_reserved()) error stop "a is not reserved"
 
 b = is_reserved("NUL")
 p = path_t("NUL")
@@ -23,8 +25,7 @@ endif
 
 
 if(is_char_device("a")) error stop "a is not a char device"
-p = path_t("a")
-if (p%is_char_device()) error stop "a is not a char device"
+if (p1%is_char_device()) error stop "a is not a char device"
 
 b = is_char_device("/dev/null")
 p = path_t("/dev/null")
@@ -36,5 +37,6 @@ else
     if (p%is_char_device()) error stop "/dev/null is not a char device on non-Unix systems"
 endif
 
+end block
 
 end program
