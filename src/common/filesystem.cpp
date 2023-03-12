@@ -456,19 +456,25 @@ retnull:
 bool fs_equivalent(const char* path1, const char* path2)
 {
   // both paths must exist, or they are not equivalent -- return false
-  // to behave like filesystem.c, canonicalize first
+  // any non-regular file is not equivalent to anything else -- return false
+
+
+  if(fs_is_reserved(path1) || fs_is_reserved(path2))
+    return false;
 
   char* buf1 = new char[MAXP];
   char* buf2 = new char[MAXP];
 
-  if(!fs_canonical(path1, true, buf1, MAXP) || !fs_canonical(path2, true, buf2, MAXP)) {
+  if(!fs_canonical(path1, true, buf1, MAXP) ||
+     !fs_canonical(path2, true, buf2, MAXP) ||
+     !fs_exists(buf1) || !fs_exists(buf2)) {
     delete[] buf1;
     delete[] buf2;
     return false;
   }
 
   std::error_code ec;
-  auto e = fs::equivalent(buf1, buf2, ec);
+  bool eqv = fs::equivalent(buf1, buf2, ec);
   delete [] buf1;
   delete [] buf2;
 
@@ -477,7 +483,7 @@ bool fs_equivalent(const char* path1, const char* path2)
     return false;
   }
 
-  return e;
+  return eqv;
 }
 
 

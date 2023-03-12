@@ -70,8 +70,11 @@ int main(){
       return EXIT_FAILURE;
     std::cout << "OK: canonical(" << p << ")\n";
 
-    if(fs_equivalent(s, s))
+    if(fs_equivalent(s, s)){
+    // reserved we treat like NaN not equal
+      std::cerr << "FAIL: equivalent(" << s << ")\n";
       return EXIT_FAILURE;
+    }
     std::cout << "OK: equivalent(" << s << ")\n";
 
     fs_expanduser(s, p, MAXP);

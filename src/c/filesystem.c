@@ -296,19 +296,29 @@ uintmax_t fs_file_size(const char* path)
 
 bool fs_equivalent(const char* path1, const char* path2)
 {
-// this is for exisitng paths
+// both paths must exist, or they are not equivalent -- return false
+
+
+  if(fs_is_reserved(path1) || fs_is_reserved(path2))
+    return false;
 
   char* buf1 = (char*) malloc(MAXP);
   char* buf2 = (char*) malloc(MAXP);
 
-  size_t L1 = fs_canonical(path1, true, buf1, MAXP);
-  size_t L2 = fs_canonical(path2, true, buf2, MAXP);
+  if((!fs_canonical(path1, true, buf1, MAXP) || !fs_canonical(path2, true, buf2, MAXP)) ||
+    !(fs_is_dir(buf1) || fs_is_dir(buf2) || fs_is_file(buf1) || fs_is_file(buf2))){
 
-  bool eqv = (L1 > 0) && (L2 > 0) && strcmp(buf1, buf2) == 0;
+      free(buf1);
+      free(buf2);
+      return false;
+  }
+
+  bool eqv = strcmp(buf1, buf2) == 0;
   free(buf1);
   free(buf2);
 
   return eqv;
+
 }
 
 
@@ -350,6 +360,20 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
   return L;
 }
 
+bool fs_is_char(const char* path)
+{
+  if(!path)
+    return false;
+
+  struct stat s;
+
+  if(stat(path, &s) != 0)
+    return false;
+
+  // NOTE: root() e.g. "C:" needs a trailing slash
+  return s.st_mode & S_IFCHR;
+}
+
 
 bool fs_is_dir(const char* path)
 {
@@ -358,10 +382,11 @@ bool fs_is_dir(const char* path)
 
   struct stat s;
 
-  int i = stat(path, &s);
+  if(stat(path, &s) != 0)
+    return false;
 
   // NOTE: root() e.g. "C:" needs a trailing slash
-  return i == 0 && (s.st_mode & S_IFDIR);
+  return s.st_mode & S_IFDIR;
 }
 
 
@@ -388,12 +413,16 @@ bool fs_is_file(const char* path)
   if(!path)
     return false;
 
+  if (fs_is_reserved(path))
+    return false;
+
   struct stat s;
 
-  int i = stat(path, &s);
+  if(stat(path, &s) != 0)
+    return false;
 
   // NOTE: root() e.g. "C:" needs a trailing slash
-  return i == 0 && (s.st_mode & S_IFREG);
+  return s.st_mode & S_IFREG;
 }
 
 

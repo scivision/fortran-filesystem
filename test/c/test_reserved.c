@@ -19,18 +19,23 @@ int main(void){
     char p[MAXP];
 
     fs_normal(s, p, MAXP);
-    if (strcmp(p, ref) != 0)
+    if (strcmp(p, ref) != 0){
+      fprintf(stderr,"FAIL: normal(%s)  %s\n", s, p);
       return EXIT_FAILURE;
+    }
+    printf("OK: normal(%s)\n", p);
 
     if(fs_is_symlink(s))
       return EXIT_FAILURE;
-    printf("OK: is_symlink(%s)\n", ref);
+    printf("OK: is_symlink(%s)\n", s);
 
     if(fs_create_symlink(s, s) == 0)
       return EXIT_FAILURE;
 
-    if(fs_create_directories(s) == 0)
+    if(fs_create_directories(s) == 0){
+      fprintf(stderr,"FAIL: create_directories(%s)\n", s);
       return EXIT_FAILURE;
+    }
     printf("OK: create_directories(%s)\n", ref);
 
     if(!fs_exists(s))
@@ -70,8 +75,11 @@ int main(void){
     }
     printf("OK: canonical(%s)\n", p);
 
-    if(fs_equivalent(s, s))
+    if(fs_equivalent(s, s)){
+      // reserved we treat like NaN not equal
+      fprintf(stderr,"FAIL: equivalent(%s)\n", s);
       return EXIT_FAILURE;
+    }
     printf("OK: equivalent(%s)\n", ref);
 
     fs_expanduser(s, p, MAXP);
@@ -82,6 +90,7 @@ int main(void){
       fprintf(stderr,"FAIL: copy_file(%s)\n", s);
       return EXIT_FAILURE;
     }
+    printf("OK: copy_file(%s)\n", s);
 
     fs_relative_to(s, s, p, MAXP);
     if(strcmp(p, ".") != 0){
