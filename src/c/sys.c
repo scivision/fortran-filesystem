@@ -25,6 +25,11 @@ if(destination == NULL || strlen(destination) == 0) {
   return 1;
 }
 
+if(!fs_is_file(source)){
+  fprintf(stderr, "ERROR:ffilesystem:copy_file: source file %s does not exist\n", source);
+  return 1;
+}
+
   if(overwrite){
     if(fs_is_file(destination)){
       if(!fs_remove(destination)){
