@@ -26,6 +26,8 @@ p2 = path_t("test-a/b/../c")
 if (.not. p1%same_file(p2)) error stop 'ERROR: %same_file'
 if (.not. same_file(p1%path(), p2%path())) error stop 'ERROR: same_file()'
 
+if (.not. same_file("~", "~")) error stop 'ERROR: same_file(~,~)'
+
 end subroutine test_same_file
 
 end program
