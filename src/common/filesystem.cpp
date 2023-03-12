@@ -34,7 +34,7 @@ static size_t fs_path2str(const fs::path p, char* result, size_t buffer_size)
 {
   auto s = p.generic_string();
 
-  if(TRACE)
+  if(FS_TRACE)
     std::cout << "TRACE:fs_path2str: " << s << " " << s.length() << " " << buffer_size << std::endl;
 
   if(s.length() >= buffer_size){
@@ -108,7 +108,7 @@ size_t fs_join(const char* path, const char* other, char* result, size_t buffer_
   fs::path p1(path);
   fs::path p2(other);
 
-  if (TRACE)
+  if (FS_TRACE)
     std::cout << "TRACE:fs_join: " << path << " + " << other << std::endl;
 
   if(L1 == 0)
@@ -356,7 +356,7 @@ bool fs_is_exe(const char* path)
   auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
   auto isexe = i != fs::perms::none;
 
-  if(TRACE) std::cout << "TRACE:is_exe: " << path << " " << isexe << std::endl;
+  if(FS_TRACE) std::cout << "TRACE:is_exe: " << path << " " << isexe << std::endl;
 
   return isexe;
 }
@@ -446,7 +446,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   ex = new char[buffer_size];
   fs_expanduser(path, ex, buffer_size);
 
-  if(TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
+  if(FS_TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
 
   if(strict){
     p = fs::canonical(ex, ec);
@@ -456,7 +456,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   }
   delete[] ex;
 
-  if(TRACE) std::cout << "TRACE:canonical: " << p << std::endl;
+  if(FS_TRACE) std::cout << "TRACE:canonical: " << p << std::endl;
 
   if(ec) {
     std::cerr << "ERROR:filesystem:canonical: " << ec.message() << std::endl;
@@ -690,6 +690,26 @@ uintmax_t fs_file_size(const char* path)
 }
 
 
+uintmax_t fs_space_available(const char* path)
+{
+  // filesystem space available for device holding path
+
+  // necessary for MinGW; seemed good choice for all platforms
+  if(!fs_exists(path))
+    return 0;
+
+  std::error_code ec;
+
+  auto si = fs::space(path, ec);
+  if(ec){
+    std::cerr << "ERROR:ffilesystem:space_available " << ec.message() << std::endl;
+    return 0;
+  }
+
+  return static_cast<std::intmax_t>(si.available);
+}
+
+
 size_t fs_get_cwd(char* path, size_t buffer_size)
 {
   std::error_code ec;
@@ -762,7 +782,7 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
   std::replace(p.begin(), p.end(), '\\', '/');
   p = std::regex_replace(p, r, "/");
 
-if(TRACE) std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
+if(FS_TRACE) std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
 
   if (p.length() < 3) {
     // ~ alone
@@ -817,5 +837,4 @@ bool fs_chmod_no_exe(const char* path)
   }
 
   return true;
-
 }

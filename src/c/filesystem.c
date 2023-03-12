@@ -16,6 +16,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "../common/windows.c"
+#else
+#include <sys/statvfs.h>
 #endif
 
 #include "ffilesystem.h"
@@ -41,7 +43,7 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size)
   size_t L = cwk_path_normalize(path, result, buffer_size);
   fs_as_posix(result);
 
-if(TRACE) printf("TRACE:normal in: %s  out: %s\n", path, result);
+if(FS_TRACE) printf("TRACE:normal in: %s  out: %s\n", path, result);
 
   return L;
 }
@@ -61,7 +63,7 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size){
 
   const char *base;
 
-if(TRACE) printf("TRACE:file_name: %s\n", path);
+if(FS_TRACE) printf("TRACE:file_name: %s\n", path);
 
 #ifdef _WIN32
   cwk_path_set_style(CWK_STYLE_WINDOWS);
@@ -70,7 +72,7 @@ if(TRACE) printf("TRACE:file_name: %s\n", path);
 #endif
   cwk_path_get_basename(path, &base, NULL);
 
-if(TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
+if(FS_TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
 
   strncpy(result, base, buffer_size);
   size_t L = strlen(result);
@@ -138,7 +140,7 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size){
   free(buf);
   result[M] = '\0';
 
-if(TRACE) printf("TRACE: parent: %s => %s  %zu\n", path, result, M);
+if(FS_TRACE) printf("TRACE: parent: %s => %s  %zu\n", path, result, M);
   return M;
 }
 
@@ -213,7 +215,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
     goto retnull;
   }
 
-  if(TRACE) printf("TRACE:canonical in: %s  expanded: %s\n", path, buf);
+  if(FS_TRACE) printf("TRACE:canonical in: %s  expanded: %s\n", path, buf);
 
   if(strict && !fs_exists(buf)) {
     free(buf);
@@ -294,6 +296,43 @@ uintmax_t fs_file_size(const char* path)
   return s.st_size;;
 }
 
+uintmax_t fs_space_available(const char* path)
+{
+  // necessary for MinGW; seemed good choice for all platforms
+  if(!fs_exists(path))
+    return 0;
+
+  char* r = (char*) malloc(MAXP);
+
+  // for robustness and clarity, use root of path (necessary for Windows)
+  if (!fs_root(path, r, MAXP))
+    goto retzero;
+
+#ifdef _WIN32
+	DWORD ClusterSectors, SectorBytes, FreeClusters, TotalClusters;
+
+  GetDiskFreeSpace(r, &ClusterSectors, &SectorBytes, &FreeClusters, &TotalClusters);
+  free(r);
+
+  return SectorBytes * ClusterSectors * FreeClusters;
+
+#else
+  struct statvfs stat;
+
+  if (statvfs(r, &stat) != 0) {
+    fprintf(stderr, "ERROR:ffilesystem:space_available: %s => %s\n", r, strerror(errno));
+    goto retzero;
+  }
+  free(r);
+
+  return stat.f_bsize * stat.f_bavail;
+#endif
+
+retzero:
+  free(r);
+  return 0;
+}
+
 bool fs_equivalent(const char* path1, const char* path2)
 {
 // both paths must exist, or they are not equivalent -- return false
@@ -343,18 +382,18 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
   size_t L = strlen(path);
   if (L < 3){
     L = fs_normal(buf, result, buffer_size);
-    if(TRACE) printf("TRACE:expanduser: orphan ~: homedir %s %s\n", buf, result);
+    if(FS_TRACE) printf("TRACE:expanduser: orphan ~: homedir %s %s\n", buf, result);
     free(buf);
     return L;
   }
 
   strcat(buf, "/");
 
-  if(TRACE) printf("TRACE:expanduser: homedir %s\n", buf);
+  if(FS_TRACE) printf("TRACE:expanduser: homedir %s\n", buf);
 
   strcat(buf, path+2);
   L = fs_normal(buf, result, buffer_size);
-  if(TRACE) printf("TRACE:expanduser result: %s\n", result);
+  if(FS_TRACE) printf("TRACE:expanduser result: %s\n", result);
 
   free(buf);
 
@@ -484,7 +523,7 @@ size_t fs_root(const char* path, char* result, size_t buffer_size)
   strncpy(result, path, M);
   result[M] = '\0';
 
-if(TRACE) printf("TRACE: root: %s => %s  %zu\n", path, result, M);
+if(FS_TRACE) printf("TRACE: root: %s => %s  %zu\n", path, result, M);
   return M;
 }
 

@@ -1,13 +1,36 @@
 program test_filesize
 
-use filesystem, only : path_t, file_size
+use filesystem, only : path_t, file_size, get_max_path, space_available
 
 implicit none
+
+call test_file_size()
+print '(a)', "OK: file_size"
+
+call test_space_available()
+print '(a)', "OK: space_available"
+
+contains
+
+subroutine test_space_available()
+
+character(:), allocatable :: buf
+allocate(character(len=get_max_path()) :: buf)
+
+call get_command_argument(0, buf)
+print '(a,f7.3)', "space_available (GB): ", real(space_available(buf)) / 1024**3
+
+if(space_available("not-exist-file") /= 0) error stop "space_available /= 0 for not existing file"
+if(space_available("") /= 0) error stop "space_available /= 0 for empty file"
+
+end subroutine
+
+
+subroutine test_file_size()
 
 integer :: u, d(10)
 character(*), parameter :: fn = "test_size.bin"
 
-block
 type(path_t) :: p1
 
 d = 0
@@ -29,8 +52,6 @@ if (file_size(p1%parent()) > 0) error stop "directory has no file size"
 if (file_size("not-existing-file") > 0) error stop "size of non-existing file"
 
 if(file_size("") > 0) error stop "size of empty file"
-end block
-
-print *, "OK: file_size"
+end subroutine
 
 end program

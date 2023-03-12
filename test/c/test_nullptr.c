@@ -206,6 +206,11 @@ int main(){
     if(fs_file_size(O) != 0)
       return EXIT_FAILURE;
 
+    if(fs_space_available(s) != 0)
+      return EXIT_FAILURE;
+    if(fs_space_available(O) != 0)
+      return EXIT_FAILURE;
+
     if(fs_get_cwd(s, 0) != 0)
       return EXIT_FAILURE;
     if(fs_get_cwd(O, 1) != 0)

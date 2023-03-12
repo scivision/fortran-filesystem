@@ -112,6 +112,11 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+integer(C_SIZE_T) function fs_space_available(path) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+end function
+
 integer(C_SIZE_T) function fs_get_cwd(path, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(out) :: path(*)
@@ -367,6 +372,10 @@ end procedure
 
 module procedure file_size
 file_size = fs_file_size(trim(path) // C_NULL_CHAR)
+end procedure
+
+module procedure space_available
+space_available = fs_space_available(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure get_cwd

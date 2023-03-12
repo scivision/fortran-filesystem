@@ -212,6 +212,14 @@ p%file_size()
 file_size("my/file.txt")
 ```
 
+Space available on drive containing path (bytes):
+
+```fortran
+p%space_available()
+! or
+space_available("my/file.txt")
+```
+
 ## logical
 
 These methods emit a logical value.

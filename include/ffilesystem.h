@@ -2,7 +2,7 @@
 #define FFILESYSTEM_H
 
 
-#define TRACE 0
+#define FS_TRACE 0
 
 #ifdef __cplusplus
 
@@ -119,6 +119,7 @@ extern size_t fs_get_tempdir(char*, size_t);
 extern size_t fs_expanduser(const char*, char*, size_t);
 
 extern uintmax_t fs_file_size(const char*);
+extern uintmax_t fs_space_available(const char*);
 
 extern size_t fs_exe_path(char*, size_t);
 extern size_t fs_exe_dir(char*, size_t);

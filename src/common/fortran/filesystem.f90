@@ -13,7 +13,7 @@ is_symlink, &
 exists, &
 join, &
 copy_file, mkdir, &
-relative_to, root, same_file, file_size, &
+relative_to, root, same_file, file_size, space_available, &
 file_name, parent, stem, suffix, with_suffix, &
 get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
@@ -71,6 +71,7 @@ procedure, public :: resolve=>f_resolve
 procedure, public :: same_file=>f_same_file
 procedure, public :: remove=>fs_unlink
 procedure, public :: file_size=>f_file_size
+procedure, public :: space_available=>f_space_available
 procedure, public :: chmod_exe=>f_chmod_exe
 procedure, public :: chmod_no_exe=>f_chmod_no_exe
 
@@ -262,6 +263,12 @@ character(*), intent(in) :: path
 end function
 
 module integer(int64) function file_size(path)
+!! size of file (bytes)
+character(*), intent(in) :: path
+end function
+
+module integer(int64) function space_available(path)
+!! returns space available (bytes) on filesystem containing path
 character(*), intent(in) :: path
 end function
 
@@ -563,6 +570,12 @@ end function
 integer(int64) function f_file_size(self) result(r)
 class(path_t), intent(in) :: self
 r = file_size(self%path_str)
+end function
+
+integer(int64) function f_space_available(self) result(r)
+!! returns space available in bytes
+class(path_t), intent(in) :: self
+r = space_available(self%path_str)
 end function
 
 
