@@ -135,6 +135,11 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+logical(C_BOOL) function fs_is_char_device(path) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+end function
+
 logical(C_BOOL) function fs_is_file(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -394,6 +399,10 @@ end procedure
 module procedure is_absolute
 !! no expanduser to be consistent with Python filesystem etc.
 is_absolute = fs_is_absolute(trim(path) // C_NULL_CHAR)
+end procedure
+
+module procedure is_char_device
+is_char_device = fs_is_char_device(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_dir

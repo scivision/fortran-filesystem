@@ -305,7 +305,8 @@ bool fs_equivalent(const char* path1, const char* path2)
   char* buf1 = (char*) malloc(MAXP);
   char* buf2 = (char*) malloc(MAXP);
 
-  if((!fs_canonical(path1, true, buf1, MAXP) || !fs_canonical(path2, true, buf2, MAXP)) ||
+  if((!fs_canonical(path1, true, buf1, MAXP) || !fs_canonical(path2, true, buf2, MAXP) ||
+      fs_is_char_device(path1) || fs_is_char_device(path2)) ||
     !(fs_is_dir(buf1) || fs_is_dir(buf2) || fs_is_file(buf1) || fs_is_file(buf2))){
 
       free(buf1);
@@ -360,8 +361,10 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
   return L;
 }
 
-bool fs_is_char(const char* path)
+bool fs_is_char_device(const char* path)
 {
+  // special POSIX file character device like /dev/null
+
   if(!path)
     return false;
 

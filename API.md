@@ -248,6 +248,14 @@ p%is_file()
 is_file("my/file.txt")
 ```
 
+On POSIX file systems, is the path a special character device (like a terminal or /dev/null)?
+
+```fortran
+p%is_char_device()
+! of
+is_char_device("/dev/null")
+```
+
 On Windows, is the path a reserved name (like "NUL")?
 
 ```fortran

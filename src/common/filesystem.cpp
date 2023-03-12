@@ -303,6 +303,24 @@ bool fs_is_absolute(const char* path)
   return p.is_absolute();
 }
 
+bool fs_is_char_device(const char* path)
+{
+  // special POSIX file character device like /dev/null
+  if(!path)
+    return 0;
+
+  std::error_code ec;
+
+  auto e = fs::is_character_file(path, ec);
+  if(ec) {
+    std::cerr << "ERROR:filesystem:is_char_device: " << ec.message() << std::endl;
+    return false;
+  }
+
+  return e;
+
+}
+
 
 bool fs_is_dir(const char* path)
 {
@@ -465,21 +483,24 @@ bool fs_equivalent(const char* path1, const char* path2)
   char* buf1 = new char[MAXP];
   char* buf2 = new char[MAXP];
 
+  std::error_code e1, e2;
+
   if(!fs_canonical(path1, true, buf1, MAXP) ||
      !fs_canonical(path2, true, buf2, MAXP) ||
-     !fs_exists(buf1) || !fs_exists(buf2)) {
+     fs::is_character_file(buf1, e1) || fs::is_character_file(buf2, e2) ||
+     !fs_exists(buf1) || !fs_exists(buf2) ||
+     e1 || e2) {
     delete[] buf1;
     delete[] buf2;
     return false;
   }
 
-  std::error_code ec;
-  bool eqv = fs::equivalent(buf1, buf2, ec);
+  bool eqv = fs::equivalent(buf1, buf2, e1);
   delete [] buf1;
   delete [] buf2;
 
-  if(ec) {
-    std::cerr << "ERROR:filesystem:equivalent: " << ec.message() << std::endl;
+  if(e1) {
+    std::cerr << "ERROR:filesystem:equivalent: " << e1.message() << std::endl;
     return false;
   }
 

@@ -71,6 +71,11 @@ int main(){
     if(fs_with_suffix(s, s, nullptr, 0) != 0)
       return EXIT_FAILURE;
 
+    if(fs_is_char_device(s))
+      return EXIT_FAILURE;
+    if(fs_is_char_device(O))
+      return EXIT_FAILURE;
+
     if(fs_is_reserved(s))
       return EXIT_FAILURE;
     if(fs_is_reserved(O))

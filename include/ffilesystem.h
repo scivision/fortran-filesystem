@@ -94,7 +94,9 @@ extern int fs_create_symlink(const char*, const char*);
 
 extern int fs_create_directories(const char*);
 extern bool fs_exists(const char*);
+
 extern bool fs_is_absolute(const char*);
+extern bool fs_is_char_device(const char*);
 extern bool fs_is_dir(const char*);
 extern bool fs_is_file(const char*);
 extern bool fs_is_exe(const char*);

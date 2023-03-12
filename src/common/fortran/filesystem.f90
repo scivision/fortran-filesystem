@@ -8,7 +8,7 @@ private
 public :: path_t  !< base class
 public :: get_homedir, canonical, get_cwd !< utility procedures
 public :: normal, expanduser, as_posix, as_windows, &
-is_absolute, is_dir, is_file, is_exe, is_reserved, &
+is_absolute, is_char_device, is_dir, is_file, is_exe, is_reserved, &
 is_symlink, &
 exists, &
 join, &
@@ -49,6 +49,7 @@ procedure, public :: join=>f_join
 procedure, public :: relative_to=>f_relative_to
 procedure, public :: normal=>f_normal
 procedure, public :: exists=>f_exists
+procedure, public :: is_char_device=>f_is_char_device
 procedure, public :: is_file=>f_is_file
 procedure, public :: is_exe=>f_is_exe
 procedure, public :: is_dir=>f_is_dir
@@ -242,6 +243,11 @@ module function join(path, other)
 !! returns path_t object with other appended to self using posix separator
 character(:), allocatable :: join
 character(*), intent(in) :: path, other
+end function
+
+module logical function is_char_device(path)
+!! .true.: "path" is a character device like /dev/null
+character(*), intent(in) :: path
 end function
 
 module logical function is_dir(path)
@@ -518,6 +524,10 @@ class(path_t), intent(in) :: self, other
 r = same_file(self%path_str, other%path_str)
 end function
 
+logical function f_is_char_device(self) result(r)
+class(path_t), intent(in) :: self
+r = is_char_device(self%path_str)
+end function
 
 logical function f_is_dir(self) result(r)
 class(path_t), intent(in) :: self
