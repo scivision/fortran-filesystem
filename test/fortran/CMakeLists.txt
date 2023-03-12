@@ -5,7 +5,7 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 endif()
 
 foreach(t IN ITEMS canonical core env exe expanduser
-        fileop filesize find relative same symlink)
+        fileop filesize find relative reserved same symlink)
   add_executable(test_${t} test_${t}.f90)
   target_link_libraries(test_${t} PRIVATE ffilesystem)
   add_test(NAME Fortran_${t} COMMAND test_${t})

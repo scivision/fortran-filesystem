@@ -2,7 +2,7 @@ program test_filesystem
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
-is_absolute, with_suffix, relative_to, is_dir, is_reserved, &
+is_absolute, with_suffix, relative_to, is_dir, &
 is_windows, exists, parent, &
 assert_is_dir, normal, as_posix, as_windows, get_max_path
 
@@ -42,9 +42,6 @@ print *, "OK: filesystem: is_dir"
 
 call test_absolute()
 print *, "OK: filesystem: absolute"
-
-call test_is_reserved()
-print *, "OK: filesystem: reserved"
 
 if (c>0) then
   write(stderr,'(a,i0,a)') "ERRPR: test_core total of ", c, " errors"
@@ -371,34 +368,6 @@ else
 endif
 
 end subroutine test_absolute
-
-
-subroutine test_is_reserved()
-
-logical :: b
-type(path_t) :: p
-
-if (is_reserved("a")) error stop "a is not reserved"
-
-b = is_reserved("NUL")
-if (is_windows()) then
-  if (.not. b) error stop "NUL is reserved on Windows"
-else
-  if (b) error stop "NUL is not reserved on Unix"
-endif
-
-p = path_t("a")
-if (p%is_reserved()) error stop "ais not reserved"
-
-p = path_t("NUL")
-if(is_windows()) then
-  if (.not. p%is_reserved()) error stop "NUL is reserved on Windows"
-else
-  if (p%is_reserved()) error stop "NUL is not reserved on Unix"
-endif
-
-
-end subroutine test_is_reserved
 
 
 end program
