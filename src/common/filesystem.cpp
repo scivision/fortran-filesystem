@@ -455,14 +455,22 @@ retnull:
 
 bool fs_equivalent(const char* path1, const char* path2)
 {
-  // check existance to avoid error if not exist
+  // both paths must exist, or they are not equivalent -- return false
+  // to behave like filesystem.c, canonicalize first
 
-  if (! (fs_exists(path1) && fs_exists(path2)) )
+  char* buf1 = new char[MAXP];
+  char* buf2 = new char[MAXP];
+
+  if(!fs_canonical(path1, true, buf1, MAXP) || !fs_canonical(path2, true, buf2, MAXP)) {
+    delete[] buf1;
+    delete[] buf2;
     return false;
+  }
 
   std::error_code ec;
-
-  auto e = fs::equivalent(path1, path2, ec);
+  auto e = fs::equivalent(buf1, buf2, ec);
+  delete [] buf1;
+  delete [] buf2;
 
   if(ec) {
     std::cerr << "ERROR:filesystem:equivalent: " << ec.message() << std::endl;
