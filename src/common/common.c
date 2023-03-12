@@ -28,7 +28,7 @@ bool fs_is_unix() {
 #ifdef __unix__
   return true;
 #else
-  return false;
+  return fs_is_macos();
 #endif
 }
 

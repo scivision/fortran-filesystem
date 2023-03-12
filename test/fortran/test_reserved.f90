@@ -32,8 +32,8 @@ if(is_unix()) then
     if (.not. b) error stop "/dev/null is a char device on Unix"
     if (.not. p%is_char_device()) error stop "/dev/null is a char device on Unix"
 else
-    if (b) error stop "/dev/null is not a char device on Windows"
-    if (p%is_char_device()) error stop "/dev/null is not a char device on Windows"
+    if (b) error stop "/dev/null is not a char device on non-Unix systems"
+    if (p%is_char_device()) error stop "/dev/null is not a char device on non-Unix systems"
 endif
 
 
