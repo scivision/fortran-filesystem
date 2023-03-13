@@ -4,11 +4,50 @@
 
 #define FS_TRACE 0
 
+
 #ifdef __cplusplus
 
 #include <cstdint>
 #include <cstdlib>
 #include <algorithm>
+#include <string>
+
+#if __has_include(<filesystem>)
+#include <filesystem>
+namespace fs = std::filesystem;
+#else
+#error "No C++ filesystem support"
+#endif
+
+std::string fs_canonical(std::string, bool);
+int fs_copy_file(std::string, std::string, bool);
+int fs_create_directories(std::string);
+int fs_create_symlink(std::string, std::string);
+bool fs_equivalent(std::string, std::string);
+bool fs_exists(std::string);
+std::string fs_expanduser(std::string);
+std::string fs_file_name(std::string);
+std::string fs_get_cwd();
+std::string fs_get_homedir();
+std::string fs_get_tempdir();
+bool fs_is_char_device(std::string);
+bool fs_is_dir(std::string);
+bool fs_is_file(std::string);
+bool fs_is_reserved(std::string);
+bool fs_is_symlink(std::string);
+std::string fs_join(std::string, std::string);
+std::string fs_normal(std::string);
+std::string fs_parent(std::string);
+std::string fs_relative_to(std::string, std::string);
+bool fs_remove(std::string);
+;std::string fs_root(std::string);
+std::string fs_stem(std::string);
+std::string fs_suffix(std::string);
+bool fs_touch(std::string);
+std::string fs_with_suffix(std::string, std::string);
+
+size_t fs_str2char(std::string, char*, size_t);
+size_t fs_path2str(const fs::path, char*, size_t);
 
 extern "C" {
 

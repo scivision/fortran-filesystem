@@ -9,6 +9,7 @@ include(CTest) # needed for "ctest -T memcheck"
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
+# didn't yet put to CXX_STANDARD 20 despite graceful fallback, in case older compilers have C++20 bugs
 
 include(options.cmake)
 if(cpp)

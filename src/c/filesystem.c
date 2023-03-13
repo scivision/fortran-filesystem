@@ -463,7 +463,6 @@ bool fs_is_file(const char* path)
   if(stat(path, &s) != 0)
     return false;
 
-  // NOTE: root() e.g. "C:" needs a trailing slash
   return s.st_mode & S_IFREG;
 }
 

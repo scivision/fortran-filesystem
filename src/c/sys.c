@@ -16,17 +16,12 @@
 // --- system calls for mkdir and copy_file
 int fs_copy_file(const char* source, const char* destination, bool overwrite) {
 
-if(source == NULL || strlen(source) == 0) {
-  fprintf(stderr,"ERROR:ffilesystem:copy_file: source path must not be empty\n");
+if(!fs_is_file(source)) {
+  fprintf(stderr,"ERROR:ffilesystem:copy_file: source file must exist\n");
   return 1;
 }
 if(destination == NULL || strlen(destination) == 0) {
   fprintf(stderr, "ERROR:ffilesystem:copy_file: destination path must not be empty\n");
-  return 1;
-}
-
-if(!fs_is_file(source)){
-  fprintf(stderr, "ERROR:ffilesystem:copy_file: source file %s does not exist\n", source);
   return 1;
 }
 

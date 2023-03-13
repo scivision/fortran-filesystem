@@ -23,24 +23,26 @@ int main(){
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #endif
 
-    char *s = NULL;
-    char O[1];
-    char p[MAXP];
+    char *s = NULL, *t = NULL;
+    char O[1], p[MAXP];
 
     O[0] = '\0';
 
-    fs_as_posix(s);
+    fs_as_posix(NULL);
     if (s != NULL)
       return EXIT_FAILURE;
+    printf("PASS: as_posix\n");
+
     fs_as_windows(s);
     if (s != NULL)
       return EXIT_FAILURE;
+    printf("PASS: as_windows\n");
 
     if(fs_normal(s, p, MAXP) != 0)
       return EXIT_FAILURE;
     if(fs_normal(O, p, MAXP) != 0)
       return EXIT_FAILURE;
-    if(fs_normal(s, NULL, 0) != 0)
+    if(fs_normal(s, t, 0) != 0)
       return EXIT_FAILURE;
     printf("PASS: normal\n");
 
@@ -48,14 +50,14 @@ int main(){
       return EXIT_FAILURE;
     if(fs_file_name(O, p, MAXP) != 0)
       return EXIT_FAILURE;
-    if(fs_file_name(s, NULL, 0) != 0)
+    if(fs_file_name(s, t, 0) != 0)
       return EXIT_FAILURE;
 
     if(fs_stem(s, p, MAXP) != 0)
       return EXIT_FAILURE;
     if(fs_stem(O, p, MAXP) != 0)
       return EXIT_FAILURE;
-    if(fs_stem(s, NULL, 0) != 0)
+    if(fs_stem(s, t, 0) != 0)
       return EXIT_FAILURE;
     printf("PASS: stem\n");
 
@@ -63,28 +65,28 @@ int main(){
       return EXIT_FAILURE;
     if(fs_join(O, O, p, MAXP) != 0)
       return EXIT_FAILURE;
-    if(fs_join(s, s, NULL, 0) != 0)
+    if(fs_join(s, s, t, 0) != 0)
       return EXIT_FAILURE;
 
     if(fs_parent(s, p, MAXP) != 0)
       return EXIT_FAILURE;
     if(fs_parent(O, p, MAXP) != 0)
       return EXIT_FAILURE;
-    if(fs_parent(s, NULL, 0) != 0)
+    if(fs_parent(s, t, 0) != 0)
       return EXIT_FAILURE;
 
     if(fs_suffix(s, p, MAXP) != 0)
       return EXIT_FAILURE;
     if(fs_suffix(O, p, MAXP) != 0)
       return EXIT_FAILURE;
-    if(fs_suffix(s, NULL, 0) != 0)
+    if(fs_suffix(s, t, 0) != 0)
       return EXIT_FAILURE;
 
     if(fs_with_suffix(s, s, p, MAXP) != 0)
       return EXIT_FAILURE;
     if(fs_with_suffix(O, O, p, MAXP) != 0)
       return EXIT_FAILURE;
-    if(fs_with_suffix(s, s, NULL, 0) != 0)
+    if(fs_with_suffix(s, s, t, 0) != 0)
       return EXIT_FAILURE;
 
     if(fs_is_char_device(s))
@@ -134,8 +136,10 @@ int main(){
 
     if(fs_is_dir(s))
       return EXIT_FAILURE;
+    printf("PASS: is_dir(NULL)\n");
     if(fs_is_dir(O))
       return EXIT_FAILURE;
+    printf("PASS: is_dir('')\n");
 
     if(fs_is_exe(s))
       return EXIT_FAILURE;
@@ -159,7 +163,7 @@ int main(){
       return EXIT_FAILURE;
     if(fs_canonical(O, false, p, MAXP) != 0)
       return EXIT_FAILURE;
-    if(fs_canonical(s, false, NULL, 0) != 0)
+    if(fs_canonical(s, false, t, 0) != 0)
       return EXIT_FAILURE;
     printf("PASS: canonical\n");
 
@@ -167,12 +171,13 @@ int main(){
       return EXIT_FAILURE;
     if(fs_equivalent(O, O))
       return EXIT_FAILURE;
+    printf("PASS: equivalent\n");
 
     if(fs_expanduser(s, p, MAXP) != 0)
       return EXIT_FAILURE;
     if(fs_expanduser(O, p, MAXP) != 0)
       return EXIT_FAILURE;
-    if(fs_expanduser(s, NULL, 0) != 0)
+    if(fs_expanduser(s, t, 0) != 0)
       return EXIT_FAILURE;
     printf("PASS: expanduser\n");
 
@@ -185,7 +190,7 @@ int main(){
       return EXIT_FAILURE;
     if(fs_relative_to(O, O, p, MAXP) != 0)
       return EXIT_FAILURE;
-    if(fs_relative_to(s, s, NULL, 0) != 0)
+    if(fs_relative_to(s, s, t, 0) != 0)
       return EXIT_FAILURE;
     printf("PASS: relative_to\n");
 

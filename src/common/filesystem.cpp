@@ -9,18 +9,22 @@
 #include <fstream>
 #include <regex>
 #include <set>
-
-#if __has_include(<filesystem>)
 #include <filesystem>
-namespace fs = std::filesystem;
-#else
-#error "No C++ filesystem support"
-#endif
 
 #include "ffilesystem.h"
 
 #ifdef __MINGW32__
 #include "windows.c"
+
+static bool fs_win32_is_symlink(std::string path)
+{
+  return fs_win32_is_symlink(path.c_str());
+}
+
+static int fs_win32_create_symlink(std::string target, std::string link)
+{
+  return fs_win32_create_symlink(target.c_str(), link.c_str());
+}
 #endif
 
 
@@ -30,37 +34,39 @@ bool fs_cpp()
   return true;
 }
 
-static size_t fs_path2str(const fs::path p, char* result, size_t buffer_size)
+size_t fs_str2char(std::string s, char* result, size_t buffer_size)
 {
-  auto s = p.generic_string();
-
-  if(FS_TRACE)
-    std::cout << "TRACE:fs_path2str: " << s << " " << s.length() << " " << buffer_size << std::endl;
-
   if(s.length() >= buffer_size){
     result = nullptr;
-    std::cerr << "ERROR:ffilesystem: output buffer too small for path: " << s << std::endl;
+    std::cerr << "ERROR:ffilesystem: output buffer too small for string: " << s << "\n";
     return 0;
   }
-  std::strncpy(result, s.c_str(), buffer_size);
-  size_t L = std::strlen(result);
-  result[L] = '\0';
 
-  return L;
+  std::strcpy(result, s.data());
+  return std::strlen(result);
+}
+
+size_t fs_path2str(const fs::path p, char* result, size_t buffer_size)
+{
+  return fs_str2char(p.generic_string(), result, buffer_size);
 }
 
 
 size_t fs_normal(const char* path, char* result, size_t buffer_size)
 {
-  // normalize path
   if(!path){
     result = nullptr;
     return 0;
   }
 
-  fs::path p(path);
+  return fs_str2char(fs_normal(std::string(path)), result, buffer_size);
+}
 
-  return fs_path2str(p.lexically_normal(), result, buffer_size);
+std::string fs_normal(std::string path)
+{
+  // normalize path
+  fs::path p(path);
+  return p.lexically_normal().generic_string();
 }
 
 
@@ -71,9 +77,13 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size)
     return 0;
   }
 
-  fs::path p(path);
+  return fs_str2char(fs_file_name(std::string(path)), result, buffer_size);
+}
 
-  return fs_path2str(p.filename(), result, buffer_size);
+std::string fs_file_name(std::string path)
+{
+  fs::path p(path);
+  return p.filename().generic_string();
 }
 
 
@@ -84,9 +94,14 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size)
     return 0;
   }
 
-  fs::path p(path);
+  return fs_str2char(fs_stem(std::string(path)), result, buffer_size);
 
-  return fs_path2str(p.filename().stem(), result, buffer_size);
+}
+
+std::string fs_stem(std::string path)
+{
+  fs::path p(path);
+  return p.filename().stem().generic_string();
 }
 
 
@@ -96,28 +111,20 @@ size_t fs_join(const char* path, const char* other, char* result, size_t buffer_
     result = nullptr;
     return 0;
   }
+  return fs_str2char(fs_join(std::string(path), std::string(other)), result, buffer_size);
+}
 
-  size_t L1 = std::strlen(path);
-  size_t L2 = std::strlen(other);
+std::string fs_join(std::string path, std::string other)
+{
+  if (other.empty())
+    return path;
 
-  if (L1 == 0 && L2 == 0){
-    result[0] = '\0';
-    return 0;
-  }
-
+  // join two paths
   fs::path p1(path);
-  fs::path p2(other);
 
-  if (FS_TRACE)
-    std::cout << "TRACE:fs_join: " << path << " + " << other << std::endl;
+  if (FS_TRACE) std::cout << "TRACE:fs_join: " << path << " / " << other << "\n";
 
-  if(L1 == 0)
-    return fs_path2str(p2, result, buffer_size);
-
-  if(L2 == 0)
-    return fs_path2str(p1, result, buffer_size);
-
-  return fs_path2str(p1 / p2, result, buffer_size);
+  return (p1 / other).generic_string();
 }
 
 
@@ -127,10 +134,13 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size)
     result = nullptr;
     return 0;
   }
+  return fs_str2char(fs_parent(std::string(path)), result, buffer_size);
+}
 
+std::string fs_parent(std::string path)
+{
   fs::path p(path);
-
-  return fs_path2str(p.lexically_normal().parent_path(), result, buffer_size);
+  return p.lexically_normal().parent_path().generic_string();
 }
 
 
@@ -140,10 +150,14 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size)
     result = nullptr;
     return 0;
   }
+  return fs_str2char(fs_suffix(std::string(path)), result, buffer_size);
+}
 
+std::string fs_suffix(std::string path)
+{
   fs::path p(path);
 
-  return fs_path2str(p.filename().extension(), result, buffer_size);
+  return p.filename().extension().generic_string();
 }
 
 
@@ -154,10 +168,13 @@ size_t fs_with_suffix(const char* path, const char* new_suffix,
     result = nullptr;
     return 0;
   }
+  return fs_str2char(fs_with_suffix(std::string(path), std::string(new_suffix)), result, buffer_size);
+}
 
+std::string fs_with_suffix(std::string path, std::string new_suffix)
+{
   fs::path p(path);
-
-  return fs_path2str(p.replace_extension(new_suffix), result, buffer_size);
+  return p.replace_extension(new_suffix).generic_string();
 }
 
 
@@ -165,6 +182,13 @@ bool fs_is_symlink(const char* path)
 {
   if(!path)
     return 0;
+  return fs_is_symlink(std::string(path));
+}
+
+bool fs_is_symlink(std::string path)
+{
+  if (path.empty())
+    return false;
 
 #ifdef __MINGW32__
 // c++ filesystem is_symlink doesn't work on MinGW GCC, but this C method does work
@@ -175,21 +199,27 @@ bool fs_is_symlink(const char* path)
 
   auto e = fs::is_symlink(path, ec);
   if(ec) {
-    std::cerr << "ERROR:filesystem:is_symlink: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:is_symlink: " << ec.message() << "\n";
     return false;
   }
 
   return e;
 }
 
-int fs_create_symlink(const char* target, const char* link)
+int fs_create_symlink(const char* target, const char* link){
+  if(!link)
+    return 1;
+  return fs_create_symlink(std::string(target), std::string(link));
+}
+
+int fs_create_symlink(std::string target, std::string link)
 {
   if(!fs_exists(target)) {
-    std::cerr << "ERROR:filesystem:create_symlink: target path does not exist" << std::endl;
+    std::cerr << "ERROR:filesystem:create_symlink: target path does not exist\n";
     return 1;
   }
-  if(!link || std::strlen(link) == 0) {
-    std::cerr << "ERROR:filesystem:create_symlink: link path must not be empty" << std::endl;
+  if(link.empty()) {
+    std::cerr << "ERROR:filesystem:create_symlink: link path must not be empty\n";
     return 1;
   }
 
@@ -207,7 +237,7 @@ int fs_create_symlink(const char* target, const char* link)
     fs::create_symlink(target, link, ec);
   }
   if(ec) {
-    std::cerr << "ERROR:filesystem:create_symlink: " << ec.message() << " " << ec.value() << std::endl;
+    std::cerr << "ERROR:filesystem:create_symlink: " << ec.message() << " " << ec.value() << "\n";
     return ec.value();
   }
 
@@ -216,8 +246,15 @@ int fs_create_symlink(const char* target, const char* link)
 
 int fs_create_directories(const char* path)
 {
-  if(!path || std::strlen(path) == 0) {
-    std::cerr << "ERROR:filesystem:mkdir:create_directories: cannot mkdir empty directory name" << std::endl;
+  if(!path)
+    return 1;
+  return fs_create_directories(std::string(path));
+}
+
+int fs_create_directories(std::string path)
+{
+  if(path.empty()) {
+    std::cerr << "ERROR:filesystem:mkdir:create_directories: cannot mkdir empty directory name\n";
     return 1;
   }
 
@@ -226,7 +263,7 @@ int fs_create_directories(const char* path)
   auto s = fs::status(path, ec);
   if(s.type() != fs::file_type::not_found){
     if(ec) {
-      std::cerr << "ERROR:filesystem:create_directories:status: " << ec.message() << std::endl;
+      std::cerr << "ERROR:filesystem:create_directories:status: " << ec.message() << "\n";
       return ec.value();
     }
   }
@@ -234,13 +271,13 @@ int fs_create_directories(const char* path)
   if(fs::exists(s)) {
     if(fs_is_dir(path)) return 0;
 
-    std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " already exists but is not a directory" << std::endl;
+    std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " already exists but is not a directory\n";
     return 1;
   }
 
   auto ok = fs::create_directories(path, ec);
   if(ec) {
-    std::cerr << "ERROR:filesystem:create_directories: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:create_directories: " << ec.message() << "\n";
     return ec.value();
   }
 
@@ -251,7 +288,7 @@ int fs_create_directories(const char* path)
     }
     else
     {
-      std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " could not be created" << std::endl;
+      std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " could not be created\n";
       return 1;
     }
   }
@@ -266,10 +303,13 @@ size_t fs_root(const char* path, char* result, size_t buffer_size)
     result = nullptr;
     return 0;
   }
+  return fs_str2char(fs_root(std::string(path)), result, buffer_size);
+}
 
+std::string fs_root(std::string path)
+{
   fs::path p(path);
-
-  return fs_path2str(p.root_path(), result, buffer_size);
+  return p.root_path().generic_string();
 }
 
 
@@ -277,16 +317,19 @@ bool fs_exists(const char* path)
 {
   if(!path)
     return false;
+  return fs_exists(std::string(path));
+}
 
+bool fs_exists(std::string path)
+{
   if(fs_is_reserved(path))
     return true;
 
   std::error_code ec;
-
   auto e = fs::exists(path, ec);
 
   if(ec) {
-    std::cerr << "ERROR:ffilesystem:exists: " << ec.message() << std::endl;
+    std::cerr << "ERROR:ffilesystem:exists: " << ec.message() << "\n";
     return false;
   }
 
@@ -309,11 +352,19 @@ bool fs_is_char_device(const char* path)
   if(!path)
     return 0;
 
-  std::error_code ec;
+  return fs_is_char_device(std::string(path));
 
+}
+
+bool fs_is_char_device(std::string path)
+{
+  if(path.empty())
+    return false;
+
+  std::error_code ec;
   auto e = fs::is_character_file(path, ec);
   if(ec) {
-    std::cerr << "ERROR:filesystem:is_char_device: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:is_char_device: " << ec.message() << "\n";
     return false;
   }
 
@@ -324,7 +375,15 @@ bool fs_is_char_device(const char* path)
 
 bool fs_is_dir(const char* path)
 {
-  if(!path || std::strlen(path) == 0)
+  if(!path)
+    return false;
+
+  return fs_is_dir(std::string(path));
+}
+
+bool fs_is_dir(std::string path)
+{
+  if (path.empty())
     return false;
 
   fs::path p(path);
@@ -337,12 +396,11 @@ bool fs_is_dir(const char* path)
   std::error_code ec;
   auto e = fs::is_directory(p, ec);
   if(ec) {
-    std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << " " << p << std::endl;
+    std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << " " << p << "\n";
     return false;
   }
 
   return e;
-
 }
 
 
@@ -356,7 +414,7 @@ bool fs_is_exe(const char* path)
   auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
   auto isexe = i != fs::perms::none;
 
-  if(FS_TRACE) std::cout << "TRACE:is_exe: " << path << " " << isexe << std::endl;
+  if(FS_TRACE) std::cout << "TRACE:is_exe: " << path << " " << isexe << "\n";
 
   return isexe;
 }
@@ -366,7 +424,13 @@ bool fs_is_file(const char* path)
 {
   if(!path)
     return false;
+  return fs_is_file(std::string(path));
+}
 
+bool fs_is_file(std::string path)
+{
+  if(path.empty())
+    return false;
   if(fs_is_reserved(path))
     return false;
 
@@ -374,7 +438,7 @@ bool fs_is_file(const char* path)
 
   auto e = fs::is_regular_file(path, ec);
   if(ec) {
-    std::cerr << "ERROR:filesystem:is_file: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:is_file: " << ec.message() << "\n";
     return false;
   }
   return e;
@@ -382,6 +446,13 @@ bool fs_is_file(const char* path)
 
 
 bool fs_is_reserved(const char* path)
+{
+  if(!path)
+    return false;
+  return fs_is_reserved(std::string(path));
+}
+
+bool fs_is_reserved(std::string path)
 // https://learn.microsoft.com/en-gb/windows/win32/fileio/naming-a-file#naming-conventions
 {
 
@@ -389,7 +460,7 @@ bool fs_is_reserved(const char* path)
   return false;
 #endif
 
-  if(!path)
+  if (path.empty())
     return false;
 
   std::set<std::string> reserved {
@@ -397,15 +468,13 @@ bool fs_is_reserved(const char* path)
       "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
       "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
 
-  auto s = std::string(path);
-  std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+  std::transform(path.begin(), path.end(), path.begin(), ::toupper);
 
 #if __cplusplus >= 202002L
-  return reserved.contains(s);
+  return reserved.contains(path);
 #else
-  return reserved.find(s) != reserved.end();
+  return reserved.find(path) != reserved.end();
 #endif
-
 }
 
 
@@ -413,13 +482,17 @@ bool fs_remove(const char* path)
 {
   if(!path)
     return false;
+  return fs_remove(std::string(path));
+}
 
+bool fs_remove(std::string path)
+{
   std::error_code ec;
 
   auto e = fs::remove(path, ec);
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:remove: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:remove: " << path << " " << ec.message() << "\n";
     return false;
   }
 
@@ -428,79 +501,77 @@ bool fs_remove(const char* path)
 
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size)
 {
+  if (!path){
+    result = nullptr;
+    return 0;
+  }
+
+  return fs_str2char(fs_canonical(path, strict), result, buffer_size);
+}
+
+std::string fs_canonical(std::string path, bool strict)
+{
   // also expands ~
+
+  if (path.empty())
+    return {};
+  if (fs_is_reserved(path))
+    return path;
+
+  std::string ex = fs_expanduser(path);
+
+  if(FS_TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << "\n";
 
   fs::path p;
   std::error_code ec;
-  char* ex;
-
-  if ( !path || std::strlen(path) == 0 ) goto retnull;
-
-  if ( fs_is_reserved(path) ) {
-    std::strncpy(result, path, buffer_size);
-    size_t L = std::strlen(result);
-    result[L] = '\0';
-    return L;
-  }
-
-  ex = new char[buffer_size];
-  fs_expanduser(path, ex, buffer_size);
-
-  if(FS_TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << std::endl;
-
   if(strict){
     p = fs::canonical(ex, ec);
   }
   else {
     p = fs::weakly_canonical(ex, ec);
   }
-  delete[] ex;
-
-  if(FS_TRACE) std::cout << "TRACE:canonical: " << p << std::endl;
+  if(FS_TRACE) std::cout << "TRACE:canonical: " << p << "\n";
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:canonical: " << ec.message() << std::endl;
-    goto retnull;
+    std::cerr << "ERROR:filesystem:canonical: " << ec.message() << "\n";
+    return {};
   }
 
-  return fs_path2str(p, result, buffer_size);
-
-retnull:
-  result = nullptr;
-  return 0;
+  return p.generic_string();
 }
 
 
 bool fs_equivalent(const char* path1, const char* path2)
 {
+  if(!path1 || !path2)
+    return false;
+  return fs_equivalent(std::string(path1), std::string(path2));
+}
+
+bool fs_equivalent(std::string path1, std::string path2)
+{
   // both paths must exist, or they are not equivalent -- return false
   // any non-regular file is not equivalent to anything else -- return false
 
+  if(path1.empty() || path2.empty())
+    return false;
 
   if(fs_is_reserved(path1) || fs_is_reserved(path2))
     return false;
 
-  char* buf1 = new char[MAXP];
-  char* buf2 = new char[MAXP];
+  path1 = fs_canonical(path1, true);
+  path2 = fs_canonical(path2, true);
 
   std::error_code e1, e2;
-
-  if(!fs_canonical(path1, true, buf1, MAXP) ||
-     !fs_canonical(path2, true, buf2, MAXP) ||
-     fs::is_character_file(buf1, e1) || fs::is_character_file(buf2, e2) ||
-     !fs_exists(buf1) || !fs_exists(buf2) ||
-     e1 || e2) {
-    delete[] buf1;
-    delete[] buf2;
-    return false;
+  if(fs::is_character_file(path1, e1) || fs::is_character_file(path2, e2) ||
+     !fs_exists(path1) || !fs_exists(path2) || e1 || e2) {
+      return false;
   }
 
-  bool eqv = fs::equivalent(buf1, buf2, e1);
-  delete [] buf1;
-  delete [] buf2;
+  bool eqv = fs::equivalent(path1, path2, e1);
 
   if(e1) {
-    std::cerr << "ERROR:filesystem:equivalent: " << e1.message() << std::endl;
+    std::cerr << "ERROR:filesystem:equivalent: " << e1.message() << "\n";
     return false;
   }
 
@@ -508,14 +579,21 @@ bool fs_equivalent(const char* path1, const char* path2)
 }
 
 
-int fs_copy_file(const char* source, const char* destination, bool overwrite)
+int fs_copy_file(const char* source, const char* dest, bool overwrite)
 {
-  if(!source || std::strlen(source) == 0) {
-    std::cerr << "filesystem:copy_file: source path must not be empty" << std::endl;
+  if(!source || !dest)
+    return 1;
+  return fs_copy_file(std::string(source), std::string(dest), overwrite);
+}
+
+int fs_copy_file(std::string source, std::string dest, bool overwrite)
+{
+  if(!fs_is_file(source)) {
+    std::cerr << "ERROR:filesystem:copy_file: source path must not be empty\n";
     return 1;
   }
-  if(!destination || std::strlen(destination) == 0) {
-    std::cerr << "filesystem:copy_file: destination path must not be empty" << std::endl;
+  if(dest.empty()) {
+    std::cerr << "ERROR:filesystem:copy_file: destination path must not be empty\n";
     return 1;
   }
 
@@ -523,8 +601,8 @@ int fs_copy_file(const char* source, const char* destination, bool overwrite)
 
   if (overwrite) {
 // WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
-    if(fs_exists(destination)){
-      if (!fs_remove(destination))
+    if(fs_exists(dest)){
+      if (!fs_remove(dest))
         return 1;
     }
 
@@ -532,20 +610,20 @@ int fs_copy_file(const char* source, const char* destination, bool overwrite)
   }
 
   std::error_code ec;
-  auto ok = fs::copy_file(source, destination, opt, ec);
+  auto ok = fs::copy_file(source, dest, opt, ec);
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << "\n";
     return ec.value();
   }
 
   if( !ok ) {
-    if(fs_is_file(destination)) {
+    if(fs_is_file(dest)) {
       return 0;
     }
     else
     {
-      std::cerr << "ERROR:filesystem:copy_file: " << destination << " could not be created" << std::endl;
+      std::cerr << "ERROR:filesystem:copy_file: " << dest << " could not be created\n";
       return 1;
     }
   }
@@ -556,77 +634,81 @@ int fs_copy_file(const char* source, const char* destination, bool overwrite)
 
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
 {
-  fs::path tp, fp, r;
-  std::error_code ec;
-
-  // undefined case, avoid bugs with MacOS
-  if( !to || (std::strlen(to) == 0) || !from || (std::strlen(from) == 0) ) goto retnull;
-
-  tp = to;
-  fp = from;
-
-  // cannot be relative, avoid bugs with MacOS
-  if(tp.is_absolute() != fp.is_absolute()){
-    result[0] = '\0';
+  if (!to || !from){
+    result = nullptr;
     return 0;
   }
 
+  return fs_str2char(fs_relative_to(to, from), result, buffer_size);
+}
+
+std::string fs_relative_to(std::string to, std::string from)
+{
+  // pure lexical operation
+
+  // undefined case, avoid bugs with MacOS
+  if (to.empty() || from.empty())
+    return {};
+
+  fs::path tp(to), fp(from);
+  // cannot be relative, avoid bugs with MacOS
+  if(tp.is_absolute() != fp.is_absolute())
+    return {};
+
   // Windows special case for reserved paths
   if(fs_is_reserved(to) || fs_is_reserved(from)){
-    if(std::strcmp(to, from) == 0){
-      result[0] = '.';
-      result[1] = '\0';
-      return 1;
-    }
-    goto retnull;
+    if(to == from)
+      return ".";
+    return {};
   }
 
-  r = fs::relative(tp, fp, ec);
+  std::error_code ec;
+  auto r = fs::relative(tp, fp, ec);
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << std::endl;
-    goto retnull;
+    std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << "\n";
+    return {};
   }
 
-  return fs_path2str(r, result, buffer_size);
-
-retnull:
-  result = nullptr;
-  return 0;
+  return r.generic_string();
 }
 
 
 bool fs_touch(const char* path)
 {
-  if(!path || std::strlen(path) == 0)
+  if(!path)
     return false;
+  return fs_touch(std::string(path));
+}
 
+bool fs_touch(std::string path)
+{
   fs::path p(path);
   std::error_code ec;
 
   auto s = fs::status(p, ec);
   if(s.type() != fs::file_type::not_found){
     if(ec) {
-      std::cerr << "ERROR:filesystem:touch:status: " << ec.message() << ": " << p << std::endl;
+      std::cerr << "ERROR:filesystem:touch:status: " << ec.message() << ": " << p << "\n";
       return false;
     }
   }
 
   if (fs::exists(s) && !fs::is_regular_file(s)){
-    std::cerr << "ERROR:filesystem:touch: " << p << " exists, but is not a regular file" << std::endl;
+    std::cerr << "ERROR:filesystem:touch: " << p << " exists, but is not a regular file\n";
     return false;
   }
 
   if(fs::is_regular_file(s)) {
 
     if ((s.permissions() & fs::perms::owner_write) == fs::perms::none){
-      std::cerr << "ERROR:filesystem:touch: " << p << " is not writable" << std::endl;
+      std::cerr << "ERROR:filesystem:touch: " << p << " is not writable\n";
       return false;
     }
 
     fs::last_write_time(p, fs::file_time_type::clock::now(), ec);
     if(ec) {
-      std::cerr << "filesystem:touch:last_write_time: " << p << " modtime was not updated: " << ec.message() << std::endl;
+      std::cerr << "filesystem:touch:last_write_time: " << p << " modtime was not updated: " << ec.message() << "\n";
       return false;
     }
     return true;
@@ -635,7 +717,7 @@ bool fs_touch(const char* path)
   std::ofstream ost;
   ost.open(p, std::ios_base::out);
   if(!ost.is_open()){
-    std::cerr << "ERROR:filesystem:touch:open: " << p << " could not be created" << std::endl;
+    std::cerr << "ERROR:filesystem:touch:open: " << p << " could not be created\n";
     return false;
   }
   ost.close();
@@ -643,7 +725,7 @@ bool fs_touch(const char* path)
   fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add, ec);
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:touch:permissions: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:touch:permissions: " << ec.message() << "\n";
     return false;
   }
 
@@ -653,16 +735,19 @@ bool fs_touch(const char* path)
 
 size_t fs_get_tempdir(char* path, size_t buffer_size)
 {
+  return fs_str2char(fs_get_tempdir(), path, buffer_size);
+}
+
+std::string fs_get_tempdir()
+{
   std::error_code ec;
 
   auto r = fs::temp_directory_path(ec);
   if(ec) {
-    std::cerr << "ERROR:filesystem:get_tempdir: " << ec.message() << std::endl;
-    path = nullptr;
-    return 0;
+    std::cerr << "ERROR:filesystem:get_tempdir: " << ec.message() << "\n";
+    return {};
   }
-
-  return fs_path2str(r, path, buffer_size);
+  return r.generic_string();
 }
 
 
@@ -674,7 +759,7 @@ uintmax_t fs_file_size(const char* path)
     return 0;
 
   if (!fs_is_file(path)) {
-    std::cerr << "ERROR:filesystem:file_size: " << path << " is not a regular file" << std::endl;
+    std::cerr << "ERROR:filesystem:file_size: " << path << " is not a regular file\n";
     return 0;
   }
 
@@ -682,7 +767,7 @@ uintmax_t fs_file_size(const char* path)
 
   auto fsize = fs::file_size(path, ec);
   if (ec) {
-    std::cerr << "ERROR:filesystem:file_size: " << path << " could not get file size: " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:file_size: " << path << " could not get file size: " << ec.message() << "\n";
     return 0;
   }
 
@@ -702,7 +787,7 @@ uintmax_t fs_space_available(const char* path)
 
   auto si = fs::space(path, ec);
   if(ec){
-    std::cerr << "ERROR:ffilesystem:space_available " << ec.message() << std::endl;
+    std::cerr << "ERROR:ffilesystem:space_available " << ec.message() << "\n";
     return 0;
   }
 
@@ -712,21 +797,27 @@ uintmax_t fs_space_available(const char* path)
 
 size_t fs_get_cwd(char* path, size_t buffer_size)
 {
+  return fs_str2char(fs_get_cwd(), path, buffer_size);
+}
+
+std::string fs_get_cwd()
+{
   std::error_code ec;
-
   auto r = fs::current_path(ec);
-
   if(ec) {
-    std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << std::endl;
-    path = nullptr;
-    return 0;
+    std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << "\n";
+    return {};
   }
-
-  return fs_path2str(r, path, buffer_size);
+  return r.generic_string();
 }
 
 
 size_t fs_get_homedir(char* path, size_t buffer_size)
+{
+  return fs_str2char(fs_get_homedir(), path, buffer_size);
+}
+
+std::string fs_get_homedir()
 {
 #ifdef _WIN32
   auto k = "USERPROFILE";
@@ -737,14 +828,12 @@ size_t fs_get_homedir(char* path, size_t buffer_size)
   auto r = std::getenv(k);
 
   if(!r) {
-    std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined" << std::endl;
-    path = nullptr;
-    return 0;
+    std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined\n";
+    return {};
   }
 
-  return fs_normal(r, path, buffer_size);
+  return fs_normal(r);
 }
-
 
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 {
@@ -752,44 +841,39 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
     result = nullptr;
     return 0;
   }
+  return fs_str2char(fs_expanduser(std::string(path)), result, buffer_size);
+}
 
-  if(strlen(path) == 0){
-    // string does not handle empty string '\0'
-    result[0] = '\0';
-    return 0;
-  }
+std::string fs_expanduser(std::string path)
+{
+  if (path.empty())
+    return {};
 
-  std::string p(path);
+  if(path.front() != '~')
+    return fs_normal(path);
 
-  if(p.front() != '~')
-    return fs_normal(path, result, buffer_size);
+  std::string h = fs_get_homedir();
+  if (h.empty())
+    return fs_normal(path);
 
-  char* h = new char[buffer_size];
-  if (!fs_get_homedir(h, buffer_size)){
-    delete[] h;
-    return fs_normal(path, result, buffer_size);
-  }
-
-  fs::path home(h);
-  delete[] h;
-
-  // std::cout << "TRACE:expanduser: path(home) " << home << std::endl;
+  // std::cout << "TRACE:expanduser: path(home) " << home << "\n";
 
 // drop duplicated separators
 // NOT .lexical_normal to handle "~/.."
   std::regex r("/{2,}");
 
-  std::replace(p.begin(), p.end(), '\\', '/');
-  p = std::regex_replace(p, r, "/");
+  std::replace(path.begin(), path.end(), '\\', '/');
+  path = std::regex_replace(path, r, "/");
 
-if(FS_TRACE) std::cout << "TRACE:expanduser: path deduped " << p << std::endl;
+if(FS_TRACE) std::cout << "TRACE:expanduser: path deduped " << path << "\n";
 
-  if (p.length() < 3) {
+  if (path.length() < 3)
+    return h;
     // ~ alone
-    return fs_path2str(home, result, buffer_size);
-  }
 
-  return fs_normal((home / p.substr(2)).generic_string().c_str(), result, buffer_size);
+  fs::path home(h);
+
+  return fs_normal((home / path.substr(2)).generic_string());
 }
 
 bool fs_chmod_exe(const char* path)
@@ -799,7 +883,7 @@ bool fs_chmod_exe(const char* path)
     return false;
 
   if(!fs_is_file(path)) {
-    std::cerr << "ERROR:ffilesystem:chmod_exe: " << path << " is not a regular file" << std::endl;
+    std::cerr << "ERROR:ffilesystem:chmod_exe: " << path << " is not a regular file\n";
     return false;
   }
 
@@ -808,12 +892,11 @@ bool fs_chmod_exe(const char* path)
   fs::permissions(path, fs::perms::owner_exec, fs::perm_options::add, ec);
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_exe: " << path << ": " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:chmod_exe: " << path << ": " << ec.message() << "\n";
     return false;
   }
 
   return true;
-
 }
 
 bool fs_chmod_no_exe(const char* path)
@@ -823,7 +906,7 @@ bool fs_chmod_no_exe(const char* path)
     return false;
 
   if(!fs_is_file(path)) {
-    std::cerr << "ERROR:ffilesystem:chmod_no_exe: " << path << " is not a regular file" << std::endl;
+    std::cerr << "ERROR:ffilesystem:chmod_no_exe: " << path << " is not a regular file\n";
     return false;
   }
 
@@ -832,7 +915,7 @@ bool fs_chmod_no_exe(const char* path)
   fs::permissions(path, fs::perms::owner_exec, fs::perm_options::remove, ec);
 
   if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_no_exe: " << path << ": " << ec.message() << std::endl;
+    std::cerr << "ERROR:filesystem:chmod_no_exe: " << path << ": " << ec.message() << "\n";
     return false;
   }
 
