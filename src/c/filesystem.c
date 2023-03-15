@@ -28,6 +28,36 @@ bool fs_cpp(){
   return false;
 }
 
+void fs_as_posix(char* path)
+{
+// force posix file seperator
+  if(!path)
+    return;
+
+  char s = '\\';
+  char *p = strchr(path, s);
+  while (p) {
+    *p = '/';
+    p = strchr(p+1, s);
+  }
+}
+
+void fs_as_windows(char* path)
+{
+// as_windows() needed for system calls with MSVC
+// force Windows file seperator
+  if(!path)
+    return;
+
+  char s = '/';
+  char *p = strchr(path, s);
+  while (p) {
+    *p = '\\';
+    p = strchr(p+1, s);
+  }
+}
+
+
 size_t fs_normal(const char* path, char* result, size_t buffer_size)
 {
   if(path == NULL){

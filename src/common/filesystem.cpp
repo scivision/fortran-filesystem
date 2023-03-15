@@ -46,9 +46,40 @@ size_t fs_str2char(std::string s, char* result, size_t buffer_size)
   return std::strlen(result);
 }
 
+
 size_t fs_path2str(const fs::path p, char* result, size_t buffer_size)
 {
   return fs_str2char(p.generic_string(), result, buffer_size);
+}
+
+
+void fs_as_posix(char* path)
+{
+  if(!path)
+    return;
+  std::replace(path, path + std::strlen(path), '\\', '/');
+}
+
+std::string fs_as_posix(std::string path)
+{
+  // force posix file seperator
+  std::replace(path.begin(), path.end(), '\\', '/');
+  return path;
+}
+
+
+void fs_as_windows(char* path)
+{
+  if(!path)
+    return;
+  std::replace(path, path + std::strlen(path), '/', '\\');
+}
+
+std::string fs_as_windows(std::string path)
+{
+  // force windows file seperator
+  std::replace(path.begin(), path.end(), '/', '\\');
+  return path;
 }
 
 
@@ -874,8 +905,7 @@ std::string fs_expanduser(std::string path)
 // NOT .lexical_normal to handle "~/.."
   std::regex r("/{2,}");
 
-  std::replace(path.begin(), path.end(), '\\', '/');
-  path = std::regex_replace(path, r, "/");
+  path = std::regex_replace(fs_as_posix(path), r, "/");
 
 if(FS_TRACE) std::cout << "TRACE:expanduser: path deduped " << path << "\n";
 

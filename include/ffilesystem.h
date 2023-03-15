@@ -19,9 +19,12 @@ namespace fs = std::filesystem;
 #error "No C++ filesystem support"
 #endif
 
+std::string fs_as_posix(std::string);
+std::string fs_as_windows(std::string path);
+
 std::string fs_canonical(std::string, bool);
 std::string fs_root(std::string);
-bool fs_chmod_exe(std::string path, bool executable);
+bool fs_chmod_exe(std::string, bool);
 int fs_copy_file(std::string, std::string, bool);
 int fs_create_directories(std::string);
 int fs_create_symlink(std::string, std::string);
