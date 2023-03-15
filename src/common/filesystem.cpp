@@ -181,7 +181,7 @@ std::string fs_with_suffix(std::string path, std::string new_suffix)
 bool fs_is_symlink(const char* path)
 {
   if(!path)
-    return 0;
+    return false;
   return fs_is_symlink(std::string(path));
 }
 
@@ -340,8 +340,12 @@ bool fs_exists(std::string path)
 bool fs_is_absolute(const char* path)
 {
   if(!path)
-    return 0;
+    return false;
+  return fs_is_absolute(std::string(path));
+}
 
+bool fs_is_absolute(std::string path)
+{
   fs::path p(path);
   return p.is_absolute();
 }
@@ -350,10 +354,8 @@ bool fs_is_char_device(const char* path)
 {
   // special POSIX file character device like /dev/null
   if(!path)
-    return 0;
-
+    return false;
   return fs_is_char_device(std::string(path));
-
 }
 
 bool fs_is_char_device(std::string path)
@@ -362,14 +364,13 @@ bool fs_is_char_device(std::string path)
     return false;
 
   std::error_code ec;
-  auto e = fs::is_character_file(path, ec);
+  bool e = fs::is_character_file(path, ec);
   if(ec) {
     std::cerr << "ERROR:filesystem:is_char_device: " << ec.message() << "\n";
     return false;
   }
 
   return e;
-
 }
 
 
@@ -377,7 +378,6 @@ bool fs_is_dir(const char* path)
 {
   if(!path)
     return false;
-
   return fs_is_dir(std::string(path));
 }
 
@@ -394,7 +394,7 @@ bool fs_is_dir(std::string path)
 #endif
 
   std::error_code ec;
-  auto e = fs::is_directory(p, ec);
+  bool e = fs::is_directory(p, ec);
   if(ec) {
     std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << " " << p << "\n";
     return false;
@@ -406,17 +406,20 @@ bool fs_is_dir(std::string path)
 
 bool fs_is_exe(const char* path)
 {
+  if(!path)
+    return false;
+  return fs_is_exe(std::string(path));
+}
+
+bool fs_is_exe(std::string path)
+{
   if (!fs_is_file(path))
     return false;
 
   auto s = fs::status(path);
 
   auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
-  auto isexe = i != fs::perms::none;
-
-  if(FS_TRACE) std::cout << "TRACE:is_exe: " << path << " " << isexe << "\n";
-
-  return isexe;
+  return i != fs::perms::none;
 }
 
 
@@ -436,7 +439,7 @@ bool fs_is_file(std::string path)
 
   std::error_code ec;
 
-  auto e = fs::is_regular_file(path, ec);
+  bool e = fs::is_regular_file(path, ec);
   if(ec) {
     std::cerr << "ERROR:filesystem:is_file: " << ec.message() << "\n";
     return false;
@@ -489,7 +492,7 @@ bool fs_remove(std::string path)
 {
   std::error_code ec;
 
-  auto e = fs::remove(path, ec);
+  bool e = fs::remove(path, ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:remove: " << path << " " << ec.message() << "\n";
@@ -610,7 +613,7 @@ int fs_copy_file(std::string source, std::string dest, bool overwrite)
   }
 
   std::error_code ec;
-  auto ok = fs::copy_file(source, dest, opt, ec);
+  bool ok = fs::copy_file(source, dest, opt, ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << "\n";
@@ -741,7 +744,6 @@ size_t fs_get_tempdir(char* path, size_t buffer_size)
 std::string fs_get_tempdir()
 {
   std::error_code ec;
-
   auto r = fs::temp_directory_path(ec);
   if(ec) {
     std::cerr << "ERROR:filesystem:get_tempdir: " << ec.message() << "\n";
@@ -753,18 +755,20 @@ std::string fs_get_tempdir()
 
 uintmax_t fs_file_size(const char* path)
 {
-  // need to check is_regular_file for MSVC/Intel Windows
-
   if(!path)
     return 0;
+  return fs_file_size(std::string(path));
+}
 
+uintmax_t fs_file_size(std::string path)
+{
+  // need to check is_regular_file for MSVC/Intel Windows
   if (!fs_is_file(path)) {
     std::cerr << "ERROR:filesystem:file_size: " << path << " is not a regular file\n";
     return 0;
   }
 
   std::error_code ec;
-
   auto fsize = fs::file_size(path, ec);
   if (ec) {
     std::cerr << "ERROR:filesystem:file_size: " << path << " could not get file size: " << ec.message() << "\n";
@@ -777,14 +781,22 @@ uintmax_t fs_file_size(const char* path)
 
 uintmax_t fs_space_available(const char* path)
 {
+  if(!path)
+    return 0;
+  return fs_space_available(std::string(path));
+}
+
+uintmax_t fs_space_available(std::string path)
+{
   // filesystem space available for device holding path
 
   // necessary for MinGW; seemed good choice for all platforms
-  if(!fs_exists(path))
+  if(!fs_exists(path)){
+    std::cerr << "ERROR:filesystem:space_available: " << path << " does not exist\n";
     return 0;
+  }
 
   std::error_code ec;
-
   auto si = fs::space(path, ec);
   if(ec){
     std::cerr << "ERROR:ffilesystem:space_available " << ec.message() << "\n";
