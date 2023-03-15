@@ -28,7 +28,10 @@ set_property(TEST Fortran_find PROPERTY FIXTURES_REQUIRED ops_fxt)
 add_executable(test_binpath_fortran test_binpath.f90)
 target_link_libraries(test_binpath_fortran PRIVATE ffilesystem)
 add_test(NAME Fortran_binpath
-COMMAND test_binpath_fortran $<BOOL:${BUILD_SHARED_LIBS}> $<TARGET_FILE_NAME:test_binpath_fortran>  $<TARGET_FILE_NAME:ffilesystem>
+COMMAND test_binpath_fortran
+  $<AND:$<BOOL:${BUILD_SHARED_LIBS}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${HAVE_DLADDR}>>>
+  $<TARGET_FILE_NAME:test_binpath_fortran>
+  $<TARGET_FILE_NAME:ffilesystem>
 )
 
 

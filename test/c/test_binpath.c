@@ -46,13 +46,13 @@ int test_lib_path(char* argv[]){
       fprintf(stderr, "ERROR:test_binpath: lib_path and lib_dir should be empty length 0: %s %zu\n", binpath, L);
       return 1;
     }
-    printf("SKIPPED: lib_path: due to static library\n");
+    fprintf(stderr, "SKIP: lib_path: feature not available\n");
     return 0;
   }
 
 
   if(!strstr(binpath, argv[3])){
-    fprintf(stderr, "ERROR:test_binpath: lib_path not found correctly: %s\n", binpath);
+    fprintf(stderr, "ERROR:test_binpath: lib_path not found correctly: %s does not contain %s\n", binpath, argv[3]);
     return 1;
   }
 

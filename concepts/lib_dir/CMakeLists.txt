@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.11...3.25)
 
 project(concept_libdir LANGUAGES C Fortran)
 
-include(CheckFunctionExists)
+include(CheckSymbolExists)
 include(GNUInstallDirs)
 
 set(CMAKE_C_STANDARD 99)
@@ -23,7 +23,10 @@ file(GENERATE OUTPUT .gitignore CONTENT "*")
 
 if(NOT WIN32)
   set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
-  check_function_exists(dladdr HAVE_DLADDR)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+  endif()
+  check_symbol_exists(dladdr "dlfcn.h" HAVE_DLADDR)
   if(NOT HAVE_DLADDR)
     message(FATAL_ERROR "dladdr() not found in dl library ${CMAKE_DL_LIBS}")
   endif()

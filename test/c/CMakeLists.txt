@@ -9,7 +9,10 @@ endforeach()
 add_executable(test_binpath_c test_binpath.c)
 target_link_libraries(test_binpath_c PRIVATE ffilesystem)
 add_test(NAME C_binpath
-COMMAND test_binpath_c $<BOOL:${BUILD_SHARED_LIBS}> $<TARGET_FILE_NAME:test_binpath_c>  $<TARGET_FILE_NAME:ffilesystem>
+COMMAND test_binpath_c
+  $<AND:$<BOOL:${BUILD_SHARED_LIBS}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${HAVE_DLADDR}>>>
+  $<TARGET_FILE_NAME:test_binpath_c>
+  $<TARGET_FILE_NAME:ffilesystem>
 )
 
 # --- props

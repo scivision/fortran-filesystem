@@ -5,6 +5,7 @@ project(ffilesystemExample LANGUAGES C)
 enable_testing()
 
 find_package(ffilesystem CONFIG REQUIRED)
+message(STATUS "ffilesystem found: ${ffilesystem_DIR}")
 
 if(ffilesystem_cpp)
   enable_language(CXX)
@@ -30,7 +31,7 @@ add_test(NAME BasicFortran COMMAND ex_fortran)
 add_executable(test_binpath_f ${PROJECT_SOURCE_DIR}/../test/fortran/test_binpath.f90)
 target_link_libraries(test_binpath_f PRIVATE ffilesystem::filesystem)
 add_test(NAME binpath_fortran
-COMMAND test_binpath_f $<BOOL:${ffilesystem_shared}> $<TARGET_FILE_NAME:test_binpath_f> $<TARGET_FILE_NAME:ffilesystem::filesystem>
+COMMAND test_binpath_f $<BOOL:${ffilesystem_libpath}> $<TARGET_FILE_NAME:test_binpath_f> $<TARGET_FILE_NAME:ffilesystem::filesystem>
 )
 
 endif()
@@ -41,12 +42,6 @@ if(ffilesystem_cpp)
 add_executable(ex_cpp 2/main.cpp)
 target_link_libraries(ex_cpp PRIVATE ffilesystem::filesystem)
 add_test(NAME BasicCpp COMMAND ex_cpp)
-
-add_executable(test_binpath_cpp ${PROJECT_SOURCE_DIR}/../test/cpp/test_binpath.cpp)
-target_link_libraries(test_binpath_cpp PRIVATE ffilesystem::filesystem)
-add_test(NAME binpath_cpp
-COMMAND test_binpath_cpp $<BOOL:${ffilesystem_shared}> $<TARGET_FILE_NAME:test_binpath_cpp> $<TARGET_FILE_NAME:ffilesystem::filesystem>
-)
 
 endif()
 

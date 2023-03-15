@@ -1,4 +1,4 @@
-include(CheckFunctionExists)
+include(CheckSymbolExists)
 include(CheckCXXSymbolExists)
 include(CheckCXXSourceCompiles)
 
@@ -28,7 +28,10 @@ endif()
 unset(CMAKE_REQUIRED_FLAGS)
 if(BUILD_SHARED_LIBS AND NOT WIN32)
   set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
-  check_function_exists(dladdr HAVE_DLADDR)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+  endif()
+  check_symbol_exists(dladdr "dlfcn.h" HAVE_DLADDR)
 else()
   unset(HAVE_DLADDR CACHE)
 endif()
@@ -82,7 +85,7 @@ if(HAVE_CXX_FILESYSTEM AND NOT DEFINED fs_abi_ok)
 endif()
 
 if(cpp AND NOT fallback AND NOT HAVE_CXX_FILESYSTEM)
-  message(FATAL_ERROR "C++ filesystem not available. To fallback to C filesystem, set:
+  message(FATAL_ERROR "C++ filesystem not available. To fallback to C filesystem:
   cmake -Dfallback=on"
   )
 endif()
@@ -111,6 +114,13 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
   endif()
 endif()
 
+if(CMAKE_C_COMPILER_ID STREQUAL "IntelLLVM")
+  add_compile_options("$<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-Rno-debug-disables-optimization>")
+  if(cpp)
+    add_compile_options("$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:-Rno-debug-disables-optimization>")
+  endif()
+endif()
+
 # --- Fortran compile flags
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
 
@@ -118,12 +128,6 @@ add_compile_options(
 "$<$<COMPILE_LANGUAGE:Fortran>:-warn>"
 "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug>>:-traceback;-check;-debug>"
 )
-
-if(WIN32)
-  add_compile_options($<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug>>:/Od>)
-else()
-  add_compile_options($<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<CONFIG:Debug>>:-O0>)
-endif()
 
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 
