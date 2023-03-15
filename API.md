@@ -318,24 +318,14 @@ p%is_exe()
 is_exe("my/file.exe")
 ```
 
-Make regular file executable for owner:
+Make regular file executable (or not) for owner:
 
 ```fortran
 !! subroutine
 
-call p%chmod_exe()
+call p%chmod_exe(.true.)
 ! or
-call chmod_exe("my/file.exe")
-```
-
-Make regular file not executable for owner:
-
-```fortran
-!! subroutine
-
-call p%chmod_not_exe()
-! or
-call chmod_not_exe("my/file.exe")
+call chmod_exe("my/file.exe", .true.)
 ```
 
 ## character(:), allocatable

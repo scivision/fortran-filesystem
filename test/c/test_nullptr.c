@@ -238,14 +238,9 @@ int main(){
     if(fs_lib_dir(O, 1) != 0)
       return EXIT_FAILURE;
 
-    if(fs_chmod_exe(s))
+    if(fs_chmod_exe(s, true))
       return EXIT_FAILURE;
-    if(fs_chmod_exe(O))
-      return EXIT_FAILURE;
-
-    if(fs_chmod_no_exe(s))
-      return EXIT_FAILURE;
-    if(fs_chmod_no_exe(O))
+    if(fs_chmod_exe(O, true))
       return EXIT_FAILURE;
 
     printf("OK: test_c_nullptr\n");

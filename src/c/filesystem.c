@@ -600,7 +600,7 @@ bool fs_remove(const char* path)
 }
 
 
-bool fs_chmod_exe(const char* path)
+bool fs_chmod_exe(const char* path, bool executable)
 {
   if(!path)
     return false;
@@ -610,27 +610,11 @@ bool fs_chmod_exe(const char* path)
     return false;
 
 #ifdef _MSC_VER
-  return _chmod(path, s.st_mode | _S_IEXEC) == 0;
+  return _chmod(path, s.st_mode | ((executable) ? _S_IEXEC : !_S_IEXEC) ) == 0;
 #else
-  return chmod(path, s.st_mode | S_IXUSR) == 0;
+  return chmod(path, s.st_mode |  ((executable) ? S_IXUSR : !S_IXUSR) ) == 0;
 #endif
-}
-
-
-bool fs_chmod_no_exe(const char* path)
-{
-  if(!path)
-    return false;
-
-  struct stat s;
-  if(stat(path, &s) != 0)
-    return false;
-
-#ifdef _MSC_VER
-  return _chmod(path, s.st_mode | !_S_IEXEC) == 0;
-#else
-  return chmod(path, s.st_mode | !S_IXUSR) == 0;
-#endif
+// need parentheses to keep intended precedence
 }
 
 

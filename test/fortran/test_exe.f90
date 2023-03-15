@@ -14,7 +14,7 @@ if(is_exe("")) error stop "is_ext('') should be false"
 
 p1 = path_t(exe_name)
 call p1%touch()
-call p1%chmod_exe()
+call p1%chmod_exe(.true.)
 
 if(.not. p1%is_file()) error stop "test_executable: " // exe_name // " is not a file."
 if (.not. p1%is_exe()) error stop "%is_exe did not detect executable file " // exe_name
@@ -26,7 +26,7 @@ if (p1%is_exe()) error stop "non-existant file cannot be exectuable"
 
 p2 = path_t(noexe_name)
 call p2%touch()
-call p2%chmod_no_exe()
+call p2%chmod_exe(.false.)
 if(.not. p2%is_file()) error stop "test_executable: " // noexe_name // " is not a file."
 if (p1%is_exe()) error stop "did not detect non-executable file."
 end block

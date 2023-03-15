@@ -28,14 +28,10 @@ character(kind=C_CHAR), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-logical(C_BOOL) function fs_chmod_exe(path) bind(C)
+logical(C_BOOL) function fs_chmod_exe(path, executable) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
-end function
-
-logical(C_BOOL) function fs_chmod_no_exe(path) bind(C)
-import
-character(kind=C_CHAR), intent(in) :: path(*)
+logical(C_BOOL), intent(in), value :: executable
 end function
 
 integer(C_INT) function fs_copy_file(source, dest, overwrite) bind(C)
@@ -286,13 +282,9 @@ end procedure canonical
 
 module procedure chmod_exe
 logical :: s
-s = fs_chmod_exe(trim(path) // C_NULL_CHAR)
-if(present(ok)) ok = s
-end procedure
-
-module procedure chmod_no_exe
-logical :: s
-s = fs_chmod_no_exe(trim(path) // C_NULL_CHAR)
+logical(C_BOOL) :: e
+e = executable
+s = fs_chmod_exe(trim(path) // C_NULL_CHAR, e)
 if(present(ok)) ok = s
 end procedure
 

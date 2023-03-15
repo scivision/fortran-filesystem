@@ -20,6 +20,8 @@ namespace fs = std::filesystem;
 #endif
 
 std::string fs_canonical(std::string, bool);
+std::string fs_root(std::string);
+bool fs_chmod_exe(std::string path, bool executable);
 int fs_copy_file(std::string, std::string, bool);
 int fs_create_directories(std::string);
 int fs_create_symlink(std::string, std::string);
@@ -141,8 +143,7 @@ extern bool fs_is_file(const char*);
 extern bool fs_is_exe(const char*);
 extern bool fs_is_reserved(const char*);
 
-extern bool fs_chmod_exe(const char*);
-extern bool fs_chmod_no_exe(const char*);
+extern bool fs_chmod_exe(const char*, bool);
 
 extern bool fs_remove(const char*);
 extern size_t fs_canonical(const char*, bool, char*, size_t);

@@ -876,12 +876,18 @@ if(FS_TRACE) std::cout << "TRACE:expanduser: path deduped " << path << "\n";
   return fs_normal((home / path.substr(2)).generic_string());
 }
 
-bool fs_chmod_exe(const char* path)
+
+bool fs_chmod_exe(const char* path, bool executable)
 {
-  // make path owner executable, if it's a file
+  // make path file owner executable or not
   if(!path)
     return false;
 
+  return fs_chmod_exe(std::string(path), executable);
+}
+
+bool fs_chmod_exe(std::string path, bool executable)
+{
   if(!fs_is_file(path)) {
     std::cerr << "ERROR:ffilesystem:chmod_exe: " << path << " is not a regular file\n";
     return false;
@@ -889,33 +895,12 @@ bool fs_chmod_exe(const char* path)
 
   std::error_code ec;
 
-  fs::permissions(path, fs::perms::owner_exec, fs::perm_options::add, ec);
+  fs::permissions(path, fs::perms::owner_exec,
+    (executable) ? fs::perm_options::add : fs::perm_options::remove,
+    ec);
 
   if(ec) {
     std::cerr << "ERROR:filesystem:chmod_exe: " << path << ": " << ec.message() << "\n";
-    return false;
-  }
-
-  return true;
-}
-
-bool fs_chmod_no_exe(const char* path)
-{
-  // make path not executable, if it's a file
-  if(!path)
-    return false;
-
-  if(!fs_is_file(path)) {
-    std::cerr << "ERROR:ffilesystem:chmod_no_exe: " << path << " is not a regular file\n";
-    return false;
-  }
-
-  std::error_code ec;
-
-  fs::permissions(path, fs::perms::owner_exec, fs::perm_options::remove, ec);
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_no_exe: " << path << ": " << ec.message() << "\n";
     return false;
   }
 

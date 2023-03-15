@@ -105,10 +105,7 @@ int main(void){
     if(fs_file_size(s) != 0)
       return EXIT_FAILURE;
 
-    if(fs_chmod_exe(s))
-      return EXIT_FAILURE;
-
-    if(fs_chmod_no_exe(s))
+    if(fs_chmod_exe(s, true))
       return EXIT_FAILURE;
 
     printf("PASS: test_reserved.cpp\n");
