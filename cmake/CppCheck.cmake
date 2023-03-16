@@ -3,7 +3,7 @@
 function(cpp_check)
 
 # https://en.cppreference.com/w/cpp/feature_test
-check_cxx_symbol_exists(__cpp_lib_filesystem filesystem HAVE_FS_FEATURE)
+check_cxx_symbol_exists(__cpp_lib_filesystem "filesystem" HAVE_FS_FEATURE)
 
 if(NOT HAVE_FS_FEATURE)
   message(WARNING "C++ filesystem feature is not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
@@ -13,13 +13,14 @@ endif()
 # some compilers e.g. Cray claim to have filesystem, but their libstdc++ doesn't have it.
 check_cxx_source_compiles([=[
 #include <cstdlib>
-
-#if __has_include(<filesystem>)
 #include <filesystem>
-namespace fs = std::filesystem;
-#else
+
+#ifndef __cpp_lib_filesystem
 #error "No C++ filesystem support"
 #endif
+
+namespace fs = std::filesystem;
+
 
 int main () {
 fs::path tgt(".");

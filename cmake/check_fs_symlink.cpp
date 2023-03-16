@@ -2,21 +2,13 @@
 // note: fs::status(lnk) with is_symlink is bugged on Windows--use fs::is_symlink(lnk) on path instead
 #include <iostream>
 #include <cstdlib>
-
-#ifndef __has_include
-#error "Compiler not C++17 compliant"
-#endif
-
-#if __has_include(<filesystem>)
 #include <filesystem>
-namespace fs = std::filesystem;
-#elif __has_include(<experimental/filesystem>)
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-#else
+
+#ifndef __cpp_lib_filesystem
 #error "No C++ filesystem support"
 #endif
 
+namespace fs = std::filesystem;
 
 
 int main(int argc, char **argv){

@@ -11,13 +11,14 @@
 #include <cstdlib>
 #include <algorithm>
 #include <string>
-
-#if __has_include(<filesystem>)
 #include <filesystem>
-namespace fs = std::filesystem;
-#else
+
+#ifndef __cpp_lib_filesystem
 #error "No C++ filesystem support"
 #endif
+
+namespace fs = std::filesystem;
+
 
 std::string fs_as_posix(std::string);
 std::string fs_as_windows(std::string path);

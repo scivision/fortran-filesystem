@@ -1,12 +1,13 @@
 #include <cstring>
 #include <regex>
-
-#if __has_include(<filesystem>)
 #include <filesystem>
-namespace fs = std::filesystem;
-#else
+
+#ifndef __cpp_lib_filesystem
 #error "No C++ filesystem support"
 #endif
+
+namespace fs = std::filesystem;
+
 
 extern "C" bool has_filename(const char*);
 
