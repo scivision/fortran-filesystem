@@ -22,8 +22,12 @@ int main(int argc, char* argv[]){
   char p[MAXP];
 
   if (argc == 1) {
-      fprintf(stderr, "fs_cli <function_name> [<arg1> ...]\n");
-      return EXIT_FAILURE;
+    fprintf(stderr, "fs_cli <function_name> [<arg1> ...]\n");
+    return EXIT_FAILURE;
+  }
+  else if (strcmp(argv[1], "canonical") == 0 && argc == 3){
+    if(fs_canonical(argv[2], false, p, MAXP))
+      printf("%s\n", p);
   }
   else if (strcmp(argv[1], "compiler") == 0){
     fs_compiler(p, MAXP);
