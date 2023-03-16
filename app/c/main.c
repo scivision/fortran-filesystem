@@ -22,7 +22,7 @@ int main(int argc, char* argv[]){
   char p[MAXP];
 
   if (argc == 1) {
-      fprintf(stderr, "fs_cli <function_name> [<arg1> ...]");
+      fprintf(stderr, "fs_cli <function_name> [<arg1> ...]\n");
       return EXIT_FAILURE;
   }
   else if (strcmp(argv[1], "compiler") == 0){
