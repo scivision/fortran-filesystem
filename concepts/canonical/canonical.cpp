@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  fs::path p = fs::weakly_canonical(argv[1]);
+  fs::path p = fs::canonical(argv[1]);
 
   std::cout << p.generic_string() << '\n';
 
