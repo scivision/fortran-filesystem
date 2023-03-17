@@ -7,8 +7,7 @@
 size_t fs_win32_read_symlink(const char* path, char* r, size_t buffer_size)
 {
   // https://stackoverflow.com/a/50182947
-#ifdef _WIN32
-  // get file handle
+
   HANDLE h = CreateFile(path, 0, 0, NULL, OPEN_EXISTING,
     FILE_FLAG_BACKUP_SEMANTICS, NULL);
   if(h == INVALID_HANDLE_VALUE)
@@ -26,8 +25,4 @@ size_t fs_win32_read_symlink(const char* path, char* r, size_t buffer_size)
   }
 
   return L;
-#else
-  (void) path; (void) r; (void) buffer_size;
-  return 0;
-#endif
 }
