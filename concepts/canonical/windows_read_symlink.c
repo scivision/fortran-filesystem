@@ -1,6 +1,7 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <string.h>
 #endif
 
 size_t fs_win32_read_symlink(const char* path, char* r, size_t buffer_size)
@@ -18,14 +19,15 @@ size_t fs_win32_read_symlink(const char* path, char* r, size_t buffer_size)
   if (L == 0)
     return 0;
 
-  if (r[0] == '\\' && r[1] == '\\' && r[2] == '?' && r[3] == '\\'){
+  if (strncmp(r, "\\\\?\\", 4) == 0){
     memmove(r, r + 4, L - 4);
     r[L - 4] = '\0';
     return L - 4;
   }
 
   return L;
-#endif
+#else
   (void) path; (void) r; (void) buffer_size;
   return 0;
+#endif
 }
