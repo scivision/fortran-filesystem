@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 int main(int argc, char* argv[])
 {
   if (argc != 2) {
-    std::cerr << "Usage: canonical <path>\n";
+    std::cerr << "Usage: " << argv[0] << " <path>\n";
     return EXIT_FAILURE;
   }
 

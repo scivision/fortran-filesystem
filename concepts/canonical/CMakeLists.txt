@@ -3,16 +3,32 @@ cmake_minimum_required(VERSION 3.20)
 project(ResolvePath LANGUAGES C CXX)
 enable_testing()
 
+option(fortran "Enable Fortran" ON)
+
+if(fortran)
+  enable_language(Fortran)
+endif()
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(canonical_c canonical.c)
+add_library(canonical_c canonical.c)
+target_include_directories(canonical_c PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(canonical_c PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
+
+add_executable(main_c main.c)
+target_link_libraries(main_c PRIVATE canonical_c)
 add_test(NAME canonical_c
 COMMAND ${CMAKE_COMMAND}
-  -Dexe:FILEPATH=$<TARGET_FILE:canonical_c>
+  -Dexe:FILEPATH=$<TARGET_FILE:main_c>
   -P ${CMAKE_CURRENT_SOURCE_DIR}/equivalent.cmake
 )
+
+if(fortran)
+  add_executable(exe_dir main.f90)
+  target_link_libraries(exe_dir PRIVATE canonical_c)
+  add_test(NAME exe_dir COMMAND exe_dir)
+endif()
 
 add_executable(canonical_cpp canonical.cpp)
 add_test(NAME canonical_cpp

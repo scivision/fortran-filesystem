@@ -3,7 +3,14 @@ cmake_minimum_required(VERSION 3.11...3.25)
 # shared: prints full path to shared library file  e.g. /path/to/mylib.[dylib,so,dll]
 # static: prints full path to main executable file  e.g.  /path/to/main.exe
 
-project(concept_libdir LANGUAGES C Fortran)
+project(concept_libdir LANGUAGES C)
+enable_testing()
+
+option(fortran "Build Fortran example" ON)
+
+if(fortran)
+  enable_language(Fortran)
+endif()
 
 include(CheckSymbolExists)
 include(GNUInstallDirs)
@@ -39,5 +46,8 @@ else()
   target_link_libraries(mylib PRIVATE ${CMAKE_DL_LIBS})
 endif()
 
+if(fortran)
 add_executable(lib_dir main.f90)
 target_link_libraries(lib_dir PRIVATE mylib)
+add_test(NAME lib_dir COMMAND lib_dir)
+endif()

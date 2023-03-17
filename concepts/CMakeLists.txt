@@ -2,9 +2,12 @@ cmake_minimum_required(VERSION 3.20)
 project(FilesystemConcepts LANGUAGES C CXX)
 enable_testing()
 
-set(CMAKE_CXX_STANDARD 20)
+option(fortran "use Fortran" ON)
 
-foreach(d IN ITEMS canonical exe_dir file_types iterdir lib_dir space syscall)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+
+foreach(d IN ITEMS canonical file_types iterdir lib_dir space syscall)
   add_subdirectory(${d})
 endforeacH()
 

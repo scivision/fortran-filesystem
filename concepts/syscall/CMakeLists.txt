@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(concept_exedir LANGUAGES C Fortran)
+project(concept_exedir LANGUAGES C)
 
 file(GENERATE OUTPUT .gitignore CONTENT "*")
 
