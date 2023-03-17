@@ -82,6 +82,10 @@ int fs_create_directories(const char* path) {
     fprintf(stderr, "ERROR:ffilesystem:create_directories:exec: environment variable COMSPEC not defined\n");
     return 1;
   }
+  if(!fs_is_absolute(comspec)){
+    fprintf(stderr, "ERROR:ffilesystem:create_directories:exec: COMSPEC not an absolute path: %s\n", comspec);
+    return 1;
+  }
   intptr_t ir = _execl(comspec, "cmd", "/c", "mkdir", p, NULL);
   r = (int)ir;
 #else
