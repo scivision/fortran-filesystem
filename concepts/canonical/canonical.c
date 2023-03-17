@@ -8,12 +8,18 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#ifdef _WIN32
+#include "windows_read_symlink.c"
+#endif
+
 
 size_t fs_realpath(const char* path, char* r, size_t buffer_size)
 {
   char* t;
 #ifdef _WIN32
   t = _fullpath(r, path, buffer_size);
+  if(t)
+    fs_win32_read_symlink(t, r, buffer_size);
 #else
   t = realpath(path, r);
 #endif
