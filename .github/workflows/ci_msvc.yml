@@ -11,7 +11,7 @@ on:
       - "**/CMakeLists.txt"
       - "**.cmake"
       - ".github/workflows/ci_msvc.yml"
-      - "!concepts/"
+      - "!concepts/**"
 
 jobs:
 
