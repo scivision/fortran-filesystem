@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 
-execute_process(COMMAND ${exe} "${exe}/."
+set(link ${exe}_link)
+file(CREATE_LINK ${exe} ${link} SYMBOLIC)
+
+execute_process(COMMAND ${exe} "${link}"
 OUTPUT_VARIABLE out OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 

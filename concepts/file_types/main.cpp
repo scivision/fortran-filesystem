@@ -50,7 +50,7 @@ int main()
     fs::create_directory(tempdir / "dir");
 
 #ifndef _WIN32
-    mkfifo(tempdir / "pipe", 0644);
+    mkfifo((tempdir / "pipe").generic_string().c_str(), 0644);
 
     // afunix.h didn't help, silently fails
     sockaddr_un addr;
