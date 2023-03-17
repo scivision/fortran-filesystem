@@ -1,3 +1,10 @@
+#include <vector>
+#include <string>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
+
 extern "C" size_t file_parts(const char* path, char* aparts[], size_t L[]) {
 
   std::vector <std::string> vparts;
