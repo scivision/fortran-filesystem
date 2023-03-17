@@ -19,7 +19,7 @@ int r;
   // don't directly specify "cmd.exe" in exec() for security reasons
   char* comspec = getenv("COMSPEC");
   if(!comspec){
-    fprintf(stderr, "ERROR:exec: COMSPEC not defined\n");
+    fprintf(stderr, "ERROR: environment variable COMSPEC not defined\n");
     return EXIT_FAILURE;
   }
   intptr_t ir = _execl(comspec, "cmd", "/c", "whoami",  NULL);

@@ -22,14 +22,24 @@ int msvc_call(const char* path){
   si.cb = sizeof(si);
   ZeroMemory( &pi, sizeof(pi) );
 
-  char* cmd = (char*) malloc(strlen(p) + 1 + 13);
-  strcpy(cmd, "cmd /c dir ");
+  // don't directly specify "cmd.exe" in exec() for security reasons
+  char* comspec = getenv("COMSPEC");
+  if(!comspec){
+    fprintf(stderr, "ERROR: environment variable COMSPEC not defined\n");
+    return EXIT_FAILURE;
+  }
+
+  // https://learn.microsoft.com/en-us/troubleshoot/windows-client/shell-experience/command-line-string-limitation
+  // 8191 max command line length
+  char* cmd = (char*) malloc(8191);
+  strcpy(cmd, comspec);
+  strcat(cmd, "/c dir ");
   strcat(cmd, p);
   free(p);
 
 if(TRACE) printf("TRACE: %s\n", cmd);
 
-  if (!CreateProcess(NULL, //  No module name (use command line)
+  if (!CreateProcess(comspec, //  COMSPEC
     cmd,    // Command line
     NULL,   // Process handle not inheritable
     NULL,   // Thread handle not inheritable
