@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
   fs::path p = fs::weakly_canonical(argv[1]);
 
-  std::cout << "weakly_canonical(" << argv[1] << ") = " << p << '\n';
+  std::cout << p.generic_string() << '\n';
 
   return EXIT_SUCCESS;
 

@@ -26,7 +26,7 @@ int main(int argc, char* argv[]){
     return EXIT_FAILURE;
   }
 
-  printf("canonical: %s => %s\n", argv[1], out);
+  printf("%s\n", out);
 
   return EXIT_SUCCESS;
 
