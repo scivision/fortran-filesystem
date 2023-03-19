@@ -204,7 +204,7 @@ jobs:
 
     steps:
 
-    - run: brew install ninja gcc
+    - run: brew install ninja
 
     - uses: actions/checkout@v3
 
