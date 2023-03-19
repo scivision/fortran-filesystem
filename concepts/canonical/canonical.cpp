@@ -2,15 +2,9 @@
 #include <cstdlib>
 #include <filesystem>
 
-#ifndef __cpp_lib_filesystem
-#error "C++17 filesystem not supported"
-#endif
+#include "canonical.h"
 
 namespace fs = std::filesystem;
-
-#ifdef __MINGW32__
-#include "windows_read_symlink.c"
-#endif
 
 
 int main(int argc, char* argv[])
@@ -22,14 +16,13 @@ int main(int argc, char* argv[])
 
   fs::path p = fs::canonical(argv[1]);
 #ifdef __MINGW32__
-  char buf[_MAX_PATH];
-  size_t L = fs_win32_read_symlink(p.string().c_str(), buf, _MAX_PATH);
-  if (!L) {
-    std::cerr << "Error: " << p.string() << " failed read_symlink\n";
+  std::string r = fs_win32_read_symlink(p.string());
+  if (r.empty()) {
+    std::cerr << "Error: " << p.string() << " failed win32_read_symlink\n";
     return EXIT_FAILURE;
   }
 
-  p = fs::path(buf);
+  p = fs::path(r);
 #endif
 
   std::cout << p.generic_string() << '\n';

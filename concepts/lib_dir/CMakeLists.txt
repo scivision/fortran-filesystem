@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11...3.25)
+cmake_minimum_required(VERSION 3.20)
 
 # shared: prints full path to shared library file  e.g. /path/to/mylib.[dylib,so,dll]
 # static: prints full path to main executable file  e.g.  /path/to/main.exe

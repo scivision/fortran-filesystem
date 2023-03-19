@@ -8,9 +8,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#ifdef _WIN32
-#include "windows_read_symlink.c"
-#endif
+#include "canonical.h"
 
 
 size_t fs_realpath(const char* path, char* r, size_t buffer_size)
@@ -25,7 +23,7 @@ size_t fs_realpath(const char* path, char* r, size_t buffer_size)
 #endif
 
   if(!t){
-    printf("Error: %s\n", strerror(errno));
+    printf("Error: realpath: %s\n", strerror(errno));
     return 0;
   }
 
