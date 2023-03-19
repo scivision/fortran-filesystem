@@ -32,6 +32,8 @@ p = path_t("my/path")  !< setter
 print *, "path: ", p%path() !< getter
 ```
 
+Advanced / conceptual development takes place in [ffilesystem-concepts](https://github.com/scivision/ffilesystem-concepts) repo.
+
 ## Compiler support
 
 Ffilesystem supports compilers including:
@@ -114,17 +116,6 @@ Note the CMake package variables `ffilesystem_cpp` and `ffilesystem_fortran` ind
 
 [ffilesystem.cmake](./cmake/ffilesystem.cmake) would be included from the other project to find or build Ffilesystem automatically.
 It provides the appropriate imported targets for shared or static builds, including Windows DLL handling.
-
-## Concepts
-
-The [concepts](./concepts/) directory shows a few concepts for future consideration.
-
-[exe_dir](./concepts/exe_dir/)
-is a working example of how to determine an exeucutable's full path no matter what the current working directory is.
-This can be useful when a data file is known to exist relative to an executable.
-This is relevant to say CMake installed project that has an executable and associated data files installed.
-Assuming the user knows the path to the MAIN executable in the installed directory, the program can determine its own full path and
-then a priori know the relative path to the data file(s).
 
 ## Notes
 
