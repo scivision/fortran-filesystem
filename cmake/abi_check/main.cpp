@@ -7,7 +7,7 @@ extern "C" int addone(int);
 int main() {
 
   if(addone(2) != 3) {
-    std::cerr << "2 + 1 != " << addone(2) << std::endl;
+    std::cerr << "2 + 1 != " << addone(2) << "\n";
     return EXIT_FAILURE;
   }
 

@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <cstdlib>
-#include <cstring>
+#include <string>
 
 #ifdef _MSC_VER
 #include <direct.h>
@@ -14,11 +14,10 @@
 
 int main() {
 
-  char fpath[MAXP];
   char cpath[MAXP];
 
-  fs_get_cwd(fpath, MAXP);
-  std::cout << "Fortran: current working dir " << fpath << std::endl;
+  std::string fpath = fs_get_cwd();
+  std::cout << "Fortran: current working dir " << fpath << "\n";
 
 #ifdef _MSC_VER
     if(_getcwd(cpath, MAXP)  == nullptr)
@@ -28,10 +27,10 @@ int main() {
       return EXIT_FAILURE;
 #endif
 
-  fs_normal(cpath, cpath, MAXP);
+  std::string s = fs_normal(std::string(cpath));
 
-  if (std::strcmp(fpath, cpath) != 0) {
-    fprintf(stderr, "C cwd %s != Fortran cwd %s\n", cpath, fpath);
+  if (fpath != s) {
+    std::cerr << "C cwd " << s << " != Fortran cwd " << fpath << "\n";
     return EXIT_FAILURE;
   }
 

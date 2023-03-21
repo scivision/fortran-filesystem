@@ -7,16 +7,11 @@
 
 int main() {
 
-  char d[MAXP];
+  std::cout << "current working dir " << fs_get_cwd() << "\n";;
 
-  fs_get_cwd(d, MAXP);
-  std::cout << "current working dir " << d << std::endl;
+  std::cout << "home dir " << fs_get_homedir() << "\n";;
 
-  fs_get_homedir(d, MAXP);
-  std::cout << "home dir " << d << std::endl;
-
-  fs_expanduser("~", d, MAXP);
-  std::cout << "expanduser('~') " << d << std::endl;
+  std::cout << "expanduser('~') " << fs_expanduser("~") << "\n";;
 
   return EXIT_SUCCESS;
 }
