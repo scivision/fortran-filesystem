@@ -92,10 +92,10 @@ cmake --build build
 ctest --test-dir build
 ```
 
-Fortran Package Manager (C- and Fortran-only functions):
+Fortran Package Manager:
 
 ```sh
-fpm build
+FPM_CXXFLAGS=-std=c++20 fpm build
 ```
 
 For user convenience, we provide a demo executable "filesystem_cli" that allows simple testing of what the filesystem routines do.
