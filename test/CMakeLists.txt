@@ -1,12 +1,6 @@
 include(${PROJECT_SOURCE_DIR}/cmake/DllTestPath.cmake)
 
-# --- C  interface
 add_subdirectory(c)
-
-# --- C++ interface
-if(HAVE_CXX_FILESYSTEM)
-  add_subdirectory(cpp)
-endif()
 
 if(fortran)
   add_subdirectory(fortran)

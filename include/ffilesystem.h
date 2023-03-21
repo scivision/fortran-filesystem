@@ -13,9 +13,7 @@
 #include <string>
 #include <filesystem>
 
-#ifndef __cpp_lib_filesystem
-#error "No C++ filesystem support"
-#endif
+#ifdef __cpp_lib_filesystem
 
 namespace fs = std::filesystem;
 
@@ -58,6 +56,8 @@ std::string fs_with_suffix(std::string, std::string);
 
 size_t fs_str2char(std::string, char*, size_t);
 size_t fs_path2str(const fs::path, char*, size_t);
+
+#endif // __cpp_lib_filesystem
 
 extern "C" {
 

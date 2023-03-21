@@ -1,9 +1,9 @@
-set_property(DIRECTORY PROPERTY LABELS c)
-
-foreach(t IN ITEMS expanduser file ifc nullptr reserved)
+# --- C
+foreach(t IN ITEMS expanduser file env nullptr reserved)
   add_executable(test_C_${t} test_${t}.c)
   target_link_libraries(test_C_${t} PRIVATE ffilesystem)
   add_test(NAME C_${t} COMMAND test_C_${t})
+  set_property(TEST C_${t} PROPERTY LABELS "C")
 endforeach()
 
 add_executable(test_binpath_c test_binpath.c)
@@ -14,6 +14,18 @@ COMMAND test_binpath_c
   $<TARGET_FILE_NAME:test_binpath_c>
   $<TARGET_FILE_NAME:ffilesystem>
 )
+
+# --- C++
+if(HAVE_CXX_FILESYSTEM)
+
+foreach(t IN ITEMS env)
+  add_executable(test_Cpp_${t} test_${t}.cpp)
+  target_link_libraries(test_Cpp_${t} PRIVATE ffilesystem)
+  add_test(NAME Cpp_${t} COMMAND test_Cpp_${t})
+  set_property(TEST Cpp_${t} PROPERTY LABELS "C++")
+endforeach()
+
+endif()
 
 # --- props
 

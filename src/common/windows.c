@@ -3,6 +3,8 @@
 
 #include "ffilesystem.h"
 
+#ifdef _WIN32  // guard for fpm
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
@@ -33,3 +35,5 @@ static int fs_win32_create_symlink(const char* target, const char* link)
 
   return -1;
 }
+
+#endif
