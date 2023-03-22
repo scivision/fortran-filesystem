@@ -20,7 +20,7 @@ if(!fs_is_file(source)) {
   fprintf(stderr,"ERROR:ffilesystem:copy_file: source file must exist\n");
   return 1;
 }
-if(destination == NULL || strlen(destination) == 0) {
+if(strlen(destination) == 0) {
   fprintf(stderr, "ERROR:ffilesystem:copy_file: destination path must not be empty\n");
   return 1;
 }
@@ -55,7 +55,7 @@ int fs_create_directories(const char* path) {
 //
 // return 0 if successful, non-zero if not successful
 
-  if(!path || strlen(path) == 0) {
+  if(strlen(path) == 0) {
     fprintf(stderr,"ERROR:ffilesystem:create_directories: path must not be empty\n");
     return 1;
   }

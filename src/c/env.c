@@ -13,12 +13,8 @@
 
 static size_t fs_getenv(const char* name, char* path, size_t buffer_size)
 {
-  if(buffer_size == 0) goto retnull;
-
-  char* buf;
-
   // <stdlib.h>
-  buf = getenv(name);
+  char* buf = getenv(name);
   if(!buf) // not error because sometimes we just check if envvar is defined
     goto retnull;
 
@@ -37,8 +33,6 @@ retnull:
 
 size_t fs_get_cwd(char* path, size_t buffer_size)
 {
-  if(buffer_size == 0) goto nullret;
-
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
   // <direct.h> / <unistd.h>
   char* x = getcwd(path, buffer_size);
@@ -76,18 +70,15 @@ size_t fs_get_tempdir(char* path, size_t buffer_size)
 #endif
 
   size_t L = fs_getenv(name, path, buffer_size);
-  if(L > 0){
+  if(L > 0)
     return L;
-  }
-  else if (fs_is_dir("/tmp") && buffer_size > 4){
-    strncpy(path, "/tmp", buffer_size);
-    path[4] = '\0';
+
+  if (fs_is_dir("/tmp") && buffer_size > 4){
+    strcpy(path, "/tmp");
     return 4;
   }
-  else{
-    fprintf(stderr, "ERROR:ffilesystem:get_tempdir: could not find temp dir\n");
-    path = NULL;
-    return 0;
-  }
 
+  fprintf(stderr, "ERROR:ffilesystem:get_tempdir: could not find temp dir\n");
+  path = NULL;
+  return 0;
 }

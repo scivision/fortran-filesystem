@@ -10,6 +10,7 @@
 #include <regex>
 #include <set>
 #include <filesystem>
+#include <stdexcept>
 
 #include "ffilesystem.h"
 
@@ -55,8 +56,6 @@ size_t fs_path2str(const fs::path p, char* result, size_t buffer_size)
 
 void fs_as_posix(char* path)
 {
-  if(!path)
-    return;
   std::replace(path, path + std::strlen(path), '\\', '/');
 }
 
@@ -70,8 +69,6 @@ std::string fs_as_posix(std::string path)
 
 void fs_as_windows(char* path)
 {
-  if(!path)
-    return;
   std::replace(path, path + std::strlen(path), '/', '\\');
 }
 
@@ -85,11 +82,6 @@ std::string fs_as_windows(std::string path)
 
 size_t fs_normal(const char* path, char* result, size_t buffer_size)
 {
-  if(!path){
-    result = nullptr;
-    return 0;
-  }
-
   return fs_str2char(fs_normal(std::string(path)), result, buffer_size);
 }
 
@@ -103,11 +95,6 @@ std::string fs_normal(std::string path)
 
 size_t fs_file_name(const char* path, char* result, size_t buffer_size)
 {
-  if(!path){
-    result = nullptr;
-    return 0;
-  }
-
   return fs_str2char(fs_file_name(std::string(path)), result, buffer_size);
 }
 
@@ -120,13 +107,7 @@ std::string fs_file_name(std::string path)
 
 size_t fs_stem(const char* path, char* result, size_t buffer_size)
 {
-  if(!path){
-    result = nullptr;
-    return 0;
-  }
-
   return fs_str2char(fs_stem(std::string(path)), result, buffer_size);
-
 }
 
 std::string fs_stem(std::string path)
@@ -138,10 +119,6 @@ std::string fs_stem(std::string path)
 
 size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size)
 {
-  if(path == nullptr || other == nullptr){
-    result = nullptr;
-    return 0;
-  }
   return fs_str2char(fs_join(std::string(path), std::string(other)), result, buffer_size);
 }
 
@@ -161,10 +138,6 @@ std::string fs_join(std::string path, std::string other)
 
 size_t fs_parent(const char* path, char* result, size_t buffer_size)
 {
-  if(!path){
-    result = nullptr;
-    return 0;
-  }
   return fs_str2char(fs_parent(std::string(path)), result, buffer_size);
 }
 
@@ -177,10 +150,6 @@ std::string fs_parent(std::string path)
 
 size_t fs_suffix(const char* path, char* result, size_t buffer_size)
 {
-  if(!path){
-    result = nullptr;
-    return 0;
-  }
   return fs_str2char(fs_suffix(std::string(path)), result, buffer_size);
 }
 
@@ -195,10 +164,6 @@ std::string fs_suffix(std::string path)
 size_t fs_with_suffix(const char* path, const char* new_suffix,
                       char* result, size_t buffer_size)
 {
-  if(!path){
-    result = nullptr;
-    return 0;
-  }
   return fs_str2char(fs_with_suffix(std::string(path), std::string(new_suffix)), result, buffer_size);
 }
 
@@ -211,8 +176,6 @@ std::string fs_with_suffix(std::string path, std::string new_suffix)
 
 bool fs_is_symlink(const char* path)
 {
-  if(!path)
-    return false;
   return fs_is_symlink(std::string(path));
 }
 
@@ -237,9 +200,8 @@ bool fs_is_symlink(std::string path)
   return e;
 }
 
-int fs_create_symlink(const char* target, const char* link){
-  if(!link)
-    return 1;
+int fs_create_symlink(const char* target, const char* link)
+{
   return fs_create_symlink(std::string(target), std::string(link));
 }
 
@@ -277,8 +239,6 @@ int fs_create_symlink(std::string target, std::string link)
 
 int fs_create_directories(const char* path)
 {
-  if(!path)
-    return 1;
   return fs_create_directories(std::string(path));
 }
 
@@ -330,10 +290,6 @@ int fs_create_directories(std::string path)
 
 size_t fs_root(const char* path, char* result, size_t buffer_size)
 {
-  if(!path){
-    result = nullptr;
-    return 0;
-  }
   return fs_str2char(fs_root(std::string(path)), result, buffer_size);
 }
 
@@ -370,8 +326,6 @@ bool fs_exists(std::string path)
 
 bool fs_is_absolute(const char* path)
 {
-  if(!path)
-    return false;
   return fs_is_absolute(std::string(path));
 }
 
@@ -384,8 +338,6 @@ bool fs_is_absolute(std::string path)
 bool fs_is_char_device(const char* path)
 {
   // special POSIX file character device like /dev/null
-  if(!path)
-    return false;
   return fs_is_char_device(std::string(path));
 }
 
@@ -407,8 +359,6 @@ bool fs_is_char_device(std::string path)
 
 bool fs_is_dir(const char* path)
 {
-  if(!path)
-    return false;
   return fs_is_dir(std::string(path));
 }
 
@@ -437,8 +387,6 @@ bool fs_is_dir(std::string path)
 
 bool fs_is_exe(const char* path)
 {
-  if(!path)
-    return false;
   return fs_is_exe(std::string(path));
 }
 
@@ -456,8 +404,6 @@ bool fs_is_exe(std::string path)
 
 bool fs_is_file(const char* path)
 {
-  if(!path)
-    return false;
   return fs_is_file(std::string(path));
 }
 
@@ -481,8 +427,6 @@ bool fs_is_file(std::string path)
 
 bool fs_is_reserved(const char* path)
 {
-  if(!path)
-    return false;
   return fs_is_reserved(std::string(path));
 }
 
@@ -514,8 +458,6 @@ bool fs_is_reserved(std::string path)
 
 bool fs_remove(const char* path)
 {
-  if(!path)
-    return false;
   return fs_remove(std::string(path));
 }
 
@@ -535,11 +477,6 @@ bool fs_remove(std::string path)
 
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size)
 {
-  if (!path){
-    result = nullptr;
-    return 0;
-  }
-
   return fs_str2char(fs_canonical(path, strict), result, buffer_size);
 }
 
@@ -577,8 +514,6 @@ std::string fs_canonical(std::string path, bool strict)
 
 bool fs_equivalent(const char* path1, const char* path2)
 {
-  if(!path1 || !path2)
-    return false;
   return fs_equivalent(std::string(path1), std::string(path2));
 }
 
@@ -615,8 +550,6 @@ bool fs_equivalent(std::string path1, std::string path2)
 
 int fs_copy_file(const char* source, const char* dest, bool overwrite)
 {
-  if(!source || !dest)
-    return 1;
   return fs_copy_file(std::string(source), std::string(dest), overwrite);
 }
 
@@ -668,11 +601,6 @@ int fs_copy_file(std::string source, std::string dest, bool overwrite)
 
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
 {
-  if (!to || !from){
-    result = nullptr;
-    return 0;
-  }
-
   return fs_str2char(fs_relative_to(to, from), result, buffer_size);
 }
 
@@ -710,8 +638,6 @@ std::string fs_relative_to(std::string to, std::string from)
 
 bool fs_touch(const char* path)
 {
-  if(!path)
-    return false;
   return fs_touch(std::string(path));
 }
 
@@ -786,8 +712,6 @@ std::string fs_get_tempdir()
 
 uintmax_t fs_file_size(const char* path)
 {
-  if(!path)
-    return 0;
   return fs_file_size(std::string(path));
 }
 
@@ -812,8 +736,6 @@ uintmax_t fs_file_size(std::string path)
 
 uintmax_t fs_space_available(const char* path)
 {
-  if(!path)
-    return 0;
   return fs_space_available(std::string(path));
 }
 
@@ -880,10 +802,6 @@ std::string fs_get_homedir()
 
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 {
-  if(!path){
-    result = nullptr;
-    return 0;
-  }
   return fs_str2char(fs_expanduser(std::string(path)), result, buffer_size);
 }
 
@@ -922,9 +840,6 @@ if(FS_TRACE) std::cout << "TRACE:expanduser: path deduped " << path << "\n";
 bool fs_chmod_exe(const char* path, bool executable)
 {
   // make path file owner executable or not
-  if(!path)
-    return false;
-
   return fs_chmod_exe(std::string(path), executable);
 }
 

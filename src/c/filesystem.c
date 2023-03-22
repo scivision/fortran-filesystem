@@ -31,9 +31,6 @@ bool fs_cpp(){
 void fs_as_posix(char* path)
 {
 // force posix file seperator
-  if(!path)
-    return;
-
   char s = '\\';
   char *p = strchr(path, s);
   while (p) {
@@ -46,9 +43,6 @@ void fs_as_windows(char* path)
 {
 // as_windows() needed for system calls with MSVC
 // force Windows file seperator
-  if(!path)
-    return;
-
   char s = '/';
   char *p = strchr(path, s);
   while (p) {
@@ -60,11 +54,7 @@ void fs_as_windows(char* path)
 
 size_t fs_normal(const char* path, char* result, size_t buffer_size)
 {
-  if(path == NULL){
-    result = NULL;
-    return 0;
-  }
-
+// normalize path
 #ifdef _WIN32
   cwk_path_set_style(CWK_STYLE_WINDOWS);
 #else
@@ -79,13 +69,8 @@ if(FS_TRACE) printf("TRACE:normal in: %s  out: %s\n", path, result);
 }
 
 
-size_t fs_file_name(const char* path, char* result, size_t buffer_size){
-
-  if(path == NULL){
-    result = NULL;
-    return 0;
-  }
-
+size_t fs_file_name(const char* path, char* result, size_t buffer_size)
+{
   if(strlen(path) == 0){
     result[0] = '\0';
     return 0;
@@ -112,8 +97,8 @@ if(FS_TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
 }
 
 
-size_t fs_stem(const char* path, char* result, size_t buffer_size){
-
+size_t fs_stem(const char* path, char* result, size_t buffer_size)
+{
   char* buf = (char*) malloc(buffer_size);
   if(fs_file_name(path, buf, buffer_size) == 0){
     free(buf);
@@ -136,19 +121,15 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size){
 }
 
 
-size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size){
-  if(path == NULL || other == NULL){
-    result = NULL;
-    return 0;
-  }
-
+size_t fs_join(const char* path, const char* other, char* result, size_t buffer_size)
+{
   cwk_path_set_style(CWK_STYLE_UNIX);
   return cwk_path_join(path, other, result, buffer_size);
 }
 
 
-size_t fs_parent(const char* path, char* result, size_t buffer_size){
-
+size_t fs_parent(const char* path, char* result, size_t buffer_size)
+{
   char* buf = (char*) malloc(buffer_size);
   if(fs_normal(path, buf, buffer_size) == 0){
     free(buf);
@@ -175,8 +156,8 @@ if(FS_TRACE) printf("TRACE: parent: %s => %s  %zu\n", path, result, M);
 }
 
 
-size_t fs_suffix(const char* path, char* result, size_t buffer_size){
-
+size_t fs_suffix(const char* path, char* result, size_t buffer_size)
+{
   char* buf = (char*) malloc(buffer_size);
   if(fs_file_name(path, buf, buffer_size) == 0){
     free(buf);
@@ -202,12 +183,7 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size){
 size_t fs_with_suffix(const char* path, const char* suffix,
                       char* result, size_t buffer_size)
 {
-  if(!path){
-    result = NULL;
-    return 0;
-  }
-
-  if(!suffix || strlen(suffix) == 0)
+  if(strlen(suffix) == 0)
     return fs_stem(path, result, buffer_size);
 
   if(path[0] == '.'){
@@ -228,8 +204,6 @@ size_t fs_with_suffix(const char* path, const char* suffix,
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size)
 {
   // also expands ~
-
-  if(!path) goto retnull;
 
   if(strlen(path) == 0){
     result[0] = '\0';
@@ -278,12 +252,6 @@ retnull:
 
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
 {
-  // undefined case, avoid bugs with MacOS
-  if(to == NULL || from == NULL){
-    result = NULL;
-    return 0;
-  }
-
   if((strlen(to) == 0) || (strlen(from) == 0)){
     result[0] = '\0';
     return 0;
@@ -394,11 +362,6 @@ bool fs_equivalent(const char* path1, const char* path2)
 
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 {
-  if(!path){
-    result = NULL;
-    return 0;
-  }
-
   if(path[0] != '~')
     return fs_normal(path, result, buffer_size);
 
@@ -433,10 +396,6 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 bool fs_is_char_device(const char* path)
 {
   // special POSIX file character device like /dev/null
-
-  if(!path)
-    return false;
-
   struct stat s;
 
   if(stat(path, &s) != 0)
@@ -449,9 +408,6 @@ bool fs_is_char_device(const char* path)
 
 bool fs_is_dir(const char* path)
 {
-  if(!path)
-    return false;
-
   struct stat s;
 
   if(stat(path, &s) != 0)
@@ -464,9 +420,6 @@ bool fs_is_dir(const char* path)
 
 bool fs_is_exe(const char* path)
 {
-  if(!path)
-    return false;
-
   struct stat s;
 
   if(stat(path, &s) != 0)
@@ -482,9 +435,6 @@ bool fs_is_exe(const char* path)
 
 bool fs_is_file(const char* path)
 {
-  if(!path)
-    return false;
-
   if (fs_is_reserved(path))
     return false;
 
@@ -503,9 +453,6 @@ bool fs_is_reserved(const char* path)
   return false;
 #endif
 
-  if (!path)
-    return false;
-
   if(strcmp(path, "CON") == 0) return true;
   if(strcmp(path, "PRN") == 0) return true;
   if(strcmp(path, "AUX") == 0) return true;
@@ -519,7 +466,7 @@ bool fs_is_reserved(const char* path)
 bool fs_exists(const char* path)
 {
 // false empty just for clarity
-if(!path || strlen(path) == 0)
+if(strlen(path) == 0)
   return false;
 
 #ifdef _MSC_VER
@@ -534,11 +481,6 @@ if(!path || strlen(path) == 0)
 
 size_t fs_root(const char* path, char* result, size_t buffer_size)
 {
-  if(!path){
-    result = NULL;
-    return 0;
-  }
-
   size_t L;
 
 #ifdef _WIN32
@@ -559,9 +501,6 @@ if(FS_TRACE) printf("TRACE: root: %s => %s  %zu\n", path, result, M);
 
 bool fs_is_absolute(const char* path)
 {
-  if(!path)
-    return false;
-
 #ifdef _WIN32
   if (path[0] == '/')
     return false;
@@ -573,9 +512,6 @@ bool fs_is_absolute(const char* path)
 
 bool fs_is_symlink(const char* path)
 {
-  if(!path)
-    return false;
-
 #ifdef _WIN32
   return fs_win32_is_symlink(path);
 #else
@@ -632,9 +568,6 @@ bool fs_remove(const char* path)
 
 bool fs_chmod_exe(const char* path, bool executable)
 {
-  if(!path)
-    return false;
-
   struct stat s;
   if(stat(path, &s) != 0)
     return false;
@@ -650,7 +583,7 @@ bool fs_chmod_exe(const char* path, bool executable)
 
 bool fs_touch(const char* path)
 {
-  if(!path || strlen(path) == 0)
+  if(strlen(path) == 0)
     return false;
 
   if (fs_exists(path))
