@@ -68,6 +68,54 @@ jobs:
       env:
         CMAKE_PREFIX_PATH: ${{ runner.temp }}
 
+  old-gcc:
+    needs: linux-gcc
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        gcc-version: [8]
+        shared: [false]
+        cpp: [true, false]
+
+    env:
+      CC: gcc-${{ matrix.gcc-version }}
+      CXX: g++-${{ matrix.gcc-version }}
+      FC: gfortran-${{ matrix.gcc-version }}
+
+    steps:
+
+    - name: install compilers
+      run: |
+        sudo apt update
+        sudo apt install --no-install-recommends ninja-build ${{ env.CC }} ${{ env.CXX }} ${{ env.FC }}
+
+    - uses: actions/checkout@v3
+
+    - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
+      run: >-
+        cmake
+        --preset multi
+        --install-prefix=${{ runner.temp }}
+        -Dcpp:BOOL=${{ matrix.cpp }}
+        -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+
+    - name: Debug workflow
+      run: cmake --workflow --preset debug
+
+    - name: Release workflow
+      run: cmake --workflow --preset release
+
+    - name: install package
+      run: cmake --install build
+
+    - name: example workflow
+      run: cmake --workflow --preset default
+      working-directory: example
+      env:
+        CMAKE_PREFIX_PATH: ${{ runner.temp }}
+
 
   linux-clang:
     runs-on: ubuntu-latest

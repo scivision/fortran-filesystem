@@ -8,7 +8,7 @@ option(fallback "Fallback to non-C++ filesystem.c if C++ stdlib is not working" 
 
 option(coverage "Code coverage tests")
 option(tidy "Run clang-tidy on the code")
-
+option(iwyu "Run include-what-you-use on the code")
 
 include(GNUInstallDirs)
 

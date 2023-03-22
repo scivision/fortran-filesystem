@@ -1,6 +1,7 @@
 // no need to duplicate this in test/cpp
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "ffilesystem.h"
 

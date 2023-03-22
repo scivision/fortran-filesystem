@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <string>
 #include <stdexcept>
 
 #include "ffilesystem.h"

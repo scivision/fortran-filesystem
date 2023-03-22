@@ -2,12 +2,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #endif
 
-#include <ffilesystem.h>
+#include "ffilesystem.h"
 
 
 

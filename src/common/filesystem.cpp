@@ -3,14 +3,16 @@
 // NOTE: this segfaults: std::filesystem::path p(nullptr);
 
 #include <iostream>
-#include <algorithm>
+#include <algorithm>  // IWYU pragma: keep
 #include <cstring>
 #include <string>
-#include <fstream>
+#include <fstream>  // IWYU pragma: keep
 #include <regex>
 #include <set>
+#include <cstdint>
+#include <cstdlib>
+#include <system_error>
 #include <filesystem>
-#include <stdexcept>
 
 #include "ffilesystem.h"
 

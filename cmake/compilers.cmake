@@ -156,3 +156,12 @@ if(tidy)
   set(CMAKE_C_CLANG_TIDY ${tidy_cmd})
   set(CMAKE_CXX_CLANG_TIDY ${tidy_cmd})
 endif()
+
+# --- IWYU
+if(iwyu)
+  find_program(IWYU_EXE NAMES include-what-you-use REQUIRED)
+  message(STATUS "IWYU_EXE: ${IWYU_EXE}")
+  set(iwyu_cmd ${IWYU_EXE})
+  set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${iwyu_cmd})
+  set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${iwyu_cmd})
+endif()

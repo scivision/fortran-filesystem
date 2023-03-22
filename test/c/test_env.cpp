@@ -10,6 +10,8 @@
 #include <unistd.h>
 #endif
 
+#include <stdexcept>
+
 #include "ffilesystem.h"
 
 int main() {
