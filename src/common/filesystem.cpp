@@ -865,3 +865,45 @@ bool fs_chmod_exe(std::string path, bool executable)
 
   return true;
 }
+
+
+std::string fs_exe_dir()
+{
+  char* buf = new char[MAXP];
+
+  if(fs_exe_path(buf, MAXP) == 0){
+    std::cerr << "ERROR:ffilesystem:exe_dir: fs_exe_path failed\n";
+    delete [] buf;
+    return {};
+  }
+  std::string s(buf);
+  delete [] buf;
+
+  return fs_parent(s);
+}
+
+
+std::string fs_lib_dir()
+{
+  char* buf = new char[MAXP];
+
+  if(fs_lib_path(buf, MAXP) == 0){
+    std::cerr << "ERROR:ffilesystem:fs_lib_dir: fs_lib_path failed\n";
+    delete [] buf;
+    return {};
+  }
+  std::string s(buf);
+  delete [] buf;
+
+  if(FS_TRACE) std::cout << "TRACE:fs_lib_dir: " << s << "\n";
+
+  std::string lib_dir = fs_parent(s);
+  #ifdef __CYGWIN__
+    if(lib_dir.empty()){
+      std::cerr << "ERROR:ffilesystem:fs_lib_dir: fs_parent failed--known issue with Cygwin\n";
+      return {};
+    }
+  #endif
+
+  return lib_dir;
+}

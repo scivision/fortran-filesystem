@@ -140,7 +140,7 @@ size_t fs_lib_dir(char* path, size_t buffer_size)
   size_t L = fs_parent(buf, path, buffer_size);
   #ifdef __CYGWIN__
     if(!L){
-      fprintf(stderr, "ERROR:ffilesystem:fs_lib_dir: fs_parent failed--known issue with Cygwin--use C++ ffilesystem instead\n");
+      fprintf(stderr, "ERROR:ffilesystem:fs_lib_dir: fs_parent failed--known issue with Cygwin\n");
       free(buf);
       return 0;
     }
