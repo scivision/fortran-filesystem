@@ -81,6 +81,17 @@ std::string fs_as_windows(std::string path)
   return path;
 }
 
+std::string fs_as_cygpath(std::string path)
+{
+  // like command line "cygpath --unix"
+#ifdef __CYGWIN__
+  std::replace(path.begin(), path.end(), '\\', '/');
+  if (path[1] == ':' && std::isalpha(path[0]))
+    return "/cygdrive/" + path.substr(0, 1) + path.substr(2);
+#endif
+  return path;
+}
+
 
 size_t fs_normal(const char* path, char* result, size_t buffer_size)
 {
@@ -897,13 +908,9 @@ std::string fs_lib_dir()
 
   if(FS_TRACE) std::cout << "TRACE:fs_lib_dir: " << s << "\n";
 
-  std::string lib_dir = fs_parent(s);
   #ifdef __CYGWIN__
-    if(lib_dir.empty()){
-      std::cerr << "ERROR:ffilesystem:fs_lib_dir: fs_parent failed--known issue with Cygwin\n";
-      return {};
-    }
+    s = fs_as_cygpath(s);
   #endif
 
-  return lib_dir;
+  return fs_parent(s);
 }

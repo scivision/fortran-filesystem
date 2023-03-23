@@ -25,7 +25,19 @@ foreach(t IN ITEMS core env)
   set_property(TEST Cpp_${t} PROPERTY LABELS "Cpp")
 endforeach()
 
+
+add_executable(test_binpath_cpp test_binpath.cpp)
+target_link_libraries(test_binpath_cpp PRIVATE ffilesystem)
+add_test(NAME Cpp_binpath
+COMMAND test_binpath_cpp
+  $<AND:$<BOOL:${BUILD_SHARED_LIBS}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>,$<BOOL:${HAVE_DLADDR}>>>
+  $<TARGET_FILE_BASE_NAME:test_binpath_cpp>
+  $<TARGET_FILE_NAME:ffilesystem>
+)
+
+
 endif()
+
 
 # --- props
 

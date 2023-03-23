@@ -53,8 +53,16 @@ int main(int argc, char* argv[]){
     if(fs_lib_path(p, MAXP))
       printf("%s\n", p);
   }
+  else if (strcmp(argv[1], "lib_dir") == 0){
+    if(fs_lib_dir(p, MAXP))
+      printf("%s\n", p);
+  }
   else if (strcmp(argv[1], "exe_path") == 0){
     if(fs_exe_path(p, MAXP))
+      printf("%s\n", p);
+  }
+  else if (strcmp(argv[1], "exe_dir") == 0){
+    if(fs_exe_dir(p, MAXP))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "is_linux") ==0){

@@ -19,7 +19,8 @@ namespace fs = std::filesystem;
 
 
 std::string fs_as_posix(std::string);
-std::string fs_as_windows(std::string path);
+std::string fs_as_windows(std::string);
+std::string fs_as_cygpath(std::string);
 
 std::string fs_canonical(std::string, bool);
 std::string fs_root(std::string);
