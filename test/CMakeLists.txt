@@ -1,5 +1,3 @@
-include(${PROJECT_SOURCE_DIR}/cmake/DllTestPath.cmake)
-
 add_subdirectory(c)
 
 if(fortran)

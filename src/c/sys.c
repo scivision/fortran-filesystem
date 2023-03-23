@@ -65,6 +65,8 @@ int fs_create_directories(const char* path) {
   {
     if(fs_is_dir(path))
       return 0;
+    if(fs_is_char_device(path))
+      return 1;
     fprintf(stderr, "ERROR:filesystem:mkdir:create_directories: %s already exists but is not a directory\n", path);
     return 1;
   }

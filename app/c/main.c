@@ -63,11 +63,15 @@ int main(int argc, char* argv[]){
   else if (strcmp(argv[1], "is_macos") ==0){
     printf("%d\n", fs_is_macos());
   }
-  else if (strcmp(argv[1], "is_unix") ==0){
+  else if (strcmp(argv[1], "is_unix") == 0){
     printf("%d\n", fs_is_unix());
   }
-  else if (strcmp(argv[1], "is_windows") ==0){
+  else if (strcmp(argv[1], "is_windows") == 0){
     printf("%d\n", fs_is_windows());
+  }
+  else if (strcmp(argv[1], "parent") == 0){
+    if(fs_parent(argv[2], p, MAXP))
+      printf("%s\n", p);
   }
   else if (strcmp(argv[1], "root") == 0 && argc == 3){
     if(fs_root(argv[2], p, MAXP))

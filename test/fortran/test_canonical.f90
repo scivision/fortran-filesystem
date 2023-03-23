@@ -2,7 +2,7 @@ program test_canon
 
 use, intrinsic:: iso_fortran_env, only : stderr=>error_unit
 
-use filesystem, only : path_t, get_cwd, same_file, canonical, is_dir, is_file
+use filesystem, only : path_t, get_cwd, same_file, canonical, is_dir, is_file, is_cygwin
 
 implicit none
 
@@ -61,7 +61,10 @@ if (L2 /= L1) then
 endif
 print *, 'OK: canon_dir = ', par%path()
 
-! -- relative file
+! -- relative, non-existing file
+if(is_cygwin()) then
+  print '(a)', 'skip relative file not-exist as Cygwin does not support it'
+else
 file = path_t('~/../' // dummy)
 file = file%resolve()
 if(file%length() == 0) error stop "ERROR: relative file did not resolve: " // file%path()
@@ -69,6 +72,7 @@ L3 = file%length()
 if (L3 - L2 /= len(dummy) + 1) then
   write(stderr,*) 'ERROR relative file was not canonicalized: ' // file%path(), L2, par%path(), L3, len(dummy)
   error stop
+endif
 endif
 
 print *, 'OK: canon_file = ', file%path()

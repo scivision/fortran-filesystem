@@ -28,6 +28,7 @@ int main(void){
     fprintf(stderr, "expanduser home failed: %s %s\n", r, h);
     return EXIT_FAILURE;
   }
+  printf("homedir: %s\n", h);
 
   L2 = fs_expanduser("~//", h, MAXP);
   if(L != L2 || strcmp(r, h) != 0){

@@ -41,6 +41,14 @@ bool fs_is_windows() {
 #endif
 }
 
+bool fs_is_cygwin(){
+#ifdef __CYGWIN__
+  return true;
+#else
+  return false;
+#endif
+}
+
 
 size_t fs_get_maxp(){ return MAXP; }
 
@@ -122,11 +130,21 @@ size_t fs_lib_dir(char* path, size_t buffer_size)
   char* buf = (char*) malloc(buffer_size);
 
   if(fs_lib_path(buf, buffer_size) == 0){
+    fprintf(stderr, "ERROR:ffilesystem:fs_lib_dir: fs_lib_path failed\n");
     free(buf);
     return 0;
   }
 
+  if(FS_TRACE) printf("TRACE:fs_lib_dir: %s %zu\n", buf, buffer_size);
+
   size_t L = fs_parent(buf, path, buffer_size);
+  #ifdef __CYGWIN__
+    if(!L){
+      fprintf(stderr, "ERROR:ffilesystem:fs_lib_dir: fs_parent failed--known issue with Cygwin--use C++ ffilesystem instead\n");
+      free(buf);
+      return 0;
+    }
+  #endif
 
   free(buf);
   return L;

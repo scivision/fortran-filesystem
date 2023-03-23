@@ -50,21 +50,38 @@ int test_lib_path(char* argv[]){
     return 0;
   }
 
+  if(!L){
+    fprintf(stderr, "ERROR:test_binpath: lib_path should be non-empty: %s %zu\n", binpath, L);
+    return 1;
+  }
 
   if(!strstr(binpath, argv[3])){
     fprintf(stderr, "ERROR:test_binpath: lib_path not found correctly: %s does not contain %s\n", binpath, argv[3]);
     return 1;
   }
 
+  printf("OK: lib_path: %s\n", binpath);
+
   fs_parent(binpath, p, MAXP);
+
+  printf("parent(lib_path): %s\n", p);
+
+  if(!L2){
+    if(fs_is_cygwin()){
+      fprintf(stderr, "SKIP: lib_dir: feature not available on cygwin\n");
+      return 0;
+    }
+    fprintf(stderr, "ERROR:test_binpath: lib_dir should be non-empty: %s %zu\n", bindir, L2);
+    return 1;
+  }
 
   if(!fs_equivalent(bindir, p)){
     fprintf(stderr, "ERROR:test_binpath_c: lib_dir and parent(lib_path) should be equivalent: %s %s\n", bindir, p);
     return 1;
   }
 
-  printf("OK: lib_path: %s\n", binpath);
   printf("OK: lib_dir: %s\n", bindir);
+
   return 0;
 }
 

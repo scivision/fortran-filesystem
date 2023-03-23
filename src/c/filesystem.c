@@ -223,6 +223,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   if(FS_TRACE) printf("TRACE:canonical in: %s  expanded: %s\n", path, buf);
 
   if(strict && !fs_exists(buf)) {
+    fprintf(stderr, "ERROR:ffilesystem:canonical: %s => does not exist and strict=true\n", buf);
     free(buf);
     goto retnull;
   }
@@ -572,6 +573,8 @@ bool fs_chmod_exe(const char* path, bool executable)
   struct stat s;
   if(stat(path, &s) != 0)
     return false;
+  if(s.st_mode & S_IFCHR)
+    return false; // special POSIX file character device like /dev/null
 
 #ifdef _MSC_VER
   return _chmod(path, s.st_mode | ((executable) ? _S_IEXEC : !_S_IEXEC) ) == 0;

@@ -1,7 +1,7 @@
 program test_binpath
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use filesystem, only : exe_path, exe_dir, lib_path, lib_dir, is_macos, is_windows, parent, same_file, get_max_path
+use filesystem, only : exe_path, exe_dir, lib_path, lib_dir, is_cygwin, is_macos, is_windows, parent, same_file, get_max_path
 
 implicit none
 
@@ -83,12 +83,18 @@ if(L<1) error stop "ERROR:test_binpath: expected lib_name as third argument"
 i = index(binpath, trim(name))
 if (i<1) error stop "ERROR:test_binpath: lib_path not found correctly: " // binpath // ' with name ' // trim(name)
 
+print *, "OK: lib_path: ", binpath
+
+if(len_trim(bindir)==0 .and. is_cygwin()) then
+  print *, "SKIPPED: lib_dir: cygwin does not support lib_dir"
+  return
+endif
+
 if(.not. same_file(parent(binpath), bindir)) then
   write(stderr,*) "ERROR:test_binpath: lib_dir not found correctly: " // parent(binpath) // ' /= ' // bindir
   error stop
 endif
 
-print *, "OK: lib_path: ", binpath
 print *, "OK: lib_dir: ", bindir
 
 deallocate(binpath)

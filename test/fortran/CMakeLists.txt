@@ -29,8 +29,8 @@ add_executable(test_binpath_fortran test_binpath.f90)
 target_link_libraries(test_binpath_fortran PRIVATE ffilesystem)
 add_test(NAME Fortran_binpath
 COMMAND test_binpath_fortran
-  $<AND:$<BOOL:${BUILD_SHARED_LIBS}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${HAVE_DLADDR}>>>
-  $<TARGET_FILE_NAME:test_binpath_fortran>
+  $<AND:$<BOOL:${BUILD_SHARED_LIBS}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>,$<BOOL:${HAVE_DLADDR}>>>
+  $<TARGET_FILE_BASE_NAME:test_binpath_fortran>
   $<TARGET_FILE_NAME:ffilesystem>
 )
 
@@ -47,7 +47,6 @@ set_property(TEST ${test_names} PROPERTY RUN_SERIAL true)
 # tests run much faster in serial, especially on Windows
 
 # --- Windows shared DLLs
-if(WIN32 AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
-  dll_test_path(filesystem "${test_names}")
+if((CYGWIN OR WIN32) AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
   set_property(TEST ${test_names} PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_append:$<TARGET_FILE_DIR:ffilesystem>")
 endif()

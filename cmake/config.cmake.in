@@ -6,7 +6,7 @@ set(ffilesystem_cpp @HAVE_CXX_FILESYSTEM@)
 set(ffilesystem_dladdr @HAVE_DLADDR@)
 set(ffilesystem_fortran @fortran@)
 set(ffilesystem_shared @BUILD_SHARED_LIBS@)
-set(ffilesystem_libpath $<AND:$<BOOL:${ffilesystem_shared}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${ffilesystem_dladdr}>>>)
+set(ffilesystem_libpath $<AND:$<BOOL:${ffilesystem_shared}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>,$<BOOL:${ffilesystem_dladdr}>>>)
 
 target_link_libraries(ffilesystem::filesystem INTERFACE
 @GNU_stdfs@
