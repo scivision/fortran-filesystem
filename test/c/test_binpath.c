@@ -7,20 +7,20 @@
 
 int test_exe_path(char* argv[]){
 
-  char binpath[MAXP], bindir[MAXP], p[MAXP];
+  char binpath[FS_MAX_PATH], bindir[FS_MAX_PATH], p[FS_MAX_PATH];
 
-  fs_exe_path(binpath, MAXP);
+  fs_exe_path(binpath, FS_MAX_PATH);
   if (!strstr(binpath, argv[2])) {
     fprintf(stderr, "ERROR:test_binpath: exe_path not found correctly: %s\n", binpath);
     return 1;
   }
 
-  size_t L = fs_exe_dir(bindir, MAXP);
+  size_t L = fs_exe_dir(bindir, FS_MAX_PATH);
   if(L == 0){
     fprintf(stderr, "ERROR:test_binpath: exe_dir not found correctly: %s\n", bindir);
     return 1;
   }
-  fs_parent(binpath, p, MAXP);
+  fs_parent(binpath, p, FS_MAX_PATH);
 
   if(!fs_equivalent(bindir, p)){
     fprintf(stderr, "ERROR:test_binpath: exe_dir and parent(exe_path) should be equivalent: %s %s\n", bindir, p);
@@ -34,12 +34,12 @@ int test_exe_path(char* argv[]){
 
 int test_lib_path(char* argv[]){
 
-  char binpath[MAXP], bindir[MAXP], p[MAXP];
+  char binpath[FS_MAX_PATH], bindir[FS_MAX_PATH], p[FS_MAX_PATH];
 
   int shared = atoi(argv[1]);
 
-  size_t L = fs_lib_path(binpath, MAXP);
-  size_t L2 = fs_lib_dir(bindir, MAXP);
+  size_t L = fs_lib_path(binpath, FS_MAX_PATH);
+  size_t L2 = fs_lib_dir(bindir, FS_MAX_PATH);
 
   if(!shared) {
     if (L != 0 || L2 != 0) {
@@ -62,7 +62,7 @@ int test_lib_path(char* argv[]){
 
   printf("OK: lib_path: %s\n", binpath);
 
-  fs_parent(binpath, p, MAXP);
+  fs_parent(binpath, p, FS_MAX_PATH);
 
   printf("parent(lib_path): %s\n", p);
 

@@ -6,7 +6,7 @@ implicit none
 
 interface
 
-integer(C_INT) function max_path() bind(C, name="fs_get_maxp")
+integer(C_INT) function max_path() bind(C, name="fs_get_max_path")
 import
 end function
 

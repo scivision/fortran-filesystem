@@ -16,7 +16,7 @@
 
 int main() {
 
-  char cpath[MAXP];
+  char cpath[FS_MAX_PATH];
 
   std::string fpath = fs_get_cwd();
   std::cout << "current working dir " << fpath << "\n";
@@ -25,10 +25,10 @@ int main() {
     throw std::runtime_error("current working dir " + fpath + " does not exist");
 
 #ifdef _MSC_VER
-    if(_getcwd(cpath, MAXP)  == nullptr)
+    if(_getcwd(cpath, FS_MAX_PATH)  == nullptr)
       return EXIT_FAILURE;
 #else
-    if(getcwd(cpath, MAXP) == nullptr)
+    if(getcwd(cpath, FS_MAX_PATH) == nullptr)
       return EXIT_FAILURE;
 #endif
 

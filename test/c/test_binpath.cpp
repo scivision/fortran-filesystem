@@ -9,9 +9,9 @@
 int test_exe_path(char* argv[])
 {
 
-char bin[MAXP];
+char bin[FS_MAX_PATH];
 
-fs_exe_path(bin, MAXP);
+fs_exe_path(bin, FS_MAX_PATH);
 std::string binpath = bin;
   if (binpath.find(argv[2]) == std::string::npos) {
     std::cerr << "ERROR:test_binpath: exe_path not found correctly: " << binpath << "\n";

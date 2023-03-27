@@ -63,6 +63,8 @@ std::string fs_lib_dir();
 
 std::string fs_make_absolute(std::string, std::string);
 
+std::string fs_compiler();
+
 size_t fs_str2char(std::string, char*, size_t);
 size_t fs_path2str(const fs::path, char*, size_t);
 
@@ -91,40 +93,47 @@ extern "C" {
 
 #if defined (__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
 #include <sys/syslimits.h>
-#define PMAX PATH_MAX
 #elif defined (_MSC_VER)
-#define PMAX _MAX_PATH
 #else
 #ifdef __cplusplus
 #include <climits>
 #else
 #include <limits.h>
 #endif
-#ifdef PATH_MAX
-#define PMAX PATH_MAX
-#endif
-#endif
-
-#if !defined(PMAX)
-#if defined (_POSIX_PATH_MAX)
-#define PMAX _POSIX_PATH_MAX
-#else
-#define PMAX 256
-#endif
 #endif
 
 #ifdef __cplusplus
-#define MAXP std::min(PMAX, PATH_LIMIT)
+constexpr size_t fs_max_path() {
+  size_t m = 256;
+  constexpr size_t pmax = 4096;  // arbitrary absolute maximum
+#ifdef PATH_MAX
+  m = PATH_MAX;
+#elif defined (_MAX_PATH)
+  m = _MAX_PATH;
+#elif defined (_POSIX_PATH_MAX)
+  m = _POSIX_PATH_MAX;
+#endif
+  return std::min(m, pmax);
+}
+constexpr size_t FS_MAX_PATH = fs_max_path();
 #else
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
-#define MAXP min(PMAX, PATH_LIMIT)
+#ifdef PATH_MAX
+#define FS_MAX_PATH PATH_MAX
+#elif defined (_MAX_PATH)
+#define FS_MAX_PATH _MAX_PATH
+#elif defined (_POSIX_PATH_MAX)
+#define FS_MAX_PATH _POSIX_PATH_MAX
+#else
+#define FS_MAX_PATH 256
+#endif
 #endif
 // end maximum path length
 
 extern bool fs_cpp();
-extern size_t fs_get_maxp();
+extern size_t fs_get_max_path();
 
 extern bool fs_is_macos();
 extern bool fs_is_linux();
@@ -185,6 +194,9 @@ extern size_t fs_lib_path(char*, size_t);
 extern size_t fs_lib_dir(char*, size_t);
 
 extern size_t fs_compiler(char*, size_t);
+
+bool fs_win32_is_symlink(const char*);
+int fs_win32_create_symlink(const char*, const char*);
 
 #ifdef __cplusplus
 }

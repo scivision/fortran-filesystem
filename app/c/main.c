@@ -20,49 +20,49 @@ int main(int argc, char* argv[]){
   _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #endif
 
-  char p[MAXP];
+  char p[FS_MAX_PATH];
 
   if (argc == 1) {
     fprintf(stderr, "fs_cli <function_name> [<arg1> ...]\n");
     return EXIT_FAILURE;
   }
   else if (strcmp(argv[1], "canonical") == 0 && argc == 3){
-    if(fs_canonical(argv[2], false, p, MAXP))
+    if(fs_canonical(argv[2], false, p, FS_MAX_PATH))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "compiler") == 0){
-    fs_compiler(p, MAXP);
+    fs_compiler(p, FS_MAX_PATH);
     printf("%s\n", p);
   }
   else if (strcmp(argv[1], "cpp") == 0){
     printf("%d\n", fs_cpp());
   }
   else if (strcmp(argv[1], "homedir") == 0) {
-    if(fs_get_homedir(p, MAXP))
+    if(fs_get_homedir(p, FS_MAX_PATH))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "tempdir") == 0) {
-    if(fs_get_tempdir(p, MAXP))
+    if(fs_get_tempdir(p, FS_MAX_PATH))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "tempdir") == 0) {
-    fs_get_tempdir(p, MAXP);
+    fs_get_tempdir(p, FS_MAX_PATH);
     printf("%s\n", p);
   }
   else if (strcmp(argv[1], "lib_path") == 0){
-    if(fs_lib_path(p, MAXP))
+    if(fs_lib_path(p, FS_MAX_PATH))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "lib_dir") == 0){
-    if(fs_lib_dir(p, MAXP))
+    if(fs_lib_dir(p, FS_MAX_PATH))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "exe_path") == 0){
-    if(fs_exe_path(p, MAXP))
+    if(fs_exe_path(p, FS_MAX_PATH))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "exe_dir") == 0){
-    if(fs_exe_dir(p, MAXP))
+    if(fs_exe_dir(p, FS_MAX_PATH))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "is_linux") ==0){
@@ -78,11 +78,11 @@ int main(int argc, char* argv[]){
     printf("%d\n", fs_is_windows());
   }
   else if (strcmp(argv[1], "parent") == 0){
-    if(fs_parent(argv[2], p, MAXP))
+    if(fs_parent(argv[2], p, FS_MAX_PATH))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "root") == 0 && argc == 3){
-    if(fs_root(argv[2], p, MAXP))
+    if(fs_root(argv[2], p, FS_MAX_PATH))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "file_size") ==0 && argc == 3){
@@ -109,11 +109,11 @@ int main(int argc, char* argv[]){
       fprintf(stderr, "Failed mkdir %s\n", argv[2]);
   }
   else if (strcmp(argv[1], "relative_to") ==0 && argc == 4){
-    if(fs_relative_to(argv[2], argv[3], p, MAXP))
+    if(fs_relative_to(argv[2], argv[3], p, FS_MAX_PATH))
       printf("%s\n", p);
   }
   else if (strcmp(argv[1], "normal") ==0 && argc==3){
-    if(fs_normal(argv[2], p, MAXP))
+    if(fs_normal(argv[2], p, FS_MAX_PATH))
       printf("%s\n", p);
   }
   else{

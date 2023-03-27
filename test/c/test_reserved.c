@@ -17,9 +17,9 @@ int main(void){
     const char ref[] = "/dev/null";
 #endif
 
-    char p[MAXP];
+    char p[FS_MAX_PATH];
 
-    fs_normal(s, p, MAXP);
+    fs_normal(s, p, FS_MAX_PATH);
     if (strcmp(p, ref) != 0){
       fprintf(stderr,"FAIL: normal(%s)  %s\n", s, p);
       return EXIT_FAILURE;
@@ -70,7 +70,7 @@ int main(void){
     }
     printf("OK: remove(%s)\n", s);
 
-    if(fs_canonical(s, false, p, MAXP) == 0){
+    if(fs_canonical(s, false, p, FS_MAX_PATH) == 0){
       fprintf(stderr,"FAIL: canonical(%s)  %s\n", s, p);
       return EXIT_FAILURE;
     }
@@ -83,7 +83,7 @@ int main(void){
     }
     printf("OK: equivalent(%s)\n", ref);
 
-    fs_expanduser(s, p, MAXP);
+    fs_expanduser(s, p, FS_MAX_PATH);
     if(strcmp(p, ref) != 0)
       return EXIT_FAILURE;
 
@@ -93,7 +93,7 @@ int main(void){
     }
     printf("OK: copy_file(%s)\n", s);
 
-    fs_relative_to(s, s, p, MAXP);
+    fs_relative_to(s, s, p, FS_MAX_PATH);
     if(strcmp(p, ".") != 0){
       fprintf(stderr,"FAIL: relative_to(%s)  %s\n", ref, p);
       return EXIT_FAILURE;

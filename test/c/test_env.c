@@ -14,21 +14,21 @@
 
 int main(void) {
 
-  char fpath[MAXP];
-  char cpath[MAXP];
+  char fpath[FS_MAX_PATH];
+  char cpath[FS_MAX_PATH];
 
-  fs_get_cwd(fpath, MAXP);
+  fs_get_cwd(fpath, FS_MAX_PATH);
   printf("Fortran: current working dir %s\n", fpath);
 
 #ifdef _MSC_VER
-  if(_getcwd(cpath, MAXP) == NULL)
+  if(_getcwd(cpath, FS_MAX_PATH) == NULL)
     return EXIT_FAILURE;
 #else
-  if(getcwd(cpath, MAXP) == NULL)
+  if(getcwd(cpath, FS_MAX_PATH) == NULL)
     return EXIT_FAILURE;
 #endif
 
-  fs_normal(cpath, cpath, MAXP);
+  fs_normal(cpath, cpath, FS_MAX_PATH);
 
   if (strcmp(fpath, cpath) != 0) {
     fprintf(stderr, "C cwd %s != Fortran cwd %s\n", cpath, fpath);

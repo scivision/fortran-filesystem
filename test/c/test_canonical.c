@@ -8,10 +8,10 @@
 int main(void)
 {
 
-char out[MAXP];
+char out[FS_MAX_PATH];
 
 // -- home directory
-size_t L0 = fs_canonical("~", false, out, MAXP);
+size_t L0 = fs_canonical("~", false, out, FS_MAX_PATH);
 
 if(strcmp(out, "~") == 0){
   fprintf(stderr, "canonical(~) did not expanduser: %s\n", out);
@@ -19,7 +19,7 @@ if(strcmp(out, "~") == 0){
 }
 printf("OK: home dir = %s\n", out);
 
-size_t L1 = fs_parent(out, out, MAXP);
+size_t L1 = fs_parent(out, out, FS_MAX_PATH);
 if (L1 >= L0)
   return EXIT_FAILURE;
 printf("OK: parent home = %s\n", out);
@@ -28,7 +28,7 @@ printf("OK: parent home = %s\n", out);
 const char par[] = "~/..";
 L0 = strlen(par);
 
-size_t L2 = fs_canonical(par, false, out, MAXP);
+size_t L2 = fs_canonical(par, false, out, FS_MAX_PATH);
 
 if (L2 != L1){
   fprintf(stderr, "ERROR:canonical:relative: up dir not canonicalized: ~/.. => %s\n", out);
@@ -44,7 +44,7 @@ if(fs_is_cygwin())
 const char file[] = "~/../not-exist.txt";
 L0 = strlen(file);
 
-size_t L = fs_canonical(file, false, out, MAXP);
+size_t L = fs_canonical(file, false, out, FS_MAX_PATH);
 if(L == 0) {
   fprintf(stderr, "ERROR: relative file did not resolve: %s\n", file);
   return EXIT_FAILURE;

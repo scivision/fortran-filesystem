@@ -24,6 +24,8 @@
 #include "ffilesystem.h"
 #include <cwalk.h>
 
+size_t fs_get_max_path(){ return FS_MAX_PATH; }
+
 bool fs_cpp(){
 // tell if fs core is C or C++
   return false;
@@ -302,10 +304,10 @@ uintmax_t fs_space_available(const char* path)
   if(!fs_exists(path))
     return 0;
 
-  char* r = (char*) malloc(MAXP);
+  char* r = (char*) malloc(FS_MAX_PATH);
 
   // for robustness and clarity, use root of path (necessary for Windows)
-  if (!fs_root(path, r, MAXP))
+  if (!fs_root(path, r, FS_MAX_PATH))
     goto retzero;
 
 #ifdef _WIN32
@@ -341,10 +343,10 @@ bool fs_equivalent(const char* path1, const char* path2)
   if(fs_is_reserved(path1) || fs_is_reserved(path2))
     return false;
 
-  char* buf1 = (char*) malloc(MAXP);
-  char* buf2 = (char*) malloc(MAXP);
+  char* buf1 = (char*) malloc(FS_MAX_PATH);
+  char* buf2 = (char*) malloc(FS_MAX_PATH);
 
-  if((!fs_canonical(path1, true, buf1, MAXP) || !fs_canonical(path2, true, buf2, MAXP) ||
+  if((!fs_canonical(path1, true, buf1, FS_MAX_PATH) || !fs_canonical(path2, true, buf2, FS_MAX_PATH) ||
       fs_is_char_device(path1) || fs_is_char_device(path2)) ||
     !(fs_is_dir(buf1) || fs_is_dir(buf2) || fs_is_file(buf1) || fs_is_file(buf2))){
 

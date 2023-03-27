@@ -51,6 +51,8 @@ static void dl_dummy_func() {}
 #endif
 // --- end of lib_path, exe_path
 
+size_t fs_get_max_path(){ return FS_MAX_PATH; };
+
 
 bool fs_cpp()
 {

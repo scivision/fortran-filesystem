@@ -23,7 +23,7 @@ int main(){
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #endif
 
-    char O[1], p[MAXP];
+    char O[1], p[FS_MAX_PATH];
 
     O[0] = '\0';
 
@@ -33,27 +33,27 @@ int main(){
     fs_as_windows(O);
     printf("PASS: as_windows\n");
 
-    if(fs_normal(O, p, MAXP) != 0)
+    if(fs_normal(O, p, FS_MAX_PATH) != 0)
       return EXIT_FAILURE;
     printf("PASS: normal\n");
 
-    if(fs_file_name(O, p, MAXP) != 0)
+    if(fs_file_name(O, p, FS_MAX_PATH) != 0)
       return EXIT_FAILURE;
 
-    if(fs_stem(O, p, MAXP) != 0)
+    if(fs_stem(O, p, FS_MAX_PATH) != 0)
       return EXIT_FAILURE;
     printf("PASS: stem\n");
 
-    if(fs_join(O, O, p, MAXP) != 0)
+    if(fs_join(O, O, p, FS_MAX_PATH) != 0)
       return EXIT_FAILURE;
 
-    if(fs_parent(O, p, MAXP) != 0)
+    if(fs_parent(O, p, FS_MAX_PATH) != 0)
       return EXIT_FAILURE;
 
-    if(fs_suffix(O, p, MAXP) != 0)
+    if(fs_suffix(O, p, FS_MAX_PATH) != 0)
       return EXIT_FAILURE;
 
-    if(fs_with_suffix(O, O, p, MAXP) != 0)
+    if(fs_with_suffix(O, O, p, FS_MAX_PATH) != 0)
       return EXIT_FAILURE;
 
     if(fs_is_char_device(O))
@@ -74,7 +74,7 @@ int main(){
       return EXIT_FAILURE;
     printf("PASS: create_directories\n");
 
-    if(fs_root(O, p, MAXP) != 0)
+    if(fs_root(O, p, FS_MAX_PATH) != 0)
       return EXIT_FAILURE;
     printf("PASS: root\n");
 
@@ -101,7 +101,7 @@ int main(){
       return EXIT_FAILURE;
     printf("PASS: remove\n");
 
-    if(fs_canonical(O, false, p, MAXP) != 0)
+    if(fs_canonical(O, false, p, FS_MAX_PATH) != 0)
       return EXIT_FAILURE;
     printf("PASS: canonical\n");
 
@@ -109,14 +109,14 @@ int main(){
       return EXIT_FAILURE;
     printf("PASS: equivalent\n");
 
-    if(fs_expanduser(O, p, MAXP) != 0)
+    if(fs_expanduser(O, p, FS_MAX_PATH) != 0)
       return EXIT_FAILURE;
     printf("PASS: expanduser\n");
 
     if(fs_copy_file(O, O, false) == 0)
       return EXIT_FAILURE;
 
-    if(fs_relative_to(O, O, p, MAXP) != 0)
+    if(fs_relative_to(O, O, p, FS_MAX_PATH) != 0)
       return EXIT_FAILURE;
     printf("PASS: relative_to\n");
 
