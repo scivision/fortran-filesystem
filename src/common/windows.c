@@ -8,7 +8,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-static bool fs_win32_is_symlink(const char* path)
+bool fs_win32_is_symlink(const char* path)
 {
   DWORD a = GetFileAttributes(path);
   if(a == INVALID_FILE_ATTRIBUTES)
@@ -16,7 +16,7 @@ static bool fs_win32_is_symlink(const char* path)
   return a & FILE_ATTRIBUTE_REPARSE_POINT;
 }
 
-static int fs_win32_create_symlink(const char* target, const char* link)
+int fs_win32_create_symlink(const char* target, const char* link)
 {
   int p = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
 

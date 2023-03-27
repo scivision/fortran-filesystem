@@ -16,20 +16,6 @@
 
 #include "ffilesystem.h"
 
-#ifdef __MINGW32__
-#include "windows.c"
-
-static bool fs_win32_is_symlink(std::string path)
-{
-  return fs_win32_is_symlink(path.c_str());
-}
-
-static int fs_win32_create_symlink(std::string target, std::string link)
-{
-  return fs_win32_create_symlink(target.c_str(), link.c_str());
-}
-#endif
-
 // for lib_path, exe_path
 
 #ifdef _WIN32
@@ -250,7 +236,7 @@ bool fs_is_symlink(std::string path)
 
 #ifdef __MINGW32__
 // c++ filesystem is_symlink doesn't work on MinGW GCC, but this C method does work
-  return fs_win32_is_symlink(path);
+  return fs_win32_is_symlink(path.c_str());
 #endif
 
   std::error_code ec;
@@ -282,7 +268,7 @@ int fs_create_symlink(std::string target, std::string link)
 
 #ifdef __MINGW32__
   // C++ filesystem doesn't work for create_symlink with MinGW, but this C method does work
-  return fs_win32_create_symlink(target, link);
+  return fs_win32_create_symlink(target.c_str(), link.c_str());
 #endif
 
   std::error_code ec;
