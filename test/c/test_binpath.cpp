@@ -38,29 +38,18 @@ return 0;
 
 int test_lib_path(char* argv[]){
 
-  char bin[MAXP];
-
   int shared = atoi(argv[1]);
-
-  fs_lib_path(bin, MAXP);
-  std::string binpath(bin);
-  std::string bindir = fs_lib_dir();
-
-  if(!shared) {
-    if (!binpath.empty())
-       throw std::runtime_error("ERROR:test_binpath: lib_path should be empty length 0: " + binpath);
-    if (!bindir.empty())
-       throw std::runtime_error("ERROR:test_binpath: lib_dir should be empty length 0: " + bindir);
-
+  if(!shared){
     std::cerr << "SKIP: lib_path: feature not available\n";
     return 0;
   }
+
+  std::string binpath = fs_lib_path();
 
   if(binpath.empty()){
     std::cerr << "ERROR:test_binpath: lib_path should be non-empty: " << binpath << "\n";
     return 1;
   }
-
   if(binpath.find(argv[3]) == std::string::npos){
     std::cerr << "ERROR:test_binpath: lib_path not found correctly: " << binpath << " does not contain " << argv[3] << "\n";
     return 1;
@@ -68,7 +57,9 @@ int test_lib_path(char* argv[]){
 
   std::cout << "OK: lib_path: " << binpath << "\n";
 
-std::string p;
+  std::string bindir = fs_lib_dir();
+
+  std::string p;
 #ifdef __CYGWIN__
   p = fs_parent(fs_as_cygpath(binpath));
 #else

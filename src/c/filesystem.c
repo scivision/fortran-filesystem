@@ -598,3 +598,44 @@ bool fs_touch(const char* path)
 
   return fs_is_file(path);
 }
+
+
+size_t fs_exe_dir(char* path, size_t buffer_size)
+{
+  char* buf = (char*) malloc(buffer_size);
+
+  if(fs_exe_path(buf, buffer_size) == 0){
+    free(buf);
+    return 0;
+  }
+
+  size_t L = fs_parent(buf, path, buffer_size);
+
+  free(buf);
+  return L;
+}
+
+size_t fs_lib_dir(char* path, size_t buffer_size)
+{
+  char* buf = (char*) malloc(buffer_size);
+
+  if(fs_lib_path(buf, buffer_size) == 0){
+    fprintf(stderr, "ERROR:ffilesystem:fs_lib_dir: fs_lib_path failed\n");
+    free(buf);
+    return 0;
+  }
+
+  if(FS_TRACE) printf("TRACE:fs_lib_dir: %s %zu\n", buf, buffer_size);
+
+  size_t L = fs_parent(buf, path, buffer_size);
+  #ifdef __CYGWIN__
+    if(!L){
+      fprintf(stderr, "ERROR:ffilesystem:fs_lib_dir: fs_parent failed--known issue with Cygwin\n");
+      free(buf);
+      return 0;
+    }
+  #endif
+
+  free(buf);
+  return L;
+}

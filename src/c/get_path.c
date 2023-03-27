@@ -79,11 +79,8 @@ size_t fs_lib_path(char* path, size_t buffer_size)
 
 #if (defined(_WIN32) || defined(__CYGWIN__)) && defined(FS_DLL_NAME)
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  DWORD r = GetModuleFileName(GetModuleHandle(FS_DLL_NAME), path, (DWORD)buffer_size);
-  if (r == 0){
-    fprintf(stderr, "ERROR:ffilesystem:lib_path: GetModuleFileName failed\n");
+  if(GetModuleFileName(GetModuleHandle(FS_DLL_NAME), path, (DWORD)buffer_size) == 0)
     goto retnull;
-  }
 #elif defined(HAVE_DLADDR)
   Dl_info info;
 

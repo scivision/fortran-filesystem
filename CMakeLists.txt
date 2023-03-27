@@ -21,23 +21,10 @@ endif()
 
 include(cmake/compilers.cmake)
 
-# --- path finding
-add_library(get_path OBJECT src/common/get_path.c)
-target_include_directories(get_path PRIVATE include)
-if(BUILD_SHARED_LIBS)
-  if(WIN32 OR CYGWIN)
-    target_compile_definitions(get_path PRIVATE FS_DLL_NAME="$<TARGET_FILE_NAME:ffilesystem>")
-  elseif(HAVE_DLADDR)
-    target_link_libraries(get_path PRIVATE ${CMAKE_DL_LIBS})
-    target_compile_definitions(get_path PRIVATE HAVE_DLADDR)
-  endif()
-endif()
-
 # --- filesystem library
 
 add_library(ffilesystem src/common/common.c
-$<TARGET_OBJECTS:get_path>
-"$<IF:$<BOOL:${HAVE_CXX_FILESYSTEM}>,src/common/filesystem.cpp,src/c/filesystem.c;src/c/env.c;src/c/sys.c;src/c/cwalk.c>"
+"$<IF:$<BOOL:${HAVE_CXX_FILESYSTEM}>,src/common/filesystem.cpp,src/c/filesystem.c;src/c/env.c;src/c/get_path.c;src/c/sys.c;src/c/cwalk.c>"
 "$<$<BOOL:${fortran}>:src/common/fortran/get_path.f90;src/common/fortran/filesystem.f90;src/common/fortran/f2c.f90;src/common/fortran/find.f90>"
 )
 target_include_directories(ffilesystem PRIVATE
@@ -52,6 +39,14 @@ set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)
 set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
 set_property(TARGET ffilesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
 set_property(TARGET ffilesystem PROPERTY VERSION ${PROJECT_VERSION})
+if(BUILD_SHARED_LIBS)
+  if(WIN32 OR CYGWIN)
+    target_compile_definitions(ffilesystem PRIVATE FS_DLL_NAME="$<TARGET_FILE_NAME:ffilesystem>")
+  elseif(HAVE_DLADDR)
+    target_link_libraries(ffilesystem PRIVATE ${CMAKE_DL_LIBS})
+    target_compile_definitions(ffilesystem PRIVATE HAVE_DLADDR)
+  endif()
+endif()
 
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
 # include -Dfortran=off, the ffilesystem CMake package will fail on use if directory not exist

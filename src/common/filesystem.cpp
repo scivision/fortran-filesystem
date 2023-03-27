@@ -30,6 +30,27 @@ static int fs_win32_create_symlink(std::string target, std::string link)
 }
 #endif
 
+// for lib_path, exe_path
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#elif defined(__CYGWIN__)
+#include <windows.h>
+#elif defined(HAVE_DLADDR)
+#include <dlfcn.h>
+static void dl_dummy_func() {}
+#endif
+
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+#include <sys/sysctl.h>
+#elif defined(__linux__) || defined(__CYGWIN__)
+#include <unistd.h>
+#endif
+// --- end of lib_path, exe_path
+
 
 bool fs_cpp()
 {
@@ -878,11 +899,73 @@ bool fs_chmod_exe(std::string path, bool executable)
 }
 
 
+size_t fs_exe_path(char* path, size_t buffer_size)
+{
+  return fs_str2char(fs_exe_path(), path, buffer_size);
+}
+
+
+std::string fs_exe_path()
+{
+  // https://stackoverflow.com/a/4031835
+  // https://stackoverflow.com/a/1024937
+
+  char* buf = new char[FS_MAX_PATH]{};
+
+#ifdef _WIN32
+ // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
+  if (GetModuleFileName(NULL, buf, FS_MAX_PATH) == 0){
+    std::cerr << "ERROR:ffilesystem:exe_path: GetModuleFileName failed\n";
+    delete [] buf;
+    return {};
+  }
+#elif defined(__linux__) || defined(__CYGWIN__)
+  // https://man7.org/linux/man-pages/man2/readlink.2.html
+  size_t L = readlink("/proc/self/exe", buf, FS_MAX_PATH);
+  if (L < 1 || L >= FS_MAX_PATH) {
+    std::cerr << "ERROR:ffilesystem:lib_path: readlink failed\n";
+    delete[] buf;
+    return {};
+  }
+#elif defined(__APPLE__)
+  uint32_t mp = FS_MAX_PATH;
+  int r = _NSGetExecutablePath(buf, &mp);
+  if (r != 0){
+    std::cerr << "ERROR:ffilesystem:lib_path: _NSGetExecutablePath failed: " << r << " " << mp << "\n";
+    delete[] buf;
+    return {};
+  }
+#elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+  int mib[4];
+  mib[0] = CTL_KERN;
+  mib[1] = KERN_PROC;
+  mib[2] = KERN_PROC_PATHNAME;
+  mib[3] = -1;
+  size_t cb = sizeof(buf);
+
+  if(sysctl(mib, 4, buf, &cb, NULL, 0) != 0){
+    std::cerr << "ERROR:ffilesystem:lib_path: sysctl failed\n";
+    delete[] buf;
+    return {};
+  }
+#endif
+
+  std::string s(buf);
+  delete [] buf;
+  return fs_canonical(s, true);
+}
+
+size_t fs_exe_dir(char* path, size_t buffer_size)
+{
+  return fs_str2char(fs_exe_dir(), path, buffer_size);
+}
+
+
 std::string fs_exe_dir()
 {
-  char* buf = new char[MAXP];
+  char* buf = new char[FS_MAX_PATH]{};
 
-  if(fs_exe_path(buf, MAXP) == 0){
+  if(fs_exe_path(buf, FS_MAX_PATH) == 0){
     std::cerr << "ERROR:ffilesystem:exe_dir: fs_exe_path failed\n";
     delete [] buf;
     return {};
@@ -894,17 +977,49 @@ std::string fs_exe_dir()
 }
 
 
-std::string fs_lib_dir()
+size_t fs_lib_path(char* path, size_t buffer_size)
 {
-  char* buf = new char[MAXP];
+  return fs_str2char(fs_lib_path(), path, buffer_size);
+}
 
-  if(fs_lib_path(buf, MAXP) == 0){
-    std::cerr << "ERROR:ffilesystem:fs_lib_dir: fs_lib_path failed\n";
+std::string fs_lib_path()
+{
+#if (defined(_WIN32) || defined(__CYGWIN__)) && defined(FS_DLL_NAME)
+  char* buf = new char[FS_MAX_PATH];
+ // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
+  if(GetModuleFileName(GetModuleHandle(FS_DLL_NAME), buf, FS_MAX_PATH) == 0){
+    std::cerr << "ERROR:ffilesystem:lib_path: GetModuleFileName failed\n";
     delete [] buf;
     return {};
   }
   std::string s(buf);
   delete [] buf;
+  return s;
+#elif defined(HAVE_DLADDR)
+  Dl_info info;
+
+  if (dladdr( (void*)&dl_dummy_func, &info) == 0)
+    return {};
+
+  return std::string(info.dli_fname);
+#endif
+
+  return {};
+}
+
+
+size_t fs_lib_dir(char* path, size_t buffer_size)
+{
+  return fs_str2char(fs_lib_dir(), path, buffer_size);
+}
+
+std::string fs_lib_dir()
+{
+  std::string s = fs_lib_path();
+  if(s.empty()){
+    std::cerr << "ERROR:ffilesystem:fs_lib_dir: fs_lib_path failed\n";
+    return {};
+  }
 
   if(FS_TRACE) std::cout << "TRACE:fs_lib_dir: " << s << "\n";
 
@@ -913,4 +1028,24 @@ std::string fs_lib_dir()
   #endif
 
   return fs_parent(s);
+}
+
+
+size_t fs_make_absolute(const char* path, const char* top_path, char* out, size_t buffer_size)
+{
+  return fs_str2char(fs_make_absolute(std::string(path), std::string(top_path)), out, buffer_size);
+}
+
+std::string fs_make_absolute(std::string path, std::string top_path)
+{
+  std::string out = fs_expanduser(path);
+
+  if (!out.empty() && fs_is_absolute(out))
+    return out;
+
+  std::string buf = fs_expanduser(top_path);
+  if(buf.empty())
+    return out;
+
+  return fs_join(buf, out);
 }

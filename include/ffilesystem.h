@@ -55,7 +55,10 @@ std::string fs_suffix(std::string);
 bool fs_touch(std::string);
 std::string fs_with_suffix(std::string, std::string);
 
+std::string fs_exe_path();
 std::string fs_exe_dir();
+
+std::string fs_lib_path();
 std::string fs_lib_dir();
 
 size_t fs_str2char(std::string, char*, size_t);
