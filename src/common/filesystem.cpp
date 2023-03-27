@@ -78,6 +78,34 @@ size_t fs_path2str(const fs::path p, char* result, size_t buffer_size)
   return fs_str2char(p.generic_string(), result, buffer_size);
 }
 
+size_t fs_compiler(char* name, size_t buffer_size)
+{
+  return fs_str2char(fs_compiler(), name, buffer_size);
+}
+
+std::string fs_compiler()
+{
+#ifdef __cpp_lib_format
+
+#if defined(__INTEL_LLVM_COMPILER)
+  return std::format("Intel LLVM {} {}", __INTEL_LLVM_COMPILER,  __VERSION__);
+#elif defined(__NVCOMPILER_LLVM__)
+  return std::format("NVIDIA nvc {}.{}.{}", __NVCOMPILER_MAJOR__, __NVCOMPILER_MINOR__, __NVCOMPILER_PATCHLEVEL__);
+#elif defined(__clang__)
+  return std::format("Clang {}.{}.{}", __clang_major__, __clang_minor__, __clang_patchlevel__);
+#elif defined(__GNUC__)
+  return std::format("GNU GCC {}.{}.{}", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+#elif defined(_MSC_VER)
+  return std::format("MSVC {}", _MSC_FULL_VER);
+#else
+  return "Unknown compiler--file bug report with Ffilesystem project to add support";
+#endif
+
+#else
+  return "ERROR:ffilesystem: compiler is not C++20 std::format capable";
+#endif
+}
+
 
 void fs_as_posix(char* path)
 {

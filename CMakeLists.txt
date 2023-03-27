@@ -81,9 +81,11 @@ endif()
 # --- CLI
 
 if(cli)
-  add_executable(fs_cli app/c/main.c)
+  if(HAVE_CXX_FILESYSTEM)
+  add_executable(fs_cli app/main.cpp)
   target_compile_definitions(fs_cli PRIVATE "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>")
   target_link_libraries(fs_cli PRIVATE ffilesystem)
+  endif()
 
   if(fortran)
   add_executable(filesystem_cli app/fortran/filesystem_cli.f90)
