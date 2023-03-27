@@ -14,9 +14,21 @@
 
 #include "ffilesystem.h"
 
-int main() {
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
 
-  char cpath[FS_MAX_PATH];
+int main()
+{
+
+#ifdef _MSC_VER
+  _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+  _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+  _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+#endif
 
   std::string fpath = fs_get_cwd();
   std::cout << "current working dir " << fpath << "\n";
@@ -24,15 +36,16 @@ int main() {
   if(!fs_exists(fpath))
     throw std::runtime_error("current working dir " + fpath + " does not exist");
 
-#ifdef _MSC_VER
-    if(_getcwd(cpath, FS_MAX_PATH)  == nullptr)
-      return EXIT_FAILURE;
+  char* cpath = new char[FS_MAX_PATH];
+  #ifdef _MSC_VER
+  if(!_getcwd(cpath, FS_MAX_PATH))
+    throw std::runtime_error("C getcwd failed");
 #else
-    if(getcwd(cpath, FS_MAX_PATH) == nullptr)
-      return EXIT_FAILURE;
+  if(!getcwd(cpath, FS_MAX_PATH))
+    throw std::runtime_error("C getcwd failed");
 #endif
-
   std::string s = fs_normal(std::string(cpath));
+  delete [] cpath;
 
   if (fpath != s)
     throw std::runtime_error("C cwd " + s + " != Fortran cwd " + fpath);
