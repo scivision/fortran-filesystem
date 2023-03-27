@@ -83,28 +83,3 @@ if (L < 0){
 
   return L;
 }
-
-
-size_t fs_make_absolute(const char* path, const char* top_path,
-                        char* result, size_t buffer_size)
-{
-  size_t L1 = fs_expanduser(path, result, buffer_size);
-
-  if (L1 > 0 && fs_is_absolute(result))
-    return L1;
-
-  char* buf = (char*) malloc(buffer_size);
-  size_t L2 = fs_expanduser(top_path, buf, buffer_size);
-  if(L2 == 0){
-    free(buf);
-    return L1;
-  }
-
-  char* buf2 = (char*) malloc(buffer_size);
-  L1 = fs_join(buf, result, buf2, buffer_size);
-  strncpy(result, buf2, buffer_size);
-  result[L1] = '\0';
-  free(buf);
-  free(buf2);
-  return L1;
-}

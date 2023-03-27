@@ -61,6 +61,8 @@ std::string fs_exe_dir();
 std::string fs_lib_path();
 std::string fs_lib_dir();
 
+std::string fs_make_absolute(std::string, std::string);
+
 size_t fs_str2char(std::string, char*, size_t);
 size_t fs_path2str(const fs::path, char*, size_t);
 
