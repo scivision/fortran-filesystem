@@ -10,7 +10,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 echo "configure %GITHUB_REPOSITORY%"
 cmake --preset default --install-prefix %RUNNER_TEMP%
 if %errorlevel% neq 0 (
-  type build\CMakeFiles\CMakeError.log & exit /b %errorlevel%
+  type build\CMakeFiles\CMakeConfigureLog.yaml & exit /b %errorlevel%
 )
 
 echo "workflow %GITHUB_REPOSITORY%"
