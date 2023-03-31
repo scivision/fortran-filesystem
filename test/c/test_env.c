@@ -21,10 +21,10 @@ int main(void) {
   printf("Fortran: current working dir %s\n", fpath);
 
 #ifdef _MSC_VER
-  if(_getcwd(cpath, FS_MAX_PATH) == NULL)
+  if(!_getcwd(cpath, FS_MAX_PATH))
     return EXIT_FAILURE;
 #else
-  if(getcwd(cpath, FS_MAX_PATH) == NULL)
+  if(!getcwd(cpath, FS_MAX_PATH))
     return EXIT_FAILURE;
 #endif
 

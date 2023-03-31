@@ -37,7 +37,7 @@ int main()
     throw std::runtime_error("current working dir " + fpath + " does not exist");
 
   char* cpath = new char[FS_MAX_PATH];
-  #ifdef _MSC_VER
+#ifdef _MSC_VER
   if(!_getcwd(cpath, FS_MAX_PATH))
     throw std::runtime_error("C getcwd failed");
 #else
