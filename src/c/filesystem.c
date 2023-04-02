@@ -32,11 +32,6 @@ bool fs_cpp(){
 
 size_t fs_compiler(char* name, size_t buffer_size)
 {
-  if(!name || buffer_size == 0){
-    name = NULL;
-    return 0;
-  }
-
 int L=0;
 
 #if defined(__INTEL_LLVM_COMPILER)
@@ -56,6 +51,10 @@ int L=0;
 if (L < 0){
   fprintf(stderr, "ERROR:ffilesystem:fs_compiler: snprintf failed\n");
   L = 0;
+}
+if((size_t)L >= buffer_size){
+  name[buffer_size-1] = '\0';
+  L = buffer_size-1;
 }
 
   return L;
@@ -127,9 +126,9 @@ if(FS_TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
 size_t fs_stem(const char* path, char* result, size_t buffer_size)
 {
   char* buf = (char*) malloc(buffer_size);
-  if(fs_file_name(path, buf, buffer_size) == 0){
+  if(!buf) return 0;
+  if(!fs_file_name(path, buf, buffer_size)){
     free(buf);
-    result = NULL;
     return 0;
   }
 
@@ -158,9 +157,9 @@ size_t fs_join(const char* path, const char* other, char* result, size_t buffer_
 size_t fs_parent(const char* path, char* result, size_t buffer_size)
 {
   char* buf = (char*) malloc(buffer_size);
-  if(fs_normal(path, buf, buffer_size) == 0){
+  if(!buf) return 0;
+  if(!fs_normal(path, buf, buffer_size)){
     free(buf);
-    result = NULL;
     return 0;
   }
 
@@ -173,7 +172,7 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size)
     return 0;
   }
 
-  size_t M = min(L-1, buffer_size);
+  size_t M = min(L-1, buffer_size-1);
   strncpy(result, buf, M);
   free(buf);
   result[M] = '\0';
@@ -186,9 +185,9 @@ if(FS_TRACE) printf("TRACE: parent: %s => %s  %zu\n", path, result, M);
 size_t fs_suffix(const char* path, char* result, size_t buffer_size)
 {
   char* buf = (char*) malloc(buffer_size);
-  if(fs_file_name(path, buf, buffer_size) == 0){
+  if(!buf) return 0;
+  if(!fs_file_name(path, buf, buffer_size)){
     free(buf);
-    result = NULL;
     return 0;
   }
 
@@ -241,9 +240,10 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
     return fs_get_cwd(result, buffer_size);
 
   char* buf = (char*) malloc(buffer_size);
-  if(fs_expanduser(path, buf, buffer_size) == 0){
+  if(!buf) return 0;
+  if(!fs_expanduser(path, buf, buffer_size)){
     free(buf);
-    goto retnull;
+    return 0;
   }
 
   if(FS_TRACE) printf("TRACE:canonical in: %s  expanded: %s\n", path, buf);
@@ -251,30 +251,30 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   if(strict && !fs_exists(buf)) {
     fprintf(stderr, "ERROR:ffilesystem:canonical: %s => does not exist and strict=true\n", buf);
     free(buf);
-    goto retnull;
+    return 0;
   }
 
   char* buf2 = (char*) malloc(buffer_size);
+  if(!buf2) {
+    free(buf);
+    return 0;
+  }
 #ifdef _WIN32
   char* t = _fullpath(buf2, buf, buffer_size);
 #else
   char* t = realpath(buf, buf2);
 #endif
-  if (strict && t == NULL) {
+  if (strict && !t) {
     fprintf(stderr, "ERROR:ffilesystem:canonical: %s => %s\n", buf, strerror(errno));
     free(buf);
     free(buf2);
-    goto retnull;
+    return 0;
   }
   free(buf);
 
   size_t L = fs_normal(buf2, result, buffer_size);
   free(buf2);
   return L;
-
-retnull:
-  result = NULL;
-  return 0;
 }
 
 
@@ -326,6 +326,8 @@ uintmax_t fs_space_available(const char* path)
     return 0;
 
   char* r = (char*) malloc(FS_MAX_PATH);
+  if(!r)
+    return 0;
 
   // for robustness and clarity, use root of path (necessary for Windows)
   if (!fs_root(path, r, FS_MAX_PATH))
@@ -364,7 +366,12 @@ bool fs_equivalent(const char* path1, const char* path2)
     return false;
 
   char* buf1 = (char*) malloc(FS_MAX_PATH);
+  if(!buf1) return false;
   char* buf2 = (char*) malloc(FS_MAX_PATH);
+  if(!buf2) {
+    free(buf1);
+    return false;
+  }
 
   if((!fs_canonical(path1, true, buf1, FS_MAX_PATH) || !fs_canonical(path2, true, buf2, FS_MAX_PATH) ||
       fs_is_char_device(path1) || fs_is_char_device(path2)) ||
@@ -390,6 +397,7 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
     return fs_normal(path, result, buffer_size);
 
   char* buf = (char*) malloc(buffer_size);
+  if(!buf) return 0;
   if (!fs_get_homedir(buf, buffer_size)) {
     free(buf);
     return fs_normal(path, result, buffer_size);
@@ -620,8 +628,9 @@ bool fs_touch(const char* path)
 size_t fs_exe_dir(char* path, size_t buffer_size)
 {
   char* buf = (char*) malloc(buffer_size);
+  if(!buf) return 0;
 
-  if(fs_exe_path(buf, buffer_size) == 0){
+  if(!fs_exe_path(buf, buffer_size)){
     free(buf);
     return 0;
   }
@@ -635,8 +644,9 @@ size_t fs_exe_dir(char* path, size_t buffer_size)
 size_t fs_lib_dir(char* path, size_t buffer_size)
 {
   char* buf = (char*) malloc(buffer_size);
+  if(!buf) return 0;
 
-  if(fs_lib_path(buf, buffer_size) == 0){
+  if(!fs_lib_path(buf, buffer_size)){
     fprintf(stderr, "ERROR:ffilesystem:fs_lib_dir: fs_lib_path failed\n");
     free(buf);
     return 0;
@@ -667,6 +677,7 @@ size_t fs_make_absolute(const char* path, const char* top_path,
     return L1;
 
   char* buf = (char*) malloc(buffer_size);
+  if(!buf) return 0;
   size_t L2 = fs_expanduser(top_path, buf, buffer_size);
   if(L2 == 0){
     free(buf);
@@ -674,6 +685,10 @@ size_t fs_make_absolute(const char* path, const char* top_path,
   }
 
   char* buf2 = (char*) malloc(buffer_size);
+  if(!buf2){
+    free(buf);
+    return 0;
+  }
   L1 = fs_join(buf, result, buf2, buffer_size);
   strncpy(result, buf2, buffer_size);
   result[L1] = '\0';

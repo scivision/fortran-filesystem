@@ -51,6 +51,7 @@ size_t fs_exe_path(char* path, size_t buffer_size)
   if (_NSGetExecutablePath(buf, &mp) || !realpath(buf, path)) return 0;
 #elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
   char* buf = (char*) malloc(buffer_size);
+  if(!buf) return 0;
   int mib[4];
   mib[0] = CTL_KERN;
   mib[1] = KERN_PROC;

@@ -72,6 +72,7 @@ int fs_create_directories(const char* path) {
   }
 
   char* p = (char*) malloc(FS_MAX_PATH);
+  if(!p) return 1;
   strncpy(p, path, FS_MAX_PATH-1);
   size_t L = strlen(path);
   p[L] = '\0';
