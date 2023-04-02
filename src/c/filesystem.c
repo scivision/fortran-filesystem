@@ -88,11 +88,8 @@ void fs_as_windows(char* path)
 size_t fs_normal(const char* path, char* result, size_t buffer_size)
 {
 // normalize path
-#ifdef _WIN32
-  cwk_path_set_style(CWK_STYLE_WINDOWS);
-#else
-  cwk_path_set_style(CWK_STYLE_UNIX);
-#endif
+  cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
+
   size_t L = cwk_path_normalize(path, result, buffer_size);
   fs_as_posix(result);
 
@@ -113,11 +110,8 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size)
 
 if(FS_TRACE) printf("TRACE:file_name: %s\n", path);
 
-#ifdef _WIN32
-  cwk_path_set_style(CWK_STYLE_WINDOWS);
-#else
-  cwk_path_set_style(CWK_STYLE_UNIX);
-#endif
+  cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
+
   cwk_path_get_basename(path, &base, NULL);
 
 if(FS_TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
@@ -304,11 +298,8 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
     return 1;
   }
 
-#ifdef _WIN32
-  cwk_path_set_style(CWK_STYLE_WINDOWS);
-#else
-  cwk_path_set_style(CWK_STYLE_UNIX);
-#endif
+  cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
+
   cwk_path_get_relative(from, to, result, buffer_size);
 
   return fs_normal(result, result, buffer_size);
@@ -347,7 +338,6 @@ uintmax_t fs_space_available(const char* path)
   free(r);
 
   return SectorBytes * ClusterSectors * FreeClusters;
-
 #else
   struct statvfs stat;
 
@@ -517,11 +507,8 @@ size_t fs_root(const char* path, char* result, size_t buffer_size)
 {
   size_t L;
 
-#ifdef _WIN32
-  cwk_path_set_style(CWK_STYLE_WINDOWS);
-#else
-  cwk_path_set_style(CWK_STYLE_UNIX);
-#endif
+  cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
+
   cwk_path_get_root(path, &L);
 
   size_t M = min(L, buffer_size);
@@ -535,10 +522,8 @@ if(FS_TRACE) printf("TRACE: root: %s => %s  %zu\n", path, result, M);
 
 bool fs_is_absolute(const char* path)
 {
-#ifdef _WIN32
-  if (path[0] == '/')
+  if (fs_is_windows() && path[0] == '/')
     return false;
-#endif
 
   return cwk_path_is_absolute(path);
 }

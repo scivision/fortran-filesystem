@@ -121,11 +121,11 @@ std::string fs_as_windows(std::string path)
 std::string fs_as_cygpath(std::string path)
 {
   // like command line "cygpath --unix"
-#ifdef __CYGWIN__
+
   std::replace(path.begin(), path.end(), '\\', '/');
   if (path[1] == ':' && std::isalpha(path[0]))
     return "/cygdrive/" + path.substr(0, 1) + path.substr(2);
-#endif
+
   return path;
 }
 
@@ -419,10 +419,8 @@ bool fs_is_dir(std::string path)
 
   fs::path p(path);
 
-#ifdef _WIN32
-  if (p.root_name() == p)
+  if (fs_is_windows() && p.root_name() == p)
     return true;
-#endif
 
   std::error_code ec;
   bool e = fs::is_directory(p, ec);
@@ -484,9 +482,8 @@ bool fs_is_reserved(std::string path)
 // https://learn.microsoft.com/en-gb/windows/win32/fileio/naming-a-file#naming-conventions
 {
 
-#ifndef _WIN32
-  return false;
-#endif
+  if(!fs_is_windows())
+    return false;
 
   if (path.empty())
     return false;
@@ -834,12 +831,8 @@ size_t fs_get_homedir(char* path, size_t buffer_size)
 
 std::string fs_get_homedir()
 {
-#ifdef _WIN32
-  auto k = "USERPROFILE";
-#else
-  auto k = "HOME";
-#endif
 
+  auto k = fs_is_windows() ? "USERPROFILE" : "HOME";
   auto r = std::getenv(k);
 
   if(!r) {
@@ -903,7 +896,7 @@ bool fs_chmod_exe(std::string path, bool executable)
   std::error_code ec;
 
   fs::permissions(path, fs::perms::owner_exec,
-    (executable) ? fs::perm_options::add : fs::perm_options::remove,
+    executable ? fs::perm_options::add : fs::perm_options::remove,
     ec);
 
   if(ec) {
@@ -930,7 +923,7 @@ std::string fs_exe_path()
 
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if (GetModuleFileName(NULL, buf, FS_MAX_PATH) == 0){
+  if (GetModuleFileNameA(NULL, buf, FS_MAX_PATH) == 0){
     std::cerr << "ERROR:ffilesystem:exe_path: GetModuleFileName failed\n";
     delete [] buf;
     return {};
@@ -1003,7 +996,7 @@ std::string fs_lib_path()
 #if (defined(_WIN32) || defined(__CYGWIN__)) && defined(FS_DLL_NAME)
   char* buf = new char[FS_MAX_PATH];
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if(GetModuleFileName(GetModuleHandle(FS_DLL_NAME), buf, FS_MAX_PATH) == 0){
+  if(GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf, FS_MAX_PATH) == 0){
     std::cerr << "ERROR:ffilesystem:lib_path: GetModuleFileName failed\n";
     delete [] buf;
     return {};
@@ -1039,9 +1032,8 @@ std::string fs_lib_dir()
 
   if(FS_TRACE) std::cout << "TRACE:fs_lib_dir: " << s << "\n";
 
-  #ifdef __CYGWIN__
+  if (fs_is_cygwin())
     s = fs_as_cygpath(s);
-  #endif
 
   return fs_parent(s);
 }

@@ -51,25 +51,23 @@ nullret:
 
 size_t fs_get_homedir(char* path, size_t buffer_size)
 {
-#ifdef _WIN32
-  char name[] = "USERPROFILE";
-#else
-  char name[] = "HOME";
-#endif
-
-  return fs_getenv(name, path, buffer_size);
-
+  if(fs_is_windows()){
+    return fs_getenv("USERPROFILE", path, buffer_size);
+  }
+  else{
+    return fs_getenv("HOME", path, buffer_size);
+  }
 }
 
 size_t fs_get_tempdir(char* path, size_t buffer_size)
 {
-#ifdef _WIN32
-  char name[] = "TEMP";
-#else
-  char name[] = "TMPDIR";
-#endif
-
-  size_t L = fs_getenv(name, path, buffer_size);
+  size_t L;
+  if(fs_is_windows()){
+    L = fs_getenv("TEMP", path, buffer_size);
+  }
+  else{
+    L = fs_getenv("TMPDIR", path, buffer_size);
+  }
   if(L > 0)
     return L;
 
