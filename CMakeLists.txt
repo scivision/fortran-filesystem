@@ -6,6 +6,7 @@ VERSION 5.0.0
 )
 
 include(CTest) # needed for "ctest -T memcheck"
+include(FetchContent)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
@@ -23,14 +24,25 @@ include(cmake/compilers.cmake)
 
 # --- filesystem library
 
+if(NOT HAVE_CXX_FILESYSTEM)
+  FetchContent_Declare(cwalk
+  GIT_REPOSITORY https://github.com/likle/cwalk
+  GIT_TAG v1.2.7
+  TLS_VERIFY ON
+  )
+  FetchContent_Populate(cwalk)
+
+endif()
+
+
 add_library(ffilesystem src/common/common.c
-"$<IF:$<BOOL:${HAVE_CXX_FILESYSTEM}>,src/common/filesystem.cpp,src/c/filesystem.c;src/c/env.c;src/c/get_path.c;src/c/sys.c;src/c/cwalk.c>"
+"$<IF:$<BOOL:${HAVE_CXX_FILESYSTEM}>,src/common/filesystem.cpp,src/c/filesystem.c;src/c/env.c;src/c/get_path.c;src/c/sys.c;${cwalk_SOURCE_DIR}/src/cwalk.c>"
 "$<$<BOOL:${fortran}>:src/common/fortran/get_path.f90;src/common/fortran/filesystem.f90;src/common/fortran/f2c.f90;src/common/fortran/find.f90>"
 "$<$<BOOL:${WIN32}>:src/common/windows.c>"
 )
 target_include_directories(ffilesystem PRIVATE
 ${PROJECT_SOURCE_DIR}/include
-$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:${PROJECT_SOURCE_DIR}/src/c>
+$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:${cwalk_SOURCE_DIR}/include>
 )
 target_compile_definitions(ffilesystem PRIVATE
 "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>"
