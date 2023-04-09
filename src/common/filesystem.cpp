@@ -273,12 +273,9 @@ int fs_create_symlink(std::string target, std::string link)
 
   std::error_code ec;
 
-  if (fs_is_dir(target)) {
-    fs::create_directory_symlink(target, link, ec);
-  }
-  else {
-    fs::create_symlink(target, link, ec);
-  }
+  fs_is_dir(target)
+    ? fs::create_directory_symlink(target, link, ec)
+    : fs::create_symlink(target, link, ec);
   if(ec) {
     std::cerr << "ERROR:filesystem:create_symlink: " << ec.message() << " " << ec.value() << "\n";
     return ec.value();
@@ -540,14 +537,12 @@ std::string fs_canonical(std::string path, bool strict)
 
   if(FS_TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << "\n";
 
-  fs::path p;
+
   std::error_code ec;
-  if(strict){
-    p = fs::canonical(ex, ec);
-  }
-  else {
-    p = fs::weakly_canonical(ex, ec);
-  }
+  fs::path p = strict
+    ? fs::canonical(ex, ec)
+    : fs::weakly_canonical(ex, ec);
+
   if(FS_TRACE) std::cout << "TRACE:canonical: " << p << "\n";
 
   if(ec) {
