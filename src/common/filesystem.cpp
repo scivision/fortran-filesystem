@@ -14,6 +14,10 @@
 #include <system_error>
 #include <filesystem>
 
+#if __has_include(<format>)
+#include <format>
+#endif
+
 #include "ffilesystem.h"
 
 // for lib_path, exe_path
