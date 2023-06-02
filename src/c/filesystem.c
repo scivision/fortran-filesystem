@@ -470,27 +470,20 @@ bool fs_is_reserved(const char* path)
   return false;
 #endif
 
-  if(strcmp(path, "CON") == 0) return true;
-  if(strcmp(path, "PRN") == 0) return true;
-  if(strcmp(path, "AUX") == 0) return true;
-  if(strcmp(path, "NUL") == 0) return true;
-  if(strncmp(path, "COM", 3) == 0) return true;
-  if(strncmp(path, "LPT", 3) == 0) return true;
-
-  return false;
+  return !(strcmp(path, "CON") && strcmp(path, "PRN") && strcmp(path, "AUX") &&
+    strcmp(path, "NUL") && strncmp(path, "COM", 3)  && strncmp(path, "LPT", 3));
 }
 
 bool fs_exists(const char* path)
 {
 // false empty just for clarity
-if(strlen(path) == 0)
-  return false;
+return strlen(path) == 0 ? false :
 
 #ifdef _MSC_VER
-  return _access_s(path, 0) == 0;
+   !_access_s(path, 0);
 #else
   // <unistd.h>
-  return access(path, F_OK) == 0;
+   !access(path, F_OK);
 #endif
 
 }
@@ -562,7 +555,7 @@ bool fs_remove(const char* path)
 // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-deletefilea
   return fs_is_dir(path) ? RemoveDirectory(path) : DeleteFile(path);
 #else
-  return remove(path) == 0;
+  return !remove(path);
 #endif
 }
 
