@@ -11,9 +11,10 @@
 bool fs_win32_is_symlink(const char* path)
 {
   DWORD a = GetFileAttributes(path);
-  if(a == INVALID_FILE_ATTRIBUTES)
-    return false;
-  return a & FILE_ATTRIBUTE_REPARSE_POINT;
+
+  return a == INVALID_FILE_ATTRIBUTES
+    ? false
+    : a & FILE_ATTRIBUTE_REPARSE_POINT;
 }
 
 int fs_win32_create_symlink(const char* target, const char* link)

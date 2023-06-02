@@ -127,10 +127,10 @@ std::string fs_as_cygpath(std::string path)
   // like command line "cygpath --unix"
 
   std::replace(path.begin(), path.end(), '\\', '/');
-  if (path[1] == ':' && std::isalpha(path[0]))
-    return "/cygdrive/" + path.substr(0, 1) + path.substr(2);
 
-  return path;
+  return path[1] == ':' && std::isalpha(path[0])
+    ? "/cygdrive/" + path.substr(0, 1) + path.substr(2)
+    : path;
 }
 
 
@@ -541,7 +541,6 @@ std::string fs_canonical(std::string path, bool strict)
 
   if(FS_TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << "\n";
 
-
   std::error_code ec;
   fs::path p = strict
     ? fs::canonical(ex, ec)
@@ -922,7 +921,7 @@ std::string fs_exe_path()
 
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if (GetModuleFileNameA(NULL, buf, FS_MAX_PATH) == 0){
+  if (!GetModuleFileNameA(NULL, buf, FS_MAX_PATH)){
     std::cerr << "ERROR:ffilesystem:exe_path: GetModuleFileName failed\n";
     delete [] buf;
     return {};
@@ -938,7 +937,7 @@ std::string fs_exe_path()
 #elif defined(__APPLE__)
   uint32_t mp = FS_MAX_PATH;
   int r = _NSGetExecutablePath(buf, &mp);
-  if (r != 0){
+  if (r){
     std::cerr << "ERROR:ffilesystem:lib_path: _NSGetExecutablePath failed: " << r << " " << mp << "\n";
     delete[] buf;
     return {};
@@ -951,7 +950,7 @@ std::string fs_exe_path()
   mib[3] = -1;
   size_t cb = sizeof(buf);
 
-  if(sysctl(mib, 4, buf, &cb, NULL, 0) != 0){
+  if(sysctl(mib, 4, buf, &cb, NULL, 0)){
     std::cerr << "ERROR:ffilesystem:lib_path: sysctl failed\n";
     delete[] buf;
     return {};
@@ -973,7 +972,7 @@ std::string fs_exe_dir()
 {
   char* buf = new char[FS_MAX_PATH]{};
 
-  if(fs_exe_path(buf, FS_MAX_PATH) == 0){
+  if(!fs_exe_path(buf, FS_MAX_PATH)){
     std::cerr << "ERROR:ffilesystem:exe_dir: fs_exe_path failed\n";
     delete [] buf;
     return {};
@@ -995,7 +994,7 @@ std::string fs_lib_path()
 #if (defined(_WIN32) || defined(__CYGWIN__)) && defined(FS_DLL_NAME)
   char* buf = new char[FS_MAX_PATH];
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if(GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf, FS_MAX_PATH) == 0){
+  if(!GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf, FS_MAX_PATH)){
     std::cerr << "ERROR:ffilesystem:lib_path: GetModuleFileName failed\n";
     delete [] buf;
     return {};
@@ -1006,10 +1005,9 @@ std::string fs_lib_path()
 #elif defined(HAVE_DLADDR)
   Dl_info info;
 
-  if (dladdr( (void*)&dl_dummy_func, &info) == 0)
-    return {};
-
-  return std::string(info.dli_fname);
+  return dladdr( (void*)&dl_dummy_func, &info)
+    ? std::string(info.dli_fname)
+    : std::string();
 #endif
 
   return {};
@@ -1031,8 +1029,7 @@ std::string fs_lib_dir()
 
   if(FS_TRACE) std::cout << "TRACE:fs_lib_dir: " << s << "\n";
 
-  if (fs_is_cygwin())
-    s = fs_as_cygpath(s);
+  if (fs_is_cygwin()) s = fs_as_cygpath(s);
 
   return fs_parent(s);
 }
@@ -1051,8 +1048,6 @@ std::string fs_make_absolute(std::string path, std::string top_path)
     return out;
 
   std::string buf = fs_expanduser(top_path);
-  if(buf.empty())
-    return out;
 
-  return fs_join(buf, out);
+  return buf.empty() ? out : fs_join(buf, out);
 }
