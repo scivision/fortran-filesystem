@@ -310,13 +310,9 @@ uintmax_t fs_file_size(const char* path)
 {
   struct stat s;
 
-  if (!fs_is_file(path))
-    return 0;
-
-  if (stat(path, &s) != 0)
-    return 0;
-
-  return s.st_size;;
+  return !fs_is_file(path) ? 0
+    : stat(path, &s) ? 0
+    : s.st_size;
 }
 
 uintmax_t fs_space_available(const char* path)
@@ -343,7 +339,7 @@ uintmax_t fs_space_available(const char* path)
 #else
   struct statvfs stat;
 
-  if (statvfs(r, &stat) != 0) {
+  if (statvfs(r, &stat)) {
     fprintf(stderr, "ERROR:ffilesystem:space_available: %s => %s\n", r, strerror(errno));
     goto retzero;
   }
@@ -427,26 +423,20 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 
 bool fs_is_char_device(const char* path)
 {
-  // special POSIX file character device like /dev/null
+// special POSIX file character device like /dev/null
+// NOTE: root() e.g. "C:" needs a trailing slash
   struct stat s;
 
-  if(stat(path, &s) != 0)
-    return false;
-
-  // NOTE: root() e.g. "C:" needs a trailing slash
-  return s.st_mode & S_IFCHR;
+  return stat(path, &s) ? false : s.st_mode & S_IFCHR;
 }
 
 
 bool fs_is_dir(const char* path)
 {
+// NOTE: root() e.g. "C:" needs a trailing slash
   struct stat s;
 
-  if(stat(path, &s) != 0)
-    return false;
-
-  // NOTE: root() e.g. "C:" needs a trailing slash
-  return s.st_mode & S_IFDIR;
+  return stat(path, &s) ? false : s.st_mode & S_IFDIR;
 }
 
 
@@ -454,28 +444,23 @@ bool fs_is_exe(const char* path)
 {
   struct stat s;
 
-  if(stat(path, &s) != 0)
-    return false;
+  return stat(path, &s) ? false : s.st_mode &
 
 #ifdef _MSC_VER
-  return s.st_mode & _S_IEXEC;
+    _S_IEXEC;
 #else
-  return s.st_mode & S_IXUSR;
+    S_IXUSR;
 #endif
 }
 
 
 bool fs_is_file(const char* path)
 {
-  if (fs_is_reserved(path))
-    return false;
-
   struct stat s;
 
-  if(stat(path, &s) != 0)
-    return false;
-
-  return s.st_mode & S_IFREG;
+  return fs_is_reserved(path) ? false
+    : stat(path, &s) ? false
+    : s.st_mode & S_IFREG;
 }
 
 
@@ -530,10 +515,7 @@ if(FS_TRACE) printf("TRACE: root: %s => %s  %zu\n", path, result, M);
 
 bool fs_is_absolute(const char* path)
 {
-  if (fs_is_windows() && path[0] == '/')
-    return false;
-
-  return cwk_path_is_absolute(path);
+  return fs_is_windows() && path[0] == '/' ? false : cwk_path_is_absolute(path);
 }
 
 
@@ -544,11 +526,8 @@ bool fs_is_symlink(const char* path)
 #else
   struct stat buf;
 
-  if(lstat(path, &buf) != 0)
-    return false;
-
-  // return (buf.st_mode & S_IFMT) == S_IFLNK; // equivalent to below line
-  return S_ISLNK(buf.st_mode);
+  return lstat(path, &buf) ? false : S_ISLNK(buf.st_mode);
+  // return (buf.st_mode & S_IFMT) == S_IFLNK; // equivalent
 #endif
 }
 
@@ -579,14 +558,9 @@ bool fs_remove(const char* path)
     return false;
 
 #ifdef _WIN32
-  if (fs_is_dir(path)){
-    // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-removedirectorya
-    return RemoveDirectory(path) != 0;
-  }
-  else {
-    // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-deletefilea
-    return DeleteFile(path) != 0;
-  }
+// https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-removedirectorya
+// https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-deletefilea
+  return fs_is_dir(path) ? RemoveDirectory(path) : DeleteFile(path);
 #else
   return remove(path) == 0;
 #endif
@@ -596,7 +570,7 @@ bool fs_remove(const char* path)
 bool fs_chmod_exe(const char* path, bool executable)
 {
   struct stat s;
-  if(stat(path, &s) != 0)
+  if(stat(path, &s))
     return false;
   if(s.st_mode & S_IFCHR)
     return false; // special POSIX file character device like /dev/null

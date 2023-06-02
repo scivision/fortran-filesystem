@@ -35,29 +35,24 @@ if(strlen(destination) == 0) {
   }
 
 #ifdef _WIN32
-  if(CopyFile(source, destination, true))
-    return 0;
-  return 1;
+  return CopyFile(source, destination, true) ? 0 : 1;
 #else
 // from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
-
-  int ret = execlp("cp", "cp", source, destination, NULL);
-
-  if(ret != -1)
-    return 0;
-
-  return ret;
+  int r = execlp("cp", "cp", source, destination, NULL);
+  return r != -1 ? 0 : r;
 #endif
 }
 
 int fs_create_directories(const char* path) {
-// Windows: SHCreateDirectory is deprecated, CreateDirectory needs parents to exist,
+// Windows:
+// * SHCreateDirectory is deprecated
+// * CreateDirectory needs parents to exist
 // so use a system call
 //
 // return 0 if successful, non-zero if not successful
 
   if(strlen(path) == 0) {
-    fprintf(stderr,"ERROR:ffilesystem:create_directories: path must not be empty\n");
+    fprintf(stderr, "ERROR:ffilesystem:create_directories: path must not be empty\n");
     return 1;
   }
 
@@ -98,8 +93,5 @@ int fs_create_directories(const char* path) {
 
   free(p);
 
-  if(r != -1)
-    return 0;
-
-  return r;
+  return r != -1 ? 0 : r;
 }
