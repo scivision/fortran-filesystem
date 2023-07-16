@@ -35,7 +35,6 @@
   "displayName": "Clang-Tidy",
   "description": "Build with clang-tidy enabled.",
   "cacheVariables": {
-    "BUILD_SHARED_LIBS": true,
     "CMAKE_BUILD_TYPE": "Debug",
     "tidy": true
   }
