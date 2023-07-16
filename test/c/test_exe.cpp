@@ -44,12 +44,14 @@ fs_touch(exe);
 if (!fs_is_file(exe))
     throw std::runtime_error("ERROR:test_exe: " + exe + " is not a file.");
 
+std::cout << "permissions before chmod(" << exe << ", true)  = " << fs_get_permissions(exe) << "\n";
+
 if (!fs_chmod_exe(exe, true))
     throw std::runtime_error("ERROR:test_exe: chmod_exe(true) failed");
 
 std::string p;
 p = fs_get_permissions(exe);
-std::cout << "permissions " << exe << " = " << p << "\n";
+std::cout << "permissions after chmod(" << exe << ", true) = " << p << "\n";
 
 if (!fs_is_exe(exe))
     throw std::runtime_error("ERROR:test_exe: is_exe() did not detect executable file " + exe);
@@ -62,11 +64,13 @@ fs_touch(noexe);
 if (!fs_is_file(noexe))
     throw std::runtime_error("ERROR:test_exe: " + noexe + " is not a file.");
 
+std::cout << "permissions before chmod(" << noexe << ", false)  = " << fs_get_permissions(noexe) << "\n";
+
 if (!fs_chmod_exe(noexe, false))
     throw std::runtime_error("ERROR:test_exe: chmod_exe(false) failed");
 
 p = fs_get_permissions(noexe);
-std::cout << "permissions " << noexe << " = " << p << "\n";
+std::cout << "permissions after chmod(" << noexe << ",false) = " << p << "\n";
 
 if (fs_is_exe(noexe))
     throw std::runtime_error("ERROR:test_exe: did not detect non-executable file.");
