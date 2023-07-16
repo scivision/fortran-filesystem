@@ -996,8 +996,9 @@ std::string fs_get_permissions(std::string path)
 {
   using std::filesystem::perms;
 
-  if (path.empty())
+  if (!fs_exists(path))
     return {};
+    // exists() check avoids nuisance warnings when file doesn't exist.
 
   std::error_code ec;
   auto s = fs::status(path, ec);
