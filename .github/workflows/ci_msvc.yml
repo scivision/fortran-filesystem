@@ -19,21 +19,18 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 15
 
-    strategy:
-      matrix:
-        cpp: [true, false]
-      # github actions generally broken for shared lib, even when exe in cwd
+    # github actions generally broken for shared lib, even when exe in cwd
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: config cpp=${{ matrix.cpp }}
+    - name: config
       run: >-
         cmake -Bbuild
         -Dfallback:BOOL=off
         --install-prefix=${{ runner.temp }}
         -Dfortran:BOOL=off
-        -Dcpp:BOOL=${{ matrix.cpp }}
+        -Dcpp:BOOL=on
         -DBUILD_SHARED_LIBS:BOOL=off
 
     - name: Debug build

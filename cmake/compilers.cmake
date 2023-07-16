@@ -84,6 +84,10 @@ if(HAVE_CXX_FILESYSTEM AND NOT DEFINED fs_abi_ok)
   endif()
 endif()
 
+if(WIN32 AND NOT HAVE_CXX_FILESYSTEM)
+  message(FATAL_ERROR "On Windows ffilesystem requires C++ filesystem.")
+endif()
+
 if(cpp AND NOT fallback AND NOT HAVE_CXX_FILESYSTEM)
   message(FATAL_ERROR "C++ filesystem not available. To fallback to C filesystem:
   cmake -Dfallback=on"

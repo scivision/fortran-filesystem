@@ -3,13 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <process.h>
-#else
 #include <unistd.h>
-#endif
 
 #include "ffilesystem.h"
 
@@ -34,13 +28,9 @@ if(strlen(destination) == 0) {
     }
   }
 
-#ifdef _WIN32
-  return CopyFile(source, destination, true) ? 0 : 1;
-#else
 // from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
   int r = execlp("cp", "cp", source, destination, NULL);
   return r != -1 ? 0 : r;
-#endif
 }
 
 int fs_create_directories(const char* path) {
@@ -73,23 +63,8 @@ int fs_create_directories(const char* path) {
   p[L] = '\0';
 
   int r;
-#ifdef _WIN32
-  fs_as_windows(p);
-  // don't directly specify "cmd.exe" in exec() for security reasons
-  char* comspec = getenv("COMSPEC");
-  if(!comspec){
-    fprintf(stderr, "ERROR:ffilesystem:create_directories:exec: environment variable COMSPEC not defined\n");
-    return 1;
-  }
-  if(!fs_is_absolute(comspec)){
-    fprintf(stderr, "ERROR:ffilesystem:create_directories:exec: COMSPEC not an absolute path: %s\n", comspec);
-    return 1;
-  }
-  intptr_t ir = _execl(comspec, "cmd", "/c", "mkdir", p, NULL);
-  r = (int)ir;
-#else
+
   r = execlp("mkdir", "mkdir", "-p", p, NULL);
-#endif
 
   free(p);
 

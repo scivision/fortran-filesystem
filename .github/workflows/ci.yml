@@ -50,6 +50,7 @@ jobs:
         cmake
         --preset multi
         --install-prefix=${{ runner.temp }}
+        -Dfallback:BOOL=off
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
@@ -98,6 +99,7 @@ jobs:
         cmake
         --preset multi
         --install-prefix=${{ runner.temp }}
+        -Dfallback:BOOL=off
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
@@ -149,6 +151,7 @@ jobs:
         cmake
         --preset multi
         --install-prefix ${{ runner.temp }}
+        -Dfallback:BOOL=off
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
@@ -200,7 +203,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - run: cmake --preset tidy -Dcpp:BOOL=${{ matrix.cpp }}
+    - run: cmake --preset tidy -Dcpp:BOOL=${{ matrix.cpp }} -Dfallback:BOOL=off
     - run: cmake --build --preset tidy
 
 # disabled coverage due to broken Jinja import
@@ -261,6 +264,7 @@ jobs:
         cmake
         --preset multi
         --install-prefix=${{ runner.temp }}
+        -Dfallback:BOOL=off
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
@@ -288,7 +292,6 @@ jobs:
     strategy:
       matrix:
         shared: [false]
-        cpp: [true, false]
       # github actions generally broken for shared lib, even when exe in cwd
 
     steps:
@@ -304,12 +307,13 @@ jobs:
 
     - uses: actions/checkout@v3
 
-    - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
+    - name: config shared=${{ matrix.shared }}
       run: >-
         cmake
         --preset multi
         --install-prefix ${{ runner.temp }}
-        -Dcpp:BOOL=${{ matrix.cpp }}
+        -Dfallback:BOOL=off
+        -Dcpp:BOOL=on
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: Debug workflow

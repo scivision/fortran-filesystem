@@ -1,11 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef _MSC_VER
-#include <direct.h>
-#else
 #include <unistd.h>
-#endif
 
 #include "ffilesystem.h"
 
@@ -41,12 +37,12 @@ size_t fs_get_cwd(char* path, size_t buffer_size)
 
 size_t fs_get_homedir(char* path, size_t buffer_size)
 {
-  return fs_getenv(fs_is_windows() ? "USERPROFILE" : "HOME", path, buffer_size);
+  return fs_getenv("HOME", path, buffer_size);
 }
 
 size_t fs_get_tempdir(char* path, size_t buffer_size)
 {
-  size_t L = fs_getenv(fs_is_windows() ? "TEMP" : "TMPDIR", path, buffer_size);
+  size_t L = fs_getenv("TMPDIR", path, buffer_size);
   if(L)
     return L;
 
