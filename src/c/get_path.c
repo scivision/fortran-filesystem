@@ -1,6 +1,4 @@
-#ifdef __linux__
 #define _GNU_SOURCE
-#endif
 
 #include <string.h>
 #include <stdlib.h>
@@ -11,13 +9,7 @@
 static void dl_dummy_func() {}
 #endif
 
-#ifdef __APPLE__
-#include <mach-o/dyld.h>
-#elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-#include <sys/sysctl.h>
-#elif defined(__linux__)
 #include <unistd.h>
-#endif
 
 #ifndef min
 #define min(a, b) (((a) < (b)) ? (a) : (b))
@@ -27,8 +19,6 @@ size_t fs_exe_path(char *path, size_t buffer_size)
 {
   // https://stackoverflow.com/a/4031835
   // https://stackoverflow.com/a/1024937
-
-#if defined(__linux__)
   // https://man7.org/linux/man-pages/man2/readlink.2.html
   size_t L = readlink("/proc/self/exe", path, buffer_size);
   if (L < 1)
@@ -36,31 +26,6 @@ size_t fs_exe_path(char *path, size_t buffer_size)
   if (L >= buffer_size)
     L = buffer_size - 1;
   path[L] = '\0';
-#elif defined(__APPLE__)
-  char buf[buffer_size];
-  uint32_t mp = sizeof(buf);
-  if (_NSGetExecutablePath(buf, &mp) || !realpath(buf, path))
-    return 0;
-#elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-  char *buf = (char *)malloc(buffer_size);
-  if (!buf)
-    return 0;
-  int mib[4];
-  mib[0] = CTL_KERN;
-  mib[1] = KERN_PROC;
-  mib[2] = KERN_PROC_PATHNAME;
-  mib[3] = -1;
-  size_t cb = sizeof(buf);
-
-  if (sysctl(mib, 4, buf, &cb, NULL, 0) || !realpath(buf, path))
-  {
-    free(buf);
-    return 0
-  }
-  free(buf);
-#else
-  return 0;
-#endif
 
   return strlen(path);
 }
