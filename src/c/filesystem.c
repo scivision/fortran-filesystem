@@ -576,6 +576,33 @@ bool fs_chmod_exe(const char* path, bool executable)
 // need parentheses to keep intended precedence
 }
 
+size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
+{
+  if (buffer_size < 10) {
+    fprintf(stderr, "ERROR:ffilesystem:fs_get_permissions: buffer_size must be at least 10\n");
+    return 0;
+  }
+
+  struct stat s;
+
+  if (stat(path, &s) != 0){
+    fprintf(stderr, "ERROR:ffilesystem:fs_get_permissions: %s => %s\n", path, strerror(errno));
+    return 0;
+  }
+
+  result[9] = '\0';
+  result[0] = (s.st_mode & S_IRUSR) ? 'r' : '-';
+  result[1] = (s.st_mode & S_IWUSR) ? 'w' : '-';
+  result[2] = (s.st_mode & S_IXUSR) ? 'x' : '-';
+  result[3] = (s.st_mode & S_IRGRP) ? 'r' : '-';
+  result[4] = (s.st_mode & S_IWGRP) ? 'w' : '-';
+  result[5] = (s.st_mode & S_IXGRP) ? 'x' : '-';
+  result[6] = (s.st_mode & S_IROTH) ? 'r' : '-';
+  result[7] = (s.st_mode & S_IWOTH) ? 'w' : '-';
+  result[8] = (s.st_mode & S_IXOTH) ? 'x' : '-';
+  return 9;
+}
+
 
 bool fs_touch(const char* path)
 {

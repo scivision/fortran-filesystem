@@ -34,6 +34,13 @@ character(kind=C_CHAR), intent(in) :: path(*)
 logical(C_BOOL), intent(in), value :: executable
 end function
 
+integer(C_SIZE_T) function fs_get_permissions(path, perms, buffer_size) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+character(kind=C_CHAR), intent(out) :: perms(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
 integer(C_INT) function fs_copy_file(source, dest, overwrite) bind(C)
 import
 character(kind=c_char), intent(in) :: source(*), dest(*)
@@ -286,6 +293,15 @@ logical(C_BOOL) :: e
 e = executable
 s = fs_chmod_exe(trim(path) // C_NULL_CHAR, e)
 if(present(ok)) ok = s
+end procedure
+
+module procedure get_permissions
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(10) :: cbuf)
+N = fs_get_permissions(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+if(N > 9) error stop "filesystem:get_permissions: unexpected length /= 9"
+get_permissions = cbuf(:N)
 end procedure
 
 

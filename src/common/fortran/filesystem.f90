@@ -19,7 +19,7 @@ get_filename, make_absolute, &
 assert_is_file, assert_is_dir, &
 touch, create_symlink, &
 remove, get_tempdir, &
-chmod_exe, &
+chmod_exe, get_permissions, &
 fs_cpp, is_macos, is_windows, is_cygwin, is_linux, is_unix, &
 get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler
 !! functional API
@@ -73,6 +73,7 @@ procedure, public :: remove=>fs_unlink
 procedure, public :: file_size=>f_file_size
 procedure, public :: space_available=>f_space_available
 procedure, public :: chmod_exe=>f_chmod_exe
+procedure, public :: get_permissions=>f_get_permissions
 
 final :: destructor
 
@@ -343,6 +344,11 @@ character(*), intent(in) :: path
 logical, intent(in) :: executable
 logical, intent(out), optional :: ok
 end subroutine
+
+module character(9) function get_permissions(path)
+!! get permissions as POSIX string
+character(*), intent(in) :: path
+end function
 
 module subroutine touch(path)
 character(*), intent(in) :: path
@@ -637,11 +643,18 @@ length = len_trim(self%path_str)
 end function
 
 
-subroutine f_chmod_exe(self, executable)
+subroutine f_chmod_exe(self, executable, ok)
 class(path_t), intent(in) :: self
 logical, intent(in) :: executable
-call chmod_exe(self%path_str, executable)
+logical, intent(out), optional :: ok
+call chmod_exe(self%path_str, executable, ok)
 end subroutine
+
+character(9) function f_get_permissions(self)
+!! get file permissions as POSIX string
+class(path_t), intent(in) :: self
+f_get_permissions = get_permissions(self%path_str)
+end function
 
 
 end module filesystem

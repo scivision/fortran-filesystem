@@ -62,7 +62,6 @@ size_t fs_str2char(std::string s, char* result, size_t buffer_size)
   return std::strlen(result);
 }
 
-
 size_t fs_path2str(const fs::path p, char* result, size_t buffer_size)
 {
   return fs_str2char(p.generic_string(), result, buffer_size);
@@ -458,15 +457,14 @@ bool fs_is_file(const char* path)
 
 bool fs_is_file(std::string path)
 {
-  if(path.empty())
+  if (fs_is_reserved(path) || !fs_exists(path))
     return false;
-  if(fs_is_reserved(path))
-    return false;
+    // exists() check avoids nuisance warnings when file doesn't exist.
 
   std::error_code ec;
 
   bool e = fs::is_regular_file(path, ec);
-  if(ec) {
+  if (ec) {
     std::cerr << "ERROR:filesystem:is_file: " << ec.message() << "\n";
     return false;
   }
@@ -496,11 +494,16 @@ bool fs_is_reserved(std::string path)
 
   std::transform(path.begin(), path.end(), path.begin(), ::toupper);
 
+  bool r;
 #if __cplusplus >= 202002L
-  return reserved.contains(path);
+  r = reserved.contains(path);
+  if(FS_TRACE) std::cout << "TRACE:is_reserved: C++20: " << path << ": " << r << "\n";
 #else
-  return reserved.find(path) != reserved.end();
+  r = reserved.find(path) != reserved.end();
+  if(FS_TRACE) std::cout << "TRACE:is_reserved: C++: " << path << ": " << r << "\n";
 #endif
+
+    return r;
 }
 
 
@@ -981,6 +984,51 @@ std::string fs_exe_dir()
   delete [] buf;
 
   return fs_parent(s);
+}
+
+
+size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
+{
+  return fs_str2char(fs_get_permissions(std::string(path)), result, buffer_size);
+}
+
+std::string fs_get_permissions(std::string path)
+{
+  using std::filesystem::perms;
+
+  if (path.empty())
+    return {};
+
+  std::error_code ec;
+  auto s = fs::status(path, ec);
+  if(ec) {
+    std::cerr << "ERROR:filesystem:get_permissions: " << ec.message() << "\n";
+    return {};
+  }
+
+  perms p = s.permissions();
+
+  std::string r = "---------";
+  if ((p & perms::owner_read) != perms::none)
+    r[0] = 'r';
+  if ((p & perms::owner_write) != perms::none)
+    r[1] = 'w';
+  if ((p & perms::owner_exec) != perms::none)
+    r[2] = 'x';
+  if ((p & perms::group_read) != perms::none)
+    r[3] = 'r';
+  if ((p & perms::group_write) != perms::none)
+    r[4] = 'w';
+  if ((p & perms::group_exec) != perms::none)
+    r[5] = 'x';
+  if ((p & perms::others_read) != perms::none)
+    r[6] = 'r';
+  if ((p & perms::others_write) != perms::none)
+    r[7] = 'w';
+  if ((p & perms::others_exec) != perms::none)
+    r[8] = 'x';
+
+  return r;
 }
 
 
