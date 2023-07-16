@@ -1,0 +1,108 @@
+name: ci_windows
+
+env:
+  CTEST_NO_TESTS_ACTION: error
+
+on:
+  push:
+    paths:
+      - "**.c"
+      - "**.cpp"
+      - "**/CMakeLists.txt"
+      - "**.cmake"
+      - ".github/workflows/ci_windows.yml"
+      - "!concepts/**"
+
+jobs:
+
+  msvc:
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    # github actions generally broken for shared lib, even when exe in cwd
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: config
+      run: >-
+        cmake -Bbuild
+        -Dfallback:BOOL=off
+        --install-prefix=${{ runner.temp }}
+        -Dfortran:BOOL=off
+        -Dcpp:BOOL=on
+        -DBUILD_SHARED_LIBS:BOOL=off
+
+    - name: Debug build
+      run: cmake --build build --config Debug
+
+    - name: Debug test
+      run: ctest --test-dir build -C Debug -V
+
+    - name: Release build
+      run: cmake --build build --config Release
+
+    - name: Release test
+      run: ctest --test-dir build -C Release -V
+
+    - name: Install Release
+      run: cmake --install build --config Release
+
+    - name: example configure
+      run: cmake -S example -B example/build
+      env:
+        CMAKE_PREFIX_PATH: ${{ runner.temp }}
+
+    - name: example build
+      run: cmake --build example/build --config Release
+
+    - name: example test
+      run: ctest --test-dir example/build -C Release -V
+
+  windows-gcc:
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        shared: [false]
+      # github actions generally broken for shared lib, even when exe in cwd
+
+    steps:
+    - uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: >-
+          mingw-w64-x86_64-ninja
+          mingw-w64-x86_64-gcc-fortran
+
+    - name: Put MSYS2_MinGW64 on PATH
+      run: echo "${{ runner.temp }}/msys64/mingw64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+    - uses: actions/checkout@v3
+
+    - name: config shared=${{ matrix.shared }}
+      run: >-
+        cmake
+        --preset multi
+        --install-prefix ${{ runner.temp }}
+        -Dfallback:BOOL=off
+        -Dcpp:BOOL=on
+        -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+
+    - name: Debug workflow
+      run: cmake --workflow --preset debug
+
+    - name: Release workflow
+      run: cmake --workflow --preset release
+
+    - name: install package
+      run: cmake --install build
+
+    - name: example workflow
+      run: cmake --workflow --preset default
+      working-directory: example
+      env:
+        CMAKE_PREFIX_PATH: ${{ runner.temp }}
+
+# Github Actions Exit code 0xc0000139 -- does not happen on real Windows PCs.
