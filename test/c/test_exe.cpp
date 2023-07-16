@@ -56,7 +56,7 @@ std::cout << "permissions after chmod(" << exe << ", true) = " << p << "\n";
 if (!fs_is_exe(exe))
     throw std::runtime_error("ERROR:test_exe: is_exe() did not detect executable file " + exe);
 
-if (p[2] != 'x')
+if (!fs_is_windows() && p[2] != 'x')
     throw std::runtime_error("ERROR:test_exe: expected POSIX perms for " + exe + " to be 'x' in index 2");
 
 // chmod(false)
@@ -72,13 +72,17 @@ if (!fs_chmod_exe(noexe, false))
 p = fs_get_permissions(noexe);
 std::cout << "permissions after chmod(" << noexe << ",false) = " << p << "\n";
 
-if (fs_is_exe(noexe))
+if(!fs_is_windows())
+{
+  if (fs_is_exe(noexe))
     throw std::runtime_error("ERROR:test_exe: did not detect non-executable file.");
 
-if (p[2] != '-')
+  if (p[2] != '-')
     throw std::runtime_error("ERROR:test_exe: expected POSIX perms for " + noexe + " to be '-' in index 2");
+}
 
-std::cout << "OK: test_exe\n";
+
+std::cout << "OK: c++ test_exe\n";
 
 return EXIT_SUCCESS;
 }

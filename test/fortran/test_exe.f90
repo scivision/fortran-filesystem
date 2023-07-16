@@ -1,6 +1,6 @@
 program test_exe
 
-use filesystem, only : path_t, is_exe, get_permissions
+use filesystem, only : path_t, is_exe, get_permissions, is_windows
 
 implicit none
 
@@ -36,7 +36,7 @@ print '(a)', "permissions: " // exe_name // " = " // perm
 if (.not. p1%is_exe()) error stop "ERROR:test_exe: %is_exe() did not detect executable file " // exe_name
 if (.not. is_exe(p1%path())) error stop "ERROR:test_exe: is_exe(path) did not detect executable file " // exe_name
 
-if(perm(3:3) /= "x") error stop "ERROR:test_exe: get_permissions() " // exe_name // " is not executable"
+if(.not. is_windows() .and. perm(3:3) /= "x") error stop "ERROR:test_exe: get_permissions() " // exe_name // " is not executable"
 
 !> chmod(.false.)
 
@@ -49,9 +49,14 @@ print '(a)', "permissions: " // noexe_name // " = " // perm
 
 call p2%chmod_exe(.false., ok)
 if (.not. ok) error stop "ERROR:test_exe: %chmod_exe(.false.) failed"
+
+if(.not. is_windows()) then
+!~ Windows file system is always executable to stdlib.
+
 if (p2%is_exe()) error stop "ERROR:test_exe: did not detect non-executable file."
 
 if(perm(3:3) /= "-") error stop "ERROR:test_exe: get_permissions() " // noexe_name // " is executable"
+endif
 
 end block
 
