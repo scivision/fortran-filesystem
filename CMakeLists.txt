@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.14...3.26)
 
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+  message(FATAL_ERROR "Please use out of source build like:
+  cmake -Bbuild")
+endif()
+
 project(ffilesystem
 LANGUAGES C
-VERSION 5.0.1
+VERSION 5.0.2
 )
 
 include(CTest) # needed for "ctest -T memcheck"
