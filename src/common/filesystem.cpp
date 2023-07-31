@@ -1057,9 +1057,9 @@ std::string fs_lib_path()
   return dladdr( (void*)&dl_dummy_func, &info)
     ? std::string(info.dli_fname)
     : std::string();
-#endif
-
+#else
   return {};
+#endif
 }
 
 
