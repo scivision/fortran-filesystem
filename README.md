@@ -136,3 +136,15 @@ Intel oneAPI does not support `selected_char_kind('ISO_10646')` as of this writi
 filesystem currently uses the default Fortran `character` kind, which is ASCII.
 This means that UTF-8 / UTF-16 / UTF-32 strings are not supported.
 You may find a particular compiler and computer passes some non-ASCII strings, but this is not supported.
+
+
+### C++ filesystem discussion
+
+Security
+[research](https://www.reddit.com/r/cpp/comments/151cnlc/a_safety_culture_and_c_we_need_to_talk_about/?rdt=62365)
+led to
+[TOCTOU](https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use)-related
+patches to the C++ filesystem library in various C++ standard library implementations noted in that discussion.
+Ffilesystem does NOT use remove_all, which was the TOCTOU concern addressed above.
+
+Since the underlying C++17 filesystem is not thread-safe, race conditions can occur if multiple threads are accessing the same filesystem object regardless of the code language used in the Ffilesystem library.
