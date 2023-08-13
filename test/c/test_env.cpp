@@ -1,14 +1,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
-
-#ifdef _MSC_VER
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-
 #include <stdexcept>
+
+#include <filesystem>
 
 #include "ffilesystem.h"
 
@@ -34,16 +29,9 @@ int main()
   if(!fs_exists(fpath))
     throw std::runtime_error("current working dir " + fpath + " does not exist");
 
-  char* cpath = new char[FS_MAX_PATH];
-#ifdef _MSC_VER
-  if(!_getcwd(cpath, FS_MAX_PATH))
-    throw std::runtime_error("C getcwd failed");
-#else
-  if(!getcwd(cpath, FS_MAX_PATH))
-    throw std::runtime_error("C getcwd failed");
-#endif
-  std::string s = fs_normal(std::string(cpath));
-  delete [] cpath;
+  std::string cpath = std::filesystem::current_path().string();
+
+  std::string s = fs_normal(cpath);
 
   if (fpath != s)
     throw std::runtime_error("C cwd " + s + " != Fortran cwd " + fpath);
@@ -59,6 +47,8 @@ int main()
   std::cout << "Temp directory " << p << "\n";
   if (!fs_exists(p))
     throw std::runtime_error("Fortran: temp dir " + p + " does not exist");
+
+  std::cout << "OK: C++ environment\n";
 
   return EXIT_SUCCESS;
 }

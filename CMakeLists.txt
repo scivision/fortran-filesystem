@@ -7,7 +7,7 @@ endif()
 
 project(ffilesystem
 LANGUAGES C
-VERSION 5.0.2
+VERSION 5.0.3
 )
 
 include(CTest) # needed for "ctest -T memcheck"

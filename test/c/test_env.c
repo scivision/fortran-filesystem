@@ -35,5 +35,7 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
+  printf("OK: C environment\n");
+
   return EXIT_SUCCESS;
 }

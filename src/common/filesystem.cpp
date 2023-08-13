@@ -920,29 +920,26 @@ std::string fs_exe_path()
   // https://stackoverflow.com/a/4031835
   // https://stackoverflow.com/a/1024937
 
-  char* buf = new char[FS_MAX_PATH]{};
+  auto buf = std::make_unique<char[]>(FS_MAX_PATH);
 
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if (!GetModuleFileNameA(NULL, buf, FS_MAX_PATH)){
+  if (!GetModuleFileNameA(NULL, buf.get(), FS_MAX_PATH)){
     std::cerr << "ERROR:ffilesystem:exe_path: GetModuleFileName failed\n";
-    delete [] buf;
     return {};
   }
 #elif defined(__linux__) || defined(__CYGWIN__)
   // https://man7.org/linux/man-pages/man2/readlink.2.html
-  size_t L = readlink("/proc/self/exe", buf, FS_MAX_PATH);
+  size_t L = readlink("/proc/self/exe", buf.get(), FS_MAX_PATH);
   if (L < 1 || L >= FS_MAX_PATH) {
     std::cerr << "ERROR:ffilesystem:lib_path: readlink failed\n";
-    delete[] buf;
     return {};
   }
 #elif defined(__APPLE__)
   uint32_t mp = FS_MAX_PATH;
-  int r = _NSGetExecutablePath(buf, &mp);
+  int r = _NSGetExecutablePath(buf.get(), &mp);
   if (r){
     std::cerr << "ERROR:ffilesystem:lib_path: _NSGetExecutablePath failed: " << r << " " << mp << "\n";
-    delete[] buf;
     return {};
   }
 #elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
@@ -953,15 +950,13 @@ std::string fs_exe_path()
   mib[3] = -1;
   size_t cb = sizeof(buf);
 
-  if(sysctl(mib, 4, buf, &cb, NULL, 0)){
+  if(sysctl(mib, 4, buf.get(), &cb, NULL, 0)){
     std::cerr << "ERROR:ffilesystem:lib_path: sysctl failed\n";
-    delete[] buf;
     return {};
   }
 #endif
 
-  std::string s(buf);
-  delete [] buf;
+  std::string s(buf.get());
   return fs_canonical(s, true);
 }
 
@@ -973,15 +968,13 @@ size_t fs_exe_dir(char* path, size_t buffer_size)
 
 std::string fs_exe_dir()
 {
-  char* buf = new char[FS_MAX_PATH]{};
+  auto buf = std::make_unique<char[]>(FS_MAX_PATH);
 
-  if(!fs_exe_path(buf, FS_MAX_PATH)){
+  if(!fs_exe_path(buf.get(), FS_MAX_PATH)){
     std::cerr << "ERROR:ffilesystem:exe_dir: fs_exe_path failed\n";
-    delete [] buf;
     return {};
   }
-  std::string s(buf);
-  delete [] buf;
+  std::string s(buf.get());
 
   return fs_parent(s);
 }
@@ -1041,15 +1034,14 @@ size_t fs_lib_path(char* path, size_t buffer_size)
 std::string fs_lib_path()
 {
 #if (defined(_WIN32) || defined(__CYGWIN__)) && defined(FS_DLL_NAME)
-  char* buf = new char[FS_MAX_PATH];
+  auto buf = std::make_unique<char[]>(FS_MAX_PATH);
+
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if(!GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf, FS_MAX_PATH)){
+  if(!GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf.get(), FS_MAX_PATH)){
     std::cerr << "ERROR:ffilesystem:lib_path: GetModuleFileName failed\n";
-    delete [] buf;
     return {};
   }
-  std::string s(buf);
-  delete [] buf;
+  std::string s(buf.get());
   return s;
 #elif defined(HAVE_DLADDR)
   Dl_info info;

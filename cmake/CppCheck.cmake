@@ -36,5 +36,14 @@ if(NOT HAVE_CXX_FILESYSTEM)
   return()
 endif()
 
+check_cxx_symbol_exists(__cpp_lib_make_unique "memory" cpp14_make_unique)
+if(NOT cpp14_make_unique)
+  message(WARNING "C++ compiler has filesystem feature, but lacks C++14 std::make_unique()")
+  set(HAVE_CXX_FILESYSTEM false CACHE BOOL "C++14 make_unique is missing" FORCE)
+  return()
+endif()
+
+check_cxx_symbol_exists(__cpp_lib_smart_ptr_for_overwrite "version" cpp20_smart_ptr_for_overwrite)
+
 
 endfunction()
