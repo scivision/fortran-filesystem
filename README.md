@@ -101,6 +101,12 @@ Fortran Package Manager:
 FPM_CXXFLAGS=-std=c++20 fpm build
 ```
 
+GNU Make:
+
+```sh
+make
+```
+
 For user convenience, we provide a demo executable "filesystem_cli" that allows simple testing of what the filesystem routines do.
 
 ## Usage from other projects
