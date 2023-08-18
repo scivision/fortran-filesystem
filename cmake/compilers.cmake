@@ -99,10 +99,6 @@ if(HAVE_CXX_FILESYSTEM AND NOT DEFINED fs_abi_ok)
   endif()
 endif()
 
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CXX_FILESYSTEM)
-  message(FATAL_ERROR "For Non-Linux OS, ffilesystem requires C++ filesystem.")
-endif()
-
 if(cpp AND NOT fallback AND NOT HAVE_CXX_FILESYSTEM)
   message(FATAL_ERROR "C++ filesystem not available. To fallback to C filesystem:
   cmake -Dfallback=on"
