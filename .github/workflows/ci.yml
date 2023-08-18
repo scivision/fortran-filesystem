@@ -242,6 +242,7 @@ jobs:
       matrix:
         compiler: [ {cpp: g++-12, c: gcc-12}, {cpp: clang++, c: clang} ]
         shared: [false]
+        cpp: [true, false]
         include:
         - shared: true
           cpp: true
@@ -264,7 +265,7 @@ jobs:
         --preset multi
         --install-prefix=${{ runner.temp }}
         -Dfallback:BOOL=off
-        -Dcpp:BOOL=on
+        -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: Debug workflow
