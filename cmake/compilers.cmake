@@ -12,6 +12,7 @@ if(NOT abi_compile)
   try_compile(abi_compile
   ${CMAKE_CURRENT_BINARY_DIR}/abi_check ${CMAKE_CURRENT_LIST_DIR}/abi_check
   abi_check
+  CMAKE_FLAGS -Dcpp:BOOL=${cpp} -Dfortran:BOOL=${fortran}
   OUTPUT_VARIABLE abi_output
   )
   if(abi_output MATCHES "ld: warning: could not create compact unwind for")
