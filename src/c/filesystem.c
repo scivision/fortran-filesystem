@@ -41,11 +41,11 @@ int L=0;
   name[0] = '\0';
 #endif
 
-if (L < 0){
+if (L < 0){ // cppcheck-suppress knownConditionTrueFalse
   fprintf(stderr, "ERROR:ffilesystem:fs_compiler: snprintf failed\n");
   L = 0;
 }
-if((size_t)L >= buffer_size){
+if((size_t)L >= buffer_size){  // cppcheck-suppress unsignedLessThanZero
   name[buffer_size-1] = '\0';
   L = buffer_size-1;
 }
@@ -252,7 +252,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
     return 0;
   }
 
-  char* t = realpath(buf, buf2);
+  const char* t = realpath(buf, buf2);
 
   if (strict && !t) {
     fprintf(stderr, "ERROR:ffilesystem:canonical: %s => %s\n", buf, strerror(errno));
