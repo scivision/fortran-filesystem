@@ -8,8 +8,6 @@
 void test_filename()
 {
 
-std::string p1, p2;
-
 if(fs_file_name("") != "")
   throw std::runtime_error("filename empty: " + fs_file_name(""));
 

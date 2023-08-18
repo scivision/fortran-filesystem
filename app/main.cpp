@@ -25,13 +25,11 @@ int main(int argc, char* argv[]){
   }
 
   std::string arg1 = argv[1];
-  std::string arg2, arg3, arg4;
+  std::string arg2, arg3;
   if(argc > 2)
     arg2 = argv[2];
   if(argc > 3)
     arg3 = argv[3];
-  if(argc > 4)
-    arg4 = argv[4];
 
   if (arg1 == "canonical" && argc == 3){
     std::cout << fs_canonical(arg2, false) << "\n";
@@ -44,9 +42,6 @@ int main(int argc, char* argv[]){
   }
   else if (arg1 == "homedir") {
     std::cout << fs_get_homedir() << "\n";
-  }
-  else if (arg1 == "tempdir") {
-    std::cout << fs_get_tempdir() << "\n";
   }
   else if (arg1 == "tempdir") {
     std::cout << fs_get_tempdir() << "\n";
