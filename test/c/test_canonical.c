@@ -26,7 +26,6 @@ printf("OK: parent home = %s\n", out);
 
 // -- relative dir
 const char par[] = "~/..";
-L0 = strlen(par);
 
 size_t L2 = fs_canonical(par, false, out, FS_MAX_PATH);
 
@@ -42,7 +41,6 @@ if(fs_is_cygwin())
   return EXIT_SUCCESS;
 
 const char file[] = "~/../not-exist.txt";
-L0 = strlen(file);
 
 size_t L = fs_canonical(file, false, out, FS_MAX_PATH);
 if(L == 0) {
