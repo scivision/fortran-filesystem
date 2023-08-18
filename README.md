@@ -14,10 +14,10 @@ that can be used from C and C++ project code--see
 
 For full features, Ffilesystem uses
 [C++ stdlib filesystem](https://en.cppreference.com/w/cpp/filesystem).
-For the less common case that a compatible C++ isn't available on Linux systems, FFilesystem can use a vendored
+For the less common case that a compatible C++ isn't available on Unix-like systems, FFilesystem downloads and uses
 [CWalk](https://github.com/likle/cwalk)
 and C runtime library.
-That is, Windows systems *require* the C++ stdlib filesystem with a working C++ compiler.
+However, Windows systems *require* the C++ stdlib filesystem with a working C++ compiler.
 
 Inspired by
 [Python pathlib](https://docs.python.org/3/library/pathlib.html).
@@ -51,7 +51,6 @@ Ffilesystem supports compilers including:
 
 To reduce maintenance burden, C++ interface requires compiler to support `<filesystem>`.
 The older `<experimental/filesystem>` is NOT supported.
-C++ support is automatically disabled if it's not working.
 To manually disable C++ support:
 
 ```sh
