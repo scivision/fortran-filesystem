@@ -6,14 +6,21 @@ include(${CMAKE_CURRENT_LIST_DIR}/CppCheck.cmake)
 
 # --- abi check: C++ and Fortran compiler ABI compatibility
 
-if(NOT abi_ok)
-  message(CHECK_START "checking that compilers can link together")
-  try_compile(abi_ok
+function(abi_check)
+if(NOT abi_compile)
+  message(CHECK_START "checking that C, C++, and Fortran compilers can link")
+  try_compile(abi_compile
   ${CMAKE_CURRENT_BINARY_DIR}/abi_check ${CMAKE_CURRENT_LIST_DIR}/abi_check
   abi_check
-  CMAKE_FLAGS -Dcpp:BOOL=${cpp} -Dfortran:BOOL=${fortran}
+  OUTPUT_VARIABLE abi_output
   )
-  if(abi_ok)
+  if(abi_output MATCHES "ld: warning: could not create compact unwind for")
+    if(CMAKE_C_COMPILER_ID MATCHES "AppleClang" AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+      set(ldflags_unwind "-Wl,-no_compact_unwind" CACHE STRING "linker flags to disable compact unwind")
+    endif()
+  endif()
+
+  if(abi_compile)
     message(CHECK_PASS "OK")
   else()
     message(FATAL_ERROR "ABI-incompatible compilers:
@@ -22,6 +29,13 @@ if(NOT abi_ok)
     Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION}"
     )
   endif()
+endif()
+endfunction(abi_check)
+abi_check()
+
+if(DEFINED ldflags_unwind)
+  message(STATUS "Disabling ld compact unwind with ${ldflags_unwind}")
+  list(APPEND CMAKE_EXE_LINKER_FLAGS "${ldflags_unwind}")
 endif()
 
 #--- is dladdr available for lib_path() optional function
