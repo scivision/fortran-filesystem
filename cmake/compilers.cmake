@@ -17,7 +17,7 @@ if(NOT abi_compile)
   )
   if(abi_output MATCHES "ld: warning: could not create compact unwind for")
     if(CMAKE_C_COMPILER_ID MATCHES "AppleClang" AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-      set(ldflags_unwind "-Wl,-no_compact_unwind" CACHE STRING "linker flags to disable compact unwind")
+      set(ldflags_unwind "-Wl,-w" CACHE STRING "linker flags to disable compact unwind")
     endif()
   endif()
 
