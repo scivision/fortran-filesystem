@@ -1,3 +1,4 @@
+include(CheckIncludeFile)
 include(CheckSymbolExists)
 include(CheckCXXSymbolExists)
 include(CheckCXXSourceCompiles)
@@ -17,7 +18,10 @@ if(NOT abi_compile)
   )
   if(abi_output MATCHES "ld: warning: could not create compact unwind for")
     if(CMAKE_C_COMPILER_ID MATCHES "AppleClang" AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-      set(ldflags_unwind "-Wl,-w" CACHE STRING "linker flags to disable compact unwind")
+      message(WARNING "C++ compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}
+        not ABI compatible with Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION},
+        exception handling is broken--Fortran-filesystem may not work correctly!
+        Suggest using ABI-compatible C++ and Fortran compilers.")
     endif()
   endif()
 
@@ -34,10 +38,8 @@ endif()
 endfunction(abi_check)
 abi_check()
 
-if(DEFINED ldflags_unwind)
-  message(STATUS "Disabling ld compact unwind with ${ldflags_unwind}")
-  list(APPEND CMAKE_EXE_LINKER_FLAGS "${ldflags_unwind}")
-endif()
+
+check_include_file("sys/utsname.h" HAVE_UTSNAME_H)
 
 #--- is dladdr available for lib_path() optional function
 unset(CMAKE_REQUIRED_FLAGS)

@@ -520,4 +520,6 @@ is_unix()
 is_linux()
 is_windows()
 is_macos()
+is_cygwin()
+is_wsl()  !< Windows Subsystem for Linux
 ```

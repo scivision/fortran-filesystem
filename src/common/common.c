@@ -1,4 +1,9 @@
 #include <stdbool.h>
+#include <string.h>
+
+#ifdef HAVE_UTSNAME_H
+#include <sys/utsname.h>
+#endif
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
@@ -31,6 +36,19 @@ bool fs_is_unix() {
 bool fs_is_windows() {
 #ifdef _WIN32
   return true;
+#else
+  return false;
+#endif
+}
+
+bool fs_is_wsl() {
+#ifdef HAVE_UTSNAME_H
+  struct utsname buf;
+  if (uname(&buf) != 0)
+    return false;
+
+  return strcmp(buf.sysname, "Linux") == 0 &&
+    strstr(buf.release, "microsoft-standard-WSL") != NULL;
 #else
   return false;
 #endif

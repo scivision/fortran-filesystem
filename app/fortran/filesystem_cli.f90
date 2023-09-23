@@ -21,7 +21,8 @@ call get_command_argument(1, fcn, length=L, status=i)
 if (L == 0 .or. i /= 0) error stop "invalid function name: " // trim(fcn)
 
 select case (fcn)
-case ("cpp", "compiler", "get_cwd", "homedir", "tempdir", "is_unix", "is_linux", "is_windows", "is_macos", &
+case ("cpp", "compiler", "get_cwd", "homedir", "tempdir", &
+  "is_cygwin", "is_wsl", "is_unix", "is_linux", "is_windows", "is_macos", &
     "max_path", "exe_path", "lib_path")
   if (argc /= 1) error stop "usage: ./filesystem_cli " // trim(fcn)
 case ("copy_file", "relative_to", "same_file", "with_suffix")
@@ -51,6 +52,10 @@ case ('is_linux')
   print '(L1)', is_linux()
 case ('is_unix')
   print '(L1)', is_unix()
+case ('is_wsl')
+  print '(L1)', is_wsl()
+case ('is_cygwin')
+  print '(L1)', is_cygwin()
 case ("copy_file")
   call copy_file(buf, buf2, status=i)
   if (i /= 0) error stop "copy_file failed"

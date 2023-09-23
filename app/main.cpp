@@ -70,6 +70,12 @@ int main(int argc, char* argv[]){
   else if (arg1 == "is_windows"){
     std::cout << fs_is_windows() << "\n";
   }
+  else if (arg1 == "is_wsl"){
+    std::cout << fs_is_wsl() << "\n";
+  }
+  else if (arg1 == "is_cygwin"){
+    std::cout << fs_is_cygwin() << "\n";
+  }
   else if (arg1 == "parent"){
     std::cout << fs_parent(arg2) << "\n";
   }
