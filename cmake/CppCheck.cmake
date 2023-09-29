@@ -43,7 +43,8 @@ if(NOT cpp14_make_unique)
   return()
 endif()
 
-check_cxx_symbol_exists(__cpp_lib_smart_ptr_for_overwrite "version" cpp20_smart_ptr_for_overwrite)
-
+# e.g. AppleClang 15 doesn't yet have this, maybe not worth the bother
+# i.e. benchmarking may reveal miniscule benefit.
+# check_cxx_symbol_exists(__cpp_lib_smart_ptr_for_overwrite "version" cpp20_smart_ptr_for_overwrite)
 
 endfunction()
