@@ -11,8 +11,13 @@ enable_testing()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(c_fs main_fs.c lib_fs.cpp
-$<$<BOOL:${fortran}>:lib.f90>
-)
-target_link_libraries(c_fs PRIVATE ${GNU_stdfs})
+add_library(fs_cpp OBJECT lib_fs.cpp)
+target_link_libraries(fs_cpp PRIVATE ${GNU_stdfs})
+
+add_executable(c_fs main_fs.c $<TARGET_OBJECTS:fs_cpp>)
 add_test(NAME C_fs COMMAND c_fs)
+
+if(fortran)
+  add_executable(fortran_fs main.f90 $<TARGET_OBJECTS:fs_cpp>)
+  add_test(NAME Fortran_fs COMMAND fortran_fs)
+endif()
