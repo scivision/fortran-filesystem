@@ -5,40 +5,6 @@ include(CheckCXXSourceCompiles)
 
 include(${CMAKE_CURRENT_LIST_DIR}/CppCheck.cmake)
 
-# --- abi check: C++ and Fortran compiler ABI compatibility
-
-function(abi_check)
-if(NOT abi_compile)
-  message(CHECK_START "checking that C, C++, and Fortran compilers can link")
-  try_compile(abi_compile
-  ${CMAKE_CURRENT_BINARY_DIR}/abi_check ${CMAKE_CURRENT_LIST_DIR}/abi_check
-  abi_check
-  CMAKE_FLAGS -Dcpp:BOOL=${cpp} -Dfortran:BOOL=${fortran}
-  OUTPUT_VARIABLE abi_output
-  )
-  if(abi_output MATCHES "ld: warning: could not create compact unwind for")
-    if(CMAKE_C_COMPILER_ID MATCHES "AppleClang" AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-      message(WARNING "C++ compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}
-        not ABI compatible with Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION},
-        exception handling is broken--Fortran-filesystem may not work correctly!
-        Suggest using ABI-compatible C++ and Fortran compilers.")
-    endif()
-  endif()
-
-  if(abi_compile)
-    message(CHECK_PASS "OK")
-  else()
-    message(FATAL_ERROR "ABI-incompatible compilers:
-    C compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}
-    C++ compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}
-    Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION}"
-    )
-  endif()
-endif()
-endfunction(abi_check)
-abi_check()
-
-
 check_include_file("sys/utsname.h" HAVE_UTSNAME_H)
 
 #--- is dladdr available for lib_path() optional function
@@ -77,7 +43,6 @@ if(cpp)
 else()
   unset(HAVE_CXX_FILESYSTEM CACHE)
 endif()
-
 
 # --- deeper filesystem check: C, C++ and Fortran compiler ABI compatibility
 
