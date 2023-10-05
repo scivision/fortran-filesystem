@@ -125,7 +125,7 @@ jobs:
 
     strategy:
       matrix:
-        clang-version: [12, 13, 14]
+        clang-version: [13, 14]
         shared: [true, false]
         cpp: [true, false]
         exclude:
