@@ -5,7 +5,7 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 endif()
 
 foreach(t IN ITEMS canonical core env exe expanduser
-        fileop filesize find relative reserved same symlink)
+        filesize find relative reserved same symlink)
   add_executable(test_${t} test_${t}.f90)
   target_link_libraries(test_${t} PRIVATE ffilesystem)
   add_test(NAME Fortran_${t} COMMAND test_${t})
@@ -18,12 +18,6 @@ if(HAVE_CXX_FILESYSTEM)
   set_property(TEST Fortran_canonical PROPERTY PASS_REGULAR_EXPRESSION "OK: canonical full")
 endif()
 
-set_property(TEST Fortran_fileop PROPERTY WORKING_DIRECTORY $<TARGET_FILE_DIR:test_fileop>)
-set_property(TEST Fortran_fileop PROPERTY FIXTURES_SETUP ops_fxt)
-# workdir avoids test state being shared between tests
-
-set_property(TEST Fortran_find PROPERTY FIXTURES_REQUIRED ops_fxt)
-
 # --- binpath
 add_executable(test_binpath_fortran test_binpath.f90)
 target_link_libraries(test_binpath_fortran PRIVATE ffilesystem)
@@ -34,8 +28,19 @@ COMMAND test_binpath_fortran
   $<TARGET_FILE_NAME:ffilesystem>
 )
 
+# --- fileop
+add_executable(test_fileop test_fileop.f90)
+target_link_libraries(test_fileop PRIVATE ffilesystem)
+
+add_test(NAME Fortran_fileop COMMAND test_fileop ${CMAKE_CURRENT_SOURCE_DIR})
+set_property(TEST Fortran_fileop PROPERTY WORKING_DIRECTORY $<TARGET_FILE_DIR:test_fileop>)
+set_property(TEST Fortran_fileop PROPERTY FIXTURES_SETUP ops_fxt)
+# workdir avoids test state being shared between tests
 
 # --- props
+
+set_property(TEST Fortran_find PROPERTY FIXTURES_REQUIRED ops_fxt)
+
 set_property(TEST Fortran_relative Fortran_canonical Fortran_filesize PROPERTY FIXTURES_REQUIRED core_fxt)
 
 get_property(test_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)

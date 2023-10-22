@@ -255,7 +255,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   const char* t = realpath(buf, buf2);
 
   if (strict && !t) {
-    fprintf(stderr, "ERROR:ffilesystem:canonical: %s => %s\n", buf, strerror(errno));
+    fprintf(stderr, "ERROR:ffilesystem:canonical: %s   %s\n", buf, strerror(errno));
     free(buf);
     free(buf2);
     return 0;
@@ -265,6 +265,20 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   size_t L = fs_normal(buf2, result, buffer_size);
   free(buf2);
   return L;
+}
+
+bool fs_set_cwd(const char* path){
+
+  if(strlen(path) == 0)
+    return false;
+
+  // <unistd.h>
+  if(chdir(path) == 0)
+    return true;
+
+  fprintf(stderr, "ERROR:ffilesystem:set_cwd: %s    %s\n", path, strerror(errno));
+  return false;
+
 }
 
 

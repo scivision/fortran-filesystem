@@ -825,6 +825,23 @@ std::string fs_get_cwd()
 }
 
 
+bool fs_set_cwd(const char *path)
+{
+  std::error_code ec;
+  fs::current_path(path, ec);
+  if (ec){
+    std::cerr << "ERROR:filesystem:set_cwd: " << ec.message() << '\n';
+    return false;
+  }
+  return true;
+}
+
+void fs_set_cwd(const std::string& path)
+{
+  fs::current_path(path);
+}
+
+
 size_t fs_get_homedir(char* path, size_t buffer_size)
 {
   return fs_str2char(fs_get_homedir(), path, buffer_size);

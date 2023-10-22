@@ -493,6 +493,13 @@ Get current working directory
 character(:), allocatable :: get_cwd()
 ```
 
+Change current working directory (chdir):
+
+```fortran
+logical :: ok
+ok = set_cwd("my/path")
+```
+
 Get system or user temporary directory:
 
 ```fortran

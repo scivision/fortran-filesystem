@@ -37,6 +37,11 @@ int main(int argc, char* argv[]){
   else if (arg1 == "compiler"){
     std::cout << fs_compiler() << "\n";
   }
+  else if ((arg1 == "chdir" || arg1 == "set_cwd") && argc == 3){
+    std::cout << "cwd: " << fs_get_cwd() << "\n";
+    fs_set_cwd(arg2);
+    std::cout << "new cwd: " << fs_get_cwd() << "\n";
+  }
   else if (arg1 == "cpp"){
     std::cout << fs_cpp() << "\n";
   }

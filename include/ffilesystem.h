@@ -36,9 +36,12 @@ bool fs_exists(std::string);
 std::string fs_expanduser(std::string);
 std::string fs_file_name(std::string);
 uintmax_t fs_file_size(std::string);
+
 std::string fs_get_cwd();
+void fs_set_cwd(const std::string& path);
 std::string fs_get_homedir();
 std::string fs_get_tempdir();
+
 bool fs_is_absolute(std::string);
 bool fs_is_char_device(std::string);
 bool fs_is_dir(std::string);
@@ -185,6 +188,7 @@ extern size_t fs_relative_to(const char*, const char*, char*, size_t);
 extern bool fs_touch(const char*);
 
 extern size_t fs_get_cwd(char*, size_t);
+extern bool fs_set_cwd(const char*);
 extern size_t fs_get_homedir(char*, size_t);
 extern size_t fs_get_tempdir(char*, size_t);
 

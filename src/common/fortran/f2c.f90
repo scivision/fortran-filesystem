@@ -126,6 +126,11 @@ character(kind=C_CHAR), intent(out) :: path(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
+logical(C_BOOL) function fs_set_cwd(path) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+end function
+
 integer(C_SIZE_T) function fs_get_homedir(path, buffer_size) bind(C)
 import
 character(kind=c_char), intent(out) :: path(*)
@@ -393,6 +398,10 @@ allocate(character(max_path()) :: cbuf)
 N = fs_get_cwd(cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: get_cwd)
 get_cwd = cbuf(:N)
+end procedure
+
+module procedure set_cwd
+set_cwd = fs_set_cwd(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure get_homedir
