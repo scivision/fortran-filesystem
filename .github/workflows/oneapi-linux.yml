@@ -1,9 +1,6 @@
 name: oneapi-linux
 
 env:
-  CC: icx
-  CXX: icpx
-  FC: ifx
   LINUX_CPP_COMPONENTS: intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
   LINUX_FORTRAN_COMPONENTS: intel-oneapi-compiler-fortran
 # https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
@@ -34,7 +31,7 @@ jobs:
         cpp: [true, false]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: cache install oneAPI
       id: cache-install
