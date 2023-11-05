@@ -82,6 +82,10 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size)
   cwk_path_set_style(CWK_STYLE_UNIX);
 
   size_t L = cwk_path_normalize(path, result, buffer_size);
+  if(L > buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem: output buffer too small for string\n");
+    return 0;
+  }
 
 if(FS_TRACE) printf("TRACE:normal in: %s  out: %s\n", path, result);
 
