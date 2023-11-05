@@ -85,7 +85,9 @@ target_link_libraries(ffilesystem
 INTERFACE
 ${GNU_stdfs}
 $<$<BOOL:${HAVE_DLADDR}>:${CMAKE_DL_LIBS}>
+"$<$<BOOL:${WIN32}>:Userenv;Advapi32>"
 )
+# both Advapi32 and Userenv must be linked
 
 if(fortran)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

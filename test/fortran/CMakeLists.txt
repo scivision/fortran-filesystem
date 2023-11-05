@@ -4,7 +4,7 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-maybe-uninitialized>)
 endif()
 
-foreach(t IN ITEMS canonical core env exe expanduser
+foreach(t IN ITEMS canonical core exe expanduser
         filesize find relative reserved same symlink)
   add_executable(test_${t} test_${t}.f90)
   target_link_libraries(test_${t} PRIVATE ffilesystem)
@@ -16,6 +16,18 @@ set_property(TEST Fortran_core PROPERTY FIXTURES_SETUP core_fxt)
 if(HAVE_CXX_FILESYSTEM)
   set_property(TEST Fortran_relative PROPERTY PASS_REGULAR_EXPRESSION "OK: relative_to full")
   set_property(TEST Fortran_canonical PROPERTY PASS_REGULAR_EXPRESSION "OK: canonical full")
+endif()
+
+# --- get_homedir, exists
+
+add_executable(test_env test_env.f90)
+target_link_libraries(test_env PRIVATE ffilesystem)
+add_test(NAME FortranHomedirEnv COMMAND test_env)
+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
+  add_test(NAME FortranHomedirNoEnv COMMAND test_env)
+  set_property(TEST FortranHomedirNoEnv PROPERTY ENVIRONMENT_MODIFICATION "HOME=unset:;USERPROFILE=unset:")
+  set_property(TEST FortranHomedirNoEnv PROPERTY DISABLED $<OR:$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>,$<BOOL:$ENV{CI}>>)
 endif()
 
 # --- binpath
@@ -52,6 +64,6 @@ set_property(TEST ${test_names} PROPERTY RUN_SERIAL true)
 # tests run much faster in serial, especially on Windows
 
 # --- Windows shared DLLs
-if((CYGWIN OR WIN32) AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
+if(BUILD_SHARED_LIBS AND (CYGWIN OR WIN32) AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
   set_property(TEST ${test_names} PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_append:$<TARGET_FILE_DIR:ffilesystem>")
 endif()

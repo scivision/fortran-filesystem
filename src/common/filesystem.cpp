@@ -20,8 +20,18 @@
 
 #include "ffilesystem.h"
 
-// for lib_path, exe_path
+// for get_homedir backup method
+#ifdef _WIN32
+#include <userenv.h>
+#else
+#include <sys/types.h>
+#include <pwd.h>
+#include <cerrno>
+#include <unistd.h> // for mac too
+#endif
+// end get_homedir backup method
 
+// for lib_path, exe_path
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -844,21 +854,45 @@ void fs_set_cwd(const std::string& path)
 
 size_t fs_get_homedir(char* path, size_t buffer_size)
 {
-  return fs_str2char(fs_get_homedir(), path, buffer_size);
+  try{
+    return fs_str2char(fs_get_homedir(), path, buffer_size);
+  } catch (std::exception& e) {
+    std::cerr << "ERROR:filesystem:get_homedir: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_get_homedir()
 {
 
-  auto k = fs_is_windows() ? "USERPROFILE" : "HOME";
-  auto r = std::getenv(k);
+  auto r = std::getenv(fs_is_windows() ? "USERPROFILE" : "HOME");
+  if (r && std::strlen(r) > 0)
+    return fs_normal(r);
 
-  if(!r) {
-    std::cerr << "ERROR:filesystem:get_homedir: " << k << " is not defined\n";
-    return {};
-  }
+  std::string homedir;
+#ifdef _WIN32
+  // works on MSYS2, MSVC, oneAPI.
+  DWORD L = FS_MAX_PATH;
+  auto buf = std::make_unique<char[]>(L);
+  // process with query permission
+  HANDLE hToken = 0;
+  if(!OpenProcessToken( GetCurrentProcess(), TOKEN_QUERY, &hToken))
+    throw std::runtime_error("OpenProcessToken(GetCurrentProcess): "  + std::system_category().message(GetLastError()));
 
-  return fs_normal(r);
+  bool ok = GetUserProfileDirectoryA(hToken, buf.get(), &L);
+  CloseHandle(hToken);
+  if (!ok)
+    throw std::runtime_error("GetUserProfileDirectory: "  + std::system_category().message(GetLastError()));
+
+  homedir = std::string(buf.get());
+#else
+  const char *h = getpwuid(geteuid())->pw_dir;
+  if (!h)
+    throw std::runtime_error("getpwuid: "  + std::system_category().message(errno));
+  homedir = std::string(h);
+#endif
+
+  return homedir;
 }
 
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
