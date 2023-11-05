@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/types.h>
+#include <pwd.h>
+#include <errno.h>
+
 #include <unistd.h>
 
 #include "ffilesystem.h"
@@ -37,7 +41,16 @@ size_t fs_get_cwd(char* path, size_t buffer_size)
 
 size_t fs_get_homedir(char* path, size_t buffer_size)
 {
-  return fs_getenv("HOME", path, buffer_size);
+  size_t L = fs_getenv("HOME", path, buffer_size);
+  if (L)
+    return L;
+
+  const char *h = getpwuid(geteuid())->pw_dir;
+  if (!h)
+    return 0;
+
+  return fs_normal(h, path, buffer_size);
+
 }
 
 size_t fs_get_tempdir(char* path, size_t buffer_size)

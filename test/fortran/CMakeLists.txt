@@ -27,7 +27,7 @@ add_test(NAME FortranHomedirEnv COMMAND test_env)
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
   add_test(NAME FortranHomedirNoEnv COMMAND test_env)
   set_property(TEST FortranHomedirNoEnv PROPERTY ENVIRONMENT_MODIFICATION "HOME=unset:;USERPROFILE=unset:")
-  set_property(TEST FortranHomedirNoEnv PROPERTY DISABLED $<OR:$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>,$<BOOL:$ENV{CI}>>)
+  set_property(TEST FortranHomedirNoEnv PROPERTY DISABLED $<BOOL:$ENV{CI}>)
 endif()
 
 # --- binpath
