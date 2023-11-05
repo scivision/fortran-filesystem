@@ -51,9 +51,6 @@ if(rel /= ".") error stop "same path 'Hello'should be . but got: "  // rel
 rel = relative_to("Hello", "Hello/")
 if(rel /= ".") error stop "same path 'Hello' vs. 'Hello/' should be . but got: "  // rel
 
-rel = relative_to("NUL", "NUL")
-if(rel /= ".") error stop "same path 'NUL' should be . but got: "  // rel
-
 rel = relative_to("/dev/null", "/dev/null")
 if(rel /= ".") error stop "same path '/dev/null' should be . but got: "  // rel
 

@@ -28,6 +28,8 @@ if (.not. same_file(p1%path(), p2%path())) error stop 'ERROR: same_file()'
 
 if (.not. same_file("~", "~")) error stop 'ERROR: same_file(~,~)'
 
+if(same_file("not-exist-same", "not-exist-same")) error stop 'ERROR: same_file(not-exist-same, not-exist-same)'
+
 end subroutine test_same_file
 
 end program

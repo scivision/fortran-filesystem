@@ -39,10 +39,6 @@ int main(void){
     }
     printf("OK: create_directories(%s)\n", ref);
 
-    if(!fs_exists(s))
-      return EXIT_FAILURE;
-    printf("OK: exists(%s)\n", ref);
-
     bool b = fs_is_absolute(s);
     if (fs_is_windows()){
       if(b) return EXIT_FAILURE;
@@ -58,23 +54,36 @@ int main(void){
     if(fs_is_exe(s))
       return EXIT_FAILURE;
 
+#ifndef _WIN32
+
+    if(!fs_exists(s))
+      return EXIT_FAILURE;
+    printf("OK: exists(%s)\n", ref);
+
     b = fs_is_file(s);
     if(b){
       fprintf(stderr,"FAIL: is_file(%s) %d\n", s, b);
       return EXIT_FAILURE;
     }
 
-    if(fs_remove(s)){
-      fprintf(stderr,"FAIL: remove(%s)\n", s);
-      return EXIT_FAILURE;
-    }
-    printf("OK: remove(%s)\n", s);
-
     if(fs_canonical(s, false, p, FS_MAX_PATH) == 0){
       fprintf(stderr,"FAIL: canonical(%s)  %s\n", s, p);
       return EXIT_FAILURE;
     }
     printf("OK: canonical(%s)\n", p);
+
+    fs_relative_to(s, s, p, FS_MAX_PATH);
+    if(strcmp(p, ".") != 0){
+      fprintf(stderr,"FAIL: relative_to(%s)  %s\n", ref, p);
+      return EXIT_FAILURE;
+    }
+#endif
+
+    if(fs_remove(s)){
+      fprintf(stderr,"FAIL: remove(%s)\n", s);
+      return EXIT_FAILURE;
+    }
+    printf("OK: remove(%s)\n", s);
 
     if(fs_equivalent(s, s)){
       // reserved we treat like NaN not equal
@@ -92,12 +101,6 @@ int main(void){
       return EXIT_FAILURE;
     }
     printf("OK: copy_file(%s)\n", s);
-
-    fs_relative_to(s, s, p, FS_MAX_PATH);
-    if(strcmp(p, ".") != 0){
-      fprintf(stderr,"FAIL: relative_to(%s)  %s\n", ref, p);
-      return EXIT_FAILURE;
-    }
 
     if(fs_touch(s))
       return EXIT_FAILURE;

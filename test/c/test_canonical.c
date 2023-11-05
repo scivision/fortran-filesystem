@@ -25,7 +25,7 @@ if (L1 >= L0)
 printf("OK: parent home = %s\n", out);
 
 // -- relative dir
-const char par[] = "~/..";
+const char* par = "~/..";
 
 size_t L2 = fs_canonical(par, false, out, FS_MAX_PATH);
 
@@ -33,14 +33,14 @@ if (L2 != L1){
   fprintf(stderr, "ERROR:canonical:relative: up dir not canonicalized: ~/.. => %s\n", out);
   return EXIT_FAILURE;
 }
-printf("OK: canon_dir = %s\n", out);
+printf("OK: canon_rel_up = %s\n", out);
 
 // -- relative file
 if(fs_is_cygwin())
   // Cygwin can't handle non-existing canonical paths
   return EXIT_SUCCESS;
 
-const char file[] = "~/../not-exist.txt";
+const char* file = "~/../not-exist.txt";
 
 size_t L = fs_canonical(file, false, out, FS_MAX_PATH);
 if(L == 0) {

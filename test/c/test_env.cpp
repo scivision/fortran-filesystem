@@ -43,10 +43,10 @@ int main()
     throw std::runtime_error("home dir " + p + " != expanduser('~') " + fs_expanduser("~"));
 
 // --- tempdir
-  p = fs_get_tempdir();
-  std::cout << "Temp directory " << p << "\n";
-  if (!fs_exists(p))
-    throw std::runtime_error("Fortran: temp dir " + p + " does not exist");
+  std::string t = fs_get_tempdir();
+  std::cout << "Temp directory " << t << "\n";
+  if (!fs_exists(t))
+    throw std::runtime_error("Fortran: temp dir " + t + " does not exist");
 
   std::cout << "OK: C++ environment\n";
 

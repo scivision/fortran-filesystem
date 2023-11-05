@@ -18,48 +18,61 @@
 namespace fs = std::filesystem;
 
 
-std::string fs_as_posix(std::string);
-std::string fs_as_windows(std::string);
-std::string fs_as_cygpath(std::string);
+std::string fs_as_posix(std::string_view);
+std::string fs_as_windows(std::string_view);
+std::string fs_as_cygpath(std::string_view);
 
-std::string fs_canonical(std::string, bool);
-std::string fs_root(std::string);
+std::string fs_normal(std::string_view);
+std::string fs_file_name(std::string_view);
+std::string fs_stem(std::string_view);
+std::string fs_join(std::string_view, std::string_view);
+std::string fs_parent(std::string_view);
+std::string fs_suffix(std::string_view);
+std::string fs_with_suffix(std::string_view, std::string_view);
 
-bool fs_chmod_exe(std::string, bool);
-std::string fs_get_permissions(std::string);
+bool fs_is_symlink(std::string_view);
+int fs_create_symlink(std::string_view, std::string_view);
 
-int fs_copy_file(std::string, std::string, bool);
-int fs_create_directories(std::string);
-int fs_create_symlink(std::string, std::string);
-bool fs_equivalent(std::string, std::string);
-bool fs_exists(std::string);
-std::string fs_expanduser(std::string);
-std::string fs_file_name(std::string);
-uintmax_t fs_file_size(std::string);
+int fs_create_directories(std::string_view);
 
-std::string fs_get_cwd();
-void fs_set_cwd(const std::string& path);
-std::string fs_get_homedir();
+std::string fs_root(std::string_view);
+
+bool fs_is_absolute(std::string_view);
+bool fs_is_char_device(std::string_view);
+
+bool fs_is_dir(std::string_view);
+bool fs_is_exe(std::string_view);
+
+bool fs_remove(std::string_view);
+
+std::string fs_canonical(std::string_view, bool);
+
+bool fs_equivalent(std::string_view, std::string_view);
+
+int fs_copy_file(std::string_view, std::string_view, bool);
+
+std::string fs_relative_to(std::string_view, std::string_view);
+
+bool fs_touch(std::string_view);
+
 std::string fs_get_tempdir();
 
-bool fs_is_absolute(std::string);
-bool fs_is_char_device(std::string);
-bool fs_is_dir(std::string);
-bool fs_is_exe(std::string);
-bool fs_is_file(std::string);
-bool fs_is_reserved(std::string);
-bool fs_is_symlink(std::string);
-std::string fs_join(std::string, std::string);
-std::string fs_normal(std::string);
-std::string fs_parent(std::string);
-std::string fs_relative_to(std::string, std::string);
-bool fs_remove(std::string);
-std::string fs_root(std::string);
-uintmax_t fs_space_available(std::string);
-std::string fs_stem(std::string);
-std::string fs_suffix(std::string);
-bool fs_touch(std::string);
-std::string fs_with_suffix(std::string, std::string);
+std::string fs_get_cwd();
+void fs_set_cwd(std::string_view path);
+
+uintmax_t fs_file_size(std::string_view);
+uintmax_t fs_space_available(std::string_view);
+
+bool fs_chmod_exe(std::string_view, bool);
+std::string fs_get_permissions(std::string_view);
+
+bool fs_exists(std::string_view);
+std::string fs_expanduser(std::string_view);
+
+std::string fs_get_homedir();
+
+bool fs_is_file(std::string_view);
+bool fs_is_reserved(std::string_view);
 
 std::string fs_exe_path();
 std::string fs_exe_dir();
@@ -67,11 +80,11 @@ std::string fs_exe_dir();
 std::string fs_lib_path();
 std::string fs_lib_dir();
 
-std::string fs_make_absolute(std::string, std::string);
+std::string fs_make_absolute(std::string_view, std::string_view);
 
 std::string fs_compiler();
 
-size_t fs_str2char(std::string, char*, size_t);
+size_t fs_str2char(std::string_view, char*, size_t);
 size_t fs_path2str(const fs::path, char*, size_t);
 
 #endif // __cpp_lib_filesystem
