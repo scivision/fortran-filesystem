@@ -901,7 +901,8 @@ std::string fs_expanduser(std::string_view path)
 // NOT .lexical_normal to handle "~/.."
   std::regex r("/{2,}");
 
-  std::string p = std::regex_replace(fs_as_posix(path), r, "/");
+  std::string p(path);
+  p = std::regex_replace(p, r, "/");
 
   if(FS_TRACE) std::cout << "TRACE:expanduser: path deduped " << p << "\n";
 
