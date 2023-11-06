@@ -19,5 +19,6 @@ add_test(NAME C_fs COMMAND c_fs)
 
 if(fortran)
   add_executable(fortran_fs main.f90 $<TARGET_OBJECTS:fs_cpp>)
+  set_property(TARGET fortran_fs PROPERTY LINKER_LANGUAGE Fortran)
   add_test(NAME Fortran_fs COMMAND fortran_fs)
 endif()
