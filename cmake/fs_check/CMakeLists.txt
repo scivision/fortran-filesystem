@@ -11,6 +11,11 @@ enable_testing()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# fixes errors about needing -fPIE
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(CMAKE_POSITION_INDEPENDENT_CODE true)
+endif()
+
 add_library(fs_cpp OBJECT lib_fs.cpp)
 target_link_libraries(fs_cpp PRIVATE ${GNU_stdfs})
 
