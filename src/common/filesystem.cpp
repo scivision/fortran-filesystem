@@ -3,18 +3,19 @@
 // NOTE: this segfaults: std::filesystem::path p(nullptr);
 
 #include <iostream>
-#include <algorithm>  // IWYU pragma: keep
+#include <algorithm>
 #include <array>
 #include <functional>
 #include <random>
 #include <cstring>
 #include <string>
-#include <fstream>  // IWYU pragma: keep
+#include <fstream>
 #include <regex>
 #include <set>
 #include <cstdint>
 #include <cstdlib>
 #include <system_error>
+#include <exception>
 #include <filesystem>
 
 #if __has_include(<format>)
