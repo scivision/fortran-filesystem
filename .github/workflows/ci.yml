@@ -54,6 +54,10 @@ jobs:
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
+    - name: log if fail
+      if: failure()
+      run: cat build/CMakeFiles/CMakeConfigureLog.yaml
+
     - name: Debug workflow
       run: cmake --workflow --preset debug
 
@@ -102,6 +106,10 @@ jobs:
         -Dfallback:BOOL=off
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+
+    - name: log if fail
+      if: failure()
+      run: cat build/CMakeFiles/CMakeConfigureLog.yaml
 
     - name: Debug workflow
       run: cmake --workflow --preset debug
@@ -154,6 +162,10 @@ jobs:
         -Dfallback:BOOL=off
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+
+    - name: log if fail
+      if: failure()
+      run: cat build/CMakeFiles/CMakeConfigureLog.yaml
 
     - name: Debug workflow
       run: cmake --workflow --preset debug
@@ -267,6 +279,10 @@ jobs:
         -Dfallback:BOOL=off
         -Dcpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+
+    - name: log if fail
+      if: failure()
+      run: cat build/CMakeFiles/CMakeConfigureLog.yaml
 
     - name: Debug workflow
       run: cmake --workflow --preset debug
