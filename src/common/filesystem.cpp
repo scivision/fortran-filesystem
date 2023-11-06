@@ -4,6 +4,9 @@
 
 #include <iostream>
 #include <algorithm>  // IWYU pragma: keep
+#include <array>
+#include <functional>
+#include <random>
 #include <cstring>
 #include <string>
 #include <fstream>  // IWYU pragma: keep
@@ -50,6 +53,8 @@ static void dl_dummy_func() {}
 #include <unistd.h>
 #endif
 // --- end of lib_path, exe_path
+
+static std::string fs_generate_random_alphanumeric_string(std::size_t);
 
 size_t fs_get_max_path(){ return FS_MAX_PATH; };
 
@@ -1127,3 +1132,65 @@ std::string fs_make_absolute(std::string_view path, std::string_view top_path)
 
   return buf.empty() ? out : fs_join(buf, out);
 }
+
+// --- mkdtemp
+
+size_t fs_make_tempdir(char* result, size_t buffer_size){
+  // Fortran / C / C++ interface function
+
+  std::string tmpdir;
+  try{
+    tmpdir = fs_make_tempdir("tmp.");
+  } catch(fs::filesystem_error& e) {
+    std::cerr << "ERROR:filesystem:make_tempdir: " << e.what() << "\n";
+    return 0;
+  }
+  return fs_str2char(tmpdir, result, buffer_size);
+}
+
+
+std::string fs_make_tempdir(std::string prefix)
+{
+  // make unique temporary directory starting with prefix
+
+  fs::path t;
+  size_t Lname = 16;  // arbitrary length for random string
+
+  do {
+    t = (fs::temp_directory_path() / (prefix + fs_generate_random_alphanumeric_string(Lname)));
+  } while (fs::is_directory(t));
+
+  if (!fs::create_directory(t))
+    throw fs::filesystem_error("fs_make_tempdir:mkdir: could not create temporary directory", t, std::error_code(errno, std::system_category()));
+
+  return t.generic_string();
+
+}
+
+// CTAD C++17 random string generator
+// https://stackoverflow.com/a/444614
+
+template <typename T = std::mt19937>
+static auto fs_random_generator() -> T {
+    auto constexpr seed_bytes = sizeof(typename T::result_type) * T::state_size;
+    auto constexpr seed_len = seed_bytes / sizeof(std::seed_seq::result_type);
+    auto seed = std::array<std::seed_seq::result_type, seed_len>();
+    auto dev = std::random_device();
+    std::generate_n(begin(seed), seed_len, std::ref(dev));
+    auto seed_seq = std::seed_seq(begin(seed), end(seed));
+    return T{seed_seq};
+}
+
+static std::string fs_generate_random_alphanumeric_string(std::size_t len)
+{
+    static constexpr auto chars =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+    thread_local auto rng = fs_random_generator<>();
+    auto dist = std::uniform_int_distribution{{}, std::strlen(chars) - 1};
+    auto result = std::string(len, '\0');
+    std::generate_n(begin(result), len, [&]() { return chars[dist(rng)]; });
+    return result;
+}
+// --- end mkdtemp

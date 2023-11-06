@@ -6,7 +6,7 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 implicit none
 private
 public :: path_t  !< base class
-public :: get_homedir, canonical, get_cwd, set_cwd !< utility procedures
+public :: get_homedir, canonical, get_cwd, set_cwd, make_tempdir !< utility procedures
 public :: normal, expanduser, as_posix, as_windows, &
 is_absolute, is_char_device, is_dir, is_file, is_exe, is_reserved, &
 is_symlink, &
@@ -362,6 +362,11 @@ end function
 module subroutine touch(path)
 character(*), intent(in) :: path
 end subroutine
+
+module function make_tempdir() result (r)
+!! make unique temporary directory
+character(:), allocatable :: r
+end function
 
 end interface
 

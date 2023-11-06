@@ -241,6 +241,12 @@ character(kind=C_CHAR), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
+integer(C_SIZE_T) function fs_make_tempdir(result, buffer_size) bind(C)
+import
+character(kind=C_CHAR), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
 end interface
 
 contains
@@ -556,5 +562,14 @@ N = fs_with_suffix(trim(path) // C_NULL_CHAR, trim(new) // C_NULL_CHAR, cbuf, le
 allocate(character(N) :: with_suffix)
 with_suffix = cbuf(:N)
 end procedure with_suffix
+
+module procedure make_tempdir
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = fs_make_tempdir(cbuf, len(cbuf, kind=C_SIZE_T))
+allocate(character(N) :: r)
+r = cbuf(:N)
+end procedure
 
 end submodule fort2c_ifc

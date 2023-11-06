@@ -87,6 +87,8 @@ std::string fs_compiler();
 size_t fs_str2char(std::string_view, char*, size_t);
 size_t fs_path2str(const fs::path, char*, size_t);
 
+std::string fs_make_tempdir(std::string);
+
 #endif // __cpp_lib_filesystem
 
 extern "C" {
@@ -219,6 +221,8 @@ extern size_t fs_compiler(char*, size_t);
 
 bool fs_win32_is_symlink(const char*);
 int fs_win32_create_symlink(const char*, const char*);
+
+size_t fs_make_tempdir(char*, size_t);
 
 #ifdef __cplusplus
 }

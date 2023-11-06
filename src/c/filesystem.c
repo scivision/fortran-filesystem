@@ -641,3 +641,18 @@ size_t fs_make_absolute(const char* path, const char* top_path,
   free(buf2);
   return L1;
 }
+
+
+size_t fs_make_tempdir(char* result, size_t buffer_size)
+{
+  char tmpl[] = "tmp.XXXXXX";
+
+  char* tmp = mkdtemp(tmpl);
+  /* Linux: stdlib.h  macOS: unistd.h */
+  if (!tmp){
+    fprintf(stderr, "ERROR:filesystem:fs_make_tempdir:mkdtemp: could not create temporary directory %s\n", strerror(errno));
+    return 0;
+  }
+
+  return fs_normal(tmp, result, buffer_size);
+}
