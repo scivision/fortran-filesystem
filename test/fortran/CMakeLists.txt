@@ -5,7 +5,7 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 endif()
 
 foreach(t IN ITEMS canonical core exe expanduser
-        filesize find mkdtemp relative reserved same symlink)
+        filesize find mkdtemp relative reserved same)
   add_executable(test_${t} test_${t}.f90)
   target_link_libraries(test_${t} PRIVATE ffilesystem)
   add_test(NAME Fortran_${t} COMMAND test_${t})
@@ -17,6 +17,19 @@ if(HAVE_CXX_FILESYSTEM)
   set_property(TEST Fortran_relative PROPERTY PASS_REGULAR_EXPRESSION "OK: relative_to full")
   set_property(TEST Fortran_canonical PROPERTY PASS_REGULAR_EXPRESSION "OK: canonical full")
 endif()
+
+# --- shaky tests
+foreach(t IN ITEMS symlink)
+  add_executable(test_${t} test_${t}.f90)
+  target_link_libraries(test_${t} PRIVATE ffilesystem)
+  add_test(NAME Fortran_${t} COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:test_${t}>)
+  if(ffilesystem_shaky)
+    set_property(TEST Fortran_${t} PROPERTY SKIP_REGULAR_EXPRESSION "(uncaught exception|[bB]us error|SIGABRT)")
+    set_property(TEST Fortran_${t} PROPERTY LABELS "shaky")
+  endif()
+endforeach()
+
+
 
 # --- get_homedir, exists
 

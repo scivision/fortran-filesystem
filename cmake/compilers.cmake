@@ -72,6 +72,15 @@ if(cpp AND NOT fallback AND NOT HAVE_CXX_FILESYSTEM)
   )
 endif()
 
+# warn of shaky macOS compiler mix
+set(ffilesystem_shaky false)
+if(HAVE_CXX_FILESYSTEM AND APPLE)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+    set(ffilesystem_shaky true)
+    message(STATUS "macOS Clang compiler with Gfortran may not catch C++ exceptions, which may halt the user program if a filesystem error occurs.")
+  endif()
+endif()
+
 # fixes errors about needing -fPIE
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CMAKE_POSITION_INDEPENDENT_CODE true)
