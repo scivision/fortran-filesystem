@@ -295,52 +295,29 @@ int fs_create_symlink(std::string_view target, std::string_view link)
 
 int fs_create_directories(const char* path)
 {
-  return fs_create_directories(std::string_view(path));
+  try{
+    fs_create_directories(std::string_view(path));\
+    return 0;
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:create_directories: " << e.what() << "\n";
+    return 1;
+  }
 }
 
-int fs_create_directories(std::string_view path)
+void fs_create_directories(std::string_view path)
 {
-  if(path.empty()) {
-    std::cerr << "ERROR:filesystem:mkdir:create_directories: cannot mkdir empty directory name\n";
-    return 1;
+  if(fs_exists(path)){
+    if(fs_is_dir(path))
+      return;
+
+     throw std::runtime_error("filesystem:create_directories: already exists but non-directory");
   }
 
-  std::error_code ec;
+  if(fs::create_directories(path) || fs_is_dir(path))
+    return;
+  // old MacOS return false even if directory was created
 
-  auto s = fs::status(path, ec);
-  if(s.type() != fs::file_type::not_found){
-    if(ec) {
-      std::cerr << "ERROR:filesystem:create_directories:status: " << ec.message() << "\n";
-      return ec.value();
-    }
-  }
-
-  if(fs::exists(s)) {
-    if(fs_is_dir(path)) return 0;
-
-    std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " already exists but is not a directory\n";
-    return 1;
-  }
-
-  auto ok = fs::create_directories(path, ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:create_directories: " << ec.message() << "\n";
-    return ec.value();
-  }
-
-  if( !ok ) {
-    // old MacOS return != 0 even if directory was created
-    if(fs_is_dir(path)) {
-      return 0;
-    }
-    else
-    {
-      std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " could not be created\n";
-      return 1;
-    }
-  }
-
-  return 0;
+  throw std::runtime_error("filesystem:create_directories: could not create");
 }
 
 

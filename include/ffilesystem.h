@@ -33,7 +33,7 @@ std::string fs_with_suffix(std::string_view, std::string_view);
 bool fs_is_symlink(std::string_view);
 int fs_create_symlink(std::string_view, std::string_view);
 
-int fs_create_directories(std::string_view);
+void fs_create_directories(std::string_view);
 
 std::string fs_root(std::string_view);
 
