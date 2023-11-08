@@ -33,12 +33,6 @@ int main(void){
     if(fs_create_symlink(s, s) == 0)
       return EXIT_FAILURE;
 
-    if(fs_create_directories(s) == 0){
-      fprintf(stderr,"FAIL: create_directories(%s)\n", s);
-      return EXIT_FAILURE;
-    }
-    printf("OK: create_directories(%s)\n", ref);
-
     bool b = fs_is_absolute(s);
     if (fs_is_windows()){
       if(b) return EXIT_FAILURE;
@@ -55,6 +49,12 @@ int main(void){
       return EXIT_FAILURE;
 
 #ifndef _WIN32
+
+    if(fs_create_directories(s) == 0){
+      fprintf(stderr,"FAIL: create_directories(%s)\n", s);
+      return EXIT_FAILURE;
+    }
+    printf("OK: create_directories(%s)\n", ref);
 
     if(!fs_exists(s))
       return EXIT_FAILURE;

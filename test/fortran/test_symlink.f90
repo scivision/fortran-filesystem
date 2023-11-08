@@ -10,6 +10,7 @@ integer :: i, L
 block
 type(path_t) :: p_sym, p_tgt
 character(1000) :: buf
+integer :: stat
 
 character(:), allocatable :: tgt, link, linko, tgt_dir, link_dir
 
@@ -26,6 +27,12 @@ link_dir = tgt_dir // "/link.dir"
 
 ! print *, "TRACE:test_symlink: target: " // tgt
 ! print *, "TRACE:test_symlink: link: " // link
+
+call create_symlink(tgt, "", stat)
+if (stat == 0) error stop "create_symlink() should fail with empty link"
+
+call create_symlink("", link, stat)
+if (stat == 0) error stop "create_symlink() should fail with empty target"
 
 p_sym = path_t(linko)
 
