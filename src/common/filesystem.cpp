@@ -389,22 +389,14 @@ bool fs_is_dir(const char* path)
 
 bool fs_is_dir(std::string_view path)
 {
-  if (path.empty())
-    return false;
-
   fs::path p(path);
 
-  if (fs_is_windows() && p.root_name() == p)
+  if (fs_is_windows() && !path.empty() && p.root_name() == p)
     return true;
 
   std::error_code ec;
-  bool e = fs::is_directory(p, ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << " " << p << "\n";
-    return false;
-  }
-
-  return e;
+  auto s = fs::status(p, ec);
+  return ec ? false : fs::is_directory(s);
 }
 
 
