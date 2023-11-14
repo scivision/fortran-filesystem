@@ -554,20 +554,12 @@ int fs_copy_file(std::string_view source, std::string_view dest, bool overwrite)
   std::string s = fs_canonical(source, true);
   std::string d = fs_canonical(dest, false);
 
-  if(s.empty() || !fs_is_file(s))
-    throw std::runtime_error("filesystem:copy_file: source path must not be empty");
-
-  if(d.empty())
-    throw std::runtime_error("filesystem:copy_file: destination path must not be empty");
-
   auto opt = fs::copy_options::none;
 
   if (overwrite) {
 // WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
-    if(fs_exists(d)){
-      if (!fs_remove(d))
-        return 1;
-    }
+    if(fs_exists(d))
+      fs::remove(d);
 
     opt |= fs::copy_options::overwrite_existing;
   }
