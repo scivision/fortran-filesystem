@@ -723,18 +723,17 @@ bool fs_touch(std::string_view path)
 
 size_t fs_get_tempdir(char* path, size_t buffer_size)
 {
-  return fs_str2char(fs_get_tempdir(), path, buffer_size);
+  try{
+    return fs_str2char(fs_get_tempdir(), path, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:get_tempdir: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_get_tempdir()
 {
-  std::error_code ec;
-  auto r = fs::temp_directory_path(ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:get_tempdir: " << ec.message() << "\n";
-    return {};
-  }
-  return r.generic_string();
+  return fs::temp_directory_path().generic_string();
 }
 
 
