@@ -582,7 +582,12 @@ bool fs_equivalent(std::string_view path1, std::string_view path2)
 
 int fs_copy_file(const char* source, const char* dest, bool overwrite)
 {
-  return fs_copy_file(std::string_view(source), std::string_view(dest), overwrite);
+  try{
+    return fs_copy_file(std::string_view(source), std::string_view(dest), overwrite);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:copy_file: " << e.what() << "\n";
+    return 1;
+  }
 }
 
 int fs_copy_file(std::string_view source, std::string_view dest, bool overwrite)
@@ -590,14 +595,11 @@ int fs_copy_file(std::string_view source, std::string_view dest, bool overwrite)
   std::string s = fs_canonical(source, true);
   std::string d = fs_canonical(dest, false);
 
-  if(s.empty() || !fs_is_file(s)) {
-    std::cerr << "ERROR:filesystem:copy_file: source path must not be empty\n";
-    return 1;
-  }
-  if(d.empty()) {
-    std::cerr << "ERROR:filesystem:copy_file: destination path must not be empty\n";
-    return 1;
-  }
+  if(s.empty() || !fs_is_file(s))
+    throw std::runtime_error("filesystem:copy_file: source path must not be empty");
+
+  if(d.empty())
+    throw std::runtime_error("filesystem:copy_file: destination path must not be empty");
 
   auto opt = fs::copy_options::none;
 
@@ -611,26 +613,9 @@ int fs_copy_file(std::string_view source, std::string_view dest, bool overwrite)
     opt |= fs::copy_options::overwrite_existing;
   }
 
-  std::error_code ec;
-  bool ok = fs::copy_file(s, d, opt, ec);
+  return fs::copy_file(s, d, opt) ? 0 :
+    fs_is_file(d) ? 0 : 1;
 
-  if(ec) {
-    std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << "\n";
-    return ec.value();
-  }
-
-  if( !ok ) {
-    if(fs_is_file(d)) {
-      return 0;
-    }
-    else
-    {
-      std::cerr << "ERROR:filesystem:copy_file: " << d << " could not be created\n";
-      return 1;
-    }
-  }
-
-  return 0;
 }
 
 
