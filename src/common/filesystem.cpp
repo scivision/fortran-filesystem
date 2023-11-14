@@ -542,14 +542,15 @@ bool fs_equivalent(std::string_view path1, std::string_view path2)
 int fs_copy_file(const char* source, const char* dest, bool overwrite)
 {
   try{
-    return fs_copy_file(std::string_view(source), std::string_view(dest), overwrite);
+    fs_copy_file(std::string_view(source), std::string_view(dest), overwrite);
+    return 0;
   } catch(std::exception& e){
     std::cerr << "ERROR:filesystem:copy_file: " << e.what() << "\n";
     return 1;
   }
 }
 
-int fs_copy_file(std::string_view source, std::string_view dest, bool overwrite)
+void fs_copy_file(std::string_view source, std::string_view dest, bool overwrite)
 {
   std::string s = fs_canonical(source, true);
   std::string d = fs_canonical(dest, false);
@@ -564,9 +565,10 @@ int fs_copy_file(std::string_view source, std::string_view dest, bool overwrite)
     opt |= fs::copy_options::overwrite_existing;
   }
 
-  return fs::copy_file(s, d, opt) ? 0 :
-    fs_is_file(d) ? 0 : 1;
+  if(!fs::copy_file(s, d, opt) || fs_is_file(d))
+    return;
 
+  throw std::runtime_error("filesystem:copy_file: could not copy");
 }
 
 

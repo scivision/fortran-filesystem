@@ -49,7 +49,7 @@ std::string fs_canonical(std::string_view, bool);
 
 bool fs_equivalent(std::string_view, std::string_view);
 
-int fs_copy_file(std::string_view, std::string_view, bool);
+void fs_copy_file(std::string_view, std::string_view, bool);
 
 std::string fs_relative_to(std::string_view, std::string_view);
 
