@@ -344,22 +344,15 @@ std::string fs_root(std::string_view path)
 
 bool fs_exists(const char* path)
 {
-  if(!path)
-    return false;
   return fs_exists(std::string_view(path));
 }
 
 bool fs_exists(std::string_view path)
 {
   std::error_code ec;
-  auto e = fs::exists(path, ec);
+  auto s = fs::status(path, ec);
 
-  if(ec) {
-    std::cerr << "ERROR:ffilesystem:exists: " << ec.message() << "\n";
-    return false;
-  }
-
-  return e;
+  return ec ? false : fs::exists(s);
 }
 
 
@@ -441,18 +434,10 @@ bool fs_is_file(const char* path)
 
 bool fs_is_file(std::string_view path)
 {
-  if (!fs_exists(path))
-    return false;
-    // exists() check avoids nuisance warnings when file doesn't exist.
-
   std::error_code ec;
+  auto s = fs::status(path, ec);
 
-  bool e = fs::is_regular_file(path, ec);
-  if (ec) {
-    std::cerr << "ERROR:filesystem:is_file: " << ec.message() << "\n";
-    return false;
-  }
-  return e;
+  return ec ? false : fs::is_regular_file(s);
 }
 
 
@@ -495,21 +480,17 @@ bool fs_is_reserved(std::string_view path)
 
 bool fs_remove(const char* path)
 {
-  return fs_remove(std::string_view(path));
+  try {
+    return fs_remove(std::string_view(path));
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:remove: " << e.what() << "\n";
+    return false;
+  }
 }
 
 bool fs_remove(std::string_view path)
 {
-  std::error_code ec;
-
-  bool e = fs::remove(path, ec);
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:remove: " << path << " " << ec.message() << "\n";
-    return false;
-  }
-
-  return e;
+  return fs::remove(path);
 }
 
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size)
