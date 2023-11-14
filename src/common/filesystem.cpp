@@ -790,30 +790,30 @@ uintmax_t fs_space_available(std::string_view path)
 
 size_t fs_get_cwd(char* path, size_t buffer_size)
 {
-  return fs_str2char(fs_get_cwd(), path, buffer_size);
+  try{
+    return fs_str2char(fs_get_cwd(), path, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:get_cwd: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_get_cwd()
 {
-  std::error_code ec;
-  auto r = fs::current_path(ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << "\n";
-    return {};
-  }
-  return r.generic_string();
+  return fs::current_path().generic_string();
 }
 
 
 bool fs_set_cwd(const char *path)
 {
-  std::error_code ec;
-  fs::current_path(path, ec);
-  if (ec){
-    std::cerr << "ERROR:filesystem:set_cwd: " << ec.message() << '\n';
+  try{
+    fs::current_path(path);
+    return true;
+  } catch (std::exception& e) {
+    std::cerr << "ERROR:filesystem:set_cwd: " << e.what() << "\n";
     return false;
   }
-  return true;
+
 }
 
 void fs_set_cwd(std::string_view path)
