@@ -903,28 +903,22 @@ std::string fs_expanduser(std::string_view path)
 bool fs_chmod_exe(const char* path, bool executable)
 {
   // make path file owner executable or not
-  return fs_chmod_exe(std::string_view(path), executable);
+  try{
+    fs_chmod_exe(std::string_view(path), executable);
+    return true;
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:chmod_exe: " << e.what() << "\n";
+    return false;
+  }
 }
 
-bool fs_chmod_exe(std::string_view path, bool executable)
+void fs_chmod_exe(std::string_view path, bool executable)
 {
-  if(!fs_is_file(path)) {
-    std::cerr << "ERROR:ffilesystem:chmod_exe: " << path << " is not a regular file\n";
-    return false;
-  }
-
-  std::error_code ec;
+  if(!fs_is_file(path))
+    throw std::runtime_error("ffilesystem:chmod_exe: not a regular file");
 
   fs::permissions(path, fs::perms::owner_exec,
-    executable ? fs::perm_options::add : fs::perm_options::remove,
-    ec);
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_exe: " << path << ": " << ec.message() << "\n";
-    return false;
-  }
-
-  return true;
+    executable ? fs::perm_options::add : fs::perm_options::remove);
 }
 
 

@@ -63,7 +63,7 @@ void fs_set_cwd(std::string_view path);
 uintmax_t fs_file_size(std::string_view);
 uintmax_t fs_space_available(std::string_view);
 
-bool fs_chmod_exe(std::string_view, bool);
+void fs_chmod_exe(std::string_view, bool);
 std::string fs_get_permissions(std::string_view);
 
 bool fs_exists(std::string_view);
