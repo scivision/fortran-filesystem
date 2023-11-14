@@ -19,9 +19,6 @@ character(*), parameter :: dummy = "nobody.txt"
 
 integer :: L1, L2, L3
 
-!> empty
-if(canonical("") /= "") error stop "resolve('') /= ''"
-
 ! -- current directory  -- old MacOS doesn't handle "." or ".." alone
 cur = path_t(".")
 cur = cur%resolve()
@@ -74,6 +71,9 @@ if (L3 - L2 /= len(dummy) + 1) then
   error stop
 endif
 endif
+
+!> empty
+if(canonical("") /= "") error stop "canonical('') " // canonical("") // " /= ''"
 
 print *, 'OK: canon_file = ', file%path()
 

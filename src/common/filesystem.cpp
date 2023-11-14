@@ -514,7 +514,12 @@ bool fs_remove(std::string_view path)
 
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size)
 {
-  return fs_str2char(fs_canonical(std::string_view(path), strict), result, buffer_size);
+  try{
+    return fs_str2char(fs_canonical(std::string_view(path), strict), result, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:canonical: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_canonical(std::string_view path, bool strict)
@@ -523,24 +528,14 @@ std::string fs_canonical(std::string_view path, bool strict)
 
   if (path.empty())
     return {};
+    // need this for macOS otherwise it returns the current working directory instead of empty string
 
   auto ex = fs_expanduser(path);
 
   if(FS_TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << "\n";
 
-  std::error_code ec;
-  fs::path p = strict
-    ? fs::canonical(ex, ec)
-    : fs::weakly_canonical(ex, ec);
+  return strict ? fs::canonical(ex).generic_string() : fs::weakly_canonical(ex).generic_string();
 
-  if(FS_TRACE) std::cout << "TRACE:canonical: " << p << "\n";
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:canonical: " << ec.message() << "\n";
-    return {};
-  }
-
-  return p.generic_string();
 }
 
 
