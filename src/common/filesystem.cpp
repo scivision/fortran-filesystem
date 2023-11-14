@@ -636,7 +636,12 @@ int fs_copy_file(std::string_view source, std::string_view dest, bool overwrite)
 
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
 {
-  return fs_str2char(fs_relative_to(to, from), result, buffer_size);
+  try{
+    return fs_str2char(fs_relative_to(to, from), result, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:relative_to: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_relative_to(std::string_view to, std::string_view from)
@@ -652,15 +657,7 @@ std::string fs_relative_to(std::string_view to, std::string_view from)
   if(tp.is_absolute() != fp.is_absolute())
     return {};
 
-  std::error_code ec;
-  auto r = fs::relative(tp, fp, ec);
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << "\n";
-    return {};
-  }
-
-  return r.generic_string();
+  return fs::relative(tp, fp).generic_string();
 }
 
 
