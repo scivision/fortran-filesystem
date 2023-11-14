@@ -20,7 +20,7 @@ endif()
 if(CTEST_MEMORYCHECK_TYPE STREQUAL "Valgrind")
   # https://www.cprogramming.com/debugging/valgrind.html
   find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind HINTS ${MEMCHECK_ROOT} REQUIRED)
-  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS --leak-check=yes)
+  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS --leak-check=full)
   set(supp ${CMAKE_CURRENT_LIST_DIR}/valgrind.supp)
   if(EXISTS ${supp})
     list(APPEND CTEST_MEMORYCHECK_COMMAND_OPTIONS --suppressions=${supp})

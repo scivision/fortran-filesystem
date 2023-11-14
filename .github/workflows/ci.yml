@@ -202,6 +202,13 @@ jobs:
 
     - run: ctest -Dopts="-Dcpp:BOOL=${{ matrix.cpp }} -Dfallback:BOOL=off" -S memcheck.cmake -V
 
+    - name: upload Valgrind log
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: valgrind-log
+        path: build-Valgrind/Testing/Temporary/MemoryChecker.*.log
+
   clang-tidy:
     runs-on: ubuntu-latest
     needs: linux-gcc
