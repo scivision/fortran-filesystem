@@ -375,12 +375,10 @@ bool fs_is_char_device(const char* path)
 
 bool fs_is_char_device(std::string_view path)
 {
-  try{
-    return fs::is_character_file(path);
-  } catch(fs::filesystem_error& e){
-    std::cerr << "ERROR:filesystem:is_char_device: " << e.what() << "\n";
-    return false;
-  }
+  std::error_code ec;
+  auto s = fs::status(path, ec);
+
+  return ec ? false : fs::is_character_file(s);
 }
 
 
