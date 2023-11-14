@@ -417,10 +417,11 @@ bool fs_is_exe(const char* path)
 
 bool fs_is_exe(std::string_view path)
 {
-  if (!fs_is_file(path))
-    return false;
+  std::error_code ec;
 
   auto s = fs::status(path);
+  if(!fs::is_regular_file(s))
+    return false;
 
   auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
   return i != fs::perms::none;
