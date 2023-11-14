@@ -507,7 +507,6 @@ std::string fs_canonical(std::string_view path, bool strict)
   if(FS_TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << "\n";
 
   return strict ? fs::canonical(ex).generic_string() : fs::weakly_canonical(ex).generic_string();
-
 }
 
 
@@ -526,20 +525,14 @@ bool fs_equivalent(std::string_view path1, std::string_view path2)
   // both paths must exist, or they are not equivalent -- return false
   // any non-regular file is not equivalent to anything else -- return false
 
-  if(path1.empty() || path2.empty())
-    return false;
-
-  std::string p1 = fs_canonical(path1, true);
-  std::string p2 = fs_canonical(path2, true);
-
-  if (FS_TRACE) std::cout << "TRACE:equivalent: " << p1 << " " << p2 << "\n";
+  fs::path p1(fs_expanduser(path1));
+  fs::path p2(fs_expanduser(path2));
 
   auto s1 = fs::status(p1);
   auto s2 = fs::status(p2);
 
-  if(p1.empty() || p2.empty() ||
-     fs::is_character_file(s1) || fs::is_character_file(s2) ||
-     !fs::exists(s1) || !fs::exists(s2))
+  if(!fs::exists(s1) || !fs::exists(s2) ||
+     fs::is_character_file(s1) || fs::is_character_file(s2))
       return false;
 
   return fs::equivalent(p1, p2);
