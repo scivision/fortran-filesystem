@@ -740,25 +740,17 @@ std::string fs_get_tempdir()
 
 uintmax_t fs_file_size(const char* path)
 {
-  return fs_file_size(std::string_view(path));
+  try{
+    return fs_file_size(std::string_view(path));
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:file_size: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 uintmax_t fs_file_size(std::string_view path)
 {
-  // need to check is_regular_file for MSVC/Intel Windows
-  if (!fs_is_file(path)) {
-    std::cerr << "ERROR:filesystem:file_size: " << path << " is not a regular file\n";
-    return 0;
-  }
-
-  std::error_code ec;
-  auto fsize = fs::file_size(path, ec);
-  if (ec) {
-    std::cerr << "ERROR:filesystem:file_size: " << path << " could not get file size: " << ec.message() << "\n";
-    return 0;
-  }
-
-  return fsize;
+  return fs::file_size(path);
 }
 
 
