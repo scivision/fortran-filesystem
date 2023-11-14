@@ -12,6 +12,7 @@ on:
       - "**.cmake"
       - ".github/workflows/ci_windows.yml"
       - "!concepts/**"
+      - "!memcheck.cmake"
 
 jobs:
 
