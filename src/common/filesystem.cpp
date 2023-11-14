@@ -666,56 +666,41 @@ std::string fs_relative_to(std::string_view to, std::string_view from)
 
 bool fs_touch(const char* path)
 {
-  return fs_touch(std::string_view(path));
+  try{
+    return fs_touch(std::string_view(path));
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:touch: " << path << " " << e.what() << "\n";
+    return false;
+  }
 }
 
 bool fs_touch(std::string_view path)
 {
   fs::path p(path);
-  std::error_code ec;
 
-  auto s = fs::status(p, ec);
-  if(s.type() != fs::file_type::not_found){
-    if(ec) {
-      std::cerr << "ERROR:filesystem:touch:status: " << ec.message() << ": " << p << "\n";
-      return false;
-    }
-  }
+  auto s = fs::status(p);
 
-  if (fs::exists(s) && !fs::is_regular_file(s)){
-    std::cerr << "ERROR:filesystem:touch: " << p << " exists, but is not a regular file\n";
-    return false;
-  }
+  if (fs::exists(s) && !fs::is_regular_file(s))
+    throw std::runtime_error("filesystem:touch: path exists, but is not a regular file");
 
   if(fs::is_regular_file(s)) {
 
-    if ((s.permissions() & fs::perms::owner_write) == fs::perms::none){
-      std::cerr << "ERROR:filesystem:touch: " << p << " is not writable\n";
-      return false;
-    }
+    if ((s.permissions() & fs::perms::owner_write) == fs::perms::none)
+      throw std::runtime_error("filesystem:touch: path is not writable");
 
-    fs::last_write_time(p, fs::file_time_type::clock::now(), ec);
-    if(ec) {
-      std::cerr << "filesystem:touch:last_write_time: " << p << " modtime was not updated: " << ec.message() << "\n";
-      return false;
-    }
+    fs::last_write_time(p, fs::file_time_type::clock::now());
+
     return true;
   }
 
   std::ofstream ost;
   ost.open(p, std::ios_base::out);
-  if(!ost.is_open()){
-    std::cerr << "ERROR:filesystem:touch:open: " << p << " could not be created\n";
-    return false;
-  }
+  if(!ost.is_open())
+    throw std::runtime_error("filesystem:touch:open: file could not be created");
+
   ost.close();
   // ensure user can access file, as default permissions may be mode 600 or such
-  fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add, ec);
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:touch:permissions: " << ec.message() << "\n";
-    return false;
-  }
+  fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add);
 
   return fs::is_regular_file(p);
 }
@@ -723,7 +708,7 @@ bool fs_touch(std::string_view path)
 
 size_t fs_get_tempdir(char* path, size_t buffer_size)
 {
-  try{
+  try {
     return fs_str2char(fs_get_tempdir(), path, buffer_size);
   } catch(std::exception& e){
     std::cerr << "ERROR:filesystem:get_tempdir: " << e.what() << "\n";
