@@ -546,7 +546,12 @@ std::string fs_canonical(std::string_view path, bool strict)
 
 bool fs_equivalent(const char* path1, const char* path2)
 {
-  return fs_equivalent(std::string_view(path1), std::string_view(path2));
+  try{
+    return fs_equivalent(std::string_view(path1), std::string_view(path2));
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:equivalent: " << e.what() << "\n";
+    return false;
+  }
 }
 
 bool fs_equivalent(std::string_view path1, std::string_view path2)
@@ -562,21 +567,15 @@ bool fs_equivalent(std::string_view path1, std::string_view path2)
 
   if (FS_TRACE) std::cout << "TRACE:equivalent: " << p1 << " " << p2 << "\n";
 
-  std::error_code e1, e2;
+  auto s1 = fs::status(p1);
+  auto s2 = fs::status(p2);
+
   if(p1.empty() || p2.empty() ||
-     fs::is_character_file(p1, e1) || fs::is_character_file(p2, e2) ||
-     !fs_exists(p1) || !fs_exists(p2) || e1 || e2) {
+     fs::is_character_file(s1) || fs::is_character_file(s2) ||
+     !fs::exists(s1) || !fs::exists(s2))
       return false;
-  }
 
-  bool eqv = fs::equivalent(p1, p2, e1);
-
-  if(e1) {
-    std::cerr << "ERROR:filesystem:equivalent: " << e1.message() << "\n";
-    return false;
-  }
-
-  return eqv;
+  return fs::equivalent(p1, p2);
 }
 
 
