@@ -6,6 +6,8 @@
 #
 # ctest -DMEMCHECK_ROOT=/path/to/bin/valgrind -S memcheck.cmake
 
+cmake_minimum_required(VERSION 3.19)
+
 list(APPEND opts -DCMAKE_BUILD_TYPE=Debug)
 
 set(CTEST_TEST_TIMEOUT 60)
@@ -17,15 +19,14 @@ endif()
 
 if(CTEST_MEMORYCHECK_TYPE STREQUAL "Valgrind")
   # https://www.cprogramming.com/debugging/valgrind.html
-  find_program(exe NAMES valgrind HINTS ${MEMCHECK_ROOT} PATH_SUFFIXES bin REQUIRED)
-  set(CTEST_MEMORYCHECK_COMMAND ${exe})
+  find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind HINTS ${MEMCHECK_ROOT} REQUIRED)
+  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS --leak-check=yes)
   set(supp ${CMAKE_CURRENT_LIST_DIR}/valgrind.supp)
   if(EXISTS ${supp})
-    set(CTEST_MEMORYCHECK_COMMAND_OPTIONS --suppressions=${supp})
+    list(APPEND CTEST_MEMORYCHECK_COMMAND_OPTIONS --suppressions=${supp})
   endif()
 elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "DrMemory")
-  find_program(exe NAMES drmemory HINTS ${MEMCHECK_ROOT} PATH_SUFFIXES bin64 bin REQUIRED)
-  set(CTEST_MEMORYCHECK_COMMAND ${exe})
+  find_program(CTEST_MEMORYCHECK_COMMAND NAMES drmemory HINTS ${MEMCHECK_ROOT} REQUIRED)
   set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "-light -count_leaks")
 elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "AddressSanitizer")
   set(check_flags -fsanitize=address)
