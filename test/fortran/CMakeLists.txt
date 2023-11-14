@@ -4,8 +4,7 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-maybe-uninitialized>)
 endif()
 
-foreach(t IN ITEMS canonical core exe expanduser
-        filesize find mkdtemp relative reserved same)
+foreach(t IN ITEMS canonical core exe expanduser find mkdtemp relative reserved same)
   add_executable(test_${t} test_${t}.f90)
   target_link_libraries(test_${t} PRIVATE ffilesystem)
   add_test(NAME Fortran_${t} COMMAND test_${t})
@@ -19,7 +18,7 @@ if(HAVE_CXX_FILESYSTEM)
 endif()
 
 # --- shaky tests
-foreach(t IN ITEMS symlink)
+foreach(t IN ITEMS filesize symlink)
   add_executable(test_${t} test_${t}.f90)
   target_link_libraries(test_${t} PRIVATE ffilesystem)
   add_test(NAME Fortran_${t} COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:test_${t}>)

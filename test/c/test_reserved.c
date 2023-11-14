@@ -19,19 +19,14 @@ int main(void){
 
     char p[FS_MAX_PATH];
 
+    printf("Begin test_reserved\n");
+
     fs_normal(s, p, FS_MAX_PATH);
     if (strcmp(p, ref) != 0){
       fprintf(stderr,"FAIL: normal(%s)  %s\n", s, p);
       return EXIT_FAILURE;
     }
     printf("OK: normal(%s)\n", p);
-
-    if(fs_is_symlink(s))
-      return EXIT_FAILURE;
-    printf("OK: is_symlink(%s)\n", s);
-
-    if(fs_create_symlink(s, s) == 0)
-      return EXIT_FAILURE;
 
     bool b = fs_is_absolute(s);
     if (fs_is_windows()){
@@ -113,6 +108,13 @@ int main(void){
     if(fs_chmod_exe(s, true))
       return EXIT_FAILURE;
     printf("OK: chmod_exe(%s)\n", ref);
+
+    if(fs_is_symlink(s))
+      return EXIT_FAILURE;
+    printf("OK: is_symlink(%s)\n", s);
+
+    if(fs_create_symlink(s, s) == 0)
+      return EXIT_FAILURE;
 
     printf("PASS: test_reserved.cpp\n");
 

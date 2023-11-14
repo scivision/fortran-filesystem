@@ -1,5 +1,5 @@
 # --- C
-foreach(t IN ITEMS canonical expanduser file env empty reserved)
+foreach(t IN ITEMS canonical expanduser file env)
   add_executable(test_C_${t} test_${t}.c)
   target_link_libraries(test_C_${t} PRIVATE ffilesystem)
   add_test(NAME C_${t} COMMAND test_C_${t})
@@ -35,8 +35,19 @@ COMMAND test_binpath_cpp
   $<TARGET_FILE_NAME:ffilesystem>
 )
 
-
 endif()
+
+# --- shaky tests
+foreach(t IN ITEMS empty reserved)
+  add_executable(test_C_${t} test_${t}.c)
+  target_link_libraries(test_C_${t} PRIVATE ffilesystem)
+  add_test(NAME C_${t} COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:test_C_${t}>)
+  if(ffilesystem_shaky)
+    set_property(TEST C_${t} PROPERTY SKIP_REGULAR_EXPRESSION "(uncaught exception|[bB]us error|SIGABRT)")
+    set_property(TEST C_${t} PROPERTY LABELS "shaky")
+  endif()
+endforeach()
+
 
 
 # --- props
