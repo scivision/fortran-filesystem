@@ -27,7 +27,7 @@ if(CTEST_MEMORYCHECK_TYPE STREQUAL "Valgrind")
   endif()
 elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "DrMemory")
   find_program(CTEST_MEMORYCHECK_COMMAND NAMES drmemory HINTS ${MEMCHECK_ROOT} REQUIRED)
-  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS "-light -count_leaks")
+  set(CTEST_MEMORYCHECK_COMMAND_OPTIONS -light -count_leaks)
 elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "AddressSanitizer")
   set(check_flags -fsanitize=address)
 elseif(CTEST_MEMORYCHECK_TYPE STREQUAL "LeakSanitizer")
@@ -63,6 +63,8 @@ else()
 endif()
 
 message(STATUS "Checker ${CTEST_MEMORYCHECK_TYPE}: ${CTEST_MEMORYCHECK_COMMAND}")
+
+string(REPLACE ";" " " CTEST_MEMORYCHECK_COMMAND_OPTIONS "${CTEST_MEMORYCHECK_COMMAND_OPTIONS}")
 
 ctest_start(Experimental)
 
