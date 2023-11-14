@@ -83,8 +83,11 @@ endif()
 
 # fixes errors about needing -fPIE
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  include(CheckPIESupported)
+  check_pie_supported()
   set(CMAKE_POSITION_INDEPENDENT_CODE true)
 endif()
+
 
 # --- C compile flags
 if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU|^Intel")

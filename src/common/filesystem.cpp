@@ -872,9 +872,6 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 
 std::string fs_expanduser(std::string_view path)
 {
-  if (path.empty())
-    return {};
-
   if(path.front() != '~')
     return fs_normal(path);
 
