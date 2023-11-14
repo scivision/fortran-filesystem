@@ -764,27 +764,19 @@ uintmax_t fs_file_size(std::string_view path)
 
 uintmax_t fs_space_available(const char* path)
 {
-  return fs_space_available(std::string_view(path));
+  try{
+    return fs_space_available(std::string_view(path));
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:space_available: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 uintmax_t fs_space_available(std::string_view path)
 {
   // filesystem space available for device holding path
 
-  // necessary for MinGW; seemed good choice for all platforms
-  if(!fs_exists(path)){
-    std::cerr << "ERROR:filesystem:space_available: " << path << " does not exist\n";
-    return 0;
-  }
-
-  std::error_code ec;
-  auto si = fs::space(path, ec);
-  if(ec){
-    std::cerr << "ERROR:ffilesystem:space_available " << ec.message() << "\n";
-    return 0;
-  }
-
-  return static_cast<std::intmax_t>(si.available);
+  return static_cast<std::intmax_t>(fs::space(path).available);
 }
 
 
