@@ -902,23 +902,21 @@ std::string fs_exe_dir()
 
 size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
 {
-  return fs_str2char(fs_get_permissions(std::string_view(path)), result, buffer_size);
+  try{
+    return fs_str2char(fs_get_permissions(std::string_view(path)), result, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:get_permissions: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_get_permissions(std::string_view path)
 {
   using std::filesystem::perms;
 
-  if (!fs_exists(path))
+  auto s = fs::status(path);
+  if (!fs::exists(s))
     return {};
-    // exists() check avoids nuisance warnings when file doesn't exist.
-
-  std::error_code ec;
-  auto s = fs::status(path, ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:get_permissions: " << ec.message() << "\n";
-    return {};
-  }
 
   perms p = s.permissions();
 
