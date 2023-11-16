@@ -261,36 +261,35 @@ bool fs_is_symlink(std::string_view path)
 
 int fs_create_symlink(const char* target, const char* link)
 {
-  return fs_create_symlink(std::string_view(target), std::string_view(link));
+  try{
+    fs_create_symlink(std::string_view(target), std::string_view(link));
+    return 0;
+  } catch(std::exception& e){
+    std::cerr << "ERROR:filesystem:create_symlink: " << e.what() << "\n";
+    return 1;
+  }
 }
 
-int fs_create_symlink(std::string_view target, std::string_view link)
+void fs_create_symlink(std::string_view target, std::string_view link)
 {
-  if(!fs_exists(target)) {
-    std::cerr << "ERROR:filesystem:create_symlink: target path does not exist\n";
-    return 1;
-  }
-  if(link.empty()) {
-    std::cerr << "ERROR:filesystem:create_symlink: link path must not be empty\n";
-    return 1;
-  }
+  if(target.empty())
+    throw std::runtime_error("filesystem:create_symlink: target path does not exist");
+    // confusing program errors if target is "" -- we'd never make such a symlink in real use.
+
+  auto s = fs::status(target);
+
+  if(link.empty())
+    throw std::runtime_error("filesystem:create_symlink: link path must not be empty");
+    // macOS needs empty check to avoid SIGABRT
 
 #ifdef __MINGW32__
   // C++ filesystem doesn't work for create_symlink with MinGW, but this C method does work
   return fs_win32_create_symlink(target.data(), link.data());
 #endif
 
-  std::error_code ec;
-
-  fs_is_dir(target)
-    ? fs::create_directory_symlink(target, link, ec)
-    : fs::create_symlink(target, link, ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:create_symlink: " << ec.message() << " " << ec.value() << "\n";
-    return ec.value();
-  }
-
-  return 0;
+  fs::is_directory(s)
+    ? fs::create_directory_symlink(target, link)
+    : fs::create_symlink(target, link);
 }
 
 int fs_create_directories(const char* path)
