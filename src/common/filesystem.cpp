@@ -98,11 +98,11 @@ std::string fs_compiler()
 #elif defined(_MSC_VER)
   return std::format("MSVC {}", _MSC_FULL_VER);
 #else
-  return "Unknown compiler--file bug report with Ffilesystem project to add support";
+  return {};
 #endif
 
 #else
-  return "ERROR:ffilesystem: compiler is not C++20 std::format capable";
+  return {};
 #endif
 }
 
