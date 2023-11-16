@@ -323,7 +323,7 @@ void fs_create_directories(std::string_view path)
        return;
     throw std::runtime_error("filesystem:create_directories: already exists but non-directory");
   }
-  if(fs::create_directories(path) || fs_is_dir(path))
+  if(fs::create_directories(path) || fs::is_directory(path))
     return;
   // old MacOS return false even if directory was created
 
@@ -566,7 +566,7 @@ void fs_copy_file(std::string_view source, std::string_view dest, bool overwrite
     opt |= fs::copy_options::overwrite_existing;
   }
 
-  if(!fs::copy_file(s, d, opt) || fs_is_file(d))
+  if(!fs::copy_file(s, d, opt) || fs::is_regular_file(d))
     return;
 
   throw std::runtime_error("filesystem:copy_file: could not copy");
@@ -822,7 +822,7 @@ bool fs_chmod_exe(const char* path, bool executable)
 
 void fs_chmod_exe(std::string_view path, bool executable)
 {
-  if(!fs_is_file(path))
+  if(!fs::is_regular_file(path))
     throw std::runtime_error("ffilesystem:chmod_exe: not a regular file");
 
   fs::permissions(path, fs::perms::owner_exec,
