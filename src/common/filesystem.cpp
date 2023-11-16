@@ -252,8 +252,9 @@ bool fs_is_symlink(std::string_view path)
 #endif
 
   std::error_code ec;
+  auto s = fs::symlink_status(path, ec);
+  // NOTE: use of symlink_status here like lstat(), else logic is wrong with fs::status()
 
-  auto s = fs::status(path, ec);
   return ec ? false : fs::is_symlink(s);
 }
 
@@ -305,7 +306,7 @@ void fs_create_symlink(std::string_view target, std::string_view link)
 int fs_create_directories(const char* path)
 {
   try{
-    fs_create_directories(std::string_view(path));\
+    fs_create_directories(std::string_view(path));
     return 0;
   } catch(std::exception& e){
     std::cerr << "ERROR:filesystem:create_directories: " << e.what() << "\n";
@@ -315,13 +316,13 @@ int fs_create_directories(const char* path)
 
 void fs_create_directories(std::string_view path)
 {
-  if(fs_exists(path)){
-    if(fs_is_dir(path))
-      return;
+  auto s = fs::status(path);
 
-     throw std::runtime_error("filesystem:create_directories: already exists but non-directory");
+  if(fs::exists(s)){
+    if(fs::is_directory(s))
+       return;
+    throw std::runtime_error("filesystem:create_directories: already exists but non-directory");
   }
-
   if(fs::create_directories(path) || fs_is_dir(path))
     return;
   // old MacOS return false even if directory was created
