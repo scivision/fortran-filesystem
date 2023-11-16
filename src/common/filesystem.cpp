@@ -409,8 +409,8 @@ bool fs_is_exe(std::string_view path)
 {
   std::error_code ec;
 
-  auto s = fs::status(path);
-  if(!fs::is_regular_file(s))
+  auto s = fs::status(path, ec);
+  if(ec || !fs::is_regular_file(s))
     return false;
 
   auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
@@ -775,6 +775,10 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 
 std::string fs_expanduser(std::string_view path)
 {
+  if(path.empty())
+    return {};
+  // cannot call .front() on empty string_view() (MSVC)
+
   if(path.front() != '~')
     return fs_normal(path);
 
