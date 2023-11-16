@@ -66,7 +66,7 @@ bool fs_cpp()
   return true;
 }
 
-size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
+static size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
 {
   if(s.length() >= buffer_size){
     result = nullptr;
@@ -76,11 +76,6 @@ size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
 
   std::strcpy(result, s.data());
   return std::strlen(result);
-}
-
-size_t fs_path2str(const fs::path p, char* result, size_t buffer_size)
-{
-  return fs_str2char(p.generic_string(), result, buffer_size);
 }
 
 size_t fs_compiler(char* name, size_t buffer_size)

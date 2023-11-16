@@ -84,9 +84,6 @@ std::string fs_make_absolute(std::string_view, std::string_view);
 
 std::string fs_compiler();
 
-size_t fs_str2char(std::string_view, char*, size_t);
-size_t fs_path2str(const fs::path, char*, size_t);
-
 std::string fs_make_tempdir(std::string);
 
 #endif // __cpp_lib_filesystem
