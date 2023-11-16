@@ -68,7 +68,7 @@ endif()
 
 if(cpp AND NOT fallback AND NOT HAVE_CXX_FILESYSTEM)
   message(FATAL_ERROR "C++ filesystem not available. To fallback to C filesystem:
-  cmake -Dfallback=on"
+  cmake -Dfallback=on -B build"
   )
 endif()
 

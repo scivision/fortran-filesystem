@@ -28,7 +28,6 @@ jobs:
     - name: config
       run: >-
         cmake -Bbuild
-        -Dfallback:BOOL=off
         --install-prefix=${{ runner.temp }}
         -Dfortran:BOOL=off
         -Dcpp:BOOL=on
@@ -87,7 +86,6 @@ jobs:
         cmake
         --preset multi
         --install-prefix ${{ runner.temp }}
-        -Dfallback:BOOL=off
         -Dcpp:BOOL=on
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 

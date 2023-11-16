@@ -40,7 +40,7 @@ if(NOT HAVE_CXX_FILESYSTEM)
   FetchContent_Declare(cwalk
   GIT_REPOSITORY https://github.com/likle/cwalk
   GIT_TAG v1.2.7
-  TLS_VERIFY ON
+  TLS_VERIFY ${CMAKE_TLS_VERIFY}
   )
   FetchContent_Populate(cwalk)
 
