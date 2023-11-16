@@ -11,8 +11,7 @@
 #include "ffilesystem.h"
 
 
-
-int main(){
+int main(void){
 
 #ifdef _MSC_VER
     _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
