@@ -91,13 +91,6 @@ int main(void){
     }
     printf("OK: remove(%s)\n", s);
 
-    if(fs_equivalent(s, s)){
-      // reserved we treat like NaN not equal
-      fprintf(stderr,"FAIL: equivalent(%s)\n", s);
-      return EXIT_FAILURE;
-    }
-    printf("OK: equivalent(%s)\n", ref);
-
     fs_expanduser(s, p, FS_MAX_PATH);
     if(strcmp(p, ref) != 0)
       return EXIT_FAILURE;

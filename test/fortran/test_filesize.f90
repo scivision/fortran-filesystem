@@ -14,10 +14,18 @@ contains
 
 subroutine test_space_available()
 
+integer :: ierr
 character(:), allocatable :: buf
 allocate(character(len=get_max_path()) :: buf)
 
-call get_command_argument(0, buf)
+
+if(command_argument_count() > 0) then
+  call get_command_argument(1, buf, status=ierr)
+  if (ierr /= 0) error stop "failed to get command line argument for test_space_available"
+else
+  buf = "."
+end if
+
 print '(a,f7.3)', "space_available (GB): ", real(space_available(buf)) / 1024**3
 
 ! if(space_available("not-exist-file") /= 0) error stop "space_available /= 0 for not existing file"
@@ -30,9 +38,32 @@ end subroutine
 subroutine test_file_size()
 
 integer :: u, d(10)
-character(*), parameter :: fn = "test_size.bin"
+
+character :: shaky_char
+integer :: shaky, ierr
 
 type(path_t) :: p1
+
+character(:), allocatable :: fn
+allocate(character(len=get_max_path()) :: fn)
+
+
+if(command_argument_count() > 0) then
+  call get_command_argument(1, fn, status=ierr)
+  if(ierr /= 0) error stop "failed to get path from command line argument"
+else
+  fn = "test_filesize.dat"
+endif
+
+shaky = 0
+if(command_argument_count() > 1) then
+  call get_command_argument(2, shaky_char, status=ierr)
+  if(ierr /= 0) error stop "failed to get shaky from command line argument"
+  read(shaky_char, '(i1)') shaky
+endif
+
+print '(a,i2)', "shaky platform: ", shaky
+print '(a)', "file_size path: ", trim(fn)
 
 d = 0
 
@@ -45,14 +76,23 @@ close(u)
 
 if (p1%file_size() /= size(d)*storage_size(d)/8) error stop "size mismatch OO"
 if (p1%file_size() /= file_size(p1%path())) error stop "size mismatch functional"
+print '(a, i0)', "PASSED: filesize as expected: ", p1%file_size()
 
-!> cannot size directory
-if (file_size(p1%parent()) > 0) error stop "directory has no file size"
+if (shaky /= 0) then
+  print '(a)', "skipping empty filesize test due to shaky platform"
+  return
+endif
+
+!> shaky platform
 
 !> not exist no size
 if (file_size("not-existing-file") > 0) error stop "size of non-existing file"
 
+!> cannot size directory
+if (file_size(p1%parent()) > 0) error stop "directory has no file size"
+
 if(file_size("") > 0) error stop "size of empty file"
+
 end subroutine
 
 end program

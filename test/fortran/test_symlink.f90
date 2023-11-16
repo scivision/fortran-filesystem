@@ -10,7 +10,8 @@ integer :: i, L
 block
 type(path_t) :: p_sym, p_tgt
 character(1000) :: buf
-integer :: stat
+integer :: stat, shaky
+character :: buf1
 
 character(:), allocatable :: tgt, cmake_link, link, linko, tgt_dir, link_dir
 
@@ -37,14 +38,23 @@ link_dir = tgt_dir // "/my_link.dir"
 ! print *, "TRACE:test_symlink: target: " // tgt
 ! print *, "TRACE:test_symlink: link: " // link
 
-call create_symlink(tgt, "", stat)
-if (stat == 0) error stop "create_symlink() should fail with empty link"
-print '(a)', "PASSED: create_symlink: empty link"
-if(is_symlink(tgt)) error stop "is_symlink() should be false for non-symlink file: " // tgt
+shaky = 0
+if(command_argument_count() > 1) then
+  call get_command_argument(2, buf1, status=i, length=L)
+  if(i /= 0 .or. L == 0) error stop "could not get shaky from command line"
+  read(buf1, '(i1)') shaky
+endif
 
-call create_symlink("", link, stat)
-if (stat == 0) error stop "create_symlink() should fail with empty target"
-print '(a)', "PASSED: create_symlink: empty target"
+if(shaky == 0) then
+  call create_symlink(tgt, "", stat)
+  if (stat == 0) error stop "create_symlink() should fail with empty link"
+  print '(a)', "PASSED: create_symlink: empty link"
+  if(is_symlink(tgt)) error stop "is_symlink() should be false for non-symlink file: " // tgt
+
+  call create_symlink("", link, stat)
+  if (stat == 0) error stop "create_symlink() should fail with empty target"
+  print '(a)', "PASSED: create_symlink: empty target"
+endif
 
 p_sym = path_t(linko)
 

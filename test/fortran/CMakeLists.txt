@@ -4,7 +4,7 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-maybe-uninitialized>)
 endif()
 
-foreach(t IN ITEMS canonical core exe expanduser find mkdtemp relative reserved same)
+foreach(t IN ITEMS canonical core exe expanduser find mkdtemp relative reserved)
   add_executable(test_${t} test_${t}.f90)
   target_link_libraries(test_${t} PRIVATE ffilesystem)
   add_test(NAME Fortran_${t} COMMAND test_${t})
@@ -18,13 +18,17 @@ if(HAVE_CXX_FILESYSTEM)
 endif()
 
 # --- shaky tests
-set(shaky_tests Fortran_filesize Fortran_symlink)
 
-foreach(t IN ITEMS filesize)
-  add_executable(test_${t} test_${t}.f90)
-  target_link_libraries(test_${t} PRIVATE ffilesystem)
-  add_test(NAME Fortran_${t} COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:test_${t}>)
-endforeach()
+add_executable(fortran_same test_same.f90)
+target_link_libraries(fortran_same PRIVATE ffilesystem)
+add_test(NAME Fortran_same COMMAND $<TARGET_FILE:fortran_same> $<BOOL:${ffilesystem_shaky}>)
+
+add_executable(fortran_filesize test_filesize.f90)
+target_link_libraries(fortran_filesize PRIVATE ffilesystem)
+add_test(NAME Fortran_filesize COMMAND $<TARGET_FILE:fortran_filesize>
+  ${CMAKE_CURRENT_BINARY_DIR}/test_filesize.dat
+  $<BOOL:${ffilesystem_shaky}>
+)
 
 set(test_symlink_dir ${CMAKE_CURRENT_BINARY_DIR}/symlink_test_dir)
 message(VERBOSE "Creating test directory ${test_symlink_dir}")
@@ -35,12 +39,12 @@ file(CREATE_LINK ${test_symlink_dir}/cmake-test.txt ${test_symlink_file} SYMBOLI
 message(VERBOSE "CMake test link file ${test_symlink_file}")
 add_executable(fortran_symlink test_symlink.f90)
 target_link_libraries(fortran_symlink PRIVATE ffilesystem)
-add_test(NAME Fortran_symlink COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:fortran_symlink> ${test_symlink_file})
+add_test(NAME Fortran_symlink COMMAND $<TARGET_FILE:fortran_symlink> ${test_symlink_file} $<BOOL:${ffilesystem_shaky}>)
 
-if(ffilesystem_shaky)
-  set_property(TEST ${shaky_tests} PROPERTY SKIP_REGULAR_EXPRESSION "(uncaught exception|[bB]us error|SIGABRT)")
-  set_property(TEST ${shaky_tests} PROPERTY LABELS "shaky")
-endif()
+# if(ffilesystem_shaky)
+#   set_property(TEST ${shaky_tests} PROPERTY SKIP_REGULAR_EXPRESSION "(uncaught exception|[bB]us error|SIGABRT)")
+#   set_property(TEST ${shaky_tests} PROPERTY LABELS "shaky")
+# endif()
 
 
 

@@ -524,7 +524,6 @@ bool fs_equivalent(const char* path1, const char* path2)
 bool fs_equivalent(std::string_view path1, std::string_view path2)
 {
   // non-existant paths are not equivalent
-  // any non-regular file is not equivalent
 
   return fs::equivalent(fs_expanduser(path1), fs_expanduser(path2));
 }
