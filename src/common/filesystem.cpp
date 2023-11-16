@@ -244,19 +244,17 @@ bool fs_is_symlink(std::string_view path)
     return false;
 
 #ifdef __MINGW32__
-// c++ filesystem is_symlink doesn't work on MinGW GCC, but this C method does work
-  return fs_win32_is_symlink(path.data());
+  DWORD a = GetFileAttributes(path.data());
+
+  return a == INVALID_FILE_ATTRIBUTES
+    ? false
+    : a & FILE_ATTRIBUTE_REPARSE_POINT;
 #endif
 
   std::error_code ec;
 
-  auto e = fs::is_symlink(path, ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:is_symlink: " << ec.message() << "\n";
-    return false;
-  }
-
-  return e;
+  auto s = fs::status(path, ec);
+  return ec ? false : fs::is_symlink(s);
 }
 
 int fs_create_symlink(const char* target, const char* link)
@@ -283,8 +281,20 @@ void fs_create_symlink(std::string_view target, std::string_view link)
     // macOS needs empty check to avoid SIGABRT
 
 #ifdef __MINGW32__
-  // C++ filesystem doesn't work for create_symlink with MinGW, but this C method does work
-  return fs_win32_create_symlink(target.data(), link.data());
+  DWORD p = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
+
+  if(fs::is_directory(s))
+    p |= SYMBOLIC_LINK_FLAG_DIRECTORY;
+
+  if (CreateSymbolicLink(link.data(), target.data(), p))
+    return;
+
+  DWORD err = GetLastError();
+  std::string msg = "filesystem:CreateSymbolicLink";
+  if(err == ERROR_PRIVILEGE_NOT_HELD)
+    msg += "Enable Windows developer mode to use symbolic links: https://learn.microsoft.com/en-us/windows/apps/get-started/developer-mode-features-and-debugging";
+
+  throw std::runtime_error(msg);
 #endif
 
   fs::is_directory(s)

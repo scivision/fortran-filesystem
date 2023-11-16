@@ -220,7 +220,6 @@ extern size_t fs_lib_dir(char*, size_t);
 extern size_t fs_compiler(char*, size_t);
 
 bool fs_win32_is_symlink(const char*);
-int fs_win32_create_symlink(const char*, const char*);
 
 size_t fs_make_tempdir(char*, size_t);
 
