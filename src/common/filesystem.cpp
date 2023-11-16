@@ -523,20 +523,10 @@ bool fs_equivalent(const char* path1, const char* path2)
 
 bool fs_equivalent(std::string_view path1, std::string_view path2)
 {
-  // both paths must exist, or they are not equivalent -- return false
-  // any non-regular file is not equivalent to anything else -- return false
+  // non-existant paths are not equivalent
+  // any non-regular file is not equivalent
 
-  fs::path p1(fs_expanduser(path1));
-  fs::path p2(fs_expanduser(path2));
-
-  auto s1 = fs::status(p1);
-  auto s2 = fs::status(p2);
-
-  if(!fs::exists(s1) || !fs::exists(s2) ||
-     fs::is_character_file(s1) || fs::is_character_file(s2))
-      return false;
-
-  return fs::equivalent(p1, p2);
+  return fs::equivalent(fs_expanduser(path1), fs_expanduser(path2));
 }
 
 
