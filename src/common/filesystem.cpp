@@ -633,7 +633,7 @@ size_t fs_get_tempdir(char* path, size_t buffer_size)
   try {
     return fs_str2char(fs_get_tempdir(), path, buffer_size);
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:get_tempdir: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:get_tempdir: " << e.what() << "\n";
     return 0;
   }
 }
@@ -649,7 +649,7 @@ uintmax_t fs_file_size(const char* path)
   try{
     return fs_file_size(std::string_view(path));
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:file_size: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:file_size: " << e.what() << "\n";
     return 0;
   }
 }
@@ -665,7 +665,7 @@ uintmax_t fs_space_available(const char* path)
   try{
     return fs_space_available(std::string_view(path));
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:space_available: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:space_available: " << e.what() << "\n";
     return 0;
   }
 }
@@ -683,7 +683,7 @@ size_t fs_get_cwd(char* path, size_t buffer_size)
   try{
     return fs_str2char(fs_get_cwd(), path, buffer_size);
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:get_cwd: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:get_cwd: " << e.what() << "\n";
     return 0;
   }
 }
@@ -700,7 +700,7 @@ bool fs_set_cwd(const char *path)
     fs::current_path(path);
     return true;
   } catch (std::exception& e) {
-    std::cerr << "ERROR:filesystem:set_cwd: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:set_cwd: " << e.what() << "\n";
     return false;
   }
 
@@ -717,7 +717,7 @@ size_t fs_get_homedir(char* path, size_t buffer_size)
   try{
     return fs_str2char(fs_get_homedir(), path, buffer_size);
   } catch (std::exception& e) {
-    std::cerr << "ERROR:filesystem:get_homedir: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:get_homedir: " << e.what() << "\n";
     return 0;
   }
 }
@@ -737,18 +737,18 @@ std::string fs_get_homedir()
   // process with query permission
   HANDLE hToken = 0;
   if(!OpenProcessToken( GetCurrentProcess(), TOKEN_QUERY, &hToken))
-    throw std::runtime_error("OpenProcessToken(GetCurrentProcess): "  + std::system_category().message(GetLastError()));
+    throw std::runtime_error("ffilesystem:get_homedir: OpenProcessToken(GetCurrentProcess): "  + std::system_category().message(GetLastError()));
 
   bool ok = GetUserProfileDirectoryA(hToken, buf.get(), &L);
   CloseHandle(hToken);
   if (!ok)
-    throw std::runtime_error("GetUserProfileDirectory: "  + std::system_category().message(GetLastError()));
+    throw std::runtime_error("ffilesystem:get_homedir: GetUserProfileDirectory: "  + std::system_category().message(GetLastError()));
 
   homedir = std::string(buf.get());
 #else
   const char *h = getpwuid(geteuid())->pw_dir;
   if (!h)
-    throw std::runtime_error("getpwuid: "  + std::system_category().message(errno));
+    throw std::runtime_error("ffilesystem:get_homedir: getpwuid: "  + std::system_category().message(errno));
   homedir = std::string(h);
 #endif
 
@@ -801,7 +801,7 @@ bool fs_chmod_exe(const char* path, bool executable)
     fs_chmod_exe(std::string_view(path), executable);
     return true;
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:chmod_exe: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:chmod_exe: " << e.what() << "\n";
     return false;
   }
 }
@@ -809,7 +809,7 @@ bool fs_chmod_exe(const char* path, bool executable)
 void fs_chmod_exe(std::string_view path, bool executable)
 {
   if(!fs::is_regular_file(path))
-    throw std::runtime_error("ffilesystem:chmod_exe: not a regular file");
+    throw std::runtime_error("fffilesystem:chmod_exe: not a regular file");
 
   fs::permissions(path, fs::perms::owner_exec,
     executable ? fs::perm_options::add : fs::perm_options::remove);
@@ -818,7 +818,12 @@ void fs_chmod_exe(std::string_view path, bool executable)
 
 size_t fs_exe_path(char* path, size_t buffer_size)
 {
-  return fs_str2char(fs_exe_path(), path, buffer_size);
+  try{
+    return fs_str2char(fs_exe_path(), path, buffer_size);
+  } catch (std::exception& e) {
+    std::cerr << "ERROR:ffilesystem:exe_path: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 
@@ -831,24 +836,18 @@ std::string fs_exe_path()
 
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if (!GetModuleFileNameA(nullptr, buf.get(), FS_MAX_PATH)){
-    std::cerr << "ERROR:ffilesystem:exe_path: GetModuleFileName failed\n";
-    return {};
-  }
+  if (!GetModuleFileNameA(nullptr, buf.get(), FS_MAX_PATH))
+    throw std::runtime_error("ffilesystem:exe_path: GetModuleFileName failed");
 #elif defined(__linux__) || defined(__CYGWIN__)
   // https://man7.org/linux/man-pages/man2/readlink.2.html
   size_t L = readlink("/proc/self/exe", buf.get(), FS_MAX_PATH);
-  if (L < 1 || L >= FS_MAX_PATH) {
-    std::cerr << "ERROR:ffilesystem:lib_path: readlink failed\n";
-    return {};
-  }
+  if (L < 1 || L >= FS_MAX_PATH)
+    throw std::runtime_error("ffilesystem:lib_path: readlink failed");
 #elif defined(__APPLE__)
   uint32_t mp = FS_MAX_PATH;
   int r = _NSGetExecutablePath(buf.get(), &mp);
-  if (r){
-    std::cerr << "ERROR:ffilesystem:lib_path: _NSGetExecutablePath failed: " << r << " " << mp << "\n";
-    return {};
-  }
+  if (r)
+    throw std::runtime_error("ffilesystem:lib_path: _NSGetExecutablePath failed");
 #elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
   int mib[4];
   mib[0] = CTL_KERN;
@@ -857,10 +856,8 @@ std::string fs_exe_path()
   mib[3] = -1;
   size_t cb = sizeof(buf);
 
-  if(sysctl(mib, 4, buf.get(), &cb, nullptr, 0)){
-    std::cerr << "ERROR:ffilesystem:lib_path: sysctl failed\n";
-    return {};
-  }
+  if(sysctl(mib, 4, buf.get(), &cb, nullptr, 0))
+    throw std::runtime_error("ffilesystem:lib_path: sysctl failed");
 #endif
 
   std::string s(buf.get());
@@ -875,15 +872,7 @@ size_t fs_exe_dir(char* path, size_t buffer_size)
 
 std::string fs_exe_dir()
 {
-  auto buf = std::make_unique<char[]>(FS_MAX_PATH);
-
-  if(!fs_exe_path(buf.get(), FS_MAX_PATH)){
-    std::cerr << "ERROR:ffilesystem:exe_dir: fs_exe_path failed\n";
-    return {};
-  }
-  std::string s(buf.get());
-
-  return fs_parent(s);
+  return fs_parent(fs_exe_path());
 }
 
 
@@ -892,7 +881,7 @@ size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
   try{
     return fs_str2char(fs_get_permissions(std::string_view(path)), result, buffer_size);
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:get_permissions: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:get_permissions: " << e.what() << "\n";
     return 0;
   }
 }
@@ -933,7 +922,12 @@ std::string fs_get_permissions(std::string_view path)
 
 size_t fs_lib_path(char* path, size_t buffer_size)
 {
-  return fs_str2char(fs_lib_path(), path, buffer_size);
+  try{
+    return fs_str2char(fs_lib_path(), path, buffer_size);
+  } catch (std::exception& e) {
+    std::cerr << "ERROR:ffilesystem:lib_path: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_lib_path()
@@ -942,10 +936,9 @@ std::string fs_lib_path()
   auto buf = std::make_unique<char[]>(FS_MAX_PATH);
 
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if(!GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf.get(), FS_MAX_PATH)){
-    std::cerr << "ERROR:ffilesystem:lib_path: GetModuleFileName failed\n";
-    return {};
-  }
+  if(!GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf.get(), FS_MAX_PATH))
+    throw std::runtime_error("ffilesystem:lib_path: GetModuleFileName failed");
+
   std::string s(buf.get());
   return s;
 #elif defined(HAVE_DLADDR)
@@ -967,17 +960,7 @@ size_t fs_lib_dir(char* path, size_t buffer_size)
 
 std::string fs_lib_dir()
 {
-  std::string s = fs_lib_path();
-  if(s.empty()){
-    std::cerr << "ERROR:ffilesystem:fs_lib_dir: fs_lib_path failed\n";
-    return {};
-  }
-
-  if(FS_TRACE) std::cout << "TRACE:fs_lib_dir: " << s << "\n";
-
-  if (fs_is_cygwin()) s = fs_as_cygpath(s);
-
-  return fs_parent(s);
+  return fs_parent(fs_lib_path());
 }
 
 
