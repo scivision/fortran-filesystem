@@ -259,7 +259,7 @@ int fs_create_symlink(const char* target, const char* link)
     fs_create_symlink(std::string_view(target), std::string_view(link));
     return 0;
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:create_symlink: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:create_symlink: " << e.what() << "\n";
     return 1;
   }
 }
@@ -267,13 +267,13 @@ int fs_create_symlink(const char* target, const char* link)
 void fs_create_symlink(std::string_view target, std::string_view link)
 {
   if(target.empty())
-    throw std::runtime_error("filesystem:create_symlink: target path does not exist");
+    throw std::runtime_error("ffilesystem:create_symlink: target path does not exist");
     // confusing program errors if target is "" -- we'd never make such a symlink in real use.
 
   auto s = fs::status(target);
 
   if(link.empty())
-    throw std::runtime_error("filesystem:create_symlink: link path must not be empty");
+    throw std::runtime_error("ffilesystem:create_symlink: link path must not be empty");
     // macOS needs empty check to avoid SIGABRT
 
 #ifdef __MINGW32__
@@ -304,7 +304,7 @@ int fs_create_directories(const char* path)
     fs_create_directories(std::string_view(path));
     return 0;
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:create_directories: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:create_directories: " << e.what() << "\n";
     return 1;
   }
 }
@@ -316,13 +316,13 @@ void fs_create_directories(std::string_view path)
   if(fs::exists(s)){
     if(fs::is_directory(s))
        return;
-    throw std::runtime_error("filesystem:create_directories: already exists but non-directory");
+    throw std::runtime_error("ffilesystem:create_directories: already exists but non-directory");
   }
   if(fs::create_directories(path) || fs::is_directory(path))
     return;
   // old MacOS return false even if directory was created
 
-  throw std::runtime_error("filesystem:create_directories: could not create");
+  throw std::runtime_error("ffilesystem:create_directories: could not create directory");
 }
 
 
@@ -470,7 +470,7 @@ bool fs_remove(const char* path)
   try {
     return fs_remove(std::string_view(path));
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:remove: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:remove: " << e.what() << "\n";
     return false;
   }
 }
@@ -485,7 +485,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   try{
     return fs_str2char(fs_canonical(std::string_view(path), strict), result, buffer_size);
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:canonical: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:canonical: " << e.what() << "\n";
     return 0;
   }
 }
@@ -511,7 +511,7 @@ bool fs_equivalent(const char* path1, const char* path2)
   try{
     return fs_equivalent(std::string_view(path1), std::string_view(path2));
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:equivalent: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:equivalent: " << e.what() << "\n";
     return false;
   }
 }
@@ -530,7 +530,7 @@ int fs_copy_file(const char* source, const char* dest, bool overwrite)
     fs_copy_file(std::string_view(source), std::string_view(dest), overwrite);
     return 0;
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:copy_file: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:copy_file: " << e.what() << "\n";
     return 1;
   }
 }
@@ -553,7 +553,7 @@ void fs_copy_file(std::string_view source, std::string_view dest, bool overwrite
   if(!fs::copy_file(s, d, opt) || fs::is_regular_file(d))
     return;
 
-  throw std::runtime_error("filesystem:copy_file: could not copy");
+  throw std::runtime_error("ffilesystem:copy_file: could not copy");
 }
 
 
@@ -562,7 +562,7 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
   try{
     return fs_str2char(fs_relative_to(to, from), result, buffer_size);
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:relative_to: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:relative_to: " << e.what() << "\n";
     return 0;
   }
 }
@@ -587,30 +587,31 @@ std::string fs_relative_to(std::string_view to, std::string_view from)
 bool fs_touch(const char* path)
 {
   try{
-    return fs_touch(std::string_view(path));
+    fs_touch(std::string_view(path));
+    return true;
   } catch(std::exception& e){
-    std::cerr << "ERROR:filesystem:touch: " << path << " " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:touch: " << path << " " << e.what() << "\n";
     return false;
   }
 }
 
-bool fs_touch(std::string_view path)
+void fs_touch(std::string_view path)
 {
   fs::path p(path);
 
   auto s = fs::status(p);
 
   if (fs::exists(s) && !fs::is_regular_file(s))
-    throw std::runtime_error("filesystem:touch: path exists, but is not a regular file");
+    throw std::runtime_error("ffilesystem:touch: path exists, but is not a regular file");
 
   if(fs::is_regular_file(s)) {
 
     if ((s.permissions() & fs::perms::owner_write) == fs::perms::none)
-      throw std::runtime_error("filesystem:touch: path is not writable");
+      throw std::runtime_error("ffilesystem:touch: path is not writable");
 
     fs::last_write_time(p, fs::file_time_type::clock::now());
 
-    return true;
+    return;
   }
 
   std::ofstream ost;
@@ -622,7 +623,8 @@ bool fs_touch(std::string_view path)
   // ensure user can access file, as default permissions may be mode 600 or such
   fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add);
 
-  return fs::is_regular_file(p);
+  if(!fs::is_regular_file(p))
+    throw std::runtime_error("filesystem:touch: file could not be created");
 }
 
 
@@ -1005,7 +1007,7 @@ size_t fs_make_tempdir(char* result, size_t buffer_size){
   try{
     tmpdir = fs_make_tempdir("tmp.");
   } catch(fs::filesystem_error& e) {
-    std::cerr << "ERROR:filesystem:make_tempdir: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:make_tempdir: " << e.what() << "\n";
     return 0;
   }
   return fs_str2char(tmpdir, result, buffer_size);

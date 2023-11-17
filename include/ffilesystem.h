@@ -53,7 +53,7 @@ void fs_copy_file(std::string_view, std::string_view, bool);
 
 std::string fs_relative_to(std::string_view, std::string_view);
 
-bool fs_touch(std::string_view);
+void fs_touch(std::string_view);
 
 std::string fs_get_tempdir();
 
