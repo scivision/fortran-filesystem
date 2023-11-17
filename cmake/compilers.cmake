@@ -22,14 +22,14 @@ endif()
 # --- some compilers require these manual settings
 unset(CMAKE_REQUIRED_LIBRARIES)
 unset(CMAKE_REQUIRED_DEFINITIONS)
+unset(GNU_stdfs)
 
 if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "9.1.0") OR
    (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "9.1.0"))
   set(GNU_stdfs stdc++fs stdc++)
-  # need -lstdc++ to avoid C main program link error
-elseif(CMAKE_C_COMPILER_ID STREQUAL "NVHPC")
-  set(GNU_stdfs stdc++fs stdc++)
 endif()
+# GCC < 9.1 needs -lstdc++ to avoid C main program link error
+# NVHPC at least 23.11 and newer doesn't need the flags.
 
 if(GNU_stdfs)
   set(CMAKE_REQUIRED_LIBRARIES ${GNU_stdfs})
