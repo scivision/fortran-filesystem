@@ -24,11 +24,15 @@ int main()
 
 std::string exe = "dummy.exe", noexe = "dummy.no.exe";
 
+std::string p;
+
 // Empty string
 if(fs_is_exe(""))
     throw std::runtime_error("ERROR:test_exe: is_exe('') should be false");
-if(fs_get_permissions("").length() != 0)
-    throw std::runtime_error("ERROR:test_exe: get_permissions('') should be empty");
+
+p = fs_get_permissions("");
+if(p.length() != 0)
+    throw std::runtime_error("ERROR:test_exe: get_permissions('') should be empty, got: " + p);
 
 // Non-existent file
 if (fs_is_file("not-exist"))
@@ -46,10 +50,8 @@ if (!fs_is_file(exe))
 
 std::cout << "permissions before chmod(" << exe << ", true)  = " << fs_get_permissions(exe) << "\n";
 
-if (!fs_chmod_exe(exe, true))
-    throw std::runtime_error("ERROR:test_exe: chmod_exe(true) failed");
+fs_chmod_exe(exe, true);
 
-std::string p;
 p = fs_get_permissions(exe);
 std::cout << "permissions after chmod(" << exe << ", true) = " << p << "\n";
 
@@ -66,8 +68,7 @@ if (!fs_is_file(noexe))
 
 std::cout << "permissions before chmod(" << noexe << ", false)  = " << fs_get_permissions(noexe) << "\n";
 
-if (!fs_chmod_exe(noexe, false))
-    throw std::runtime_error("ERROR:test_exe: chmod_exe(false) failed");
+fs_chmod_exe(noexe, false);
 
 p = fs_get_permissions(noexe);
 std::cout << "permissions after chmod(" << noexe << ",false) = " << p << "\n";

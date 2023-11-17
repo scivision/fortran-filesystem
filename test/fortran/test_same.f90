@@ -13,6 +13,15 @@ subroutine test_same_file()
 
 type(path_t) :: p1, p2
 
+integer :: shaky, ierr
+character :: buf
+
+shaky = 0
+if(command_argument_count() > 0) then
+  call get_command_argument(1, buf, status=ierr)
+  read(buf, '(i1)') shaky
+endif
+
 call mkdir("test-a/b/")
 
 if(.not. is_dir("test-a/b")) error stop "mkdir test-a/b failed"
@@ -28,7 +37,13 @@ if (.not. same_file(p1%path(), p2%path())) error stop 'ERROR: same_file()'
 
 if (.not. same_file("~", "~")) error stop 'ERROR: same_file(~,~)'
 
+if(shaky /= 0) then
+  print '(a)', "SKIP: test_same shaky tests"
+  return
+endif
+
 if(same_file("not-exist-same", "not-exist-same")) error stop 'ERROR: same_file(not-exist-same, not-exist-same)'
+
 
 end subroutine test_same_file
 

@@ -102,13 +102,16 @@ int main(int argc, char* argv[]){
   else if (arg1 == "is_file" && argc == 3){
     std::cout << fs_is_file(arg2) << "\n";
   }
+  else if (arg1 == "create_symlink" && argc == 4){
+    std::cout << "create_symlink " << arg2 << " <= " << arg3 << "\n";
+    fs_create_symlink(arg2, arg3);
+  }
   else if (arg1 == "is_symlink" && argc == 3){
     std::cout << fs_is_symlink(arg2) << "\n";
   }
   else if (arg1 == "mkdir" && argc == 3){
     std::cout << "mkdir " << arg2 << "\n";
-    if(fs_create_directories(arg2) != 0)
-      std::cerr << "Failed mkdir " << arg2 << "\n";
+    fs_create_directories(arg2);
   }
   else if (arg1 == "relative_to" && argc == 4){
     std::cout << fs_relative_to(arg2, arg3) << "\n";

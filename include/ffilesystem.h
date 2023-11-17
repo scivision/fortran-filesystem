@@ -31,9 +31,9 @@ std::string fs_suffix(std::string_view);
 std::string fs_with_suffix(std::string_view, std::string_view);
 
 bool fs_is_symlink(std::string_view);
-int fs_create_symlink(std::string_view, std::string_view);
+void fs_create_symlink(std::string_view, std::string_view);
 
-int fs_create_directories(std::string_view);
+void fs_create_directories(std::string_view);
 
 std::string fs_root(std::string_view);
 
@@ -49,11 +49,11 @@ std::string fs_canonical(std::string_view, bool);
 
 bool fs_equivalent(std::string_view, std::string_view);
 
-int fs_copy_file(std::string_view, std::string_view, bool);
+void fs_copy_file(std::string_view, std::string_view, bool);
 
 std::string fs_relative_to(std::string_view, std::string_view);
 
-bool fs_touch(std::string_view);
+void fs_touch(std::string_view);
 
 std::string fs_get_tempdir();
 
@@ -63,7 +63,7 @@ void fs_set_cwd(std::string_view path);
 uintmax_t fs_file_size(std::string_view);
 uintmax_t fs_space_available(std::string_view);
 
-bool fs_chmod_exe(std::string_view, bool);
+void fs_chmod_exe(std::string_view, bool);
 std::string fs_get_permissions(std::string_view);
 
 bool fs_exists(std::string_view);
@@ -83,9 +83,6 @@ std::string fs_lib_dir();
 std::string fs_make_absolute(std::string_view, std::string_view);
 
 std::string fs_compiler();
-
-size_t fs_str2char(std::string_view, char*, size_t);
-size_t fs_path2str(const fs::path, char*, size_t);
 
 std::string fs_make_tempdir(std::string);
 
@@ -220,7 +217,6 @@ extern size_t fs_lib_dir(char*, size_t);
 extern size_t fs_compiler(char*, size_t);
 
 bool fs_win32_is_symlink(const char*);
-int fs_win32_create_symlink(const char*, const char*);
 
 size_t fs_make_tempdir(char*, size_t);
 

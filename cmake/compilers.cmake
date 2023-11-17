@@ -26,10 +26,8 @@ unset(CMAKE_REQUIRED_DEFINITIONS)
 if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "9.1.0") OR
    (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "9.1.0"))
   set(GNU_stdfs stdc++fs stdc++)
-endif()
-# need -lstdc++ to avoid C main program link error
-
-if(CMAKE_C_COMPILER_ID STREQUAL "NVHPC")
+  # need -lstdc++ to avoid C main program link error
+elseif(CMAKE_C_COMPILER_ID STREQUAL "NVHPC")
   set(GNU_stdfs stdc++fs stdc++)
 endif()
 
@@ -68,14 +66,26 @@ endif()
 
 if(cpp AND NOT fallback AND NOT HAVE_CXX_FILESYSTEM)
   message(FATAL_ERROR "C++ filesystem not available. To fallback to C filesystem:
-  cmake -Dfallback=on"
+  cmake -Dfallback=on -B build"
   )
+endif()
+
+# warn of shaky macOS compiler mix
+set(ffilesystem_shaky false)
+if(HAVE_CXX_FILESYSTEM AND APPLE)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+    set(ffilesystem_shaky true)
+    message(WARNING "macOS Clang compiler with Gfortran may not catch C++ exceptions, which may halt the user program if a filesystem error occurs.")
+  endif()
 endif()
 
 # fixes errors about needing -fPIE
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  include(CheckPIESupported)
+  check_pie_supported()
   set(CMAKE_POSITION_INDEPENDENT_CODE true)
 endif()
+
 
 # --- C compile flags
 if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU|^Intel")

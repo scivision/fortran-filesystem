@@ -7,7 +7,7 @@ endif()
 
 project(ffilesystem
 LANGUAGES C
-VERSION 5.1.1
+VERSION 5.2.0
 )
 
 include(CTest) # needed for "ctest -T memcheck"
@@ -40,7 +40,7 @@ if(NOT HAVE_CXX_FILESYSTEM)
   FetchContent_Declare(cwalk
   GIT_REPOSITORY https://github.com/likle/cwalk
   GIT_TAG v1.2.7
-  TLS_VERIFY ON
+  TLS_VERIFY ${CMAKE_TLS_VERIFY}
   )
   FetchContent_Populate(cwalk)
 
@@ -50,7 +50,6 @@ endif()
 add_library(ffilesystem src/common/common.c
 "$<IF:$<BOOL:${HAVE_CXX_FILESYSTEM}>,src/common/filesystem.cpp,src/c/filesystem.c;src/c/env.c;src/c/get_path.c;src/c/sys.c;${cwalk_SOURCE_DIR}/src/cwalk.c>"
 "$<$<BOOL:${fortran}>:src/common/fortran/get_path.f90;src/common/fortran/filesystem.f90;src/common/fortran/f2c.f90;src/common/fortran/find.f90>"
-"$<$<BOOL:${WIN32}>:src/common/windows.c>"
 )
 target_include_directories(ffilesystem PRIVATE
 ${PROJECT_SOURCE_DIR}/include

@@ -66,7 +66,7 @@ bool fs_cpp()
   return true;
 }
 
-size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
+static size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
 {
   if(s.length() >= buffer_size){
     result = nullptr;
@@ -76,11 +76,6 @@ size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
 
   std::strcpy(result, s.data());
   return std::strlen(result);
-}
-
-size_t fs_path2str(const fs::path p, char* result, size_t buffer_size)
-{
-  return fs_str2char(p.generic_string(), result, buffer_size);
 }
 
 size_t fs_compiler(char* name, size_t buffer_size)
@@ -103,11 +98,11 @@ std::string fs_compiler()
 #elif defined(_MSC_VER)
   return std::format("MSVC {}", _MSC_FULL_VER);
 #else
-  return "Unknown compiler--file bug report with Ffilesystem project to add support";
+  return {};
 #endif
 
 #else
-  return "ERROR:ffilesystem: compiler is not C++20 std::format capable";
+  return {};
 #endif
 }
 
@@ -244,103 +239,90 @@ bool fs_is_symlink(std::string_view path)
     return false;
 
 #ifdef __MINGW32__
-// c++ filesystem is_symlink doesn't work on MinGW GCC, but this C method does work
-  return fs_win32_is_symlink(path.data());
+  DWORD a = GetFileAttributes(path.data());
+
+  return a == INVALID_FILE_ATTRIBUTES
+    ? false
+    : a & FILE_ATTRIBUTE_REPARSE_POINT;
 #endif
 
   std::error_code ec;
+  auto s = fs::symlink_status(path, ec);
+  // NOTE: use of symlink_status here like lstat(), else logic is wrong with fs::status()
 
-  auto e = fs::is_symlink(path, ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:is_symlink: " << ec.message() << "\n";
-    return false;
-  }
-
-  return e;
+  return ec ? false : fs::is_symlink(s);
 }
 
 int fs_create_symlink(const char* target, const char* link)
 {
-  return fs_create_symlink(std::string_view(target), std::string_view(link));
+  try{
+    fs_create_symlink(std::string_view(target), std::string_view(link));
+    return 0;
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:create_symlink: " << e.what() << "\n";
+    return 1;
+  }
 }
 
-int fs_create_symlink(std::string_view target, std::string_view link)
+void fs_create_symlink(std::string_view target, std::string_view link)
 {
-  if(!fs_exists(target)) {
-    std::cerr << "ERROR:filesystem:create_symlink: target path does not exist\n";
-    return 1;
-  }
-  if(link.empty()) {
-    std::cerr << "ERROR:filesystem:create_symlink: link path must not be empty\n";
-    return 1;
-  }
+  if(target.empty())
+    throw std::runtime_error("ffilesystem:create_symlink: target path does not exist");
+    // confusing program errors if target is "" -- we'd never make such a symlink in real use.
+
+  auto s = fs::status(target);
+
+  if(link.empty())
+    throw std::runtime_error("ffilesystem:create_symlink: link path must not be empty");
+    // macOS needs empty check to avoid SIGABRT
 
 #ifdef __MINGW32__
-  // C++ filesystem doesn't work for create_symlink with MinGW, but this C method does work
-  return fs_win32_create_symlink(target.data(), link.data());
+  DWORD p = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
+
+  if(fs::is_directory(s))
+    p |= SYMBOLIC_LINK_FLAG_DIRECTORY;
+
+  if (CreateSymbolicLink(link.data(), target.data(), p))
+    return;
+
+  DWORD err = GetLastError();
+  std::string msg = "filesystem:CreateSymbolicLink";
+  if(err == ERROR_PRIVILEGE_NOT_HELD)
+    msg += "Enable Windows developer mode to use symbolic links: https://learn.microsoft.com/en-us/windows/apps/get-started/developer-mode-features-and-debugging";
+
+  throw std::runtime_error(msg);
 #endif
 
-  std::error_code ec;
-
-  fs_is_dir(target)
-    ? fs::create_directory_symlink(target, link, ec)
-    : fs::create_symlink(target, link, ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:create_symlink: " << ec.message() << " " << ec.value() << "\n";
-    return ec.value();
-  }
-
-  return 0;
+  fs::is_directory(s)
+    ? fs::create_directory_symlink(target, link)
+    : fs::create_symlink(target, link);
 }
 
 int fs_create_directories(const char* path)
 {
-  return fs_create_directories(std::string_view(path));
+  try{
+    fs_create_directories(std::string_view(path));
+    return 0;
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:create_directories: " << e.what() << "\n";
+    return 1;
+  }
 }
 
-int fs_create_directories(std::string_view path)
+void fs_create_directories(std::string_view path)
 {
-  if(path.empty()) {
-    std::cerr << "ERROR:filesystem:mkdir:create_directories: cannot mkdir empty directory name\n";
-    return 1;
+  auto s = fs::status(path);
+
+  if(fs::exists(s)){
+    if(fs::is_directory(s))
+       return;
+    throw std::runtime_error("ffilesystem:create_directories: already exists but non-directory");
   }
+  if(fs::create_directories(path) || fs::is_directory(path))
+    return;
+  // old MacOS return false even if directory was created
 
-  std::error_code ec;
-
-  auto s = fs::status(path, ec);
-  if(s.type() != fs::file_type::not_found){
-    if(ec) {
-      std::cerr << "ERROR:filesystem:create_directories:status: " << ec.message() << "\n";
-      return ec.value();
-    }
-  }
-
-  if(fs::exists(s)) {
-    if(fs_is_dir(path)) return 0;
-
-    std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " already exists but is not a directory\n";
-    return 1;
-  }
-
-  auto ok = fs::create_directories(path, ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:create_directories: " << ec.message() << "\n";
-    return ec.value();
-  }
-
-  if( !ok ) {
-    // old MacOS return != 0 even if directory was created
-    if(fs_is_dir(path)) {
-      return 0;
-    }
-    else
-    {
-      std::cerr << "ERROR:filesystem:mkdir:create_directories: " << path << " could not be created\n";
-      return 1;
-    }
-  }
-
-  return 0;
+  throw std::runtime_error("ffilesystem:create_directories: could not create directory");
 }
 
 
@@ -358,22 +340,15 @@ std::string fs_root(std::string_view path)
 
 bool fs_exists(const char* path)
 {
-  if(!path)
-    return false;
   return fs_exists(std::string_view(path));
 }
 
 bool fs_exists(std::string_view path)
 {
   std::error_code ec;
-  auto e = fs::exists(path, ec);
+  auto s = fs::status(path, ec);
 
-  if(ec) {
-    std::cerr << "ERROR:ffilesystem:exists: " << ec.message() << "\n";
-    return false;
-  }
-
-  return e;
+  return ec ? false : fs::exists(s);
 }
 
 
@@ -396,17 +371,10 @@ bool fs_is_char_device(const char* path)
 
 bool fs_is_char_device(std::string_view path)
 {
-  if(path.empty())
-    return false;
-
   std::error_code ec;
-  bool e = fs::is_character_file(path, ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:is_char_device: " << ec.message() << "\n";
-    return false;
-  }
+  auto s = fs::status(path, ec);
 
-  return e;
+  return ec ? false : fs::is_character_file(s);
 }
 
 
@@ -417,22 +385,14 @@ bool fs_is_dir(const char* path)
 
 bool fs_is_dir(std::string_view path)
 {
-  if (path.empty())
-    return false;
-
   fs::path p(path);
 
-  if (fs_is_windows() && p.root_name() == p)
+  if (fs_is_windows() && !path.empty() && p.root_name() == p)
     return true;
 
   std::error_code ec;
-  bool e = fs::is_directory(p, ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:is_dir: " << ec.message() << " " << p << "\n";
-    return false;
-  }
-
-  return e;
+  auto s = fs::status(p, ec);
+  return ec ? false : fs::is_directory(s);
 }
 
 
@@ -443,10 +403,11 @@ bool fs_is_exe(const char* path)
 
 bool fs_is_exe(std::string_view path)
 {
-  if (!fs_is_file(path))
-    return false;
+  std::error_code ec;
 
-  auto s = fs::status(path);
+  auto s = fs::status(path, ec);
+  if(ec || !fs::is_regular_file(s))
+    return false;
 
   auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
   return i != fs::perms::none;
@@ -460,18 +421,10 @@ bool fs_is_file(const char* path)
 
 bool fs_is_file(std::string_view path)
 {
-  if (!fs_exists(path))
-    return false;
-    // exists() check avoids nuisance warnings when file doesn't exist.
-
   std::error_code ec;
+  auto s = fs::status(path, ec);
 
-  bool e = fs::is_regular_file(path, ec);
-  if (ec) {
-    std::cerr << "ERROR:filesystem:is_file: " << ec.message() << "\n";
-    return false;
-  }
-  return e;
+  return ec ? false : fs::is_regular_file(s);
 }
 
 
@@ -514,26 +467,27 @@ bool fs_is_reserved(std::string_view path)
 
 bool fs_remove(const char* path)
 {
-  return fs_remove(std::string_view(path));
+  try {
+    return fs_remove(std::string_view(path));
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:remove: " << e.what() << "\n";
+    return false;
+  }
 }
 
 bool fs_remove(std::string_view path)
 {
-  std::error_code ec;
-
-  bool e = fs::remove(path, ec);
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:remove: " << path << " " << ec.message() << "\n";
-    return false;
-  }
-
-  return e;
+  return fs::remove(path);
 }
 
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size)
 {
-  return fs_str2char(fs_canonical(std::string_view(path), strict), result, buffer_size);
+  try{
+    return fs_str2char(fs_canonical(std::string_view(path), strict), result, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:canonical: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_canonical(std::string_view path, bool strict)
@@ -542,120 +496,75 @@ std::string fs_canonical(std::string_view path, bool strict)
 
   if (path.empty())
     return {};
+    // need this for macOS otherwise it returns the current working directory instead of empty string
 
   auto ex = fs_expanduser(path);
 
   if(FS_TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << "\n";
 
-  std::error_code ec;
-  fs::path p = strict
-    ? fs::canonical(ex, ec)
-    : fs::weakly_canonical(ex, ec);
-
-  if(FS_TRACE) std::cout << "TRACE:canonical: " << p << "\n";
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:canonical: " << ec.message() << "\n";
-    return {};
-  }
-
-  return p.generic_string();
+  return strict ? fs::canonical(ex).generic_string() : fs::weakly_canonical(ex).generic_string();
 }
 
 
 bool fs_equivalent(const char* path1, const char* path2)
 {
-  return fs_equivalent(std::string_view(path1), std::string_view(path2));
+  try{
+    return fs_equivalent(std::string_view(path1), std::string_view(path2));
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:equivalent: " << e.what() << "\n";
+    return false;
+  }
 }
 
 bool fs_equivalent(std::string_view path1, std::string_view path2)
 {
-  // both paths must exist, or they are not equivalent -- return false
-  // any non-regular file is not equivalent to anything else -- return false
+  // non-existant paths are not equivalent
 
-  if(path1.empty() || path2.empty())
-    return false;
-
-  std::string p1 = fs_canonical(path1, true);
-  std::string p2 = fs_canonical(path2, true);
-
-  if (FS_TRACE) std::cout << "TRACE:equivalent: " << p1 << " " << p2 << "\n";
-
-  std::error_code e1, e2;
-  if(p1.empty() || p2.empty() ||
-     fs::is_character_file(p1, e1) || fs::is_character_file(p2, e2) ||
-     !fs_exists(p1) || !fs_exists(p2) || e1 || e2) {
-      return false;
-  }
-
-  bool eqv = fs::equivalent(p1, p2, e1);
-
-  if(e1) {
-    std::cerr << "ERROR:filesystem:equivalent: " << e1.message() << "\n";
-    return false;
-  }
-
-  return eqv;
+  return fs::equivalent(fs_expanduser(path1), fs_expanduser(path2));
 }
 
 
 int fs_copy_file(const char* source, const char* dest, bool overwrite)
 {
-  return fs_copy_file(std::string_view(source), std::string_view(dest), overwrite);
+  try{
+    fs_copy_file(std::string_view(source), std::string_view(dest), overwrite);
+    return 0;
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:copy_file: " << e.what() << "\n";
+    return 1;
+  }
 }
 
-int fs_copy_file(std::string_view source, std::string_view dest, bool overwrite)
+void fs_copy_file(std::string_view source, std::string_view dest, bool overwrite)
 {
   std::string s = fs_canonical(source, true);
   std::string d = fs_canonical(dest, false);
-
-  if(s.empty() || !fs_is_file(s)) {
-    std::cerr << "ERROR:filesystem:copy_file: source path must not be empty\n";
-    return 1;
-  }
-  if(d.empty()) {
-    std::cerr << "ERROR:filesystem:copy_file: destination path must not be empty\n";
-    return 1;
-  }
 
   auto opt = fs::copy_options::none;
 
   if (overwrite) {
 // WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
-    if(fs_exists(d)){
-      if (!fs_remove(d))
-        return 1;
-    }
+    if(fs_exists(d))
+      fs::remove(d);
 
     opt |= fs::copy_options::overwrite_existing;
   }
 
-  std::error_code ec;
-  bool ok = fs::copy_file(s, d, opt, ec);
+  if(!fs::copy_file(s, d, opt) || fs::is_regular_file(d))
+    return;
 
-  if(ec) {
-    std::cerr << "ERROR:filesystem:copy_file: " << ec.message() << "\n";
-    return ec.value();
-  }
-
-  if( !ok ) {
-    if(fs_is_file(d)) {
-      return 0;
-    }
-    else
-    {
-      std::cerr << "ERROR:filesystem:copy_file: " << d << " could not be created\n";
-      return 1;
-    }
-  }
-
-  return 0;
+  throw std::runtime_error("ffilesystem:copy_file: could not copy");
 }
 
 
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
 {
-  return fs_str2char(fs_relative_to(to, from), result, buffer_size);
+  try{
+    return fs_str2char(fs_relative_to(to, from), result, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:relative_to: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_relative_to(std::string_view to, std::string_view from)
@@ -671,168 +580,130 @@ std::string fs_relative_to(std::string_view to, std::string_view from)
   if(tp.is_absolute() != fp.is_absolute())
     return {};
 
-  std::error_code ec;
-  auto r = fs::relative(tp, fp, ec);
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:relative_to: " << ec.message() << "\n";
-    return {};
-  }
-
-  return r.generic_string();
+  return fs::relative(tp, fp).generic_string();
 }
 
 
 bool fs_touch(const char* path)
 {
-  return fs_touch(std::string_view(path));
-}
-
-bool fs_touch(std::string_view path)
-{
-  fs::path p(path);
-  std::error_code ec;
-
-  auto s = fs::status(p, ec);
-  if(s.type() != fs::file_type::not_found){
-    if(ec) {
-      std::cerr << "ERROR:filesystem:touch:status: " << ec.message() << ": " << p << "\n";
-      return false;
-    }
-  }
-
-  if (fs::exists(s) && !fs::is_regular_file(s)){
-    std::cerr << "ERROR:filesystem:touch: " << p << " exists, but is not a regular file\n";
+  try{
+    fs_touch(std::string_view(path));
+    return true;
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:touch: " << path << " " << e.what() << "\n";
     return false;
   }
+}
+
+void fs_touch(std::string_view path)
+{
+  fs::path p(path);
+
+  auto s = fs::status(p);
+
+  if (fs::exists(s) && !fs::is_regular_file(s))
+    throw std::runtime_error("ffilesystem:touch: path exists, but is not a regular file");
 
   if(fs::is_regular_file(s)) {
 
-    if ((s.permissions() & fs::perms::owner_write) == fs::perms::none){
-      std::cerr << "ERROR:filesystem:touch: " << p << " is not writable\n";
-      return false;
-    }
+    if ((s.permissions() & fs::perms::owner_write) == fs::perms::none)
+      throw std::runtime_error("ffilesystem:touch: path is not writable");
 
-    fs::last_write_time(p, fs::file_time_type::clock::now(), ec);
-    if(ec) {
-      std::cerr << "filesystem:touch:last_write_time: " << p << " modtime was not updated: " << ec.message() << "\n";
-      return false;
-    }
-    return true;
+    fs::last_write_time(p, fs::file_time_type::clock::now());
+
+    return;
   }
 
   std::ofstream ost;
   ost.open(p, std::ios_base::out);
-  if(!ost.is_open()){
-    std::cerr << "ERROR:filesystem:touch:open: " << p << " could not be created\n";
-    return false;
-  }
+  if(!ost.is_open())
+    throw std::runtime_error("filesystem:touch:open: file could not be created");
+
   ost.close();
   // ensure user can access file, as default permissions may be mode 600 or such
-  fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add, ec);
+  fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add);
 
-  if(ec) {
-    std::cerr << "ERROR:filesystem:touch:permissions: " << ec.message() << "\n";
-    return false;
-  }
-
-  return fs::is_regular_file(p);
+  if(!fs::is_regular_file(p))
+    throw std::runtime_error("filesystem:touch: file could not be created");
 }
 
 
 size_t fs_get_tempdir(char* path, size_t buffer_size)
 {
-  return fs_str2char(fs_get_tempdir(), path, buffer_size);
+  try {
+    return fs_str2char(fs_get_tempdir(), path, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:get_tempdir: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_get_tempdir()
 {
-  std::error_code ec;
-  auto r = fs::temp_directory_path(ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:get_tempdir: " << ec.message() << "\n";
-    return {};
-  }
-  return r.generic_string();
+  return fs::temp_directory_path().generic_string();
 }
 
 
 uintmax_t fs_file_size(const char* path)
 {
-  return fs_file_size(std::string_view(path));
+  try{
+    return fs_file_size(std::string_view(path));
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:file_size: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 uintmax_t fs_file_size(std::string_view path)
 {
-  // need to check is_regular_file for MSVC/Intel Windows
-  if (!fs_is_file(path)) {
-    std::cerr << "ERROR:filesystem:file_size: " << path << " is not a regular file\n";
-    return 0;
-  }
-
-  std::error_code ec;
-  auto fsize = fs::file_size(path, ec);
-  if (ec) {
-    std::cerr << "ERROR:filesystem:file_size: " << path << " could not get file size: " << ec.message() << "\n";
-    return 0;
-  }
-
-  return fsize;
+  return fs::file_size(path);
 }
 
 
 uintmax_t fs_space_available(const char* path)
 {
-  return fs_space_available(std::string_view(path));
+  try{
+    return fs_space_available(std::string_view(path));
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:space_available: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 uintmax_t fs_space_available(std::string_view path)
 {
   // filesystem space available for device holding path
 
-  // necessary for MinGW; seemed good choice for all platforms
-  if(!fs_exists(path)){
-    std::cerr << "ERROR:filesystem:space_available: " << path << " does not exist\n";
-    return 0;
-  }
-
-  std::error_code ec;
-  auto si = fs::space(path, ec);
-  if(ec){
-    std::cerr << "ERROR:ffilesystem:space_available " << ec.message() << "\n";
-    return 0;
-  }
-
-  return static_cast<std::intmax_t>(si.available);
+  return static_cast<std::intmax_t>(fs::space(path).available);
 }
 
 
 size_t fs_get_cwd(char* path, size_t buffer_size)
 {
-  return fs_str2char(fs_get_cwd(), path, buffer_size);
+  try{
+    return fs_str2char(fs_get_cwd(), path, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:get_cwd: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_get_cwd()
 {
-  std::error_code ec;
-  auto r = fs::current_path(ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:get_cwd: " << ec.message() << "\n";
-    return {};
-  }
-  return r.generic_string();
+  return fs::current_path().generic_string();
 }
 
 
 bool fs_set_cwd(const char *path)
 {
-  std::error_code ec;
-  fs::current_path(path, ec);
-  if (ec){
-    std::cerr << "ERROR:filesystem:set_cwd: " << ec.message() << '\n';
+  try{
+    fs::current_path(path);
+    return true;
+  } catch (std::exception& e) {
+    std::cerr << "ERROR:ffilesystem:set_cwd: " << e.what() << "\n";
     return false;
   }
-  return true;
+
 }
 
 void fs_set_cwd(std::string_view path)
@@ -846,7 +717,7 @@ size_t fs_get_homedir(char* path, size_t buffer_size)
   try{
     return fs_str2char(fs_get_homedir(), path, buffer_size);
   } catch (std::exception& e) {
-    std::cerr << "ERROR:filesystem:get_homedir: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:get_homedir: " << e.what() << "\n";
     return 0;
   }
 }
@@ -866,18 +737,18 @@ std::string fs_get_homedir()
   // process with query permission
   HANDLE hToken = 0;
   if(!OpenProcessToken( GetCurrentProcess(), TOKEN_QUERY, &hToken))
-    throw std::runtime_error("OpenProcessToken(GetCurrentProcess): "  + std::system_category().message(GetLastError()));
+    throw std::runtime_error("ffilesystem:get_homedir: OpenProcessToken(GetCurrentProcess): "  + std::system_category().message(GetLastError()));
 
   bool ok = GetUserProfileDirectoryA(hToken, buf.get(), &L);
   CloseHandle(hToken);
   if (!ok)
-    throw std::runtime_error("GetUserProfileDirectory: "  + std::system_category().message(GetLastError()));
+    throw std::runtime_error("ffilesystem:get_homedir: GetUserProfileDirectory: "  + std::system_category().message(GetLastError()));
 
   homedir = std::string(buf.get());
 #else
   const char *h = getpwuid(geteuid())->pw_dir;
   if (!h)
-    throw std::runtime_error("getpwuid: "  + std::system_category().message(errno));
+    throw std::runtime_error("ffilesystem:get_homedir: getpwuid: "  + std::system_category().message(errno));
   homedir = std::string(h);
 #endif
 
@@ -891,8 +762,9 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 
 std::string fs_expanduser(std::string_view path)
 {
-  if (path.empty())
+  if(path.empty())
     return {};
+  // cannot call .front() on empty string_view() (MSVC)
 
   if(path.front() != '~')
     return fs_normal(path);
@@ -925,34 +797,33 @@ std::string fs_expanduser(std::string_view path)
 bool fs_chmod_exe(const char* path, bool executable)
 {
   // make path file owner executable or not
-  return fs_chmod_exe(std::string_view(path), executable);
+  try{
+    fs_chmod_exe(std::string_view(path), executable);
+    return true;
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:chmod_exe: " << e.what() << "\n";
+    return false;
+  }
 }
 
-bool fs_chmod_exe(std::string_view path, bool executable)
+void fs_chmod_exe(std::string_view path, bool executable)
 {
-  if(!fs_is_file(path)) {
-    std::cerr << "ERROR:ffilesystem:chmod_exe: " << path << " is not a regular file\n";
-    return false;
-  }
-
-  std::error_code ec;
+  if(!fs::is_regular_file(path))
+    throw std::runtime_error("fffilesystem:chmod_exe: not a regular file");
 
   fs::permissions(path, fs::perms::owner_exec,
-    executable ? fs::perm_options::add : fs::perm_options::remove,
-    ec);
-
-  if(ec) {
-    std::cerr << "ERROR:filesystem:chmod_exe: " << path << ": " << ec.message() << "\n";
-    return false;
-  }
-
-  return true;
+    executable ? fs::perm_options::add : fs::perm_options::remove);
 }
 
 
 size_t fs_exe_path(char* path, size_t buffer_size)
 {
-  return fs_str2char(fs_exe_path(), path, buffer_size);
+  try{
+    return fs_str2char(fs_exe_path(), path, buffer_size);
+  } catch (std::exception& e) {
+    std::cerr << "ERROR:ffilesystem:exe_path: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 
@@ -965,24 +836,18 @@ std::string fs_exe_path()
 
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if (!GetModuleFileNameA(nullptr, buf.get(), FS_MAX_PATH)){
-    std::cerr << "ERROR:ffilesystem:exe_path: GetModuleFileName failed\n";
-    return {};
-  }
+  if (!GetModuleFileNameA(nullptr, buf.get(), FS_MAX_PATH))
+    throw std::runtime_error("ffilesystem:exe_path: GetModuleFileName failed");
 #elif defined(__linux__) || defined(__CYGWIN__)
   // https://man7.org/linux/man-pages/man2/readlink.2.html
   size_t L = readlink("/proc/self/exe", buf.get(), FS_MAX_PATH);
-  if (L < 1 || L >= FS_MAX_PATH) {
-    std::cerr << "ERROR:ffilesystem:lib_path: readlink failed\n";
-    return {};
-  }
+  if (L < 1 || L >= FS_MAX_PATH)
+    throw std::runtime_error("ffilesystem:lib_path: readlink failed");
 #elif defined(__APPLE__)
   uint32_t mp = FS_MAX_PATH;
   int r = _NSGetExecutablePath(buf.get(), &mp);
-  if (r){
-    std::cerr << "ERROR:ffilesystem:lib_path: _NSGetExecutablePath failed: " << r << " " << mp << "\n";
-    return {};
-  }
+  if (r)
+    throw std::runtime_error("ffilesystem:lib_path: _NSGetExecutablePath failed");
 #elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
   int mib[4];
   mib[0] = CTL_KERN;
@@ -991,10 +856,8 @@ std::string fs_exe_path()
   mib[3] = -1;
   size_t cb = sizeof(buf);
 
-  if(sysctl(mib, 4, buf.get(), &cb, nullptr, 0)){
-    std::cerr << "ERROR:ffilesystem:lib_path: sysctl failed\n";
-    return {};
-  }
+  if(sysctl(mib, 4, buf.get(), &cb, nullptr, 0))
+    throw std::runtime_error("ffilesystem:lib_path: sysctl failed");
 #endif
 
   std::string s(buf.get());
@@ -1009,37 +872,27 @@ size_t fs_exe_dir(char* path, size_t buffer_size)
 
 std::string fs_exe_dir()
 {
-  auto buf = std::make_unique<char[]>(FS_MAX_PATH);
-
-  if(!fs_exe_path(buf.get(), FS_MAX_PATH)){
-    std::cerr << "ERROR:ffilesystem:exe_dir: fs_exe_path failed\n";
-    return {};
-  }
-  std::string s(buf.get());
-
-  return fs_parent(s);
+  return fs_parent(fs_exe_path());
 }
 
 
 size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
 {
-  return fs_str2char(fs_get_permissions(std::string_view(path)), result, buffer_size);
+  try{
+    return fs_str2char(fs_get_permissions(std::string_view(path)), result, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:get_permissions: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_get_permissions(std::string_view path)
 {
   using std::filesystem::perms;
 
-  if (!fs_exists(path))
+  auto s = fs::status(path);
+  if (!fs::exists(s))
     return {};
-    // exists() check avoids nuisance warnings when file doesn't exist.
-
-  std::error_code ec;
-  auto s = fs::status(path, ec);
-  if(ec) {
-    std::cerr << "ERROR:filesystem:get_permissions: " << ec.message() << "\n";
-    return {};
-  }
 
   perms p = s.permissions();
 
@@ -1069,7 +922,12 @@ std::string fs_get_permissions(std::string_view path)
 
 size_t fs_lib_path(char* path, size_t buffer_size)
 {
-  return fs_str2char(fs_lib_path(), path, buffer_size);
+  try{
+    return fs_str2char(fs_lib_path(), path, buffer_size);
+  } catch (std::exception& e) {
+    std::cerr << "ERROR:ffilesystem:lib_path: " << e.what() << "\n";
+    return 0;
+  }
 }
 
 std::string fs_lib_path()
@@ -1078,10 +936,9 @@ std::string fs_lib_path()
   auto buf = std::make_unique<char[]>(FS_MAX_PATH);
 
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if(!GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf.get(), FS_MAX_PATH)){
-    std::cerr << "ERROR:ffilesystem:lib_path: GetModuleFileName failed\n";
-    return {};
-  }
+  if(!GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf.get(), FS_MAX_PATH))
+    throw std::runtime_error("ffilesystem:lib_path: GetModuleFileName failed");
+
   std::string s(buf.get());
   return s;
 #elif defined(HAVE_DLADDR)
@@ -1103,17 +960,7 @@ size_t fs_lib_dir(char* path, size_t buffer_size)
 
 std::string fs_lib_dir()
 {
-  std::string s = fs_lib_path();
-  if(s.empty()){
-    std::cerr << "ERROR:ffilesystem:fs_lib_dir: fs_lib_path failed\n";
-    return {};
-  }
-
-  if(FS_TRACE) std::cout << "TRACE:fs_lib_dir: " << s << "\n";
-
-  if (fs_is_cygwin()) s = fs_as_cygpath(s);
-
-  return fs_parent(s);
+  return fs_parent(fs_lib_path());
 }
 
 
@@ -1143,7 +990,7 @@ size_t fs_make_tempdir(char* result, size_t buffer_size){
   try{
     tmpdir = fs_make_tempdir("tmp.");
   } catch(fs::filesystem_error& e) {
-    std::cerr << "ERROR:filesystem:make_tempdir: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:make_tempdir: " << e.what() << "\n";
     return 0;
   }
   return fs_str2char(tmpdir, result, buffer_size);

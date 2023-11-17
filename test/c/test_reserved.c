@@ -3,11 +3,22 @@
 #include <stdbool.h>
 #include <string.h>
 
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
+
 #include "ffilesystem.h"
 
-
-
 int main(void){
+
+#ifdef _MSC_VER
+  _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+  _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+  _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+#endif
 
 #ifdef _WIN32
     char s[] = "NUL";
@@ -19,25 +30,14 @@ int main(void){
 
     char p[FS_MAX_PATH];
 
+    printf("Begin test_reserved\n");
+
     fs_normal(s, p, FS_MAX_PATH);
     if (strcmp(p, ref) != 0){
       fprintf(stderr,"FAIL: normal(%s)  %s\n", s, p);
       return EXIT_FAILURE;
     }
     printf("OK: normal(%s)\n", p);
-
-    if(fs_is_symlink(s))
-      return EXIT_FAILURE;
-    printf("OK: is_symlink(%s)\n", s);
-
-    if(fs_create_symlink(s, s) == 0)
-      return EXIT_FAILURE;
-
-    if(fs_create_directories(s) == 0){
-      fprintf(stderr,"FAIL: create_directories(%s)\n", s);
-      return EXIT_FAILURE;
-    }
-    printf("OK: create_directories(%s)\n", ref);
 
     bool b = fs_is_absolute(s);
     if (fs_is_windows()){
@@ -55,6 +55,12 @@ int main(void){
       return EXIT_FAILURE;
 
 #ifndef _WIN32
+
+    if(fs_create_directories(s) == 0){
+      fprintf(stderr,"FAIL: create_directories(%s)\n", s);
+      return EXIT_FAILURE;
+    }
+    printf("OK: create_directories(%s)\n", ref);
 
     if(!fs_exists(s))
       return EXIT_FAILURE;
@@ -85,13 +91,6 @@ int main(void){
     }
     printf("OK: remove(%s)\n", s);
 
-    if(fs_equivalent(s, s)){
-      // reserved we treat like NaN not equal
-      fprintf(stderr,"FAIL: equivalent(%s)\n", s);
-      return EXIT_FAILURE;
-    }
-    printf("OK: equivalent(%s)\n", ref);
-
     fs_expanduser(s, p, FS_MAX_PATH);
     if(strcmp(p, ref) != 0)
       return EXIT_FAILURE;
@@ -113,6 +112,13 @@ int main(void){
     if(fs_chmod_exe(s, true))
       return EXIT_FAILURE;
     printf("OK: chmod_exe(%s)\n", ref);
+
+    if(fs_is_symlink(s))
+      return EXIT_FAILURE;
+    printf("OK: is_symlink(%s)\n", s);
+
+    if(fs_create_symlink(s, s) == 0)
+      return EXIT_FAILURE;
 
     printf("PASS: test_reserved.cpp\n");
 

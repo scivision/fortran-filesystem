@@ -3,6 +3,10 @@
 #include <string>
 #include <stdexcept>
 
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
+
 #include "ffilesystem.h"
 
 void test_filename()
@@ -48,6 +52,16 @@ if(fs_is_windows() && fs_file_name("c:\\my\\path") != "path")
 
 
 int main() {
+
+#ifdef _MSC_VER
+  _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+  _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+  _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+#endif
+
   test_filename();
 
   return EXIT_SUCCESS;

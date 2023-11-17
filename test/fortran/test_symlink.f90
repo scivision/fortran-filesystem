@@ -1,7 +1,7 @@
 program test_symlink
 
 use, intrinsic:: iso_fortran_env, only : stderr=>error_unit
-use filesystem, only : path_t, is_symlink, is_file, is_dir, parent, create_symlink, remove
+use filesystem, only : path_t, is_symlink, is_file, is_dir, parent, create_symlink, remove, touch
 
 implicit none
 
@@ -10,22 +10,51 @@ integer :: i, L
 block
 type(path_t) :: p_sym, p_tgt
 character(1000) :: buf
+integer :: stat, shaky
+character :: buf1
 
-character(:), allocatable :: tgt, link, linko, tgt_dir, link_dir
+character(:), allocatable :: tgt, cmake_link, link, linko, tgt_dir, link_dir
 
-call get_command_argument(0, buf, status=i, length=L)
-if(i /= 0 .or. L == 0) error stop "could not get own exe name"
+if(is_symlink("not-exist-file")) error stop "is_symlink() should be false for non-existant file"
+if(is_symlink("")) error stop "is_symlink('') should be false"
 
-tgt = trim(buf)
+if (command_argument_count() == 0) error stop "please give test link file"
+call get_command_argument(1, buf, status=i, length=L)
+if(i /= 0 .or. L == 0) error stop "could not get test link file from command line"
+cmake_link = buf(1:L)
+tgt_dir = parent(cmake_link)
+
+if(.not.is_symlink(cmake_link)) error stop "is_symlink() should be true for symlink file: " // cmake_link
+
+tgt = tgt_dir // "/test.txt"
+call touch(tgt)
+
 p_tgt = path_t(tgt)
 
-tgt_dir = parent(tgt)
 link = tgt_dir // "/test.link"
 linko = tgt_dir // "/test_oo.link"
-link_dir = tgt_dir // "/link.dir"
+link_dir = tgt_dir // "/my_link.dir"
 
 ! print *, "TRACE:test_symlink: target: " // tgt
 ! print *, "TRACE:test_symlink: link: " // link
+
+shaky = 0
+if(command_argument_count() > 1) then
+  call get_command_argument(2, buf1, status=i, length=L)
+  if(i /= 0 .or. L == 0) error stop "could not get shaky from command line"
+  read(buf1, '(i1)') shaky
+endif
+
+if(shaky == 0) then
+  call create_symlink(tgt, "", stat)
+  if (stat == 0) error stop "create_symlink() should fail with empty link"
+  print '(a)', "PASSED: create_symlink: empty link"
+  if(is_symlink(tgt)) error stop "is_symlink() should be false for non-symlink file: " // tgt
+
+  call create_symlink("", link, stat)
+  if (stat == 0) error stop "create_symlink() should fail with empty target"
+  print '(a)', "PASSED: create_symlink: empty target"
+endif
 
 p_sym = path_t(linko)
 
@@ -34,12 +63,14 @@ if (is_symlink(link)) then
   call remove(link)
 endif
 call create_symlink(tgt, link)
+print '(a)', "PASSED: created symlink " // link
 
 if (p_sym%is_symlink()) then
   print *, "deleting old symlink " // p_sym%path()
   call p_sym%remove()
 endif
 call p_tgt%create_symlink(linko)
+print '(a)', "PASSED: created symlink " // p_sym%path()
 
 !> directory symlinks
 if (is_symlink(link_dir)) then
@@ -51,13 +82,10 @@ call create_symlink(tgt_dir, link_dir)
 !> checks
 ! call create_symlink("", "")  !< this error stops
 
-if(is_symlink("")) error stop "is_symlink('') should be false"
-if(is_symlink("not-exist-path.nobody")) error stop "is_symlink() should be false for non-existant path"
-
 !> file symlinks
 if(is_symlink(tgt)) error stop "is_symlink() should be false for non-symlink file"
 if(p_tgt%is_symlink()) error stop "%is_symlink() should be false for non-symlink file"
-if(.not. is_file(link)) error stop "is_file() should be true for existing regular file"
+if(.not. is_file(link)) error stop "is_file() should be true for existing regular file: " // link
 
 if(.not. is_symlink(link)) error stop "is_symlink() should be true for symlink file: " // link
 if(.not. p_sym%is_symlink()) error stop "%is_symlink() should be trum for symlink file: " // p_sym%path()

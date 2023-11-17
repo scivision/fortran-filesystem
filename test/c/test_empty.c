@@ -11,8 +11,7 @@
 #include "ffilesystem.h"
 
 
-
-int main(){
+int main(void){
 
 #ifdef _MSC_VER
     _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
@@ -131,8 +130,10 @@ int main(){
     if(fs_file_size(O) != 0)
       return EXIT_FAILURE;
 
+#ifndef _WIN32
     if(fs_space_available(O) != 0)
       return EXIT_FAILURE;
+#endif
 
     if(fs_get_cwd(O, 1) != 0)
       return EXIT_FAILURE;

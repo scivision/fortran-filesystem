@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 
 project(fs_check LANGUAGES C CXX)
 
@@ -13,8 +13,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # fixes errors about needing -fPIE
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  include(CheckPIESupported)
+  check_pie_supported()
   set(CMAKE_POSITION_INDEPENDENT_CODE true)
 endif()
+
 
 add_library(fs_cpp OBJECT lib_fs.cpp)
 target_link_libraries(fs_cpp PRIVATE ${GNU_stdfs})
