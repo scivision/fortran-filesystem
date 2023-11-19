@@ -18,12 +18,23 @@ COMMAND test_binpath_c
 # --- C++
 if(HAVE_CXX_FILESYSTEM)
 
-foreach(t IN ITEMS canonical core exe env)
+foreach(t IN ITEMS canonical core exe)
   add_executable(test_Cpp_${t} test_${t}.cpp)
   target_link_libraries(test_Cpp_${t} PRIVATE ffilesystem)
   add_test(NAME Cpp_${t} COMMAND test_Cpp_${t})
   set_property(TEST Cpp_${t} PROPERTY LABELS "Cpp")
 endforeach()
+
+add_executable(cpp_env test_env.cpp)
+target_link_libraries(cpp_env PRIVATE ffilesystem)
+add_test(NAME CppHomedirEnv COMMAND cpp_env)
+
+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
+  add_test(NAME CppHomedirNoEnv COMMAND cpp_env)
+  set_property(TEST CppHomedirNoEnv PROPERTY ENVIRONMENT_MODIFICATION "HOME=unset:;USERPROFILE=unset:;TEMP=unset:;TMPDIR=unset:")
+  set_property(TEST CppHomedirNoEnv PROPERTY DISABLED $<BOOL:$ENV{CI}>)
+endif()
 
 
 add_executable(test_binpath_cpp test_binpath.cpp)
@@ -57,6 +68,6 @@ set_property(TEST ${test_names} PROPERTY RUN_SERIAL true)
 # tests run much faster in serial, especially on Windows
 
 # --- Windows shared DLLs
-if((CYGWIN OR WIN32) AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
+if((CYGWIN OR WIN32) AND BUILD_SHARED_LIBS AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
   set_property(TEST ${test_names} PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_append:$<TARGET_FILE_DIR:ffilesystem>")
 endif()
