@@ -744,12 +744,12 @@ std::string fs_get_homedir()
   if (!ok)
     throw std::runtime_error("ffilesystem:get_homedir: GetUserProfileDirectory: "  + std::system_category().message(GetLastError()));
 
-  homedir = std::string(buf.get());
+  homedir = fs_normal(std::string(buf.get()));
 #else
   const char *h = getpwuid(geteuid())->pw_dir;
   if (!h)
     throw std::runtime_error("ffilesystem:get_homedir: getpwuid: "  + std::system_category().message(errno));
-  homedir = std::string(h);
+  homedir = fs_normal(std::string(h));
 #endif
 
   return homedir;
