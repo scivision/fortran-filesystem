@@ -139,9 +139,7 @@ is an *optional* feature of Fortran 2003 standard.
 Intel oneAPI does not support `selected_char_kind('ISO_10646')` as of this writing.
 
 filesystem currently uses the default Fortran `character` kind, which is ASCII.
-This means that UTF-8 / UTF-16 / UTF-32 strings are not supported.
-You may find a particular compiler and computer passes some non-ASCII strings, but this is not supported.
-
+This typically allows pass-through of UTF-8 characters, but this is not guaranteed.
 
 ### C++ filesystem discussion
 

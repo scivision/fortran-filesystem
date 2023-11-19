@@ -8,7 +8,7 @@ implicit none
 
 
 call test_canonical()
-print *, "OK: canonical full"
+print '(a)', "OK: canonical full"
 
 contains
 
