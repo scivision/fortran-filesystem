@@ -18,7 +18,7 @@ COMMAND test_binpath_c
 # --- C++
 if(HAVE_CXX_FILESYSTEM)
 
-foreach(t IN ITEMS canonical core exe)
+foreach(t IN ITEMS canonical core exe utf8)
   add_executable(test_Cpp_${t} test_${t}.cpp)
   target_link_libraries(test_Cpp_${t} PRIVATE ffilesystem)
   add_test(NAME Cpp_${t} COMMAND test_Cpp_${t})
