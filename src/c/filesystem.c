@@ -1,7 +1,3 @@
-#ifdef _WIN32
-#error "ffilesystem is primarily a C++ library. Windows users need to use C++ 'cmake -Dcpp=on'"
-#endif
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>

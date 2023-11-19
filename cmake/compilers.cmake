@@ -38,6 +38,8 @@ endif()
 
 if(cpp)
   cpp_check()
+elseif(WIN32)
+  message(FATAL_ERROR "${PROJECT_NAME}: C++ is required on Windows")
 else()
   unset(HAVE_CXX_FILESYSTEM CACHE)
 endif()

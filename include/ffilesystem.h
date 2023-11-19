@@ -103,10 +103,8 @@ extern "C" {
 #define PATH_LIMIT 4096
 // absolute maximum, in case a system has ill-defined maximum path length
 
-#ifdef _WIN32
-#ifndef NOMINMAX
+#if defined(_WIN32) && !defined(NOMINMAX)
 #define NOMINMAX
-#endif
 #endif
 
 #if defined (__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
