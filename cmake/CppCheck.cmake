@@ -15,9 +15,7 @@ check_cxx_source_compiles([=[
 #include <cstdlib>
 #include <filesystem>
 
-#ifndef __cpp_lib_filesystem
-#error "No C++ filesystem support"
-#endif
+static_assert(__cpp_lib_filesystem, "No C++ filesystem support");
 
 namespace fs = std::filesystem;
 
