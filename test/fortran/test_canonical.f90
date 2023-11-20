@@ -21,7 +21,7 @@ integer :: L1, L2, L3
 
 ! -- current directory  -- old MacOS doesn't handle "." or ".." alone
 cur = path_t(".")
-cur = cur%resolve()
+cur = cur%canonical()
 L1 = cur%length()
 if (L1 < 1) then
   write(stderr,*) "ERROR: canonical '.' " // cur%path()
@@ -36,9 +36,9 @@ endif
 print *, "OK: current dir = ", cur%path()
 ! -- home directory
 p1 = path_t("~")
-p1 = p1%resolve()
-if (p1%path(1,1) == "~") error stop "%resolve ~ did not expanduser: " // p1%path()
-if (canonical("~") == "~") error stop "resolve('~') should not be '~'"
+p1 = p1%canonical()
+if (p1%path(1,1) == "~") error stop "%canonical ~ did not expanduser: " // p1%path()
+if (canonical("~") == "~") error stop "canonical('~') should not be '~'"
 print *, "OK: home dir = ", p1%path()
 
 p2 = path_t(p1%parent())
@@ -49,7 +49,7 @@ print *, "OK: parent home = ", p2%path()
 
 ! -- relative dir
 par = path_t("~/..")
-par = par%resolve()
+par = par%canonical()
 
 L2 = par%length()
 if (L2 /= L1) then
@@ -63,14 +63,21 @@ if(is_cygwin()) then
   print '(a)', 'skip relative file not-exist as Cygwin does not support it'
 else
 file = path_t('~/../' // dummy)
-file = file%resolve()
-if(file%length() == 0) error stop "ERROR: relative file did not resolve: " // file%path()
+file = file%canonical()
+if(file%length() == 0) error stop "ERROR: relative file did not canonicalize: " // file%path()
 L3 = file%length()
 if (L3 - L2 /= len(dummy) + 1) then
   write(stderr,*) 'ERROR relative file was not canonicalized: ' // file%path(), L2, par%path(), L3, len(dummy)
   error stop
 endif
-endif
+endif !< is_cygwin
+
+file = path_t('../' // dummy)
+file = file%canonical()
+if (file%path() /= "../" // dummy) then
+  write(stderr,*) 'ERROR: relative file did not canonicalize: ' // file%path()
+  error stop
+end if
 
 !> empty
 if(canonical("") /= "") error stop "canonical('') " // canonical("") // " /= ''"

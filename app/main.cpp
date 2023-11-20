@@ -31,8 +31,14 @@ int main(int argc, char* argv[]){
   if(argc > 3)
     arg3 = argv[3];
 
-  if (arg1 == "canonical" && argc == 3){
+  if (arg1 == "expanduser" && argc == 3){
+    std::cout << fs_expanduser(arg2) << "\n";
+  }
+  else if (arg1 == "canonical" && argc == 3){
     std::cout << fs_canonical(arg2, false) << "\n";
+  }
+  else if (arg1 == "resolve" && argc == 3){
+    std::cout << fs_resolve(arg2, false) << "\n";
   }
   else if (arg1 == "compiler"){
     std::cout << fs_compiler() << "\n";

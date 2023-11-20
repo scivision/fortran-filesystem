@@ -28,6 +28,14 @@ character(kind=C_CHAR), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
+integer(C_SIZE_T) function fs_resolve(path, strict, result, buffer_size) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+logical(C_BOOL), intent(in), value :: strict
+character(kind=C_CHAR), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
 logical(C_BOOL) function fs_chmod_exe(path, executable) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -297,6 +305,18 @@ N = fs_canonical(trim(path) // C_NULL_CHAR, s, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: canonical)
 canonical = cbuf(:N)
 end procedure canonical
+
+module procedure resolve
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+logical(c_bool) :: s
+allocate(character(max_path()) :: cbuf)
+s = .false.
+if(present(strict)) s = strict
+N = fs_resolve(trim(path) // C_NULL_CHAR, s, cbuf, len(cbuf, kind=C_SIZE_T))
+allocate(character(N) :: resolve)
+resolve = cbuf(:N)
+end procedure resolve
 
 module procedure chmod_exe
 logical :: s

@@ -4,7 +4,7 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-maybe-uninitialized>)
 endif()
 
-foreach(t IN ITEMS canonical core exe expanduser find mkdtemp relative reserved utf8)
+foreach(t IN ITEMS canonical core exe expanduser find mkdtemp relative reserved resolve utf8)
   add_executable(test_${t} test_${t}.f90)
   target_link_libraries(test_${t} PRIVATE ffilesystem)
   add_test(NAME Fortran_${t} COMMAND test_${t})

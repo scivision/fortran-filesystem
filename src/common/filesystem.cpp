@@ -504,8 +504,36 @@ std::string fs_canonical(std::string_view path, bool strict)
 
   if (!fs::exists(ex) && !ex.is_absolute())
     // handles differences in ill-defined behaviour of fs::weakly_canonical() on non-existant paths
-    // canonical(path, false) is distinct from resolve(path, false)
+    // canonical(path, false) is distinct from resolve(path, false) for non-existing paths.
     return ex.generic_string();
+
+  return strict ? fs::canonical(ex).generic_string() : fs::weakly_canonical(ex).generic_string();
+}
+
+
+size_t fs_resolve(const char* path, bool strict, char* result, size_t buffer_size)
+{
+  try{
+    return fs_str2char(fs_resolve(std::string_view(path), strict), result, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:resolve: " << e.what() << "\n";
+    return 0;
+  }
+}
+
+std::string fs_resolve(std::string_view path, bool strict)
+{
+  // expands ~ like canonical
+  // empty path returns current working directory, which is distinct from canonical that returns empty string
+  if(path.empty())
+    return fs_get_cwd();
+
+  auto ex = fs::path(fs_expanduser(path));
+
+  if (!fs::exists(ex) && !ex.is_absolute())
+    // handles differences in ill-defined behaviour of fs::weakly_canonical() on non-existant paths
+    // canonical(path, false) is distinct from resolve(path, false) for non-existing paths.
+    ex = fs_get_cwd() / ex;
 
   return strict ? fs::canonical(ex).generic_string() : fs::weakly_canonical(ex).generic_string();
 }
@@ -771,7 +799,7 @@ std::string fs_expanduser(std::string_view path)
     return {};
   // cannot call .front() on empty string_view() (MSVC)
 
-  if(path.front() != '~')
+  if(path.front() != '~' || (path.length() > 1 && path.substr(0, 2) != "~/"))
     return fs_normal(path);
 
   std::string h = fs_get_homedir();
@@ -791,7 +819,6 @@ std::string fs_expanduser(std::string_view path)
 
   if (p.length() < 3)
     return h;
-    // ~ alone
 
   fs::path home(h);
 

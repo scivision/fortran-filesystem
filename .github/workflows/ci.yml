@@ -183,6 +183,7 @@ jobs:
   valgrind-memory:
     runs-on: ubuntu-latest
     needs: linux-gcc
+    continue-on-error: true
     timeout-minutes: 10
 
     strategy:

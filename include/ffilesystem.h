@@ -46,6 +46,7 @@ bool fs_is_exe(std::string_view);
 bool fs_remove(std::string_view);
 
 std::string fs_canonical(std::string_view, bool);
+std::string fs_resolve(std::string_view, bool);
 
 bool fs_equivalent(std::string_view, std::string_view);
 
@@ -191,7 +192,10 @@ extern bool fs_chmod_exe(const char*, bool);
 extern size_t fs_get_permissions(const char*, char*, size_t);
 
 extern bool fs_remove(const char*);
+
 extern size_t fs_canonical(const char*, bool, char*, size_t);
+extern size_t fs_resolve(const char*, bool, char*, size_t);
+
 extern bool fs_equivalent(const char*, const char*);
 extern int fs_copy_file(const char*, const char*, bool);
 extern size_t fs_relative_to(const char*, const char*, char*, size_t);

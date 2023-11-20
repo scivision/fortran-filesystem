@@ -6,7 +6,7 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 implicit none
 private
 public :: path_t  !< base class
-public :: get_homedir, canonical, get_cwd, set_cwd, make_tempdir !< utility procedures
+public :: get_homedir, canonical, resolve, get_cwd, set_cwd, make_tempdir !< utility procedures
 public :: normal, expanduser, as_posix, as_windows, &
 is_absolute, is_char_device, is_dir, is_file, is_exe, is_reserved, &
 is_symlink, &
@@ -67,6 +67,7 @@ procedure, public :: root=>f_root
 procedure, public :: suffix=>f_suffix
 procedure, public :: expanduser=>f_expanduser
 procedure, public :: with_suffix=>f_with_suffix
+procedure, public :: canonical=>f_canonical
 procedure, public :: resolve=>f_resolve
 procedure, public :: same_file=>f_same_file
 procedure, public :: remove=>fs_unlink
@@ -185,6 +186,12 @@ end function
 
 module function canonical(path, strict)
 character(:), allocatable :: canonical
+character(*), intent(in) :: path
+logical, intent(in), optional :: strict
+end function
+
+module function resolve(path, strict)
+character(:), allocatable :: resolve
 character(*), intent(in) :: path
 logical, intent(in), optional :: strict
 end function
@@ -539,10 +546,18 @@ r = exists(self%path_str)
 end function
 
 
-function f_resolve(self) result(r)
+function f_resolve(self, strict) result(r)
 class(path_t), intent(in) :: self
+logical, intent(in), optional :: strict
 type(path_t) :: r
-r%path_str = canonical(self%path_str)
+r%path_str = resolve(self%path_str, strict)
+end function
+
+function f_canonical(self, strict) result(r)
+class(path_t), intent(in) :: self
+logical, intent(in), optional :: strict
+type(path_t) :: r
+r%path_str = canonical(self%path_str, strict)
 end function
 
 

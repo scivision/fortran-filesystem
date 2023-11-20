@@ -38,7 +38,7 @@ if(homep.empty())
 // -- relative dir
 std::string homer = fs_canonical("~/..", true);
 if(homep != homer)
-  throw std::runtime_error("fs_canonical(~/..) != fs_get_homedir() " + homer + " != " + homep);
+  throw std::runtime_error("fs_canonical(~/..) != fs_parent(fs_get_homedir()) " + homer + " != " + homep);
 
 // -- relative file
 if(fs_is_cygwin())

@@ -9,6 +9,8 @@ implicit none
 if(expanduser("") /= "") error stop "expanduser blank failed"
 if(expanduser(".") /= ".") error stop "expanduser dot failed: " // expanduser(".")
 
+if(expanduser("~P") /= "~P") error stop "expanduser ~P failed: " // expanduser("~P")
+
 block
 type(path_t) :: p2, p3
 

@@ -148,7 +148,8 @@ p = path_t("~/my/path")
 p = p%expanduser()
 ```
 
-Resolve (canonicalize) path.
+Resolve path. This means to canonicalize the path, normalizing, resolving symbolic links, and resolving relative paths when the path exists.
+This is distinct from canonical, which does not pin relative paths to a specific directory when the path does not exist.
 
 ```fortran
 p = path_t("~/../b")
@@ -161,6 +162,22 @@ p = path_t("../b")
 p = p%resolve()
 
 p%path() == "<absolute path of current working directory>/b"
+```
+
+Canoicalize path. This means to normalize, resolve symbolic links, and resolve relative paths when the path exists.
+If the path doesn't exist and no absolute path is given, the path is resolved as far as possible with existing path components, and then ".", ".." are lexiographically resolved.
+
+```fortran
+p = path_t("~/../b")
+p = p%canonical()
+
+p%path() == "<absolute path of user home directory>/b"
+
+! --- relative path resolved to current working directory
+p = path_t("../b")
+p = p%canonical()
+
+p%path() == "../b"
 ```
 
 Swap file suffix

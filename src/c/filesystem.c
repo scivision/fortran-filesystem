@@ -219,6 +219,7 @@ size_t fs_with_suffix(const char* path, const char* suffix,
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size)
 {
   // also expands ~
+  // distinct from resolve
 
   if(strlen(path) == 0){
     result[0] = '\0';
@@ -273,6 +274,68 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   free(buf2);
   return L;
 }
+
+
+size_t fs_resolve(const char* path, bool strict, char* result, size_t buffer_size)
+{
+  // also expands ~
+  // distinct from resolve
+
+  if(strlen(path) == 0 || (strlen(path) == 1 && path[0] == '.'))
+    return fs_get_cwd(result, buffer_size);
+
+  char* buf = (char*) malloc(buffer_size);
+  if(!buf) return 0;
+  if(!fs_expanduser(path, buf, buffer_size)){
+    free(buf);
+    return 0;
+  }
+
+  if(FS_TRACE) printf("TRACE:resolve: in: %s  expanded: %s  buffer_size %zu\n", path, buf, buffer_size);
+
+  bool e = fs_exists(buf);
+  size_t L;
+
+  if(!e) {
+    if(strict){
+      fprintf(stderr, "ERROR:ffilesystem:resolve: %s => does not exist and strict=true\n", buf);
+      free(buf);
+      return 0;
+    }
+    else if (fs_is_absolute(buf)){
+      L = fs_normal(buf, result, buffer_size);
+      free(buf);
+      return L;
+    }
+    else{
+        if(!fs_join(".", buf, buf, buffer_size)){
+        free(buf);
+        return 0;
+      }
+    }
+  }
+
+  char* buf2 = (char*) malloc(buffer_size);
+  if(!buf2) {
+    free(buf);
+    return 0;
+  }
+
+  const char* t = realpath(buf, buf2);
+
+  if (!t) {
+    fprintf(stderr, "ERROR:ffilesystem:resolve: %s   %s\n", buf, strerror(errno));
+    free(buf);
+    free(buf2);
+    return 0;
+  }
+  free(buf);
+
+  L = fs_normal(buf2, result, buffer_size);
+  free(buf2);
+  return L;
+}
+
 
 bool fs_set_cwd(const char* path){
 
@@ -387,7 +450,7 @@ bool fs_equivalent(const char* path1, const char* path2)
 
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 {
-  if(path[0] != '~')
+  if(path[0] != '~' || (strlen(path) > 1 && !(path[0] == '~' && path[1] == '/')))
     return fs_normal(path, result, buffer_size);
 
   char* buf = (char*) malloc(buffer_size);
