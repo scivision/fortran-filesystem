@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <sys/types.h>
 #include <pwd.h>
@@ -26,17 +27,18 @@ static size_t fs_getenv(const char* name, char* path, size_t buffer_size)
 
 size_t fs_get_cwd(char* path, size_t buffer_size)
 {
-// https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
-  // <direct.h> / <unistd.h>
+// <direct.h> https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
+// <unistd.h> https://www.man7.org/linux/man-pages/man3/getcwd.3.html
   char* x = getcwd(path, buffer_size);
 
-  if(!x)
+  if(!x) {
+    fprintf(stderr, "ERROR:ffilesystem:fs_get_cwd: %s\n", strerror(errno));
     return 0;
+  }
 
-  if(strlen(x) >= buffer_size)
-    path[buffer_size-1] = '\0';
+  if(FS_TRACE) printf("TRACE:fs_get_cwd: %s  %s   buffer_size %zu  strlen %zu\n", x, path, buffer_size, strlen(path));
 
-  return fs_normal(path, path, buffer_size);
+  return strlen(path);
 }
 
 size_t fs_get_homedir(char* path, size_t buffer_size)
