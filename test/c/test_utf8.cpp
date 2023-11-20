@@ -12,6 +12,10 @@ std::string smiley = "😀", wink = "😉", hello = "你好";
 
 std::string u1;
 
+// test allocation
+u1 = fs_canonical(".", true);
+std::cout << "canonical(.): " << u1 << "\n";
+
 for (auto u : {smiley, wink, hello}) {
   u1 = fs_file_name("./" + u);
   if (u1 != u)

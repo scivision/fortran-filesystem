@@ -83,7 +83,7 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size)
     return 0;
   }
 
-if(FS_TRACE) printf("TRACE:normal in: %s  out: %s\n", path, result);
+//if(FS_TRACE) printf("TRACE:normal in: %s  out: %s\n", path, result);
 
   return L;
 }
@@ -97,8 +97,6 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size)
   }
 
   const char *base;
-
-if(FS_TRACE) printf("TRACE:file_name: %s\n", path);
 
   cwk_path_set_style(CWK_STYLE_UNIX);
 
@@ -237,12 +235,22 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
     return 0;
   }
 
-  if(FS_TRACE) printf("TRACE:canonical in: %s  expanded: %s\n", path, buf);
+  if(FS_TRACE) printf("TRACE:canonical in: %s  expanded: %s  buffer_size %zu\n", path, buf, buffer_size);
 
-  if(strict && !fs_exists(buf)) {
-    fprintf(stderr, "ERROR:ffilesystem:canonical: %s => does not exist and strict=true\n", buf);
-    free(buf);
-    return 0;
+  bool e = fs_exists(buf);
+  size_t L;
+
+  if(!e) {
+    if(strict){
+      fprintf(stderr, "ERROR:ffilesystem:canonical: %s => does not exist and strict=true\n", buf);
+      free(buf);
+      return 0;
+    }
+    else {
+      L = fs_normal(buf, result, buffer_size);
+      free(buf);
+      return L;
+    }
   }
 
   char* buf2 = (char*) malloc(buffer_size);
@@ -253,7 +261,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 
   const char* t = realpath(buf, buf2);
 
-  if (strict && !t) {
+  if (!t) {
     fprintf(stderr, "ERROR:ffilesystem:canonical: %s   %s\n", buf, strerror(errno));
     free(buf);
     free(buf2);
@@ -261,7 +269,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   }
   free(buf);
 
-  size_t L = fs_normal(buf2, result, buffer_size);
+  L = fs_normal(buf2, result, buffer_size);
   free(buf2);
   return L;
 }
