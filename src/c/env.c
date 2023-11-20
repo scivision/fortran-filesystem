@@ -17,9 +17,10 @@ static size_t fs_getenv(const char* name, char* path, size_t buffer_size)
   char* buf = getenv(name);
   if(!buf) // not error because sometimes we just check if envvar is defined
     return 0;
-
-  if(strlen(buf) >= buffer_size)
-    buf[buffer_size-1] = '\0';
+  else if(strlen(buf) >= buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem:fs_getenv: buffer_size %zu is too small for %s\n", buffer_size, name);
+    return 0;
+  }
 
   return fs_normal(buf, path, buffer_size);
 }
