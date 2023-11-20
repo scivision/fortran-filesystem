@@ -498,9 +498,14 @@ std::string fs_canonical(std::string_view path, bool strict)
     return {};
     // need this for macOS otherwise it returns the current working directory instead of empty string
 
-  auto ex = fs_expanduser(path);
+  auto ex = fs::path(fs_expanduser(path));
 
   if(FS_TRACE) std::cout << "TRACE:canonical: input: " << path << " expanded: " << ex << "\n";
+
+  if (!fs::exists(ex) && !ex.is_absolute())
+    // handles differences in ill-defined behaviour of fs::weakly_canonical() on non-existant paths
+    // canonical(path, false) is distinct from resolve(path, false)
+    return ex.generic_string();
 
   return strict ? fs::canonical(ex).generic_string() : fs::weakly_canonical(ex).generic_string();
 }
