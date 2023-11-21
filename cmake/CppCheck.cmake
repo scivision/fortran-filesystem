@@ -45,4 +45,17 @@ endif()
 # i.e. benchmarking may reveal miniscule benefit.
 # check_cxx_symbol_exists(__cpp_lib_smart_ptr_for_overwrite "version" cpp20_smart_ptr_for_overwrite)
 
+# informational for dev users
+if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
+  check_cxx_symbol_exists(__cpp_lib_format "version" cpp20_format)
+endif()
+
+if(NOT cpp20_format)
+  message(STATUS "fs_compiler() will return empty as compiler doesn't have C++20 std::format")
+endif()
+
+if(CMAKE_CXX_STANDARD GREATER_EQUAL 23)
+  check_cxx_symbol_exists(__cpp_lib_string_contains "version" cpp23_string_contains)
+endif()
+
 endfunction()
