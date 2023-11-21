@@ -55,6 +55,10 @@ static void dl_dummy_func() {}
 #endif
 // --- end of lib_path, exe_path
 
+#if __has_include(<sys/utsname.h>)
+#include <sys/utsname.h>
+#endif
+
 static std::string fs_generate_random_alphanumeric_string(std::size_t);
 
 size_t fs_get_max_path(){ return FS_MAX_PATH; };
@@ -64,6 +68,26 @@ bool fs_cpp()
 {
 // tell if fs core is C or C++
   return true;
+}
+
+bool fs_is_wsl() {
+#if __has_include(<sys/utsname.h>)
+  struct utsname buf;
+  if (uname(&buf) != 0)
+    return false;
+
+  std::string_view release(buf.release);
+
+  return std::string_view(buf.sysname) == "Linux" &&
+#ifdef __cpp_lib_string_contains
+    release.contains("microsoft-standard-WSL");
+#else
+    release.find("microsoft-standard-WSL") != std::string::npos;
+#endif
+
+#else
+  return false;
+#endif
 }
 
 static size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
@@ -454,6 +478,7 @@ bool fs_is_reserved(std::string_view path)
 
   bool r;
 #if __cplusplus >= 202002L
+  // C++20 added set.contains()
   r = reserved.contains(p);
   if(FS_TRACE) std::cout << "TRACE:is_reserved: C++20: " << path << ": " << r << "\n";
 #else

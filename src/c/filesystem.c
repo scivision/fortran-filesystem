@@ -11,6 +11,10 @@
 
 #include <sys/statvfs.h>
 
+#ifdef HAVE_UTSNAME_H
+#include <sys/utsname.h>
+#endif
+
 #include "ffilesystem.h"
 #include <cwalk.h>
 
@@ -19,6 +23,19 @@ size_t fs_get_max_path(){ return FS_MAX_PATH; }
 bool fs_cpp(){
 // tell if fs core is C or C++
   return false;
+}
+
+bool fs_is_wsl() {
+#ifdef HAVE_UTSNAME_H
+  struct utsname buf;
+  if (uname(&buf) != 0)
+    return false;
+
+  return strcmp(buf.sysname, "Linux") == 0 &&
+    strstr(buf.release, "microsoft-standard-WSL") != NULL;
+#else
+  return false;
+#endif
 }
 
 size_t fs_compiler(char* name, size_t buffer_size)

@@ -157,6 +157,7 @@ extern bool fs_is_linux();
 extern bool fs_is_unix();
 extern bool fs_is_windows();
 extern bool fs_is_wsl();
+extern bool fs_is_mingw();
 extern bool fs_is_cygwin();
 
 extern void fs_as_posix(char*);

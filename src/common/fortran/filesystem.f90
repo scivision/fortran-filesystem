@@ -20,7 +20,7 @@ assert_is_file, assert_is_dir, &
 touch, create_symlink, &
 remove, get_tempdir, &
 chmod_exe, get_permissions, &
-fs_cpp, is_macos, is_windows, is_cygwin, is_wsl, is_linux, is_unix, &
+fs_cpp, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
 get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler
 !! functional API
 
@@ -244,6 +244,10 @@ import C_BOOL
 end function
 
 logical(C_BOOL) function is_wsl() bind(C, name="fs_is_wsl")
+import C_BOOL
+end function
+
+logical(C_BOOL) function is_mingw() bind(C, name="fs_is_mingw")
 import C_BOOL
 end function
 

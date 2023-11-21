@@ -7,15 +7,18 @@ endif()
 
 project(ffilesystem
 LANGUAGES C
-VERSION 5.2.0
+VERSION 5.2.1
 )
 
 include(CTest) # needed for "ctest -T memcheck"
 include(FetchContent)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 20)
-# some parts of ffilesystem have optional C++20 features
+
+# some parts of ffilesystem have optional C++20 and/or C++23 features
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 20)
+endif()
 
 include(options.cmake)
 if(cpp)

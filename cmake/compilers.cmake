@@ -5,8 +5,6 @@ include(CheckCXXSourceCompiles)
 
 include(${CMAKE_CURRENT_LIST_DIR}/CppCheck.cmake)
 
-check_include_file("sys/utsname.h" HAVE_UTSNAME_H)
-
 #--- is dladdr available for lib_path() optional function
 unset(CMAKE_REQUIRED_FLAGS)
 if(BUILD_SHARED_LIBS AND NOT (WIN32 OR CYGWIN))
@@ -40,6 +38,7 @@ if(cpp)
 elseif(WIN32)
   message(FATAL_ERROR "${PROJECT_NAME}: C++ is required on Windows")
 else()
+  check_include_file("sys/utsname.h" HAVE_UTSNAME_H)
   unset(HAVE_CXX_FILESYSTEM CACHE)
 endif()
 

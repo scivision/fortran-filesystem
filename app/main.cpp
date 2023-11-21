@@ -84,6 +84,9 @@ int main(int argc, char* argv[]){
   else if (arg1 == "is_wsl"){
     std::cout << fs_is_wsl() << "\n";
   }
+  else if (arg1 == "is_mingw"){
+    std::cout << fs_is_mingw() << "\n";
+  }
   else if (arg1 == "is_cygwin"){
     std::cout << fs_is_cygwin() << "\n";
   }
