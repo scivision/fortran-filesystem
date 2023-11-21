@@ -1,6 +1,6 @@
 module filesystem
 
-use, intrinsic:: iso_c_binding, only: C_BOOL
+use, intrinsic:: iso_c_binding, only: C_BOOL, C_LONG
 use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 
 implicit none
@@ -20,7 +20,7 @@ assert_is_file, assert_is_dir, &
 touch, create_symlink, &
 remove, get_tempdir, &
 chmod_exe, get_permissions, &
-fs_cpp, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
+fs_cpp, fs_lang, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
 get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler
 !! functional API
 
@@ -229,6 +229,10 @@ end function
 
 logical(C_BOOL) function fs_cpp() bind(C)
 import C_BOOL
+end function
+
+integer(C_LONG) function fs_lang() bind(C)
+import C_LONG
 end function
 
 logical(C_BOOL) function is_macos() bind(C, name="fs_is_macos")

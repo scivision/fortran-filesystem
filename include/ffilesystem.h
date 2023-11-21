@@ -150,6 +150,7 @@ constexpr size_t FS_MAX_PATH = fs_max_path();
 // end maximum path length
 
 extern bool fs_cpp();
+extern long fs_lang();
 extern size_t fs_get_max_path();
 
 extern bool fs_is_macos();

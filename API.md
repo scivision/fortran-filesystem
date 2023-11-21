@@ -543,6 +543,7 @@ character(:), allocatable :: make_absolute
 character(*), intent(in) :: path, top_path
 ```
 
+Tell characteristics of the computing platform such as operating system:
 
 ```fortran
 ! logical based on C++ preprocessor
@@ -553,4 +554,17 @@ is_windows()
 is_macos()
 is_cygwin()
 is_wsl()  !< Windows Subsystem for Linux
+is_mingw()
+```
+
+Logical: ffilesystem is using C++ backend
+
+```fortran
+fs_cpp()
+```
+
+integer (long): the C `__STDC_VERSION__` or C++ level of macro `__cplusplus`
+
+```fortran
+fs_lang()
 ```

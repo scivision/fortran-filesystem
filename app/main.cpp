@@ -51,6 +51,9 @@ int main(int argc, char* argv[]){
   else if (arg1 == "cpp"){
     std::cout << fs_cpp() << "\n";
   }
+  else if (arg1 == "lang"){
+    std::cout << fs_lang() << "\n";
+  }
   else if (arg1 == "homedir") {
     std::cout << fs_get_homedir() << "\n";
   }

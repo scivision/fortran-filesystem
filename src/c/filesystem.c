@@ -25,6 +25,14 @@ bool fs_cpp(){
   return false;
 }
 
+long fs_lang(){
+#ifdef __STDC_VERSION__
+  return __STDC_VERSION__;
+#else
+  return 0L;
+#endif
+}
+
 bool fs_is_wsl() {
 #ifdef HAVE_UTSNAME_H
   struct utsname buf;

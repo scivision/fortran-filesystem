@@ -70,6 +70,11 @@ bool fs_cpp()
   return true;
 }
 
+long fs_lang()
+{
+  return __cplusplus;
+}
+
 bool fs_is_wsl() {
 #if __has_include(<sys/utsname.h>)
   struct utsname buf;
