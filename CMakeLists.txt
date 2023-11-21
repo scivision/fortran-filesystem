@@ -59,6 +59,7 @@ target_compile_definitions(ffilesystem PRIVATE
 "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>"
 "$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:CWK_EXPORTS>"
 "$<$<BOOL:${HAVE_UTSNAME_H}>:HAVE_UTSNAME_H>"
+"$<$<BOOL:${${PROJECT_NAME}_WIN32_SYMLINK}>:WIN32_SYMLINK>"
 )
 set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)
 set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)

@@ -24,8 +24,7 @@ unset(CMAKE_REQUIRED_LIBRARIES)
 unset(CMAKE_REQUIRED_DEFINITIONS)
 unset(GNU_stdfs)
 
-if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "9.1.0") OR
-   (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "9.1.0"))
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.1.0")
   set(GNU_stdfs stdc++fs stdc++)
 endif()
 # GCC < 9.1 needs -lstdc++ to avoid C main program link error
@@ -46,16 +45,19 @@ endif()
 
 # --- deeper filesystem check: C, C++ and Fortran compiler ABI compatibility
 
-if(HAVE_CXX_FILESYSTEM AND NOT DEFINED fs_abi_ok)
+if(HAVE_CXX_FILESYSTEM)
+
+if(NOT DEFINED ${PROJECT_NAME}_abi_ok)
   message(CHECK_START "checking that compilers can link C++ Filesystem together")
-  try_compile(fs_abi_ok
+  try_compile(${PROJECT_NAME}_abi_ok
   ${CMAKE_CURRENT_BINARY_DIR}/fs_check ${CMAKE_CURRENT_LIST_DIR}/fs_check
   fs_check
   CMAKE_FLAGS -DGNU_stdfs=${GNU_stdfs} -Dfortran:BOOL=${fortran}
   )
-  if(fs_abi_ok)
+  if(${PROJECT_NAME}_abi_ok)
     message(CHECK_PASS "OK")
   else()
+    message(CHECK_FAIL "Failed")
     message(WARNING "
     Disabling C++ filesystem due to ABI-incompatible compilers:
     C compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}
@@ -65,6 +67,26 @@ if(HAVE_CXX_FILESYSTEM AND NOT DEFINED fs_abi_ok)
     set(HAVE_CXX_FILESYSTEM false CACHE BOOL "ABI problem with C++ filesystem" FORCE)
   endif()
 endif()
+
+if(MINGW AND NOT DEFINED ${PROJECT_NAME}_symlink_code)
+  message(CHECK_START "check if MinGW C++ filesystem support symlink")
+
+  try_run(${PROJECT_NAME}_symlink_code ${PROJECT_NAME}_symlink_build
+        ${CMAKE_CURRENT_BINARY_DIR}/symlink_check
+        SOURCES ${CMAKE_CURRENT_LIST_DIR}/fs_check/check_fs_symlink.cpp
+        LINK_LIBRARIES "${GNU_stdfs}"
+        CXX_STANDARD 17
+  )
+  if(${PROJECT_NAME}_symlink_code EQUAL 0)
+    set(${PROJECT_NAME}_WIN32_SYMLINK false CACHE BOOL "MinGW doesn't need workaround")
+    message(CHECK_PASS "OK")
+  else()
+    message(CHECK_FAIL "applying workaround")
+    set(${PROJECT_NAME}_WIN32_SYMLINK true CACHE BOOL "MinGW needs workaround")
+  endif()
+endif()
+
+endif(HAVE_CXX_FILESYSTEM)
 
 if(cpp AND NOT fallback AND NOT HAVE_CXX_FILESYSTEM)
   message(FATAL_ERROR "C++ filesystem not available. To fallback to C filesystem:

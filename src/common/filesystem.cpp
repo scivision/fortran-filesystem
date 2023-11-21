@@ -238,7 +238,7 @@ bool fs_is_symlink(std::string_view path)
   if (path.empty())
     return false;
 
-#ifdef __MINGW32__
+#ifdef WIN32_SYMLINK
   DWORD a = GetFileAttributes(path.data());
 
   return a == INVALID_FILE_ATTRIBUTES
@@ -276,7 +276,7 @@ void fs_create_symlink(std::string_view target, std::string_view link)
     throw std::runtime_error("ffilesystem:create_symlink: link path must not be empty");
     // macOS needs empty check to avoid SIGABRT
 
-#ifdef __MINGW32__
+#ifdef WIN32_SYMLINK
   DWORD p = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
 
   if(fs::is_directory(s))
