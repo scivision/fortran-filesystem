@@ -3,7 +3,7 @@
 
 program filesystem_cli
 
-use, intrinsic :: iso_fortran_env, only: compiler_version, compiler_options
+use, intrinsic :: iso_fortran_env, only: compiler_version, compiler_options, stdout=>output_unit, stderr=>error_unit
 
 use filesystem
 
@@ -25,8 +25,8 @@ case ("cpp", "lang", "compiler", "get_cwd", "homedir", "tempdir", &
   "is_cygwin", "is_wsl", "is_mingw", "is_unix", "is_linux", "is_windows", "is_macos", &
     "max_path", "exe_path", "lib_path")
   if (argc /= 1) error stop "usage: ./filesystem_cli " // trim(fcn)
-case ("copy_file", "relative_to", "same_file", "with_suffix")
-  if (argc /= 3) error stop "usage: ./filesystem_cli <function> <path> <path>"
+case ("chmod_exe", "copy_file", "relative_to", "same_file", "with_suffix")
+  if (argc /= 3) error stop "usage: ./filesystem_cli <function> [arg1 ...]"
   call get_command_argument(2, buf, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf)
   call get_command_argument(3, buf2, status=i)
@@ -69,6 +69,23 @@ case ("chdir", "set_cwd")
   print '(a)', "cwd: " // trim(get_cwd())
   if (.not. set_cwd(buf)) error stop "could not chdir " // trim(buf)
   print '(a)', "new cwd: " // trim(get_cwd())
+case ("chmod_exe")
+  block
+  logical :: m
+  integer :: ierr
+
+  buf = canonical(buf)
+
+  read(buf2, '(L1)', iostat=ierr) m
+  if (ierr /= 0) then
+    write(stderr, '(a, i0)') "chmod_exe: could not read CLI true/false: error ", ierr
+    error stop
+  endif
+
+  write(stdout, '(a)', advance='no') "chmod " // get_permissions(buf) // " " // trim(buf) // " => "
+  call chmod_exe(buf, m)
+  print '(a)', get_permissions(buf) // " " // trim(buf)
+  end block
 case ("touch")
   print *, "touch: " // trim(buf)
   call touch(buf)
@@ -122,7 +139,8 @@ case ("with_suffix")
 case ("max_path")
   print '(i0)', get_max_path()
 case default
-  error stop "unknown function> " // trim(fcn)
+  write(stderr,'(a)') "unknown function: " // trim(fcn)
+  error stop
 end select
 
 

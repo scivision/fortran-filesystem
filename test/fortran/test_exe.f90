@@ -1,6 +1,6 @@
 program test_exe
 
-use filesystem, only : path_t, is_exe, get_permissions, is_windows
+use filesystem, only : path_t, is_exe, get_permissions, is_windows, chmod_exe
 
 implicit none
 
@@ -24,14 +24,23 @@ if(len_trim(get_permissions("not-exist-file")) /= 0) error stop "ERROR:test_exe:
 !> chmod(.true.)
 
 p1 = path_t(exe_name)
+p1 = p1%canonical()
 call p1%touch()
-if(.not. p1%is_file()) error stop "ERROR:test_exe: " // exe_name // " is not a file."
-
-call p1%chmod_exe(.true., ok)
-if (.not. ok) error stop "ERROR:test_exe: %chmod_exe(.true.) failed"
+if(.not. p1%is_file()) error stop "ERROR:test_exe: " // p1%path() // " is not a file."
 
 perm = get_permissions(exe_name)
-print '(a)', "permissions: " // exe_name // " = " // perm
+print '(a)', "permissions before chmod(true) " // p1%path() // " = " // perm
+
+call chmod_exe(p1%path(), .true.)
+
+call chmod_exe(p1%path(), .false., ok)
+if (.not. ok) error stop "ERROR:test_exe: %chmod_exe(.true.) failed"
+
+call p1%chmod_exe(.true.)
+
+
+perm = get_permissions(exe_name)
+print '(a)', "permissions after chmod(true): " // p1%path() // " = " // perm
 
 if (.not. p1%is_exe()) error stop "ERROR:test_exe: %is_exe() did not detect executable file " // exe_name
 if (.not. is_exe(p1%path())) error stop "ERROR:test_exe: is_exe(path) did not detect executable file " // exe_name

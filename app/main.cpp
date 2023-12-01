@@ -48,6 +48,12 @@ int main(int argc, char* argv[]){
     fs_set_cwd(arg2);
     std::cout << "new cwd: " << fs_get_cwd() << "\n";
   }
+  else if (arg1 == "chmod_exe" && argc == 4){
+    bool m = std::stoi(arg3);
+    std::cout << "chmod " << fs_get_permissions(arg2) << " " << arg2 << " => ";
+    fs_chmod_exe(arg2, m);
+    std::cout << fs_get_permissions(arg2) << " " << arg2 << "\n";
+  }
   else if (arg1 == "cpp"){
     std::cout << fs_cpp() << "\n";
   }

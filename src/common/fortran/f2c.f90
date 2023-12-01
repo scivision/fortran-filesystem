@@ -320,10 +320,13 @@ end procedure resolve
 
 module procedure chmod_exe
 logical :: s
-logical(C_BOOL) :: e
-e = executable
-s = fs_chmod_exe(trim(path) // C_NULL_CHAR, e)
-if(present(ok)) ok = s
+s = fs_chmod_exe(trim(path) // C_NULL_CHAR, logical(executable, C_BOOL))
+if(present(ok)) then
+  ok = s
+elseif (.not. s) then
+  write(stderr, '(/,a)') "ERROR: chmod_exe: failed to set permissions " // trim(path)
+  error stop
+endif
 end procedure
 
 module procedure get_permissions
