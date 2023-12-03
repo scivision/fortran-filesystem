@@ -25,15 +25,8 @@ jobs:
     strategy:
       matrix:
         gcc-version: [9, 10, 11, 12, 13]
-        shared: [false]
+        shared: [false, true]
         cpp: [true, false]
-        include:
-        - gcc-version: 13
-          cpp: false
-          shared: true
-        - gcc-version: 13
-          cpp: true
-          shared: true
 
     env:
       CC: gcc-${{ matrix.gcc-version }}
