@@ -24,11 +24,15 @@ jobs:
 
     strategy:
       matrix:
-        gcc-version: [9, 10, 11, 12]
-        shared: [true, false]
+        gcc-version: [9, 10, 11, 12, 13]
+        shared: [false]
         cpp: [true, false]
-        exclude:
-        - cpp: false
+        include:
+        - gcc-version: 13
+          cpp: false
+          shared: true
+        - gcc-version: 13
+          cpp: true
           shared: true
 
     env:
@@ -132,10 +136,14 @@ jobs:
     strategy:
       matrix:
         clang-version: [13, 14, 15]
-        shared: [true, false]
+        shared: [false]
         cpp: [true, false]
-        exclude:
-        - cpp: false
+        include:
+        - clang-version: 15
+          cpp: false
+          shared: true
+        - clang-version: 15
+          cpp: true
           shared: true
 
     env:
@@ -257,7 +265,7 @@ jobs:
 
     strategy:
       matrix:
-        compiler: [ {cpp: g++-12, c: gcc-12}, {cpp: clang++, c: clang} ]
+        compiler: [ {cpp: g++-13, c: gcc-13}, {cpp: clang++, c: clang} ]
         shared: [false]
         cpp: [true, false]
         include:
@@ -268,7 +276,7 @@ jobs:
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
-      FC: gfortran-12
+      FC: gfortran-13
 
     steps:
 
