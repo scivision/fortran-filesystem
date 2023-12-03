@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #if defined(HAVE_DLADDR)
 #include <dlfcn.h>
@@ -75,11 +76,14 @@ size_t fs_lib_path(char *path, size_t buffer_size)
     return 0;
 
   size_t L = strlen(info.dli_fname);
-  size_t N = min(L, buffer_size - 1);
+  if(L > buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem:fs_lib_path: buffer_size %zu is too small\n", buffer_size);
+    return 0;
+  }
 
-  strncpy(path, info.dli_fname, N);
-  path[N + 1] = '\0';
-  return N;
+  strcpy(path, info.dli_fname);
+
+  return L;
 #endif
 
   (void)path;
