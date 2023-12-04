@@ -18,6 +18,11 @@ jobs:
 
     name: FreeBSD
 
+    env:
+      FC: gfortran
+      CC: gcc
+      CXX: g++
+
     steps:
 
     - uses: actions/checkout@v4
@@ -25,6 +30,8 @@ jobs:
     - name: Test in FreeBSD
       uses: vmactions/freebsd-vm@v1
       with:
+        envs: 'CC CXX FC'
+
         prepare: pkg install -y cmake gcc13
 
         run: cmake --workflow --preset default
