@@ -56,11 +56,15 @@ int main(void){
 
 #ifndef _WIN32
 
-    if(fs_create_directories(s) == 0){
-      fprintf(stderr,"FAIL: create_directories(%s)\n", s);
-      return EXIT_FAILURE;
-    }
-    printf("OK: create_directories(%s)\n", ref);
+    // NOTE: do not test
+    //
+    // create_directories(/dev/null)
+    // remove(/dev/null)
+    // create_symlink()
+    // chmod_exe()
+    //
+    // since if testing with "root" privilidges,
+    // it can make the system unusable until reboot!
 
     if(!fs_exists(s))
       return EXIT_FAILURE;
@@ -85,12 +89,6 @@ int main(void){
     }
 #endif
 
-    if(fs_remove(s)){
-      fprintf(stderr,"FAIL: remove(%s)\n", s);
-      return EXIT_FAILURE;
-    }
-    printf("OK: remove(%s)\n", s);
-
     fs_expanduser(s, p, FS_MAX_PATH);
     if(strcmp(p, ref) != 0)
       return EXIT_FAILURE;
@@ -109,16 +107,9 @@ int main(void){
       return EXIT_FAILURE;
     printf("OK: file_size(%s)\n", ref);
 
-    if(fs_chmod_exe(s, true))
-      return EXIT_FAILURE;
-    printf("OK: chmod_exe(%s)\n", ref);
-
     if(fs_is_symlink(s))
       return EXIT_FAILURE;
     printf("OK: is_symlink(%s)\n", s);
-
-    if(fs_create_symlink(s, s) == 0)
-      return EXIT_FAILURE;
 
     printf("PASS: test_reserved.cpp\n");
 
