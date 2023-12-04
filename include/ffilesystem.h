@@ -108,10 +108,9 @@ extern "C" {
 #define NOMINMAX
 #endif
 
-#if defined (__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#if defined (__APPLE__)
 #include <sys/syslimits.h>
-#elif defined (_MSC_VER)
-#else
+#elif !defined (_MSC_VER)
 #ifdef __cplusplus
 #include <climits>
 #else
