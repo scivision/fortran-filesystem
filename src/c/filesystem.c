@@ -33,18 +33,32 @@ long fs_lang(){
 #endif
 }
 
-bool fs_is_wsl() {
+
+static bool str_ends_with(const char *s, const char *suffix) {
+  /* https://stackoverflow.com/a/41652727 */
+    size_t slen = strlen(s);
+    size_t suffix_len = strlen(suffix);
+
+    return suffix_len <= slen && !strcmp(s + slen - suffix_len, suffix);
+}
+
+int fs_is_wsl() {
 #ifdef HAVE_UTSNAME_H
   struct utsname buf;
   if (uname(&buf) != 0)
     return false;
 
-  return strcmp(buf.sysname, "Linux") == 0 &&
-    strstr(buf.release, "microsoft-standard-WSL") != NULL;
-#else
-  return false;
+  if (strcmp(buf.sysname, "Linux") != 0)
+    return 0;
+  if (str_ends_with(buf.release, "microsoft-standard-WSL2"))
+    return 2;
+  if (str_ends_with(buf.release, "-Microsoft"))
+    return 1;
 #endif
+
+  return 0;
 }
+
 
 size_t fs_compiler(char* name, size_t buffer_size)
 {

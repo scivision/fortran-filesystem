@@ -75,7 +75,7 @@ long fs_lang()
   return __cplusplus;
 }
 
-bool fs_is_wsl() {
+int fs_is_wsl() {
 #if __has_include(<sys/utsname.h>)
   struct utsname buf;
   if (uname(&buf) != 0)
@@ -83,16 +83,23 @@ bool fs_is_wsl() {
 
   std::string_view release(buf.release);
 
-  return std::string_view(buf.sysname) == "Linux" &&
-#ifdef __cpp_lib_string_contains
-    release.contains("microsoft-standard-WSL");
+  if (std::string_view(buf.sysname) != "Linux")
+    return 0;
+
+#ifdef __cpp_lib_starts_ends_with
+    if (release.ends_with("microsoft-standard-WSL2"))
+      return 2;
+    if (release.ends_with("-Microsoft"))
+      return 1;
 #else
-    release.find("microsoft-standard-WSL") != std::string::npos;
+    if (release.find("microsoft-standard-WSL2") != std::string::npos)
+      return 2;
+    if (release.find("-Microsoft") != std::string::npos)
+      return 1;
+#endif
 #endif
 
-#else
-  return false;
-#endif
+  return 0;
 }
 
 static size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)

@@ -1,6 +1,6 @@
 module filesystem
 
-use, intrinsic:: iso_c_binding, only: C_BOOL, C_LONG
+use, intrinsic:: iso_c_binding, only: C_BOOL, C_INT, C_LONG
 use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 
 implicit none
@@ -244,11 +244,11 @@ import C_BOOL
 end function
 
 logical(C_BOOL) function is_cygwin() bind(C, name="fs_is_cygwin")
-import C_BOOL
+import
 end function
 
-logical(C_BOOL) function is_wsl() bind(C, name="fs_is_wsl")
-import C_BOOL
+integer(C_INT) function is_wsl() bind(C, name="fs_is_wsl")
+import
 end function
 
 logical(C_BOOL) function is_mingw() bind(C, name="fs_is_mingw")
