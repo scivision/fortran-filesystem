@@ -20,7 +20,7 @@ assert_is_file, assert_is_dir, &
 touch, create_symlink, &
 remove, get_tempdir, &
 chmod_exe, get_permissions, &
-fs_cpp, fs_lang, is_bsd, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
+fs_cpp, fs_lang, is_admin, is_bsd, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
 get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler
 !! functional API
 
@@ -233,6 +233,10 @@ end function
 
 integer(C_LONG) function fs_lang() bind(C)
 import C_LONG
+end function
+
+logical(C_BOOL) function is_admin() bind(C, name="fs_is_admin")
+import
 end function
 
 logical(C_BOOL) function is_bsd() bind(C, name="fs_is_bsd")

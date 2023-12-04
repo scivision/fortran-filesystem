@@ -548,6 +548,7 @@ Tell characteristics of the computing platform such as operating system:
 ```fortran
 ! logical based on C preprocessor
 
+is_admin()
 is_bsd()
 is_unix()
 is_linux()

@@ -803,9 +803,11 @@ std::string fs_get_homedir()
   DWORD L = FS_MAX_PATH;
   auto buf = std::make_unique<char[]>(L);
   // process with query permission
-  HANDLE hToken = 0;
-  if(!OpenProcessToken( GetCurrentProcess(), TOKEN_QUERY, &hToken))
+  HANDLE hToken = nullptr;
+  if(!OpenProcessToken( GetCurrentProcess(), TOKEN_QUERY, &hToken)){
+		CloseHandle(hToken);
     throw std::runtime_error("ffilesystem:get_homedir: OpenProcessToken(GetCurrentProcess): "  + std::system_category().message(GetLastError()));
+  }
 
   bool ok = GetUserProfileDirectoryA(hToken, buf.get(), &L);
   CloseHandle(hToken);

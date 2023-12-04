@@ -152,6 +152,7 @@ extern bool fs_cpp();
 extern long fs_lang();
 extern size_t fs_get_max_path();
 
+extern bool fs_is_admin();
 extern bool fs_is_bsd();
 extern bool fs_is_macos();
 extern bool fs_is_linux();
