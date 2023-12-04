@@ -66,7 +66,11 @@ file = path_t('~/../' // dummy)
 file = file%resolve()
 if(file%length() == 0) error stop "ERROR: relative file did not resolve: " // file%path()
 L3 = file%length()
-if (L3 - L2 /= len(dummy) + 1) then
+
+L1 = len(dummy)
+if (L2 > 1) L1 = L1 + 1  !< when L2==1, $HOME is like /root instead of /home/user
+
+if (L3 - L2 /= L1) then
   write(stderr,*) 'ERROR relative file was not resolved: ' // file%path(), L2, par%path(), L3, len(dummy)
   error stop
 endif

@@ -61,7 +61,10 @@ if(L == 0) {
   return EXIT_FAILURE;
 }
 
-if (L - L2 != 13 + 1){
+size_t L4 = 13;
+if(L2 > 1) L4++; // in case $HOME like /root instead of /home/user
+
+if (L - L2 != L4){
   fprintf(stderr, "ERROR relative file was not canonicalized: %s %zu %zu\n", file, L0, L);
   return EXIT_FAILURE;
 }
