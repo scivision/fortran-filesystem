@@ -1,8 +1,15 @@
-set_property(DIRECTORY PROPERTY LABELS fortran)
+set_property(DIRECTORY PROPERTY LABELS "fortran")
 
-if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-Wno-maybe-uninitialized>)
+if(ffilesystem_cli)
+add_test(NAME Fortran_CLI_Cpp COMMAND filesystem_cli cpp)
+if(ffilesystem_cpp)
+  set_property(TEST Fortran_CLI_Cpp PROPERTY PASS_REGULAR_EXPRESSION "^T")
+else()
+  set_property(TEST Fortran_CLI_Cpp PROPERTY PASS_REGULAR_EXPRESSION "^F")
 endif()
+endif()
+
+add_compile_options($<$<COMPILE_LANG_AND_ID:Fortran,GNU>:-Wno-maybe-uninitialized>)
 
 foreach(t IN ITEMS canonical core exe expanduser find mkdtemp relative reserved resolve utf8)
   add_executable(test_${t} test_${t}.f90)

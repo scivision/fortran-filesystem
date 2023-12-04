@@ -18,6 +18,11 @@ COMMAND test_binpath_c
 # --- C++
 if(HAVE_CXX_FILESYSTEM)
 
+if(ffilesystem_cli)
+add_test(NAME Cpp_CLI_Cpp COMMAND fs_cli cpp)
+set_property(TEST Cpp_CLI_Cpp PROPERTY PASS_REGULAR_EXPRESSION "^1")
+endif()
+
 foreach(t IN ITEMS canonical core exe utf8)
   add_executable(test_Cpp_${t} test_${t}.cpp)
   target_link_libraries(test_Cpp_${t} PRIVATE ffilesystem)

@@ -113,27 +113,15 @@ endif()
 # --- C compile flags
 if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU|^Intel")
   add_compile_options(
-  "$<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-Wextra>"
-  "$<$<COMPILE_LANGUAGE:C>:-Wall>"
+  "$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<CONFIG:Debug>>:-Wextra>"
+  "$<$<COMPILE_LANGUAGE:C,CXX>:-Wall>"
   )
-  if(ffilesystem_cpp)
-    add_compile_options(
-    "$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:-Wextra>"
-    "$<$<COMPILE_LANGUAGE:CXX>:-Wall>"
-    )
-  endif()
 elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-  add_compile_options("$<$<COMPILE_LANGUAGE:C>:/W3;/wd4996>")
-  if(ffilesystem_cpp)
-    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/W3;/wd4996>")
-  endif()
+  add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/W3;/wd4996>")
 endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "IntelLLVM")
-  add_compile_options("$<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-Rno-debug-disables-optimization>")
-  if(ffilesystem_cpp)
-    add_compile_options("$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:-Rno-debug-disables-optimization>")
-  endif()
+  add_compile_options("$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<CONFIG:Debug>>:-Rno-debug-disables-optimization>")
 endif()
 
 # --- Fortran compile flags
