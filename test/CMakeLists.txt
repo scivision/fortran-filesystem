@@ -1,6 +1,6 @@
 add_subdirectory(c)
 
-if(fortran)
+if(ffilesystem_fortran)
   add_subdirectory(fortran)
 endif()
 

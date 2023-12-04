@@ -7,7 +7,7 @@
   "binaryDir": "${sourceDir}/build",
   "cacheVariables": {
     "CMAKE_COMPILE_WARNING_AS_ERROR": true,
-    "fallback": false
+    "ffilesystem_fallback": false
   }
 },
 {
@@ -27,7 +27,7 @@
   "cacheVariables": {
     "CMAKE_BUILD_TYPE": "Debug",
     "ENABLE_COVERAGE": true,
-    "fallback": false
+    "ffilesystem_fallback": false
   }
 },
 {

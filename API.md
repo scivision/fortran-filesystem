@@ -553,8 +553,11 @@ is_linux()
 is_windows()
 is_macos()
 is_cygwin()
-is_wsl()  !< Windows Subsystem for Linux
 is_mingw()
+```
+
+```fortran
+C_INT  is_wsl()  !< Windows Subsystem for Linux > 0 if true
 ```
 
 Logical: ffilesystem is using C++ backend

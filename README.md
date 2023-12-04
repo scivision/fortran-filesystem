@@ -54,7 +54,7 @@ The older `<experimental/filesystem>` is NOT supported.
 To manually disable C++ support:
 
 ```sh
-cmake -Bbuild -Dcpp=no
+cmake -Bbuild -Dffilesystem_cpp=no
 ```
 
 ### libstdc++

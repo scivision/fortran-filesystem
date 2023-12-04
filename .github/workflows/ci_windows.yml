@@ -29,8 +29,8 @@ jobs:
       run: >-
         cmake -Bbuild
         --install-prefix=${{ runner.temp }}
-        -Dfortran:BOOL=off
-        -Dcpp:BOOL=on
+        -Dffilesystem_fortran:BOOL=off
+        -Dffilesystem_cpp:BOOL=on
         -DBUILD_SHARED_LIBS:BOOL=off
 
     - name: Debug build
@@ -86,7 +86,7 @@ jobs:
         cmake
         --preset multi
         --install-prefix ${{ runner.temp }}
-        -Dcpp:BOOL=on
+        -Dffilesystem_cpp:BOOL=on
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: Debug workflow

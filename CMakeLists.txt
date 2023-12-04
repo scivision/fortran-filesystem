@@ -7,7 +7,7 @@ endif()
 
 project(ffilesystem
 LANGUAGES C
-VERSION 5.2.1
+VERSION 5.3.0
 )
 
 include(CTest) # needed for "ctest -T memcheck"
@@ -15,21 +15,19 @@ include(FetchContent)
 
 set(CMAKE_C_STANDARD 11)
 
-# some parts of ffilesystem have optional C++20 and/or C++23 features
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 20)
-endif()
+# some parts of ffilesystem have optional C++20 features
+set(CMAKE_CXX_STANDARD 20)
 
 message(STATUS "${PROJECT_NAME} ${PROJECT_VERSION} CMake ${CMAKE_VERSION} ${CMAKE_SYSTEM_NAME} Toolchain ${CMAKE_TOOLCHAIN_FILE}")
 
 include(options.cmake)
-if(cpp)
+if(ffilesystem_cpp)
   enable_language(CXX)
   message(STATUS "${PROJECT_NAME}  CXX_STANDARD ${CMAKE_CXX_STANDARD}")
 else()
   message(STATUS "${PROJECT_NAME}  C_STANDARD ${CMAKE_C_STANDARD}")
 endif()
-if(fortran)
+if(ffilesystem_fortran)
   enable_language(Fortran)
 endif()
 
@@ -57,7 +55,7 @@ endif()
 
 add_library(ffilesystem src/common/common.c
 "$<IF:$<BOOL:${HAVE_CXX_FILESYSTEM}>,src/common/filesystem.cpp,src/c/filesystem.c;src/c/env.c;src/c/get_path.c;src/c/sys.c;${cwalk_SOURCE_DIR}/src/cwalk.c>"
-"$<$<BOOL:${fortran}>:src/common/fortran/get_path.f90;src/common/fortran/filesystem.f90;src/common/fortran/f2c.f90;src/common/fortran/find.f90>"
+"$<$<BOOL:${ffilesystem_fortran}>:src/common/fortran/get_path.f90;src/common/fortran/filesystem.f90;src/common/fortran/f2c.f90;src/common/fortran/find.f90>"
 )
 target_include_directories(ffilesystem PRIVATE
 ${PROJECT_SOURCE_DIR}/include
@@ -83,7 +81,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
-# include -Dfortran=off, the ffilesystem CMake package will fail on use if directory not exist
+# include -Dffilesystem_fortran=off, the ffilesystem CMake package will fail on use if directory not exist
 
 target_include_directories(ffilesystem PUBLIC
 "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include;${PROJECT_SOURCE_DIR}/include>"
@@ -97,7 +95,7 @@ $<$<BOOL:${HAVE_DLADDR}>:${CMAKE_DL_LIBS}>
 )
 # both Advapi32 and Userenv must be linked
 
-if(fortran)
+if(ffilesystem_fortran)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
@@ -116,19 +114,21 @@ endif()
 
 # --- CLI
 
-if(cli)
+if(ffilesystem_cli)
   if(HAVE_CXX_FILESYSTEM)
   add_executable(fs_cli app/main.cpp)
   target_compile_definitions(fs_cli PRIVATE "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>")
   target_link_libraries(fs_cli PRIVATE ffilesystem)
+
+  install(TARGETS fs_cli EXPORT ${PROJECT_NAME}-targets)
   endif()
 
-  if(fortran)
+  if(ffilesystem_fortran)
   add_executable(filesystem_cli app/fortran/filesystem_cli.f90)
   target_link_libraries(filesystem_cli PRIVATE ffilesystem)
   set_property(TARGET filesystem_cli PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
   set_property(TARGET filesystem_cli PROPERTY LINKER_LANGUAGE Fortran)
-  # Intel/NVHPC needs linker_language fortran else error "undefined reference to `main'"
+  # Intel/NVHPC needs linker_language Fortran else error "undefined reference to `main'"
 
   install(TARGETS filesystem_cli EXPORT ${PROJECT_NAME}-targets)
   endif()
@@ -143,7 +143,7 @@ include(cmake/install.cmake)
 
 include(FeatureSummary)
 
-add_feature_info(Fortran fortran "Fortran bindings")
+add_feature_info(Fortran ffilesystem_fortran "Fortran bindings")
 add_feature_info(CXX_FILESYSTEM HAVE_CXX_FILESYSTEM "C++17 filesystem")
 add_feature_info(shared BUILD_SHARED_LIBS "Build shared library: enables lib_path(), lib_dir()")
 

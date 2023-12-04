@@ -86,7 +86,7 @@ set_property(TEST Fortran_find PROPERTY FIXTURES_REQUIRED ops_fxt)
 set_property(TEST Fortran_relative Fortran_canonical Fortran_filesize PROPERTY FIXTURES_REQUIRED core_fxt)
 
 get_property(test_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
-# Intel needs linker_language fortran else error "undefined reference to `main'"
+# Intel needs linker_language Fortran else error "undefined reference to `main'"
 set_property(TARGET ${test_targets} PROPERTY LINKER_LANGUAGE Fortran)
 
 get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)

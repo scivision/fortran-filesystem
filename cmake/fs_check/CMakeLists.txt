@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project(fs_check LANGUAGES C CXX)
 
-if(fortran)
+if(ffilesystem_fortran)
   enable_language(Fortran)
 endif()
 
@@ -25,7 +25,7 @@ target_link_libraries(fs_cpp PRIVATE ${GNU_stdfs})
 add_executable(c_fs main_fs.c $<TARGET_OBJECTS:fs_cpp>)
 add_test(NAME C_fs COMMAND c_fs)
 
-if(fortran)
+if(ffilesystem_fortran)
   add_executable(fortran_fs main.f90 $<TARGET_OBJECTS:fs_cpp>)
   set_property(TARGET fortran_fs PROPERTY LINKER_LANGUAGE Fortran)
   add_test(NAME Fortran_fs COMMAND fortran_fs)

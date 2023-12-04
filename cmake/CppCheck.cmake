@@ -54,8 +54,8 @@ if(NOT cpp20_format)
   message(STATUS "fs_compiler() will return empty as compiler doesn't have C++20 std::format")
 endif()
 
-if(CMAKE_CXX_STANDARD GREATER_EQUAL 23)
-  check_cxx_symbol_exists(__cpp_lib_string_contains "version" cpp23_string_contains)
+if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
+  check_cxx_symbol_exists(__cpp_lib_starts_ends_with "version" cpp20_string_ends_with)
 endif()
 
 endfunction()

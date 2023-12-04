@@ -63,7 +63,7 @@ jobs:
         cmake
         --preset multi
         --install-prefix ${{ runner.temp }}
-        -Dcpp:BOOL=${{ matrix.cpp }}
+        -Dffilesystem_cpp:BOOL=${{ matrix.cpp }}
 
     - name: print config log
       if: ${{ failure() }}

@@ -33,7 +33,7 @@ if(GNU_stdfs)
   message(STATUS "adding library ${GNU_stdfs}")
 endif()
 
-if(cpp)
+if(ffilesystem_cpp)
   cpp_check()
 elseif(WIN32)
   message(FATAL_ERROR "${PROJECT_NAME}: C++ is required on Windows")
@@ -51,7 +51,7 @@ if(NOT DEFINED ${PROJECT_NAME}_abi_ok)
   try_compile(${PROJECT_NAME}_abi_ok
   ${CMAKE_CURRENT_BINARY_DIR}/fs_check ${CMAKE_CURRENT_LIST_DIR}/fs_check
   fs_check
-  CMAKE_FLAGS -DGNU_stdfs=${GNU_stdfs} -Dfortran:BOOL=${fortran}
+  CMAKE_FLAGS -DGNU_stdfs=${GNU_stdfs} -Dffilesystem_fortran:BOOL=${ffilesystem_fortran}
   )
   if(${PROJECT_NAME}_abi_ok)
     message(CHECK_PASS "OK")
@@ -87,9 +87,9 @@ endif()
 
 endif(HAVE_CXX_FILESYSTEM)
 
-if(cpp AND NOT fallback AND NOT HAVE_CXX_FILESYSTEM)
+if(ffilesystem_cpp AND NOT ffilesystem_fallback AND NOT HAVE_CXX_FILESYSTEM)
   message(FATAL_ERROR "C++ filesystem not available. To fallback to C filesystem:
-  cmake -Dfallback=on -B build"
+  cmake -Dffilesystem_fallback=on -B build"
   )
 endif()
 
@@ -116,7 +116,7 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU|^Intel")
   "$<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-Wextra>"
   "$<$<COMPILE_LANGUAGE:C>:-Wall>"
   )
-  if(cpp)
+  if(ffilesystem_cpp)
     add_compile_options(
     "$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:-Wextra>"
     "$<$<COMPILE_LANGUAGE:CXX>:-Wall>"
@@ -124,14 +124,14 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU|^Intel")
   endif()
 elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
   add_compile_options("$<$<COMPILE_LANGUAGE:C>:/W3;/wd4996>")
-  if(cpp)
+  if(ffilesystem_cpp)
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/W3;/wd4996>")
   endif()
 endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "IntelLLVM")
   add_compile_options("$<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:-Rno-debug-disables-optimization>")
-  if(cpp)
+  if(ffilesystem_cpp)
     add_compile_options("$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:-Rno-debug-disables-optimization>")
   endif()
 endif()
