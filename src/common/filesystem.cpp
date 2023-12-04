@@ -48,8 +48,6 @@ static void dl_dummy_func() {}
 
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
-#elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-#include <sys/sysctl.h>
 #elif defined(__linux__) || defined(__CYGWIN__)
 #include <unistd.h>
 #endif
@@ -911,22 +909,14 @@ std::string fs_exe_path()
   // https://man7.org/linux/man-pages/man2/readlink.2.html
   size_t L = readlink("/proc/self/exe", buf.get(), FS_MAX_PATH);
   if (L < 1 || L >= FS_MAX_PATH)
-    throw std::runtime_error("ffilesystem:lib_path: readlink failed");
+    throw std::runtime_error("ffilesystem:exe_path: readlink failed");
 #elif defined(__APPLE__)
   uint32_t mp = FS_MAX_PATH;
   int r = _NSGetExecutablePath(buf.get(), &mp);
   if (r)
-    throw std::runtime_error("ffilesystem:lib_path: _NSGetExecutablePath failed");
-#elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-  int mib[4];
-  mib[0] = CTL_KERN;
-  mib[1] = KERN_PROC;
-  mib[2] = KERN_PROC_PATHNAME;
-  mib[3] = -1;
-  size_t cb = sizeof(buf);
-
-  if(sysctl(mib, 4, buf.get(), &cb, nullptr, 0))
-    throw std::runtime_error("ffilesystem:lib_path: sysctl failed");
+    throw std::runtime_error("ffilesystem:exe_path: _NSGetExecutablePath failed");
+#else
+  throw std::runtime_error("ffilesystem:exe_path: not implemented for this platform");
 #endif
 
   std::string s(buf.get());

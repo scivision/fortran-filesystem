@@ -14,8 +14,6 @@ static void dl_dummy_func() {}
 
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
-#elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-#include <sys/sysctl.h>
 #elif defined(__linux__)
 #include <unistd.h>
 #endif
@@ -42,24 +40,8 @@ size_t fs_exe_path(char *path, size_t buffer_size)
   uint32_t mp = sizeof(buf);
   if (_NSGetExecutablePath(buf, &mp) || !realpath(buf, path))
     return 0;
-#elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-  char *buf = (char *)malloc(buffer_size);
-  if (!buf)
-    return 0;
-  int mib[4];
-  mib[0] = CTL_KERN;
-  mib[1] = KERN_PROC;
-  mib[2] = KERN_PROC_PATHNAME;
-  mib[3] = -1;
-  size_t cb = sizeof(buf);
-
-  if (sysctl(mib, 4, buf, &cb, NULL, 0) || !realpath(buf, path))
-  {
-    free(buf);
-    return 0
-  }
-  free(buf);
 #else
+  fprintf(stderr, "ERROR:ffilesystem:fs_exe_path: not implemented for this platform\n");
   return 0;
 #endif
 
