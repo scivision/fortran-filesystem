@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
-#include <stdexcept>
+#include <exception>
 
 #ifdef _MSC_VER
 #include <crtdbg.h>

@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <string>
 
-#include <stdexcept>
+#include <exception>
 
 #include "ffilesystem.h"
 

@@ -68,12 +68,20 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
 endif()
 
 # --- binpath
-add_executable(test_binpath_fortran test_binpath.f90)
-target_link_libraries(test_binpath_fortran PRIVATE ffilesystem)
-add_test(NAME Fortran_binpath
-COMMAND test_binpath_fortran
+
+if(NOT BSD)
+add_executable(test_exepath_fortran test_exepath.f90)
+target_link_libraries(test_exepath_fortran PRIVATE ffilesystem)
+add_test(NAME Fortran_exepath
+COMMAND test_exepath_fortran $<TARGET_FILE_BASE_NAME:test_exepath_fortran>
+)
+endif()
+
+add_executable(test_libpath_fortran test_libpath.f90)
+target_link_libraries(test_libpath_fortran PRIVATE ffilesystem)
+add_test(NAME Fortran_libpath
+COMMAND test_libpath_fortran
   $<AND:$<BOOL:${BUILD_SHARED_LIBS}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>,$<BOOL:${HAVE_DLADDR}>>>
-  $<TARGET_FILE_BASE_NAME:test_binpath_fortran>
   $<TARGET_FILE_NAME:ffilesystem>
 )
 

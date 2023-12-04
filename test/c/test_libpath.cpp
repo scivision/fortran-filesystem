@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <stdexcept>
+#include <exception>
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -9,30 +9,6 @@
 
 #include "ffilesystem.h"
 
-
-void test_exe_path(char* argv[])
-{
-char bin[FS_MAX_PATH];
-
-fs_exe_path(bin, FS_MAX_PATH);
-std::string binpath = bin;
-  if (binpath.find(argv[2]) == std::string::npos)
-    throw std::runtime_error("ERROR:test_binpath: exe_path not found correctly: " + binpath);
-
-
-std::string bindir = fs_exe_dir();
-if(bindir.empty())
-  throw std::runtime_error("ERROR:test_binpath: exe_dir not found correctly: " + bindir);
-
-std::string p = fs_parent(binpath);
-
-if(!fs_equivalent(bindir, p))
-  throw std::runtime_error("ERROR:test_binpath: exe_dir and parent(exe_path) should be equivalent: " + bindir + " != " + p);
-
-std::cout << "OK: exe_path: " << binpath << "\n";
-std::cout << "OK: exe_dir: " << bindir << "\n";
-
-}
 
 
 void test_lib_path(char* argv[]){
@@ -48,7 +24,7 @@ void test_lib_path(char* argv[]){
   if(binpath.empty())
     throw std::runtime_error("ERROR:test_binpath: lib_path should be non-empty: " + binpath);
 
-  if(binpath.find(argv[3]) == std::string::npos)
+  if(binpath.find(argv[2]) == std::string::npos)
     throw std::runtime_error("ERROR:test_binpath: lib_path not found correctly: " + binpath + " does not contain " + argv[3]);
 
   std::cout << "OK: lib_path: " << binpath << "\n";
@@ -83,12 +59,10 @@ int main(int argc, char* argv[])
   _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #endif
 
-  if (argc < 4) {
-    std::cerr << "ERROR: test_binpath_c: not enough arguments\n";
+  if (argc < 3) {
+    std::cerr << "ERROR: test_libpath_c: not enough arguments\n";
     return 1;
   }
-
-  test_exe_path(argv);
 
   test_lib_path(argv);
 

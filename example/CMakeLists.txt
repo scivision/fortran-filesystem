@@ -28,12 +28,6 @@ set_property(TARGET ex_fortran PROPERTY LINKER_LANGUAGE Fortran)
 # Intel needs linker_language Fortran else error "undefined reference to `main'"
 add_test(NAME BasicFortran COMMAND ex_fortran)
 
-add_executable(test_binpath_f ${PROJECT_SOURCE_DIR}/../test/fortran/test_binpath.f90)
-target_link_libraries(test_binpath_f PRIVATE ffilesystem::filesystem)
-add_test(NAME binpath_fortran
-COMMAND test_binpath_f $<BOOL:${ffilesystem_libpath}> $<TARGET_FILE_NAME:test_binpath_f> $<TARGET_FILE_NAME:ffilesystem::filesystem>
-)
-
 endif()
 
 # --- C++ use
@@ -49,12 +43,6 @@ endif()
 add_executable(ex_c 3/main.c)
 target_link_libraries(ex_c PRIVATE ffilesystem::filesystem)
 add_test(NAME BasicC COMMAND ex_c)
-
-add_executable(test_binpath_c ${PROJECT_SOURCE_DIR}/../test/c/test_binpath.c)
-target_link_libraries(test_binpath_c PRIVATE ffilesystem::filesystem)
-add_test(NAME binpath_c
-COMMAND test_binpath_c $<BOOL:${ffilesystem_shared}> $<TARGET_FILE_NAME:test_binpath_c> $<TARGET_FILE_NAME:ffilesystem::filesystem>
-)
 
 
 # --- test properties
