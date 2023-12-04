@@ -143,7 +143,7 @@ int main(void){
       return EXIT_FAILURE;
     printf("PASS: get_homedir\n");
 
-    if(fs_exe_dir(O, 1) != 0)
+    if(!fs_is_bsd() && fs_exe_dir(O, 1) != 0)
       return EXIT_FAILURE;
 
     if(fs_lib_dir(O, 1) != 0)

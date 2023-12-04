@@ -546,8 +546,9 @@ character(*), intent(in) :: path, top_path
 Tell characteristics of the computing platform such as operating system:
 
 ```fortran
-! logical based on C++ preprocessor
+! logical based on C preprocessor
 
+is_bsd()
 is_unix()
 is_linux()
 is_windows()

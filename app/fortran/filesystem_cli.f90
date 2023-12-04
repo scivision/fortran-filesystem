@@ -22,7 +22,7 @@ if (L == 0 .or. i /= 0) error stop "invalid function name: " // trim(fcn)
 
 select case (fcn)
 case ("cpp", "lang", "compiler", "get_cwd", "homedir", "tempdir", &
-  "is_cygwin", "is_wsl", "is_mingw", "is_unix", "is_linux", "is_windows", "is_macos", &
+  "is_bsd", "is_cygwin", "is_wsl", "is_mingw", "is_unix", "is_linux", "is_windows", "is_macos", &
     "max_path", "exe_path", "lib_path")
   if (argc /= 1) error stop "usage: ./filesystem_cli " // trim(fcn)
 case ("chmod_exe", "copy_file", "relative_to", "same_file", "with_suffix")
@@ -46,6 +46,8 @@ case ("cpp")
   print '(L1)', fs_cpp()
 case ("lang")
   print '(i0)', fs_lang()
+case ("is_bsd")
+  print '(L1)', is_bsd()
 case ('is_macos')
   print '(L1)', is_macos()
 case ('is_windows')

@@ -78,6 +78,9 @@ int main(int argc, char* argv[]){
   else if (arg1 == "exe_dir"){
     std::cout << fs_exe_dir() << "\n";
   }
+  else if (arg1 == "is_bsd"){
+    std::cout << fs_is_bsd() << "\n";
+  }
   else if (arg1 == "is_linux"){
     std::cout << fs_is_linux() << "\n";
   }
