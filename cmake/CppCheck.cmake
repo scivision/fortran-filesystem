@@ -43,11 +43,11 @@ endif()
 
 # e.g. AppleClang 15 doesn't yet have this, maybe not worth the bother
 # i.e. benchmarking may reveal miniscule benefit.
-# check_cxx_symbol_exists(__cpp_lib_smart_ptr_for_overwrite "version" cpp20_smart_ptr_for_overwrite)
+# check_cxx_symbol_exists(__cpp_lib_smart_ptr_for_overwrite "memory" cpp20_smart_ptr_for_overwrite)
 
 # informational for dev users
 if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
-  check_cxx_symbol_exists(__cpp_lib_format "version" cpp20_format)
+  check_cxx_symbol_exists(__cpp_lib_format "format" cpp20_format)
 endif()
 
 if(NOT cpp20_format)
@@ -55,7 +55,7 @@ if(NOT cpp20_format)
 endif()
 
 if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
-  check_cxx_symbol_exists(__cpp_lib_starts_ends_with "version" cpp20_string_ends_with)
+  check_cxx_symbol_exists(__cpp_lib_starts_ends_with "string" cpp20_string_ends_with)
 endif()
 
 endfunction()
