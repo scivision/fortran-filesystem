@@ -126,7 +126,11 @@ std::string fs_compiler()
 #elif defined(__NVCOMPILER_LLVM__)
   return std::format("NVIDIA nvc {}.{}.{}", __NVCOMPILER_MAJOR__, __NVCOMPILER_MINOR__, __NVCOMPILER_PATCHLEVEL__);
 #elif defined(__clang__)
-  return std::format("Clang {}.{}.{}", __clang_major__, __clang_minor__, __clang_patchlevel__);
+  #ifdef __VERSION__
+    return std::format("Clang {}", __VERSION__);
+  #else
+    return std::format("Clang {}.{}.{}", __clang_major__, __clang_minor__, __clang_patchlevel__);
+  #endif
 #elif defined(__GNUC__)
   return std::format("GNU GCC {}.{}.{}", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #elif defined(_MSC_VER)
