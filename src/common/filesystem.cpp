@@ -192,7 +192,11 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size)
 
 std::string fs_normal(std::string_view path)
 {
-  return fs::path(path).lexically_normal().generic_string();
+  std::string s = fs::path(path).lexically_normal().generic_string();
+  // remove trailing slash
+  if (s.length() > 1 && s.back() == '/')
+    s.pop_back();
+  return s;
 }
 
 
@@ -239,7 +243,7 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size)
 
 std::string fs_parent(std::string_view path)
 {
-  return fs::path(path).lexically_normal().parent_path().generic_string();
+  return fs::path(fs_normal(path)).parent_path().generic_string();
 }
 
 
