@@ -82,6 +82,19 @@ if(!fs_is_windows())
     throw std::runtime_error("ERROR:test_exe: expected POSIX perms for " + noexe + " to be '-' in index 2");
 }
 
+// test fs_which
+if(fs_is_windows()){
+    std::string which = fs_which("cmd.exe");
+    if(which.length() == 0)
+        throw std::runtime_error("ERROR:test_exe: fs_which('cmd.exe') should return a path");
+    std::cout << "fs_which('cmd.exe') = " << which << "\n";
+    }
+else{
+    std::string which = fs_which("ls");
+    if(which.length() == 0)
+        throw std::runtime_error("ERROR:test_exe: fs_which('ls') should return a path");
+    std::cout << "fs_which('ls') = " << which << "\n";
+}
 
 std::cout << "OK: c++ test_exe\n";
 

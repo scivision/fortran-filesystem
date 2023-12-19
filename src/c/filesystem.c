@@ -397,16 +397,13 @@ bool fs_set_cwd(const char* path){
 
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
 {
-  if((strlen(to) == 0) || (strlen(from) == 0)){
-    result[0] = '\0';
+  result[0] = '\0';
+  if((strlen(to) == 0) || (strlen(from) == 0))
     return 0;
-  }
 
-  if(fs_is_absolute(to) != fs_is_absolute(from)){
-    // cannot be relative, avoid bugs with MacOS
-    result[0] = '\0';
+  /* cannot be relative, avoid bugs with MacOS */
+  if(fs_is_absolute(to) != fs_is_absolute(from))
     return 0;
-  }
 
   if(strcmp(to, from) == 0){
     // short circuit if trivially equal
@@ -420,6 +417,41 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
   cwk_path_get_relative(from, to, result, buffer_size);
 
   return fs_normal(result, result, buffer_size);
+}
+
+
+size_t fs_which(const char* name, char* result, size_t buffer_size)
+{
+  result[0] = '\0';
+  if(strlen(name) == 0)
+    return 0;
+
+  if(fs_is_absolute(name) && fs_is_exe(name))
+    return fs_normal(name, result, buffer_size);
+
+  char* path = getenv("PATH");
+  if(!path){
+    fprintf(stderr, "ERROR:ffilesystem:which: PATH environment variable not set\n");
+    return 0;
+  }
+
+  char* p = strtok(path, ":");
+  char* buf = (char*) malloc(buffer_size);
+  if(!buf) return 0;
+
+  while (p) {
+    fs_join(p, name, buf, buffer_size);
+
+    if(fs_is_exe(buf)){
+      size_t L = fs_normal(buf, result, buffer_size);
+      free(buf);
+      return L;
+    }
+    p = strtok(NULL, ":");
+  }
+
+  free(buf);
+  return 0;
 }
 
 

@@ -6,7 +6,7 @@ use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 implicit none
 private
 public :: path_t  !< base class
-public :: get_homedir, canonical, resolve, get_cwd, set_cwd, make_tempdir !< utility procedures
+public :: get_homedir, canonical, resolve, get_cwd, set_cwd, make_tempdir, which !< utility procedures
 public :: normal, expanduser, as_posix, as_windows, &
 is_absolute, is_char_device, is_dir, is_file, is_exe, is_reserved, &
 is_symlink, &
@@ -119,6 +119,12 @@ module function relative_to(a, b)
 
 character(*), intent(in) :: a, b
 character(:), allocatable :: relative_to
+end function
+
+module function which(name) result(r)
+!! find executable in PATH
+character(*), intent(in) :: name
+character(:), allocatable :: r
 end function
 
 module function file_name(path)

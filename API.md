@@ -335,6 +335,8 @@ p%is_exe()
 is_exe("my/file.exe")
 ```
 
+---
+
 Make regular file executable (or not) for owner:
 
 ```fortran
@@ -371,6 +373,15 @@ No path resolution is used, so non-sensical paths are possible for non-sensical 
 
 ```fortran
 join("a/b", "c/d") ! "a/b/c/d"
+```
+
+---
+
+Find executable file on environment variable PATH if present.
+Windows must include the ".exe" suffix.
+
+```fortran
+character(:), allocatable :: which("myprog")
 ```
 
 ---

@@ -123,6 +123,9 @@ int main(int argc, char* argv[]){
   else if (arg1 == "is_exe" && argc == 3){
     std::cout << fs_is_exe(arg2) << "\n";
   }
+  else if (arg1 == "which" && argc == 3){
+    std::cout << fs_which(arg2) << "\n";
+  }
   else if (arg1 == "is_file" && argc == 3){
     std::cout << fs_is_file(arg2) << "\n";
   }

@@ -232,7 +232,7 @@ std::string fs_join(std::string_view path, std::string_view other)
   if (other.empty())
     return std::string(path);
 
-  return (fs::path(path) / other).generic_string();
+  return (fs::path(path) / other).lexically_normal().generic_string();
 }
 
 
@@ -657,6 +657,64 @@ std::string fs_relative_to(std::string_view to, std::string_view from)
     return {};
 
   return fs::relative(tp, fp).generic_string();
+}
+
+
+size_t fs_which(const char* name, char* result, size_t buffer_size)
+{
+  try{
+    return fs_str2char(fs_which(std::string_view(name)), result, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:which: " << e.what() << "\n";
+    return 0;
+  }
+}
+
+std::string fs_which(std::string_view name)
+// find full path to executable name on Path
+{
+  if (name.empty())
+    return {};
+
+  std::string n(name);
+
+  if (fs_is_absolute(n))
+    return fs_is_exe(n) ? fs_normal(n) : std::string();
+
+  std::string path = std::getenv("PATH");
+  if (path.empty()){
+    std::cerr << "ERROR:ffilesystem:which: Path environment variable not set\n";
+    return {};
+  }
+
+  std::string p;
+
+  // Windows gives priority to cwd, so check that first
+  if(fs_is_windows()){
+    p = fs_join(fs_get_cwd(), n);
+    if(fs_is_exe(p))
+      return p;
+  }
+
+  char pathsep = fs_is_windows() ? ';' : ':';
+
+  std::string::size_type start = 0;
+  std::string::size_type end = path.find_first_of(pathsep, start);
+
+  while (end != std::string::npos) {
+    p = fs_join(path.substr(start, end - start), n);
+    if (FS_TRACE) std::cout << "TRACE:ffilesystem:which: " << p << "\n";
+    if (fs_is_exe(p))
+      return p;
+
+    start = end + 1;
+    end = path.find_first_of(pathsep, start);
+  }
+  p = fs_join(path.substr(start), n);
+  if(fs_is_exe(p))
+    return p;
+
+  return {};
 }
 
 

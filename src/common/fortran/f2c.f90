@@ -216,6 +216,13 @@ character(kind=c_char), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
+integer(C_SIZE_T) function fs_which(name, result, buffer_size) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: name(*)
+character(kind=C_CHAR), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
 integer(C_SIZE_T) function fs_root(path, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -532,6 +539,15 @@ allocate(character(max_path()) :: cbuf)
 N = fs_relative_to(trim(a) // C_NULL_CHAR, trim(b) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: relative_to)
 relative_to = cbuf(:N)
+end procedure
+
+module procedure which
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = fs_which(trim(name) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+allocate(character(N) :: r)
+r = cbuf(:N)
 end procedure
 
 module procedure remove
