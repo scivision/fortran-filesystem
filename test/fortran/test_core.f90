@@ -11,37 +11,40 @@ implicit none
 integer :: c = 0
 
 call test_setter_getter()
-print *, "OK: getter setter"
+print '(a)', "OK: getter setter"
 
 call test_separator(c)
-print *, "OK: filesyste: separator"
+print '(a)', "OK: filesyste: separator"
+
+call test_normal()
+print '(a)', "OK: filesystem: normal"
 
 call test_join()
-print *, "OK: test_join"
+print '(a)', "OK: test_join"
 
 call test_filename()
-print *, "OK: filesystem: filename"
+print '(a)', "OK: filesystem: filename"
 
 call test_stem()
-print *, "OK: filesystem: stem"
+print '(a)', "OK: filesystem: stem"
 
 call test_parent()
-print *, "OK: filesystem: parent"
+print '(a)', "OK: filesystem: parent"
 
 call test_suffix()
-print *, "OK: filesystem: suffix"
+print '(a)', "OK: filesystem: suffix"
 
 call test_with_suffix()
-print *, "OK: filesystem: with_suffix"
+print '(a)', "OK: filesystem: with_suffix"
 
 call test_root()
-print *, "OK: filesystem: root"
+print '(a)', "OK: filesystem: root"
 
 call test_is_dir()
-print *, "OK: filesystem: is_dir"
+print '(a)', "OK: filesystem: is_dir"
 
 call test_absolute()
-print *, "OK: filesystem: absolute"
+print '(a)', "OK: filesystem: absolute"
 
 if (c>0) then
   write(stderr,'(a,i0,a)') "ERRPR: test_core total of ", c, " errors"
@@ -116,6 +119,17 @@ if (c>0) write(stderr,'(a,i0,a)') "test_separator ", c, " errors"
 end subroutine
 
 
+subroutine test_normal()
+
+!> trailing separator
+if(normal("a/b/") /= "a/b") error stop "normal a/b/: " // normal("a/b/")
+
+if(normal("a/b/.") /= "a/b") error stop "normal a/b/.: " // normal("a/b/.")
+
+
+end subroutine test_normal
+
+
 subroutine test_join()
 
 type(path_t) :: p1,p2
@@ -142,7 +156,7 @@ subroutine test_filename()
 type(path_t) :: p1, p2
 
 if(file_name("") /= "") error stop "filename empty: " // file_name("")
-print *, "PASS:filename:empty"
+print '(a)', "PASS:filename:empty"
 
 p1 = path_t("a/b/c")
 p2 = path_t("a")
