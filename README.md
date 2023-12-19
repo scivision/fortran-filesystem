@@ -4,7 +4,6 @@
 [![ci](https://github.com/scivision/fortran-filesystem/actions/workflows/ci.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci.yml)
 [![ci_windows](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_windows.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_windows.yml)
 [![ci_fpm](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_fpm.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_fpm.yml)
-[![oneapi-linux](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml)
 
 Platform independent (Linux, macOS, Windows, Cygwin, WSL, ...), object-oriented Fortran filesystem "Ffilesystem" path manipulation library.
 The library also provides header
