@@ -126,6 +126,9 @@ int main(int argc, char* argv[]){
   else if (arg1 == "is_file" && argc == 3){
     std::cout << fs_is_file(arg2) << "\n";
   }
+  else if (arg1 == "same" && argc == 4){
+    std::cout << fs_equivalent(arg2, arg3) << "\n";
+  }
   else if (arg1 == "create_symlink" && argc == 4){
     std::cout << "create_symlink " << arg2 << " <= " << arg3 << "\n";
     fs_create_symlink(arg2, arg3);
