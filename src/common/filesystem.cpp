@@ -696,7 +696,7 @@ std::string fs_which(std::string_view name)
       return p;
   }
 
-  char pathsep = fs_is_windows() ? ';' : ':';
+  const char pathsep = fs_is_windows() ? ';' : ':';
 
   std::string::size_type start = 0;
   std::string::size_type end = path.find_first_of(pathsep, start);
