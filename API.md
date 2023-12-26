@@ -192,11 +192,12 @@ p = p%with_suffix(".hdf5")
 
 Normalize path, a lexical operation removing ".." and "." and duplicate file separators "//".
 The path need not exist.
+Trailing file separators are gobbled.
 
 ```fortran
 p = p%normal()
 ! or
-normal("./my//path/../b")  !< "my/b"
+normal("./my//path/../b/")  !< "my/b"
 ```
 
 Join path_t with other path string using posix separators.
@@ -400,7 +401,10 @@ Swap file suffix
 with_suffix("to/my.h5", ".hdf5")  !< "to/my.hdf5"
 ```
 
-Get parent directory of path. The parent of the top-most relative path is ".".
+Get parent directory of path.
+The parent of the top-most relative path is ".".
+We define the parent of a path as the directory above the specified path.
+Trailing slashes are gobbled.
 
 ```fortran
 p%parent()
