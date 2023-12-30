@@ -73,6 +73,33 @@ long fs_lang()
   return __cplusplus;
 }
 
+
+bool fs_is_admin(){
+  // running as admin / root / superuser
+#ifdef _WIN32
+  BOOL adm = FALSE;
+	HANDLE hToken = NULL;
+	TOKEN_ELEVATION elevation;
+	DWORD dwSize;
+
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
+		goto fin;
+
+	if (!GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize))
+		goto fin;
+
+	adm = elevation.TokenIsElevated;
+
+fin:
+  if (hToken)
+		CloseHandle(hToken);
+	return adm;
+#else
+  return geteuid() == 0;
+#endif
+}
+
+
 int fs_is_wsl() {
 #if __has_include(<sys/utsname.h>)
   struct utsname buf;
@@ -479,9 +506,10 @@ bool fs_is_reserved(std::string_view path)
 // https://learn.microsoft.com/en-gb/windows/win32/fileio/naming-a-file#naming-conventions
 {
 
-  if(!fs_is_windows())
+#ifndef _WIN32
     return false;
-
+    (void) path;
+#else
   if (path.empty())
     return false;
 
@@ -494,17 +522,8 @@ bool fs_is_reserved(std::string_view path)
 
   std::transform(p.begin(), p.end(), p.begin(), ::toupper);
 
-  bool r;
-#if __cplusplus >= 202002L
-  // C++20 added set.contains()
-  r = reserved.contains(p);
-  if(FS_TRACE) std::cout << "TRACE:is_reserved: C++20: " << path << ": " << r << "\n";
-#else
-  r = reserved.find(p) != reserved.end();
-  if(FS_TRACE) std::cout << "TRACE:is_reserved: C++: " << path << ": " << r << "\n";
+  return reserved.contains(p);
 #endif
-
-    return r;
 }
 
 

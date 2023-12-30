@@ -18,30 +18,6 @@
 #include <sys/types.h>
 #endif
 
-bool fs_is_admin(){
-  // running as admin / root / superuser
-#ifdef _WIN32
-  BOOL adm = FALSE;
-	HANDLE hToken = NULL;
-	TOKEN_ELEVATION elevation;
-	DWORD dwSize;
-
-	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
-		goto fin;
-
-	if (!GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize))
-		goto fin;
-
-	adm = elevation.TokenIsElevated;
-
-fin:
-  if (hToken)
-		CloseHandle(hToken);
-	return adm;
-#else
-  return geteuid() == 0;
-#endif
-}
 
 bool fs_is_macos(){
 #if TARGET_OS_MAC

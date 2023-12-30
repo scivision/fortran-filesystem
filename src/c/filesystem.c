@@ -42,6 +42,11 @@ static bool str_ends_with(const char *s, const char *suffix) {
     return suffix_len <= slen && !strcmp(s + slen - suffix_len, suffix);
 }
 
+bool fs_is_admin(){
+  // running as admin / root / superuser
+  return geteuid() == 0;
+}
+
 int fs_is_wsl() {
 #ifdef HAVE_UTSNAME_H
   struct utsname buf;
