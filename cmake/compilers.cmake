@@ -69,12 +69,16 @@ endif()
 
 if(MINGW AND NOT DEFINED ${PROJECT_NAME}_symlink_code)
   message(CHECK_START "check if MinGW C++ filesystem support symlink")
+  set(_symlink ${CMAKE_CURRENT_BINARY_DIR}/symlink_check)
+  set(_dummy ${_symlink}/dummy_tgt)
+  file(MAKE_DIRECTORY ${_symlink})
+  file(TOUCH ${_dummy})
 
-  try_run(${PROJECT_NAME}_symlink_code ${PROJECT_NAME}_symlink_build
-        ${CMAKE_CURRENT_BINARY_DIR}/symlink_check
+  try_run(${PROJECT_NAME}_symlink_code ${PROJECT_NAME}_symlink_build ${_symlink}
         SOURCES ${CMAKE_CURRENT_LIST_DIR}/fs_check/check_fs_symlink.cpp
         LINK_LIBRARIES "${GNU_stdfs}"
         CXX_STANDARD 17
+        ARGS ${_dummy}
   )
   if(${PROJECT_NAME}_symlink_code EQUAL 0)
     set(${PROJECT_NAME}_WIN32_SYMLINK false CACHE BOOL "MinGW doesn't need workaround")

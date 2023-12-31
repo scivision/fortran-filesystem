@@ -12,13 +12,15 @@ namespace fs = std::filesystem;
 
 int main(int argc, char **argv){
 
-auto tgt = fs::canonical(argv[0]);
-auto s = fs::status(tgt);
+if(argc < 2)
+  throw std::runtime_error("missing argument for target");
+
+auto tgt = fs::canonical(argv[1]);
+
+if(!fs::is_regular_file(tgt))
+  throw std::runtime_error("target " + tgt.generic_string() + " is not a regular file");
 
 auto lnk = tgt.parent_path() / "test.lnk";
-
-if(!fs::is_regular_file(s))
-  throw std::runtime_error("target " + tgt.generic_string() + " is not a regular file");
 
 if(!fs::exists(lnk)) {
   fs::create_symlink(tgt, lnk);

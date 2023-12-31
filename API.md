@@ -575,6 +575,12 @@ is_cygwin()
 is_mingw()
 ```
 
+logical: is the user running as admin / root / superuser:
+
+```fortran
+is_admin()
+```
+
 ```fortran
 C_INT  is_wsl()  !< Windows Subsystem for Linux > 0 if true
 ```
