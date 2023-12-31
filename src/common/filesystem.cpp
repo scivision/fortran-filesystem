@@ -1000,8 +1000,7 @@ std::string fs_exe_path()
     throw std::runtime_error("ffilesystem:exe_path: readlink failed");
 #elif defined(__APPLE__)
   uint32_t mp = FS_MAX_PATH;
-  int r = _NSGetExecutablePath(buf.get(), &mp);
-  if (r)
+  if(_NSGetExecutablePath(buf.get(), &mp))
     throw std::runtime_error("ffilesystem:exe_path: _NSGetExecutablePath failed");
 #else
   throw std::runtime_error("ffilesystem:exe_path: not implemented for this platform");
