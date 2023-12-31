@@ -951,6 +951,7 @@ std::string fs_expanduser(std::string_view path)
 bool fs_chmod_exe(const char* path, bool executable)
 {
   // make path file owner executable or not
+  // WINDOWS: DOES NOT WORK  -- sys/stat.h chmod() also does not work.
   try{
     fs_chmod_exe(std::string_view(path), executable);
     return true;

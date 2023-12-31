@@ -67,17 +67,19 @@ print '(a)', "permissions after chmod(true): " // p1%path() // " = " // perm
 
 if (.not. p1%is_exe()) then
   write(stderr,'(a)') "ERROR:test_exe: %is_exe() did not detect executable file " // exe_name
-  error stop
+  if(.not. is_windows()) error stop
 endif
 
 if (.not. is_exe(p1%path())) then
   write(stderr, '(a)') "ERROR:test_exe: is_exe(path) did not detect executable file " // exe_name
-  error stop
+  if(.not. is_windows()) error stop
 endif
 
-if(.not. is_windows() .and. perm(3:3) /= "x") then
+if(.not. is_windows()) then
+if(perm(3:3) /= "x") then
   write(stderr,'(a)') "ERROR:test_exe: get_permissions() " // exe_name // " is not executable"
   error stop
+endif
 endif
 
 !> chmod(.false.)

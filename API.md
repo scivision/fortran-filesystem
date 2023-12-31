@@ -338,7 +338,9 @@ is_exe("my/file.exe")
 
 ---
 
-Make regular file executable (or not) for owner:
+Make regular file executable (or not) for owner.
+
+Windows: chmod_exe does NOT work (MinGW, oneAPI, MSVC).
 
 ```fortran
 !! subroutine
