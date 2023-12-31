@@ -66,18 +66,14 @@ target_compile_definitions(ffilesystem PRIVATE
 "$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:CWK_EXPORTS>"
 "$<$<BOOL:${HAVE_UTSNAME_H}>:HAVE_UTSNAME_H>"
 "$<$<BOOL:${${PROJECT_NAME}_WIN32_SYMLINK}>:WIN32_SYMLINK>"
+"$<$<BOOL:${HAVE_DLADDR}>:HAVE_DLADDR>"
 )
 set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)
 set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
 set_property(TARGET ffilesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
 set_property(TARGET ffilesystem PROPERTY VERSION ${PROJECT_VERSION})
-if(BUILD_SHARED_LIBS)
-  if(WIN32 OR CYGWIN)
-    target_compile_definitions(ffilesystem PRIVATE FS_DLL_NAME="$<TARGET_FILE_NAME:ffilesystem>")
-  elseif(HAVE_DLADDR)
-    target_link_libraries(ffilesystem PRIVATE ${CMAKE_DL_LIBS})
-    target_compile_definitions(ffilesystem PRIVATE HAVE_DLADDR)
-  endif()
+if(BUILD_SHARED_LIBS AND (WIN32 OR CYGWIN))
+  target_compile_definitions(ffilesystem PRIVATE FS_DLL_NAME="$<TARGET_FILE_NAME:ffilesystem>")
 endif()
 
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
@@ -87,10 +83,10 @@ target_include_directories(ffilesystem PUBLIC
 "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include;${PROJECT_SOURCE_DIR}/include>"
 $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-target_link_libraries(ffilesystem
-INTERFACE
+
+target_link_libraries(ffilesystem PUBLIC
 ${GNU_stdfs}
-$<$<BOOL:${HAVE_DLADDR}>:${CMAKE_DL_LIBS}>
+"$<$<BOOL:${HAVE_DLADDR}>:${CMAKE_DL_LIBS}>"
 "$<$<BOOL:${WIN32}>:Userenv;Advapi32>"
 )
 # both Advapi32 and Userenv must be linked

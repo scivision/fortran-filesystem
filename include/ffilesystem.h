@@ -9,7 +9,7 @@
 
 #include <cstdint>
 #include <cstdlib>
-#include <algorithm>
+#include <algorithm> // std::min
 #include <string>
 #include <filesystem>
 
