@@ -73,6 +73,8 @@ case ("chdir", "set_cwd")
   print '(a)', "cwd: " // trim(get_cwd())
   if (.not. set_cwd(buf)) error stop "could not chdir " // trim(buf)
   print '(a)', "new cwd: " // trim(get_cwd())
+case ("perm")
+  print '(A)', get_permissions(buf)
 case ("chmod_exe")
   block
   logical :: m
