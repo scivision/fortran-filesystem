@@ -80,6 +80,8 @@ case ("chmod_exe")
   logical :: m
   integer :: ierr
 
+  if(is_windows()) write(stderr,'(a)') "chmod_exe: not supported on windows"
+
   buf = canonical(buf)
 
   read(buf2, '(L1)', iostat=ierr) m

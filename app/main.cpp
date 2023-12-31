@@ -52,6 +52,9 @@ int main(int argc, char* argv[]){
     std::cout << fs_get_permissions(arg2) << "\n";
   }
   else if (arg1 == "chmod_exe" && argc == 4){
+    if(fs_is_windows())
+      std::cerr << "chmod is not supported on Windows\n";
+
     bool m = std::stoi(arg3);
     std::cout << "chmod " << fs_get_permissions(arg2) << " " << arg2 << " => ";
     fs_chmod_exe(arg2, m);
