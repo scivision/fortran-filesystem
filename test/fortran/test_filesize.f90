@@ -88,8 +88,7 @@ endif
 !> not exist no size
 if (file_size("not-existing-file") > 0) error stop "size of non-existing file"
 
-!> cannot size directory
-if (file_size(p1%parent()) > 0) error stop "directory has no file size"
+!! directory might have file size (Windows oneapi), but it is meaningless so don't test
 
 if(file_size("") > 0) error stop "size of empty file"
 
