@@ -1,8 +1,8 @@
 name: oneapi-linux
 
 env:
-  LINUX_CPP_COMPONENTS: intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
-  LINUX_FORTRAN_COMPONENTS: intel-oneapi-compiler-fortran
+  CC: icx
+  FC: ifx
 # https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
   CTEST_NO_TESTS_ACTION: error
 
@@ -46,7 +46,7 @@ jobs:
       timeout-minutes: 5
       run: |
         .github/workflows/oneapi_setup_apt_repo_linux.sh
-        sudo apt install ${{ env.LINUX_CPP_COMPONENTS }} ${{ env.LINUX_FORTRAN_COMPONENTS }}
+        sudo apt install intel-oneapi-compiler-dpcpp-cpp intel-oneapi-compiler-fortran
 
     - name: Setup Intel oneAPI environment
       run: |
