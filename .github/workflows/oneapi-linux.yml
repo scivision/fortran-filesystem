@@ -74,10 +74,11 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake --workflow --preset default
-      working-directory: example
-      env:
-        CMAKE_PREFIX_PATH: ${{ runner.temp }}
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+
+    - run: cmake --build example/build
+
+    - run: ctest --test-dir example/build -V
 
 # BUILD_SHARED_LIBS=false since as with any C++ / Fortran program with Intel compiler,
 # need to have GCC environment carefully set

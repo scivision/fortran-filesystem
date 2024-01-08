@@ -99,9 +99,10 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake --workflow --preset default
-      working-directory: example
-      env:
-        CMAKE_PREFIX_PATH: ${{ runner.temp }}
+      run: cmake -G Ninja -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+
+    - run: cmake --build example/build
+
+    - run: ctest --test-dir example/build -V
 
 # Github Actions Exit code 0xc0000139 -- does not happen on real Windows PCs.

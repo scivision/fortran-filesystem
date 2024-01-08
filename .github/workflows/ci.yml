@@ -64,10 +64,11 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake --workflow --preset default
-      working-directory: example
-      env:
-        CMAKE_PREFIX_PATH: ${{ runner.temp }}
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+
+    - run: cmake --build example/build
+
+    - run: ctest --test-dir example/build -V
 
   old-gcc:
     needs: linux-gcc
@@ -116,10 +117,11 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake --workflow --preset default
-      working-directory: example
-      env:
-        CMAKE_PREFIX_PATH: ${{ runner.temp }}
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+
+    - run: cmake --build example/build
+
+    - run: ctest --test-dir example/build -V
 
 
   linux-clang:
@@ -175,11 +177,11 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake --workflow --preset default
-      working-directory: example
-      env:
-        CMAKE_PREFIX_PATH: ${{ runner.temp }}
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
 
+    - run: cmake --build example/build
+
+    - run: ctest --test-dir example/build -V
 
   valgrind-memory:
     runs-on: ubuntu-latest
@@ -299,7 +301,8 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake --workflow --preset default
-      working-directory: example
-      env:
-        CMAKE_PREFIX_PATH: ${{ runner.temp }}
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+
+    - run: cmake --build example/build
+
+    - run: ctest --test-dir example/build -V
