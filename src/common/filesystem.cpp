@@ -956,7 +956,7 @@ bool fs_chmod_exe(const char* path, bool executable)
     fs_chmod_exe(std::string_view(path), executable);
     return true;
   } catch(std::exception& e){
-    std::cerr << "ERROR:ffilesystem:chmod_exe: " << e.what() << "\n";
+    std::cerr << "ERROR:ffilesystem:chmod_exe: " << executable << " " << e.what() << "\n";
     return false;
   }
 }

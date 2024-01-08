@@ -331,7 +331,7 @@ s = fs_chmod_exe(trim(path) // C_NULL_CHAR, logical(executable, C_BOOL))
 if(present(ok)) then
   ok = s
 elseif (.not. s) then
-  write(stderr, '(/,a)') "ERROR: chmod_exe: failed to set permissions " // trim(path)
+  write(stderr, '(/,A,L1,A)') "ERROR: chmod_exe: failed to set permission ",executable, trim(path)
   error stop
 endif
 end procedure
