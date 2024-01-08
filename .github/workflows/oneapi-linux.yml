@@ -5,6 +5,9 @@ env:
   FC: ifx
 # https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
   CTEST_NO_TESTS_ACTION: error
+  CMAKE_BUILD_PARALLEL_LEVEL: 4
+  CMAKE_BUILD_TYPE: Release
+  # debug triggers asan build errors, peculiar to GitHub Actions
 
 on:
   push:
@@ -53,15 +56,10 @@ jobs:
         source /opt/intel/oneapi/setvars.sh
         printenv >> $GITHUB_ENV
 
-    - name: install Ninja
-      run: sudo apt install ninja-build
-# install ninja needs to be own step as not cached by design
-
     - name: Configure CMake
       timeout-minutes: 1
       run: >-
-        cmake
-        --preset multi
+        cmake --preset default
         --install-prefix ${{ runner.temp }}
         -Dffilesystem_cpp:BOOL=${{ matrix.cpp }}
 
@@ -69,11 +67,8 @@ jobs:
       if: ${{ failure() }}
       run: cat build/CMakeFiles/CMakeConfigureLog.yaml
 
-    - name: Debug workflow
-      run: cmake --workflow --preset debug
-
     - name: Release workflow
-      run: cmake --workflow --preset release
+      run: cmake --workflow --preset default
 
     - name: install package
       run: cmake --install build
