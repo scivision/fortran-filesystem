@@ -11,7 +11,14 @@ option(iwyu "Run include-what-you-use on the code")
 
 option(CMAKE_TLS_VERIFY "Verify TLS certificates" on)
 
-include(GNUInstallDirs)
+
+option(${PROJECT_NAME}_BUILD_TESTING "Build tests" ${PROJECT_IS_TOP_LEVEL})
+
+if(PROJECT_IS_TOP_LEVEL)
+  if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/local" CACHE PATH "default install loc" FORCE)
+  endif()
+endif()
 
 # Necessary for shared library with Visual Studio / Windows oneAPI
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS true)

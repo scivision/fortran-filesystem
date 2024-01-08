@@ -7,11 +7,12 @@ endif()
 
 project(ffilesystem
 LANGUAGES C
-VERSION 5.3.0
+VERSION 5.3.1
 )
 
 include(CTest) # needed for "ctest -T memcheck"
 include(FetchContent)
+include(GNUInstallDirs)
 
 set(CMAKE_C_STANDARD 11)
 
@@ -131,7 +132,7 @@ if(ffilesystem_cli)
 endif()
 
 # --- Tests
-if(BUILD_TESTING)
+if(${PROJECT_NAME}_BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
