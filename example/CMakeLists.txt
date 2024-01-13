@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15...3.25)
+cmake_minimum_required(VERSION 3.22)
 
 project(ffilesystemExample LANGUAGES C)
 
@@ -14,8 +14,6 @@ endif()
 if(ffilesystem_fortran)
   enable_language(Fortran)
 endif()
-
-include(${PROJECT_SOURCE_DIR}/../cmake/DllTestPath.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -44,10 +42,12 @@ add_executable(ex_c 3/main.c)
 target_link_libraries(ex_c PRIVATE ffilesystem::filesystem)
 add_test(NAME BasicC COMMAND ex_c)
 
-
 # --- test properties
 get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
 
-dll_test_path(ffilesystem::filesystem "${test_names}")
+# --- Windows shared DLLs
+if((CYGWIN OR WIN32) AND ffilesystem_shared)
+  set_property(TEST ${test_names} PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_append:${ffilesystem_DIR}/../bin")
+endif()
 
 file(GENERATE OUTPUT .gitignore CONTENT "*")
