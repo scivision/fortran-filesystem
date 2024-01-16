@@ -93,7 +93,7 @@ ${GNU_stdfs}
 # both Advapi32 and Userenv must be linked
 
 if(ffilesystem_fortran)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod TYPE INCLUDE)
 endif()
 
 install(TARGETS ffilesystem EXPORT ${PROJECT_NAME}-targets)
