@@ -6,7 +6,7 @@
 [![oneapi-linux](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml)
 [![ci_fpm](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_fpm.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_fpm.yml)
 
-Platform independent (Linux, macOS, Windows, Cygwin, WSL, ...), object-oriented Fortran filesystem "Ffilesystem" path manipulation library.
+Platform independent (Linux, macOS, Windows, Cygwin, WSL, BSD, ...), object-oriented Fortran filesystem "Ffilesystem" path manipulation library.
 The library also provides header
 [ffilesystem.h](./include/ffilesystem.h)
 that can be used from C and C++ project code--see

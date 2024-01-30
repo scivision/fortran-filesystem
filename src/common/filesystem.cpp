@@ -36,11 +36,9 @@
 // end get_homedir backup method
 
 // for lib_path, exe_path
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#elif defined(__CYGWIN__)
-#include <windows.h>
 #elif defined(HAVE_DLADDR)
 #include <dlfcn.h>
 static void dl_dummy_func() {}
