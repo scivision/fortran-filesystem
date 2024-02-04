@@ -24,7 +24,10 @@ if(i /= 0 .or. L == 0) error stop "could not get test link file from command lin
 cmake_link = buf(1:L)
 tgt_dir = parent(cmake_link)
 
-if(.not.is_symlink(cmake_link)) error stop "is_symlink() should be true for symlink file: " // cmake_link
+if(.not.is_symlink(cmake_link)) then
+  write(stderr, '(a)') "is_symlink() should be true for symlink file: " // cmake_link
+  error stop
+endif
 
 tgt = tgt_dir // "/test.txt"
 call touch(tgt)
@@ -49,7 +52,10 @@ if(shaky == 0) then
   call create_symlink(tgt, "", stat)
   if (stat == 0) error stop "create_symlink() should fail with empty link"
   print '(a)', "PASSED: create_symlink: empty link"
-  if(is_symlink(tgt)) error stop "is_symlink() should be false for non-symlink file: " // tgt
+  if(is_symlink(tgt)) then
+    write(stderr, '(a)') "is_symlink() should be false for non-symlink file: " // tgt
+    error stop
+  endif
 
   call create_symlink("", link, stat)
   if (stat == 0) error stop "create_symlink() should fail with empty target"
@@ -85,20 +91,41 @@ call create_symlink(tgt_dir, link_dir)
 !> file symlinks
 if(is_symlink(tgt)) error stop "is_symlink() should be false for non-symlink file"
 if(p_tgt%is_symlink()) error stop "%is_symlink() should be false for non-symlink file"
-if(.not. is_file(link)) error stop "is_file() should be true for existing regular file: " // link
+if(.not. is_file(link)) then
+  write(stderr, "(a)") "is_file() should be true for existing regular file: " // link
+  error stop
+endif
 
-if(.not. is_symlink(link)) error stop "is_symlink() should be true for symlink file: " // link
-if(.not. p_sym%is_symlink()) error stop "%is_symlink() should be trum for symlink file: " // p_sym%path()
-if(.not. is_file(link)) error stop "is_file() should be true for existing symlink file: " // link
+if(.not. is_symlink(link)) then
+  write(stderr, '(a)') "is_symlink() should be true for symlink file: " // link
+  error stop
+endif
+if(.not. p_sym%is_symlink()) then
+  write(stderr, '(a)') "%is_symlink() should be trum for symlink file: " // p_sym%path()
+  error stop
+endif
+if(.not. is_file(link)) then
+  write(stderr, '(a)') "is_file() should be true for existing symlink file: " // link
+  error stop
+endif
 
 print '(a)', "PASSED: test_symlink: file"
 
 !> directory symlinks
 if(is_symlink(tgt_dir)) error stop "is_symlink() should be false for non-symlink dir"
-if(.not. is_dir(link_dir)) error stop "is_dir() should be true for existing regular dir" // link_dir
+if(.not. is_dir(link_dir)) then
+  write(stderr, '(a)') "is_dir() should be true for existing regular dir" // link_dir
+  error stop
+endif
 
-if(.not. is_symlink(link_dir)) error stop "is_symlink() should be true for symlink dir: " // link_dir
-if(.not. is_dir(link_dir)) error stop "is_dir() should be true for existing symlink dir: " // link_dir
+if(.not. is_symlink(link_dir)) then
+  write(stderr, '(a)') "is_symlink() should be true for symlink dir: " // link_dir
+  error stop
+endif
+if(.not. is_dir(link_dir)) then
+  write(stderr,'(a)') "is_dir() should be true for existing symlink dir: " // link_dir
+  error stop
+endif
 end block
 
 print *, "OK: filesystem symbolic links"
