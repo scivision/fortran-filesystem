@@ -367,7 +367,7 @@ ierr = fs_create_directories(trim(path) // C_NULL_CHAR)
 if(present(status)) then
   status = ierr
 elseif (ierr /= 0) then
-  write(stderr,'(a,i0)') "ERROR:filesystem:mkdir: failed to create directory: " // path // " error code: ", ierr
+  write(stderr,'(a,i0)') "ERROR:filesystem:mkdir: failed to create directory: " // trim(path) // " error code: ", ierr
   error stop
 endif
 end procedure mkdir
@@ -380,10 +380,10 @@ ierr = fs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)
 if(present(status)) then
   status = ierr
 elseif (ierr < 0) then
-  write(stderr, '(a,1x,i0)') "ERROR:filesystem:create_symlink: platform is not capable of symlinks: " // link, ierr
+  write(stderr, '(a,1x,i0)') "ERROR:filesystem:create_symlink: platform is not capable of symlinks: " // trim(link), ierr
   error stop
 elseif (ierr /= 0) then
-  write(stderr,'(a,1x,i0)') "ERROR:filesystem:create_symlink: " // link, ierr
+  write(stderr,'(a,1x,i0)') "ERROR:filesystem:create_symlink: " // trim(link), ierr
   error stop
 endif
 end procedure
