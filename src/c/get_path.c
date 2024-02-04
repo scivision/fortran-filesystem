@@ -41,6 +41,7 @@ size_t fs_exe_path(char *path, size_t buffer_size)
   if (_NSGetExecutablePath(buf, &mp) || !realpath(buf, path))
     return 0;
 #else
+  (void) path; (void) buffer_size;
   fprintf(stderr, "ERROR:ffilesystem:fs_exe_path: not implemented for this platform\n");
   return 0;
 #endif
@@ -68,6 +69,7 @@ size_t fs_lib_path(char *path, size_t buffer_size)
   return L;
 #endif
 
+  fprintf(stderr, "ERROR:ffilesystem:fs_lib_path: not implemented for this platform\n");
   (void)path;
   return 0 * buffer_size;
   // to avoid unused argument error

@@ -3,7 +3,13 @@
 #include <string.h>
 #include <stdbool.h>
 
+#ifdef _WIN32
+#include <process.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
 #include <unistd.h>
+#endif
 
 #include "ffilesystem.h"
 
@@ -28,9 +34,13 @@ if(strlen(destination) == 0) {
     }
   }
 
+#ifdef _WIN32
+    return CopyFile(source, destination, true) ? 0 : 1;
+#else
 // from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
   int r = execlp("cp", "cp", source, destination, NULL);
   return r != -1 ? 0 : r;
+#endif
 }
 
 int fs_create_directories(const char* path) {
@@ -51,6 +61,11 @@ int fs_create_directories(const char* path) {
       return 0;
 
     fprintf(stderr, "ERROR:filesystem:create_directories: %s already exists but is not a directory\n", path);
+    return 1;
+  }
+
+  if(fs_is_windows()){
+    fprintf(stderr, "ERROR:ffilesystem:create_directories: Windows not implemented without C++\n");
     return 1;
   }
 

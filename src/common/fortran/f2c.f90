@@ -553,7 +553,7 @@ end procedure
 module procedure remove
 logical(c_bool) :: e
 e = fs_remove(trim(path) // C_NULL_CHAR)
-if (.not. e) write(stderr, '(a)') "filesystem:unlink: " // path // " may not have been deleted."
+if (.not. e) write(stderr, '(a)') "ERROR:ffilesystem:remove: " // trim(path) // " may not have been deleted."
 end procedure
 
 module procedure root

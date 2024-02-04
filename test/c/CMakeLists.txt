@@ -6,13 +6,11 @@ foreach(t IN ITEMS canonical expanduser file env)
   set_property(TEST C_${t} PROPERTY LABELS "C")
 endforeach()
 
-if(NOT BSD)
 add_executable(test_exepath_c test_exepath.c)
 target_link_libraries(test_exepath_c PRIVATE ffilesystem)
 add_test(NAME C_exepath
 COMMAND test_exepath_c $<TARGET_FILE_BASE_NAME:test_exepath_c>
 )
-endif()
 
 add_executable(test_libpath_c test_libpath.c)
 target_link_libraries(test_libpath_c PRIVATE ffilesystem)
@@ -50,13 +48,11 @@ endif()
 
 # --- binpath
 
-if(NOT BSD)
 add_executable(test_exepath_cpp test_exepath.cpp)
 target_link_libraries(test_exepath_cpp PRIVATE ffilesystem)
 add_test(NAME Cpp_exepath
 COMMAND test_exepath_cpp $<TARGET_FILE_BASE_NAME:test_exepath_cpp>
 )
-endif()
 
 add_executable(test_libpath_cpp test_libpath.cpp)
 target_link_libraries(test_libpath_cpp PRIVATE ffilesystem)
@@ -83,6 +79,17 @@ endforeach()
 
 
 # --- props
+
+set_property(TEST C_exepath C_reserved C_file
+PROPERTY SKIP_REGULAR_EXPRESSION "not implemented")
+
+if(HAVE_CXX_FILESYSTEM)
+  set_property(TEST Cpp_exepath
+  PROPERTY SKIP_REGULAR_EXPRESSION "not implemented")
+else()
+  set_property(TEST C_reserved PROPERTY DISABLED $<$<BOOL:${WIN32}>:true>)
+endif()
+
 
 get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
 set_property(TEST ${test_names} PROPERTY RUN_SERIAL true)

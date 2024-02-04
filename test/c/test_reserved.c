@@ -54,7 +54,7 @@ int main(void){
     if(fs_is_exe(s))
       return EXIT_FAILURE;
 
-#ifndef _WIN32
+if(!fs_is_windows()){
 
     // NOTE: do not test
     //
@@ -87,7 +87,7 @@ int main(void){
       fprintf(stderr,"FAIL: relative_to(%s)  %s\n", ref, p);
       return EXIT_FAILURE;
     }
-#endif
+}
 
     fs_expanduser(s, p, FS_MAX_PATH);
     if(strcmp(p, ref) != 0)

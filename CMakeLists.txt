@@ -62,8 +62,9 @@ target_include_directories(ffilesystem PRIVATE
 ${PROJECT_SOURCE_DIR}/include
 $<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:${cwalk_SOURCE_DIR}/include>
 )
+
 target_compile_definitions(ffilesystem PRIVATE
-"$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>"
+"$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS>"
 "$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:CWK_EXPORTS>"
 "$<$<BOOL:${HAVE_UTSNAME_H}>:HAVE_UTSNAME_H>"
 "$<$<BOOL:${${PROJECT_NAME}_WIN32_SYMLINK}>:WIN32_SYMLINK>"

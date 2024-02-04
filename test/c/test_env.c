@@ -40,6 +40,7 @@ int main(void){
 #endif
 
   fs_normal(cpath, cpath, FS_MAX_PATH);
+  fs_normal(fpath, fpath, FS_MAX_PATH);
 
   if (strcmp(fpath, cpath) != 0) {
     fprintf(stderr, "C cwd %s != Fortran cwd %s\n", cpath, fpath);

@@ -7,9 +7,16 @@
 #include <sys/types.h>
 #include <errno.h>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <fileapi.h>
+#include <io.h>
+#include <direct.h>
+#else
 #include <unistd.h>
-
 #include <sys/statvfs.h>
+#endif
 
 #ifdef HAVE_UTSNAME_H
 #include <sys/utsname.h>
@@ -33,7 +40,7 @@ long fs_lang(){
 #endif
 }
 
-
+#ifndef _WIN32
 static bool str_ends_with(const char *s, const char *suffix) {
   /* https://stackoverflow.com/a/41652727 */
     size_t slen = strlen(s);
@@ -41,10 +48,16 @@ static bool str_ends_with(const char *s, const char *suffix) {
 
     return suffix_len <= slen && !strcmp(s + slen - suffix_len, suffix);
 }
+#endif
 
 bool fs_is_admin(){
   // running as admin / root / superuser
+#ifdef _WIN32
+  fprintf(stderr, "ERROR:ffilesystem:fs_is_admin: not implemented for Windows\n");
+  return false;
+#else
   return geteuid() == 0;
+#endif
 }
 
 int fs_is_wsl() {
@@ -123,7 +136,7 @@ void fs_as_windows(char* path)
 size_t fs_normal(const char* path, char* result, size_t buffer_size)
 {
 // normalize path
-  cwk_path_set_style(CWK_STYLE_UNIX);
+  cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
 
   size_t L = cwk_path_normalize(path, result, buffer_size);
   if(L > buffer_size){
@@ -131,7 +144,8 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size)
     return 0;
   }
 
-//if(FS_TRACE) printf("TRACE:normal in: %s  out: %s\n", path, result);
+  if(fs_is_windows())
+    fs_as_posix(result);
 
   return L;
 }
@@ -146,7 +160,7 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size)
 
   const char *base;
 
-  cwk_path_set_style(CWK_STYLE_UNIX);
+  cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
 
   cwk_path_get_basename(path, &base, NULL);
 
@@ -257,7 +271,7 @@ size_t fs_with_suffix(const char* path, const char* suffix,
     return strlen(result);
   }
 
-  cwk_path_set_style(CWK_STYLE_UNIX);
+  cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
   cwk_path_change_extension(path, suffix, result, buffer_size);
 
   return fs_normal(result, result, buffer_size);
@@ -308,7 +322,11 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
     return 0;
   }
 
+#ifdef _WIN32
+  const char* t = _fullpath(buf2, buf, buffer_size);
+#else
   const char* t = realpath(buf, buf2);
+#endif
 
   if (!t) {
     fprintf(stderr, "ERROR:ffilesystem:canonical: %s   %s\n", buf, strerror(errno));
@@ -369,7 +387,11 @@ size_t fs_resolve(const char* path, bool strict, char* result, size_t buffer_siz
     return 0;
   }
 
+#ifdef _WIN32
+  const char* t = _fullpath(buf2, buf, buffer_size);
+#else
   const char* t = realpath(buf, buf2);
+#endif
 
   if (!t) {
     fprintf(stderr, "ERROR:ffilesystem:resolve: %s   %s\n", buf, strerror(errno));
@@ -417,7 +439,7 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
     return 1;
   }
 
-  cwk_path_set_style(CWK_STYLE_UNIX);
+  cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
 
   cwk_path_get_relative(from, to, result, buffer_size);
 
@@ -440,7 +462,9 @@ size_t fs_which(const char* name, char* result, size_t buffer_size)
     return 0;
   }
 
-  char* p = strtok(path, ":");
+  char sep[2] = {fs_is_windows() ? ';' : ':', '\0'};
+
+  char* p = strtok(path, sep);
   char* buf = (char*) malloc(buffer_size);
   if(!buf) return 0;
 
@@ -452,7 +476,7 @@ size_t fs_which(const char* name, char* result, size_t buffer_size)
       free(buf);
       return L;
     }
-    p = strtok(NULL, ":");
+    p = strtok(NULL, sep);
   }
 
   free(buf);
@@ -471,7 +495,12 @@ uintmax_t fs_file_size(const char* path)
 
 uintmax_t fs_space_available(const char* path)
 {
-  // necessary for MinGW; seemed good choice for all platforms
+#ifdef _WIN32
+  (void) path;
+  fprintf(stderr, "ERROR:ffilesystem:space_available: not implemented for Windows\n");
+  return 0;
+#else
+  // sanity check
   if(!fs_exists(path))
     return 0;
 
@@ -496,6 +525,7 @@ uintmax_t fs_space_available(const char* path)
 retzero:
   free(r);
   return 0;
+#endif
 }
 
 bool fs_equivalent(const char* path1, const char* path2)
@@ -585,7 +615,12 @@ bool fs_is_exe(const char* path)
 {
   struct stat s;
 
-  return stat(path, &s) ? false : s.st_mode & S_IXUSR;
+  return stat(path, &s) ? false : s.st_mode &
+#ifdef _MSC_VER
+    _S_IEXEC;
+#else
+    S_IXUSR;
+#endif
 }
 
 
@@ -599,7 +634,7 @@ bool fs_is_file(const char* path)
 
 bool fs_is_reserved(const char* path)
 {
-  // non-c++ has no windows support
+  fprintf(stderr, "ERROR:ffilesystem:is_reserved: not implemented without C++\n");
   (void)path;
   return false;
 }
@@ -607,7 +642,13 @@ bool fs_is_reserved(const char* path)
 bool fs_exists(const char* path)
 {
   // false empty just for clarity
-  return strlen(path) == 0 ? false : !access(path, F_OK);
+  return strlen(path) == 0 ? false :
+#ifdef _MSC_VER
+   !_access_s(path, 0);
+#else
+  // <unistd.h>
+   !access(path, F_OK);
+#endif
 }
 
 
@@ -615,7 +656,7 @@ size_t fs_root(const char* path, char* result, size_t buffer_size)
 {
   size_t L;
 
-  cwk_path_set_style(CWK_STYLE_UNIX);
+  cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
 
   cwk_path_get_root(path, &L);
 
@@ -630,17 +671,26 @@ if(FS_TRACE) printf("TRACE: root: %s => %s  %zu\n", path, result, M);
 
 bool fs_is_absolute(const char* path)
 {
-  cwk_path_set_style(CWK_STYLE_UNIX);
+  if(fs_is_windows() && path[0] == '/')
+    return false;
+
+  cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
   return cwk_path_is_absolute(path);
 }
 
 
 bool fs_is_symlink(const char* path)
 {
+#ifdef _WIN32
+  (void) path;
+  fprintf(stderr, "ERROR:ffilesystem:is_symlink: not implemented for Windows\n");
+  return false;
+#else
   struct stat buf;
 
   return lstat(path, &buf) ? false : S_ISLNK(buf.st_mode);
   // return (buf.st_mode & S_IFMT) == S_IFLNK; // equivalent
+#endif
 }
 
 
@@ -655,17 +705,38 @@ int fs_create_symlink(const char* target, const char* link)
     return 1;
   }
 
+#ifdef _WIN32
+  fprintf(stderr, "ERROR:ffilesystem:create_symlink: not implemented for Windows\n");
+  return 1;
+#else
   // <unistd.h>
   return symlink(target, link);
+#endif
 }
 
 
 bool fs_remove(const char* path)
 {
-  if (!fs_exists(path))
+  if (!fs_exists(path)){
+    fprintf(stderr, "ERROR:ffilesystem:remove: %s does not exist\n", path);
     return false;
+  }
 
+#ifdef _WIN32
+// https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-removedirectorya
+// https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-deletefilea
+  bool e = fs_is_dir(path) ? RemoveDirectoryA(path) : DeleteFileA(path);
+  if (!e) {
+    DWORD error = GetLastError();
+    char *message;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		    NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (char *)&message, 0, NULL);
+    fprintf(stderr, "ERROR:ffilesystem:remove: %s => %s\n", path, message);
+  }
+  return e;
+#else
   return !remove(path);
+#endif
 }
 
 
@@ -677,7 +748,13 @@ bool fs_chmod_exe(const char* path, bool executable)
   if(s.st_mode & S_IFCHR)
     return false; // special POSIX file character device like /dev/null
 
-return chmod(path, s.st_mode |  ((executable) ? S_IXUSR : !S_IXUSR) ) == 0;
+return chmod(path, s.st_mode |  ((executable) ?
+#ifdef _MSC_VER
+    _S_IEXEC : !S_IEXEC
+#else
+    S_IXUSR : !S_IXUSR
+#endif
+) ) == 0;
 // need parentheses to keep intended precedence
 }
 
@@ -695,6 +772,11 @@ size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
     return 0;
   }
 
+#ifdef _MSC_VER
+  (void) result;
+  fprintf(stderr, "ERROR:ffilesystem:fs_get_permissions: not implemented for Windows MSVC\n");
+  return 0;
+#else
   result[9] = '\0';
   result[0] = (s.st_mode & S_IRUSR) ? 'r' : '-';
   result[1] = (s.st_mode & S_IWUSR) ? 'w' : '-';
@@ -706,6 +788,7 @@ size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
   result[7] = (s.st_mode & S_IWOTH) ? 'w' : '-';
   result[8] = (s.st_mode & S_IXOTH) ? 'x' : '-';
   return 9;
+#endif
 }
 
 
@@ -792,6 +875,11 @@ size_t fs_make_absolute(const char* path, const char* top_path,
 
 size_t fs_make_tempdir(char* result, size_t buffer_size)
 {
+#ifdef _WIN32
+  (void) result; (void) buffer_size;
+  fprintf(stderr, "ERROR:ffilesystem:fs_make_tempdir: not implemented for Windows\n");
+  return 0;
+#else
   char tmpl[] = "tmp.XXXXXX";
 
   char* tmp = mkdtemp(tmpl);
@@ -802,4 +890,5 @@ size_t fs_make_tempdir(char* result, size_t buffer_size)
   }
 
   return fs_normal(tmp, result, buffer_size);
+#endif
 }

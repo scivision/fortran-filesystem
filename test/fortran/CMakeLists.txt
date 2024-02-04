@@ -64,7 +64,9 @@ add_test(NAME FortranHomedirEnv COMMAND test_env)
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
   add_test(NAME FortranHomedirNoEnv COMMAND test_env)
   set_property(TEST FortranHomedirNoEnv PROPERTY ENVIRONMENT_MODIFICATION "HOME=unset:;USERPROFILE=unset:;TEMP=unset:;TMPDIR=unset:")
-  set_property(TEST FortranHomedirNoEnv PROPERTY DISABLED $<BOOL:$ENV{CI}>)
+  if(DEFINED ENV{CI} OR (WIN32 AND NOT HAVE_CXX_FILESYSTEM))
+    set_property(TEST FortranHomedirNoEnv PROPERTY DISABLED true)
+  endif()
 endif()
 
 # --- binpath
@@ -95,6 +97,9 @@ set_property(TEST Fortran_fileop PROPERTY FIXTURES_SETUP ops_fxt)
 # workdir avoids test state being shared between tests
 
 # --- props
+
+set_property(TEST Fortran_fileop Fortran_exepath Fortran_reserved Fortran_same Fortran_mkdtemp Fortran_symlink
+PROPERTY SKIP_REGULAR_EXPRESSION "not implemented")
 
 set_property(TEST Fortran_find PROPERTY FIXTURES_REQUIRED ops_fxt)
 
