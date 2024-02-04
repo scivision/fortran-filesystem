@@ -31,7 +31,14 @@ int main(int argc, char* argv[]){
   if(argc > 3)
     arg3 = argv[3];
 
-  if (arg1 == "expanduser" && argc == 3){
+  if (arg1 == "touch" && argc == 3){
+    std::cout << "touch " << arg2 << "\n";
+    fs_touch(arg2);
+  }
+  else if (arg1 == "remove" && argc == 3){
+    std::cout << "remove " << arg2 << " " << fs_remove(arg2) << "\n";
+  }
+  else if (arg1 == "expanduser" && argc == 3){
     std::cout << fs_expanduser(arg2) << "\n";
   }
   else if (arg1 == "canonical" && argc == 3){
