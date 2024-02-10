@@ -53,7 +53,7 @@ static bool str_ends_with(const char *s, const char *suffix) {
 bool fs_is_admin(){
   // running as admin / root / superuser
 #ifdef _WIN32
-  fprintf(stderr, "ERROR:ffilesystem:fs_is_admin: not implemented for Windows\n");
+  fprintf(stderr, "ERROR:ffilesystem:fs_is_admin: not implemented for non-C++\n");
   return false;
 #else
   return geteuid() == 0;
@@ -497,7 +497,7 @@ uintmax_t fs_space_available(const char* path)
 {
 #ifdef _WIN32
   (void) path;
-  fprintf(stderr, "ERROR:ffilesystem:space_available: not implemented for Windows\n");
+  fprintf(stderr, "ERROR:ffilesystem:space_available: not implemented for non-C++\n");
   return 0;
 #else
   // sanity check
@@ -508,7 +508,7 @@ uintmax_t fs_space_available(const char* path)
   if(!r)
     return 0;
 
-  // for robustness and clarity, use root of path (necessary for Windows)
+  // for robustness and clarity, use root of path
   if (!fs_root(path, r, FS_MAX_PATH))
     goto retzero;
 
@@ -683,7 +683,7 @@ bool fs_is_symlink(const char* path)
 {
 #ifdef _WIN32
   (void) path;
-  fprintf(stderr, "ERROR:ffilesystem:is_symlink: not implemented for Windows\n");
+  fprintf(stderr, "ERROR:ffilesystem:is_symlink: not implemented for non-C++\n");
   return false;
 #else
   struct stat buf;
@@ -706,7 +706,7 @@ int fs_create_symlink(const char* target, const char* link)
   }
 
 #ifdef _WIN32
-  fprintf(stderr, "ERROR:ffilesystem:create_symlink: not implemented for Windows\n");
+  fprintf(stderr, "ERROR:ffilesystem:create_symlink: not implemented for non-C++\n");
   return 1;
 #else
   // <unistd.h>
@@ -774,7 +774,7 @@ size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
 
 #ifdef _MSC_VER
   (void) result;
-  fprintf(stderr, "ERROR:ffilesystem:fs_get_permissions: not implemented for Windows MSVC\n");
+  fprintf(stderr, "ERROR:ffilesystem:fs_get_permissions: not implemented for non-C++\n");
   return 0;
 #else
   result[9] = '\0';
@@ -877,7 +877,7 @@ size_t fs_make_tempdir(char* result, size_t buffer_size)
 {
 #ifdef _WIN32
   (void) result; (void) buffer_size;
-  fprintf(stderr, "ERROR:ffilesystem:fs_make_tempdir: not implemented for Windows\n");
+  fprintf(stderr, "ERROR:ffilesystem:fs_make_tempdir: not implemented for non-C++\n");
   return 0;
 #else
   char tmpl[] = "tmp.XXXXXX";
@@ -890,5 +890,30 @@ size_t fs_make_tempdir(char* result, size_t buffer_size)
   }
 
   return fs_normal(tmp, result, buffer_size);
+#endif
+}
+
+
+size_t fs_long2short(const char* in, char* out, size_t buffer_size){
+#ifdef _WIN32
+  (void) in; (void) out; (void) buffer_size;
+  fprintf(stderr, "ERROR:ffilesystem:fs_long2short: not implemented for non-C++\n");
+  return 0;
+#else
+  fprintf(stderr, "ERROR:ffilesystem:fs_long2short: windows-only\n");
+  strncpy(out, in, buffer_size);
+  return strlen(out);
+#endif
+}
+
+size_t fs_short2long(const char* in, char* out, size_t buffer_size){
+#ifdef _WIN32
+  (void) in; (void) out; (void) buffer_size;
+  fprintf(stderr, "ERROR:ffilesystem:fs_short2long: not implemented for non-C++\n");
+  return 0;
+#else
+  fprintf(stderr, "ERROR:ffilesystem:fs_short2long: windows-only\n");
+  strncpy(out, in, buffer_size);
+  return strlen(out);
 #endif
 }

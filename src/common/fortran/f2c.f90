@@ -262,6 +262,20 @@ character(kind=C_CHAR), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
+integer(C_SIZE_T) function fs_long2short(in, out, buffer_size) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: in(*)
+character(kind=C_CHAR), intent(out) :: out(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
+integer(C_SIZE_T) function fs_short2long(in, out, buffer_size) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: in(*)
+character(kind=C_CHAR), intent(out) :: out(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
 end interface
 
 contains
@@ -610,5 +624,25 @@ N = fs_make_tempdir(cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: r)
 r = cbuf(:N)
 end procedure
+
+
+module procedure long2short
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = fs_long2short(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+allocate(character(N) :: r)
+r = cbuf(:N)
+end procedure
+
+module procedure short2long
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = fs_short2long(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+allocate(character(N) :: r)
+r = cbuf(:N)
+end procedure
+
 
 end submodule fort2c_ifc

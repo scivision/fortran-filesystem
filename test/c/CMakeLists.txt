@@ -28,6 +28,12 @@ add_test(NAME Cpp_CLI_Cpp COMMAND fs_cli cpp)
 set_property(TEST Cpp_CLI_Cpp PROPERTY PASS_REGULAR_EXPRESSION "^1")
 endif()
 
+add_executable(test_Cpp_windows test_windows.cpp)
+target_link_libraries(test_Cpp_windows PRIVATE ffilesystem)
+
+add_test(NAME Cpp_windows COMMAND test_Cpp_windows)
+set_property(TEST Cpp_windows PROPERTY DISABLED $<NOT:$<BOOL:${WIN32}>>)
+
 foreach(t IN ITEMS canonical core exe utf8)
   add_executable(test_Cpp_${t} test_${t}.cpp)
   target_link_libraries(test_Cpp_${t} PRIVATE ffilesystem)

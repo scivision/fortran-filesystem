@@ -21,7 +21,8 @@ touch, create_symlink, &
 remove, get_tempdir, &
 chmod_exe, get_permissions, &
 fs_cpp, fs_lang, is_admin, is_bsd, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
-get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler
+get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler, &
+short2long, long2short
 !! functional API
 
 !! Maximum path length is dynamically determined for this computer.
@@ -75,6 +76,8 @@ procedure, public :: file_size=>f_file_size
 procedure, public :: space_available=>f_space_available
 procedure, public :: chmod_exe=>f_chmod_exe
 procedure, public :: get_permissions=>f_get_permissions
+procedure, public :: long2short=>f_long2short
+procedure, public :: short2long=>f_short2long
 
 final :: destructor
 
@@ -397,6 +400,18 @@ module function make_tempdir() result (r)
 character(:), allocatable :: r
 end function
 
+module function long2short(path) result(r)
+!! convert long path to short
+character(*), intent(in) :: path
+character(:), allocatable :: r
+end function
+
+module function short2long(path) result (r)
+!! convert short path to long
+character(*), intent(in) :: path
+character(:), allocatable :: r
+end function
+
 end interface
 
 
@@ -582,6 +597,17 @@ type(path_t) :: r
 r%path_str = canonical(self%path_str, strict)
 end function
 
+function f_long2short(self) result(r)
+class(path_t), intent(in) :: self
+type(path_t) :: r
+r%path_str = long2short(self%path_str)
+end function
+
+function f_short2long(self) result(r)
+class(path_t), intent(in) :: self
+type(path_t) :: r
+r%path_str = short2long(self%path_str)
+end function
 
 logical function f_same_file(self, other) result(r)
 class(path_t), intent(in) :: self, other
@@ -706,6 +732,7 @@ character(9) function f_get_permissions(self)
 class(path_t), intent(in) :: self
 f_get_permissions = get_permissions(self%path_str)
 end function
+
 
 
 end module filesystem

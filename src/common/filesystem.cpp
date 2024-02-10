@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include <array>
+#include <memory> // std::make_unique
 #include <functional>
 #include <random>
 #include <cstring>
@@ -1186,3 +1187,65 @@ static std::string fs_generate_random_alphanumeric_string(std::size_t len)
     return result;
 }
 // --- end mkdtemp
+
+size_t fs_long2short(const char* in, char* out, size_t buffer_size){
+  return fs_str2char(fs_long2short(std::string_view(in)), out, buffer_size);
+}
+
+std::string fs_long2short(std::string_view in){
+// https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getshortpathnamew
+// the path must exist
+
+    if (!fs::exists(in))
+      throw std::runtime_error("fs_long2short: path does not exist");
+
+#ifdef _WIN32
+    auto buf = std::make_unique<char[]>(FS_MAX_PATH);
+// size includes null terminator
+    DWORD L = GetShortPathNameA(in.data(), nullptr, 0);
+    if (L == 0)
+      throw std::runtime_error("fs_long2short:GetShortPathName: could not determine short path length");
+
+// convert long path
+    if(!GetShortPathNameA(in.data(), buf.get(), L))
+      throw std::runtime_error("fs_long2short:GetShortPathName: could not determine short path");
+
+    std::string out(buf.get());
+#else
+    std::cerr << "WARNING:fs_long2short:ffilesystem: Windows-only\n";
+    std::string out(in);
+#endif
+    return out;
+}
+
+
+size_t fs_short2long(const char* in, char* out, size_t buffer_size){
+  return fs_str2char(fs_short2long(std::string_view(in)), out, buffer_size);
+}
+
+std::string fs_short2long(std::string_view in){
+// https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlongpathnamea
+// the path must exist
+
+    if (!fs::exists(in))
+      throw std::runtime_error("fs_short2long: path does not exist");
+
+#ifdef _WIN32
+    auto buf = std::make_unique<char[]>(FS_MAX_PATH);
+// size includes null terminator
+    DWORD L = GetLongPathNameA(in.data(), nullptr, 0);
+    if(L == 0)
+      throw std::runtime_error("fs_short2long:GetLongPathName: could not determine path length");
+
+// convert short path
+    if(!GetLongPathNameA(in.data(), buf.get(), L))
+      throw std::runtime_error("fs_short2long:GetLongPathName could not determine path length");
+
+    std::string out(buf.get());
+#else
+    std::cerr << "WARNING:ffilesystem:fs_short2long: Windows-only\n";
+    std::string out(in);
+#endif
+
+    return out;
+}

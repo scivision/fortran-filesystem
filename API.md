@@ -460,6 +460,18 @@ resolve("~/../b")
 resolve("../b")
 ```
 
+Windows: long to short path
+
+```fortran
+long2short("C:/Program Files")  !< "C:/PROGRA~1"
+```
+
+Windows: short to long path
+
+```fortran
+short2long("C:/PROGRA~1")  !< "C:/Program Files"
+```
+
 Get path relative to other path.
 This is a string operation and does not resolve or expand paths.
 

@@ -9,6 +9,11 @@ else()
 endif()
 endif()
 
+add_executable(test_Fortran_windows test_windows.f90)
+target_link_libraries(test_Fortran_windows PRIVATE ffilesystem)
+add_test(NAME Fortran_Ffilesystem_windows COMMAND test_Fortran_windows)
+set_property(TEST Fortran_Ffilesystem_windows PROPERTY DISABLED $<OR:$<NOT:$<BOOL:${WIN32}>>,$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>>)
+
 add_compile_options($<$<COMPILE_LANG_AND_ID:Fortran,GNU>:-Wno-maybe-uninitialized>)
 
 foreach(t IN ITEMS canonical core exe expanduser find mkdtemp relative reserved resolve utf8)
@@ -28,11 +33,12 @@ endif()
 
 add_executable(fortran_same test_same.f90)
 target_link_libraries(fortran_same PRIVATE ffilesystem)
-add_test(NAME Fortran_same COMMAND $<TARGET_FILE:fortran_same> $<BOOL:${ffilesystem_shaky}>)
+add_test(NAME Fortran_same COMMAND fortran_same $<BOOL:${ffilesystem_shaky}>)
 
 add_executable(fortran_filesize test_filesize.f90)
 target_link_libraries(fortran_filesize PRIVATE ffilesystem)
-add_test(NAME Fortran_filesize COMMAND $<TARGET_FILE:fortran_filesize>
+add_test(NAME Fortran_filesize
+COMMAND fortran_filesize
   ${CMAKE_CURRENT_BINARY_DIR}/test_filesize.dat
   $<BOOL:${ffilesystem_shaky}>
 )
@@ -46,7 +52,8 @@ file(CREATE_LINK ${test_symlink_dir}/cmake-test.txt ${test_symlink_file} SYMBOLI
 message(VERBOSE "CMake test link file ${test_symlink_file}")
 add_executable(fortran_symlink test_symlink.f90)
 target_link_libraries(fortran_symlink PRIVATE ffilesystem)
-add_test(NAME Fortran_symlink COMMAND $<TARGET_FILE:fortran_symlink> ${test_symlink_file} $<BOOL:${ffilesystem_shaky}>)
+add_test(NAME Fortran_symlink
+COMMAND fortran_symlink ${test_symlink_file} $<BOOL:${ffilesystem_shaky}>)
 
 # if(ffilesystem_shaky)
 #   set_property(TEST ${shaky_tests} PROPERTY SKIP_REGULAR_EXPRESSION "(uncaught exception|[bB]us error|SIGABRT)")
