@@ -115,12 +115,8 @@ int fs_is_wsl() {
       return 2;
     if (release.ends_with("-Microsoft"))
       return 1;
-#else
-    if (release.find("microsoft-standard-WSL2") != std::string::npos)
-      return 2;
-    if (release.find("-Microsoft") != std::string::npos)
-      return 1;
 #endif
+    return -1;
 #endif
 
   return 0;
