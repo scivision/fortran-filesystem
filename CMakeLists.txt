@@ -41,16 +41,21 @@ if(cppcheck)
   set(CMAKE_C_CPPCHECK ${cppcheck_exe} --std=c++${CMAKE_CXX_STANDARD} ${cppcheck_opts})
   set(CMAKE_CXX_CPPCHECK ${cppcheck_exe} --std=c++${CMAKE_CXX_STANDARD} ${cppcheck_opts})
 endif()
+
 # --- filesystem library
+
+set(FETCHCONTENT_QUIET OFF)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
 if(NOT HAVE_CXX_FILESYSTEM)
   FetchContent_Declare(cwalk
   GIT_REPOSITORY https://github.com/likle/cwalk
-  GIT_TAG v1.2.7
+  GIT_TAG v1.2.9
   TLS_VERIFY ${CMAKE_TLS_VERIFY}
   )
-  FetchContent_Populate(cwalk)
-
+  if(NOT cwalk_POPULATED)
+    FetchContent_Populate(cwalk)
+  endif()
 endif()
 
 
