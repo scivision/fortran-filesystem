@@ -594,8 +594,8 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 
 bool fs_is_char_device(const char* path)
 {
-// special POSIX file character device like /dev/null
-// NOTE: root() e.g. "C:" needs a trailing slash
+// special character device like /dev/null
+// Windows: https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fstat-fstat32-fstat64-fstati64-fstat32i64-fstat64i32
   struct stat s;
 
   return stat(path, &s) ? false : s.st_mode & S_IFCHR;

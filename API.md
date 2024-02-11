@@ -200,7 +200,7 @@ p = p%normal()
 normal("./my//path/../b/")  !< "my/b"
 ```
 
-Join path_t with other path string using posix separators.
+Join path with other path string using posix separators.
 The paths are treated like strings.
 No path resolution is used, so non-sensical paths are possible for non-sensical input.
 
@@ -274,7 +274,7 @@ p%is_file()
 is_file("my/file.txt")
 ```
 
-On POSIX file systems, is the path a special character device (like a terminal or /dev/null)?
+Is the path a special character device (like a terminal or /dev/null)?
 
 ```fortran
 p%is_char_device()

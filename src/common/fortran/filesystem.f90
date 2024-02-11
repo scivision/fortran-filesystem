@@ -237,57 +237,70 @@ end function
 
 
 logical(C_BOOL) function fs_cpp() bind(C)
+!! ffilesystem is using C++ backend?
 import C_BOOL
 end function
 
 integer(C_LONG) function fs_lang() bind(C)
+!! C `__STDC_VERSION__` or C++ level of macro `__cplusplus`
 import C_LONG
 end function
 
 logical(C_BOOL) function is_admin() bind(C, name="fs_is_admin")
+!! user running as admin / root / superuser?
 import
 end function
 
 logical(C_BOOL) function is_bsd() bind(C, name="fs_is_bsd")
+!! operating system is BSD-like
 import
 end function
 
 logical(C_BOOL) function is_macos() bind(C, name="fs_is_macos")
+!! operating system is macOS
 import
 end function
 
 logical(C_BOOL) function is_windows() bind(C, name="fs_is_windows")
+!! operating system is Microsoft Windows
 import
 end function
 
 logical(C_BOOL) function is_cygwin() bind(C, name="fs_is_cygwin")
+!! operating system is Cygwin
 import
 end function
 
 integer(C_INT) function is_wsl() bind(C, name="fs_is_wsl")
+!! Windows Subsystem for Linux (WSL) version (0 is not WSL)
 import
 end function
 
 logical(C_BOOL) function is_mingw() bind(C, name="fs_is_mingw")
+!! operating system platform is MinGW
 import C_BOOL
 end function
 
 logical(C_BOOL) function is_linux() bind(C, name="fs_is_linux")
+!! operating system is Linux
 import C_BOOL
 end function
 
 logical(C_BOOL) function is_unix() bind(C, name="fs_is_unix")
+!! operating system is Unix-like
 import C_BOOL
 end function
 
 module function join(path, other)
-!! returns path_t object with other appended to self using posix separator
+!! Join path with other path string using posix separators.
+!! The paths are treated like strings.
+!! Mo path resolution is used, so non-sensical paths are possible for non-sensical input.
 character(:), allocatable :: join
 character(*), intent(in) :: path, other
 end function
 
 module logical function is_char_device(path)
-!! .true.: "path" is a character device like /dev/null
+!! is path a character device like /dev/null
 character(*), intent(in) :: path
 end function
 
@@ -298,7 +311,7 @@ character(*), intent(in) :: path
 end function
 
 module logical function is_reserved(path)
-!! .true.: "path" is a reserved name on this platform
+!! .true.: "path" is a reserved name on this filesystem
 character(*), intent(in) :: path
 end function
 
