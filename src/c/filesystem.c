@@ -688,9 +688,8 @@ bool fs_is_absolute(const char* path)
 bool fs_is_symlink(const char* path)
 {
 #ifdef _WIN32
-  (void) path;
-  fprintf(stderr, "ERROR:ffilesystem:is_symlink: not implemented for non-C++\n");
-  return false;
+  DWORD a = GetFileAttributes(path);
+  return (a != INVALID_FILE_ATTRIBUTES) && (a & FILE_ATTRIBUTE_REPARSE_POINT);
 #else
   struct stat buf;
 
