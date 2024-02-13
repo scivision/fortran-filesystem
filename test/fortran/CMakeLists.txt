@@ -63,9 +63,12 @@ COMMAND fortran_symlink ${test_symlink_file} $<BOOL:${ffilesystem_shaky}>)
 # --- permissions
 
 set(perm_noread ${CMAKE_CURRENT_BINARY_DIR}/ffilesystem_permissions_noread)
+set(perm_nowrite ${CMAKE_CURRENT_BINARY_DIR}/ffilesystem_permissions_nowrite)
 
 add_test(NAME Fortran_noread_setup
-COMMAND ${CMAKE_COMMAND} -Dperm_noread:FILEPATH=${perm_noread}
+COMMAND ${CMAKE_COMMAND}
+  -Dperm_noread:FILEPATH=${perm_noread}
+  -Dperm_nowrite:FILEPATH=${perm_nowrite}
   -P ${CMAKE_CURRENT_SOURCE_DIR}/../test_permissions_setup.cmake)
 set_property(TEST Fortran_noread_setup PROPERTY FIXTURES_SETUP Fortran_noread_fxt)
 set_property(TEST Fortran_noread_setup PROPERTY SKIP_RETURN_CODE 77)
@@ -73,13 +76,13 @@ set_property(TEST Fortran_noread_setup PROPERTY SKIP_RETURN_CODE 77)
 add_executable(test_permissions_fortran test_permissions.f90)
 target_link_libraries(test_permissions_fortran PRIVATE ffilesystem)
 add_test(NAME Fortran_permissions
-COMMAND test_permissions_fortran $<TARGET_FILE:test_permissions_fortran> ${perm_noread}
+COMMAND test_permissions_fortran $<TARGET_FILE:test_permissions_fortran> ${perm_noread} ${perm_nowrite}
 )
 set_property(TEST Fortran_permissions PROPERTY SKIP_RETURN_CODE 77)
 set_property(TEST Fortran_permissions PROPERTY DISABLED $<VERSION_LESS:${CMAKE_VERSION},3.19>)
 set_property(TEST Fortran_permissions PROPERTY FIXTURES_REQUIRED Fortran_noread_fxt)
 
-add_test(NAME Fortran_noread_cleanup COMMAND ${CMAKE_COMMAND} -E rm ${perm_noread})
+add_test(NAME Fortran_noread_cleanup COMMAND ${CMAKE_COMMAND} -E rm ${perm_noread} ${perm_nowrite})
 set_property(TEST Fortran_noread_cleanup PROPERTY DISABLED $<VERSION_LESS:${CMAKE_VERSION},3.19>)
 set_property(TEST Fortran_noread_cleanup PROPERTY FIXTURES_CLEANUP Fortran_noread_fxt)
 

@@ -492,6 +492,23 @@ bool fs_is_readable(std::string_view path)
 }
 
 
+bool fs_is_writable(const char* path)
+{
+  return fs_is_writable(std::string_view(path));
+}
+
+bool fs_is_writable(std::string_view path)
+{
+  std::error_code ec;
+  auto s = fs::status(path, ec);
+  if(ec || !fs::exists(s))
+    return false;
+
+  auto i = s.permissions() & (fs::perms::owner_write | fs::perms::group_write | fs::perms::others_write);
+  return i != fs::perms::none;
+}
+
+
 bool fs_is_file(const char* path)
 {
   return fs_is_file(std::string_view(path));

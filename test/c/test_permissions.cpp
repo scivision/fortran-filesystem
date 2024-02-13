@@ -22,20 +22,21 @@ int main(int argc, char *argv[])
   _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #endif
 
-if(argc != 3){
-    std::cerr << "Usage: " << argv[0] << " <readable> <not_readable>" << std::endl;
+if(argc != 4){
+    std::cerr << "Usage: " << argv[0] << " <readable> <not_readable> <not_writable>\n";
     return EXIT_FAILURE;
 }
 
 std::string read(argv[1]);
 std::string noread(argv[2]);
+std::string nowrite(argv[3]);
 
 std::string p = fs_get_permissions("");
 if(p.length() != 0)
     throw std::runtime_error("test_exe: get_permissions('') should be empty, got: " + p);
 
 p = fs_get_permissions(read);
-std::cout << "Permissions for " << read << ": " << p << std::endl;
+std::cout << "Permissions for " << read << ": " << p << "\n";
 
 if(p.length() == 0)
     throw std::runtime_error("test_exe: get_permissions('" + read + "') should not be empty");
@@ -51,21 +52,34 @@ if(!fs_is_file(read))
 
 // for Ffilesystem, even non-readable files "exist" and are "is_file"
 p = fs_get_permissions(noread);
-std::cout << "Permissions for " << noread << ": " << p << std::endl;
+std::cout << "Permissions for " << noread << ": " << p << "\n";
 
 if(p.length() == 0)
     throw std::runtime_error("test_exe: get_permissions('" + noread + "') should not be empty");
 
 if(fs_is_readable(noread)){
-    std::cerr << "ERROR: test_exe: " << noread << " should not be readable\n";
-    return 77;
-}
+    std::cerr << "XFAIL: test_exe: " << noread << " should not be readable\n";
+} else {
 
 if(!fs_exists(noread))
     throw std::runtime_error("test_exe: " + noread + " should exist");
 
 if(!fs_is_file(noread))
     throw std::runtime_error("test_exe: " + noread + " should be a file");
+}
+// writable
+std::cout << "Permissions for " << nowrite << ": " << fs_get_permissions(nowrite) << "\n";
+
+if(fs_is_writable(nowrite)){
+    std::cerr << "ERROR: test_exe: " << nowrite << " should not be writable\n";
+    return 77;
+}
+
+if(!fs_exists(nowrite))
+    throw std::runtime_error("test_exe: " + nowrite + " should exist");
+
+if(!fs_is_file(nowrite))
+    throw std::runtime_error("test_exe: " + nowrite + " should be a file");
 
 return EXIT_SUCCESS;
 }

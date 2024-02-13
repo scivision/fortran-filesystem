@@ -181,6 +181,11 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+logical(c_bool) function fs_is_writable(path) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+end function
+
 logical(c_bool) function fs_is_reserved(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -496,6 +501,10 @@ end procedure
 
 module procedure is_readable
 is_readable = fs_is_readable(trim(path) // C_NULL_CHAR)
+end procedure
+
+module procedure is_writable
+is_writable = fs_is_writable(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_file

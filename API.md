@@ -368,6 +368,17 @@ is_readable("my/file.txt")
 is_readable("./")
 ```
 
+Is path (file or directory) writable by the user.
+
+```fortran
+!! logical
+
+p%is_writable()
+! or
+is_writable("my/file.txt")
+is_writable("./")
+```
+
 ## character(:), allocatable
 
 These procedures emit a string.

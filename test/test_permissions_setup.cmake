@@ -19,6 +19,20 @@ if(DEFINED perm_noread)
   endif()
 endif()
 
+if(DEFINED perm_nowrite)
+
+  file(REMOVE ${perm_nowrite})
+  file(TOUCH ${perm_nowrite})
+  file(CHMOD ${perm_nowrite} FILE_PERMISSIONS OWNER_READ)
+
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.29)
+    if(IS_WRITABLE ${perm_nowrite})
+      message(WARNING "${perm_nowrite} should not be writable")
+      cmake_language(EXIT 77)
+    endif()
+  endif()
+endif()
+
 
 if(DEFINED perm_noexe)
 

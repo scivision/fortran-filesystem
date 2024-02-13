@@ -641,6 +641,19 @@ bool fs_is_readable(const char* path)
 #endif
 }
 
+bool fs_is_writable(const char* path)
+{
+/* directory or file writable */
+
+#ifdef _WIN32
+  /* https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/access-s-waccess-s
+  */
+  return !_access_s(path, 2);
+#else
+  return !access(path, W_OK);
+#endif
+}
+
 
 bool fs_is_file(const char* path)
 {
