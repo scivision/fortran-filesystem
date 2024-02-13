@@ -597,8 +597,7 @@ bool fs_is_char_device(const char* path)
 // special character device like /dev/null
 // Windows: https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fstat-fstat32-fstat64-fstati64-fstat32i64-fstat64i32
   struct stat s;
-
-  return stat(path, &s) ? false : s.st_mode & S_IFCHR;
+  return !stat(path, &s) && S_ISCHR(s.st_mode);
 }
 
 
@@ -606,8 +605,7 @@ bool fs_is_dir(const char* path)
 {
 // NOTE: root() e.g. "C:" needs a trailing slash
   struct stat s;
-
-  return stat(path, &s) ? false : s.st_mode & S_IFDIR;
+  return !stat(path, &s) && S_ISDIR(s.st_mode);
 }
 
 
@@ -615,7 +613,7 @@ bool fs_is_exe(const char* path)
 {
   struct stat s;
 
-  return stat(path, &s) ? false : s.st_mode &
+  return !stat(path, &s) && s.st_mode &
 #ifdef _MSC_VER
     _S_IEXEC;
 #else
@@ -628,7 +626,7 @@ bool fs_is_file(const char* path)
 {
   struct stat s;
 
-  return stat(path, &s) ? false : s.st_mode & S_IFREG;
+  return !stat(path, &s) && S_ISREG(s.st_mode);
 }
 
 
@@ -642,7 +640,7 @@ bool fs_is_reserved(const char* path)
 bool fs_exists(const char* path)
 {
   // false empty just for clarity
-  return strlen(path) == 0 ? false :
+  return strlen(path) &&
 #ifdef _MSC_VER
    !_access_s(path, 0);
 #else
@@ -688,7 +686,7 @@ bool fs_is_symlink(const char* path)
 #else
   struct stat buf;
 
-  return lstat(path, &buf) ? false : S_ISLNK(buf.st_mode);
+  return !lstat(path, &buf) && S_ISLNK(buf.st_mode);
   // return (buf.st_mode & S_IFMT) == S_IFLNK; // equivalent
 #endif
 }

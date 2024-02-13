@@ -218,7 +218,7 @@ jobs:
     strategy:
       matrix:
         cpp: [false]
-    # it seems clang-tidy 14 can't handle std::filesystem?
+    # it seems clang-tidy 14 can't handle std::filesystem
 
     steps:
     - uses: actions/checkout@v4
