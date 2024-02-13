@@ -304,17 +304,14 @@ bool fs_is_symlink(std::string_view path)
 
 #ifdef WIN32_SYMLINK
   DWORD a = GetFileAttributes(path.data());
-
-  return a == INVALID_FILE_ATTRIBUTES
-    ? false
-    : a & FILE_ATTRIBUTE_REPARSE_POINT;
+  return (a != INVALID_FILE_ATTRIBUTES) && (a & FILE_ATTRIBUTE_REPARSE_POINT);
 #endif
 
   std::error_code ec;
   auto s = fs::symlink_status(path, ec);
   // NOTE: use of symlink_status here like lstat(), else logic is wrong with fs::status()
 
-  return ec ? false : fs::is_symlink(s);
+  return !ec && fs::is_symlink(s);
 }
 
 int fs_create_symlink(const char* target, const char* link)
@@ -409,10 +406,11 @@ bool fs_exists(const char* path)
 
 bool fs_exists(std::string_view path)
 {
+  // fs
   std::error_code ec;
   auto s = fs::status(path, ec);
 
-  return ec ? false : fs::exists(s);
+  return !ec && fs::exists(s);
 }
 
 
@@ -437,8 +435,7 @@ bool fs_is_char_device(std::string_view path)
 {
   std::error_code ec;
   auto s = fs::status(path, ec);
-
-  return ec ? false : fs::is_character_file(s);
+  return !ec && fs::is_character_file(s);
 }
 
 
@@ -456,7 +453,7 @@ bool fs_is_dir(std::string_view path)
 
   std::error_code ec;
   auto s = fs::status(p, ec);
-  return ec ? false : fs::is_directory(s);
+  return !ec && fs::is_directory(s);
 }
 
 
@@ -488,7 +485,7 @@ bool fs_is_file(std::string_view path)
   std::error_code ec;
   auto s = fs::status(path, ec);
 
-  return ec ? false : fs::is_regular_file(s);
+  return !ec && fs::is_regular_file(s);
 }
 
 

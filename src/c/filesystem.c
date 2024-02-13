@@ -639,9 +639,17 @@ bool fs_is_reserved(const char* path)
 
 bool fs_exists(const char* path)
 {
+  /* fs_exists() is true even if path is non-readable
+  * this is like Python pathlib.Path.exists()
+  * but unlike kwSys:SystemTools:FileExists which uses R_OK instead of F_OK like this project.
+  */
   // false empty just for clarity
   return strlen(path) &&
 #ifdef _MSC_VER
+  /* kwSys:SystemTools:FileExists is much more elaborate with Reparse point checks etc.
+  * For this project, Windows non-C++ is not officially supported so we do it simply.
+  * This way seems to work fine on Windows anyway.
+  */
    !_access_s(path, 0);
 #else
   // <unistd.h>
