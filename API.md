@@ -258,7 +258,9 @@ call assert_is_dir("my/dir")
 
 ---
 
-Is "path" a file or directory (or a symbolic link to existing file or directory):
+Is "path" a file or directory (or a symbolic link to existing file or directory).
+Like Python pathlib.Path.exists(), even if the path does not have read permission,
+it still may exist.
 
 ```fortran
 p%exists()
@@ -266,7 +268,9 @@ p%exists()
 exists("my/file.txt")
 ```
 
-Does file exist (or a symbolic link to an existing file):
+Does file exist (or a symbolic link to an existing file).
+Like Python pathlib.Path.is_file(), even if the file does not have read permission,
+it still may exist.
 
 ```fortran
 p%is_file()
@@ -326,7 +330,8 @@ same_file(path1, path2)
 
 ## file permissions
 
-is path executable file:
+Is file executable by the user. Even if the file does not have read permission,
+it still may be executable. False for directories.
 
 ```fortran
 !! logical

@@ -34,7 +34,7 @@ target_link_libraries(test_Cpp_windows PRIVATE ffilesystem)
 add_test(NAME Cpp_windows COMMAND test_Cpp_windows)
 set_property(TEST Cpp_windows PROPERTY DISABLED $<NOT:$<BOOL:${WIN32}>>)
 
-foreach(t IN ITEMS canonical core exe utf8)
+foreach(t IN ITEMS canonical core utf8)
   add_executable(test_Cpp_${t} test_${t}.cpp)
   target_link_libraries(test_Cpp_${t} PRIVATE ffilesystem)
   add_test(NAME Cpp_${t} COMMAND test_Cpp_${t})
@@ -75,6 +75,29 @@ set_property(TEST Cpp_permissions PROPERTY FIXTURES_REQUIRED Cpp_noread_fxt)
 add_test(NAME Cpp_noread_cleanup COMMAND ${CMAKE_COMMAND} -E rm ${perm_noread})
 set_property(TEST Cpp_noread_cleanup PROPERTY DISABLED $<VERSION_LESS:${CMAKE_VERSION},3.19>)
 set_property(TEST Cpp_noread_cleanup PROPERTY FIXTURES_CLEANUP Cpp_noread_fxt)
+
+# --- executable
+
+set(perm_noexe ${CMAKE_CURRENT_BINARY_DIR}/ffilesystem_permissions_noexe)
+
+add_test(NAME Cpp_noexe_setup
+COMMAND ${CMAKE_COMMAND} -Dperm_noexe:FILEPATH=${perm_noexe}
+  -P ${CMAKE_CURRENT_SOURCE_DIR}/../test_permissions_setup.cmake)
+set_property(TEST Cpp_noexe_setup PROPERTY FIXTURES_SETUP Cpp_noexe_fxt)
+set_property(TEST Cpp_noexe_setup PROPERTY SKIP_RETURN_CODE 77)
+
+add_executable(test_exe_cpp test_exe.cpp)
+target_link_libraries(test_exe_cpp PRIVATE ffilesystem)
+add_test(NAME Cpp_exe
+COMMAND test_exe_cpp $<TARGET_FILE:test_exe_cpp> ${perm_noexe}
+)
+set_property(TEST Cpp_exe PROPERTY SKIP_RETURN_CODE 77)
+set_property(TEST Cpp_exe PROPERTY DISABLED $<VERSION_LESS:${CMAKE_VERSION},3.19>)
+set_property(TEST Cpp_exe PROPERTY FIXTURES_REQUIRED Cpp_noexe_fxt)
+
+add_test(NAME Cpp_noexe_cleanup COMMAND ${CMAKE_COMMAND} -E rm ${perm_noexe})
+set_property(TEST Cpp_noexe_cleanup PROPERTY DISABLED $<VERSION_LESS:${CMAKE_VERSION},3.19>)
+set_property(TEST Cpp_noexe_cleanup PROPERTY FIXTURES_CLEANUP Cpp_noexe_fxt)
 
 
 # --- binpath

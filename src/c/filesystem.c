@@ -597,7 +597,8 @@ bool fs_is_char_device(const char* path)
 // special character device like /dev/null
 // Windows: https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fstat-fstat32-fstat64-fstati64-fstat32i64-fstat64i32
   struct stat s;
-  return !stat(path, &s) && S_ISCHR(s.st_mode);
+  return !stat(path, &s) && (s.st_mode & S_IFCHR);
+  // S_ISCHR not available with MSVC
 }
 
 
@@ -605,19 +606,25 @@ bool fs_is_dir(const char* path)
 {
 // NOTE: root() e.g. "C:" needs a trailing slash
   struct stat s;
-  return !stat(path, &s) && S_ISDIR(s.st_mode);
+  return !stat(path, &s) && (s.st_mode & S_IFDIR);
+  // S_ISDIR not available with MSVC
 }
 
 
 bool fs_is_exe(const char* path)
 {
-  struct stat s;
+  if (fs_is_dir(path))
+    return false;
 
-  return !stat(path, &s) && s.st_mode &
-#ifdef _MSC_VER
-    _S_IEXEC;
+#ifdef _WIN32
+  /* https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/access-s-waccess-s
+  * in Windows, all readable files are executable so we use _S_IEXEC
+  * instead of _access_s()
+  */
+  struct stat s;
+  return !stat(path, &s) && (s.st_mode & _S_IEXEC);
 #else
-    S_IXUSR;
+  return !access(path, X_OK);
 #endif
 }
 
@@ -626,7 +633,8 @@ bool fs_is_file(const char* path)
 {
   struct stat s;
 
-  return !stat(path, &s) && S_ISREG(s.st_mode);
+  return !stat(path, &s) && (s.st_mode & S_IFREG);
+  // S_ISREG not available with MSVC
 }
 
 

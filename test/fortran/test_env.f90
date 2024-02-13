@@ -1,7 +1,7 @@
 program test_env
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use filesystem, only : path_t, get_cwd, exists, get_tempdir, get_homedir, is_windows
+use filesystem
 
 implicit none
 
@@ -35,8 +35,12 @@ end subroutine
 subroutine test_homedir()
 
 character(:), allocatable :: h, k
-character(1000) :: buf
 integer :: i
+
+character(:), allocatable :: buf
+
+allocate(character(get_max_path()) :: buf)
+
 
 if(is_windows()) then
   k = "USERPROFILE"

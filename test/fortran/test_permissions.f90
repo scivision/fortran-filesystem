@@ -6,8 +6,11 @@ use filesystem
 implicit none
 
 integer :: i
-character(1000) :: reada, noread
 character(9) :: p
+
+character(:), allocatable :: reada, noread
+
+allocate(character(get_max_path()) :: reada, noread)
 
 if(command_argument_count() < 2) error stop "specify  <readable file> <non-readable file>"
 

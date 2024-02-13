@@ -1,3 +1,5 @@
+add_compile_definitions($<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
+
 add_subdirectory(c)
 
 if(ffilesystem_fortran)

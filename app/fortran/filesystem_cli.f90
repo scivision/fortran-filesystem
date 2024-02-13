@@ -10,8 +10,12 @@ use filesystem
 implicit none
 
 integer :: i, L, argc
-character(1000) :: buf, buf2
 character(16) :: fcn
+
+character(:), allocatable :: buf, buf2
+
+allocate(character(get_max_path()) :: buf, buf2)
+
 
 argc = command_argument_count()
 

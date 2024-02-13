@@ -16,7 +16,7 @@ set_property(TEST Fortran_Ffilesystem_windows PROPERTY DISABLED $<OR:$<NOT:$<BOO
 
 add_compile_options($<$<COMPILE_LANG_AND_ID:Fortran,GNU>:-Wno-maybe-uninitialized>)
 
-foreach(t IN ITEMS canonical core exe expanduser find mkdtemp relative reserved resolve utf8)
+foreach(t IN ITEMS canonical core expanduser find mkdtemp relative reserved resolve utf8)
   add_executable(test_${t} test_${t}.f90)
   target_link_libraries(test_${t} PRIVATE ffilesystem)
   add_test(NAME Fortran_${t} COMMAND test_${t})
@@ -83,6 +83,29 @@ add_test(NAME Fortran_noread_cleanup COMMAND ${CMAKE_COMMAND} -E rm ${perm_norea
 set_property(TEST Fortran_noread_cleanup PROPERTY DISABLED $<VERSION_LESS:${CMAKE_VERSION},3.19>)
 set_property(TEST Fortran_noread_cleanup PROPERTY FIXTURES_CLEANUP Fortran_noread_fxt)
 
+# --- executable
+
+set(perm_noexe ${CMAKE_CURRENT_BINARY_DIR}/ffilesystem_permissions_noexe)
+
+add_test(NAME Fortran_noexe_setup
+COMMAND ${CMAKE_COMMAND} -Dperm_noexe:FILEPATH=${perm_noexe}
+  -P ${CMAKE_CURRENT_SOURCE_DIR}/../test_permissions_setup.cmake)
+set_property(TEST Fortran_noexe_setup PROPERTY FIXTURES_SETUP Fortran_noexe_fxt)
+set_property(TEST Fortran_noexe_setup PROPERTY SKIP_RETURN_CODE 77)
+
+add_executable(test_exe_fortran test_exe.f90)
+target_link_libraries(test_exe_fortran PRIVATE ffilesystem)
+add_test(NAME Fortran_exe
+COMMAND test_exe_fortran $<TARGET_FILE:test_exe_fortran> ${perm_noexe}
+)
+set_property(TEST Fortran_exe PROPERTY SKIP_RETURN_CODE 77)
+set_property(TEST Fortran_exe PROPERTY DISABLED $<VERSION_LESS:${CMAKE_VERSION},3.19>)
+set_property(TEST Fortran_exe PROPERTY FIXTURES_REQUIRED Fortran_noexe_fxt)
+
+add_test(NAME Fortran_noexe_cleanup COMMAND ${CMAKE_COMMAND} -E rm ${perm_noexe})
+set_property(TEST Fortran_noexe_cleanup PROPERTY DISABLED $<VERSION_LESS:${CMAKE_VERSION},3.19>)
+set_property(TEST Fortran_noexe_cleanup PROPERTY FIXTURES_CLEANUP Fortran_noexe_fxt)
+
 # --- get_homedir, exists
 
 add_executable(test_env test_env.f90)
@@ -126,8 +149,10 @@ set_property(TEST Fortran_fileop PROPERTY FIXTURES_SETUP ops_fxt)
 
 # --- props
 
-set_property(TEST Fortran_fileop Fortran_exepath Fortran_reserved Fortran_same Fortran_mkdtemp Fortran_symlink
-PROPERTY SKIP_REGULAR_EXPRESSION "not implemented")
+set_property(
+TEST Fortran_fileop Fortran_permissions Fortran_exepath Fortran_reserved Fortran_same Fortran_mkdtemp Fortran_symlink
+PROPERTY SKIP_REGULAR_EXPRESSION "not implemented"
+)
 
 set_property(TEST Fortran_find PROPERTY FIXTURES_REQUIRED ops_fxt)
 

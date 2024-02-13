@@ -5,8 +5,12 @@ use filesystem
 
 implicit none
 
-character(1000) :: buf, buf2, buf3
 integer :: i
+
+character(:), allocatable :: buf, buf2, buf3
+
+allocate(character(get_max_path()) :: buf, buf2, buf3)
+
 
 call get_environment_variable("PROGRAMFILES", buf, status=i)
 if (i /= 0) then

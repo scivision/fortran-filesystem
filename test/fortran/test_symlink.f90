@@ -1,7 +1,7 @@
 program test_symlink
 
 use, intrinsic:: iso_fortran_env, only : stderr=>error_unit
-use filesystem, only : path_t, is_symlink, is_file, is_dir, parent, create_symlink, remove, touch
+use filesystem
 
 implicit none
 
@@ -9,11 +9,12 @@ integer :: i, L
 
 block
 type(path_t) :: p_sym, p_tgt
-character(1000) :: buf
 integer :: stat, shaky
 character :: buf1
 
-character(:), allocatable :: tgt, cmake_link, link, linko, tgt_dir, link_dir
+character(:), allocatable :: tgt, cmake_link, link, linko, tgt_dir, link_dir, buf
+
+allocate(character(get_max_path()) :: buf)
 
 if(is_symlink("not-exist-file")) error stop "is_symlink() should be false for non-existant file"
 if(is_symlink("")) error stop "is_symlink('') should be false"
