@@ -501,7 +501,7 @@ bool fs_is_reserved(std::string_view path)
 #ifndef _WIN32
     return false;
     (void) path;
-#else
+#elif __cplusplus >= 202002L
   if (path.empty())
     return false;
 
@@ -515,6 +515,9 @@ bool fs_is_reserved(std::string_view path)
   std::transform(p.begin(), p.end(), p.begin(), ::toupper);
 
   return reserved.contains(p);
+#else
+  std::cout << "WARNING:ffilesystem:is_reserved: C++20 required for reserved names check\n";
+  return false;
 #endif
 }
 
