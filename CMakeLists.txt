@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.15...3.29)
+cmake_minimum_required(VERSION 3.17...3.29)
+# 3.17 for cmake -E rm
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
   message(FATAL_ERROR "Please use out of source build like:
@@ -7,7 +8,7 @@ endif()
 
 project(ffilesystem
 LANGUAGES C
-VERSION 5.3.1
+VERSION 5.3.2
 )
 
 include(CTest) # needed for "ctest -T memcheck"

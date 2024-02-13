@@ -25,15 +25,9 @@ int main()
 std::string exe = fs_join(fs_get_tempdir(), "dummy_exe");
 std::string noexe = fs_join(fs_get_tempdir(), "dummy_no_exe");
 
-std::string p;
-
 // Empty string
 if(fs_is_exe(""))
     throw std::runtime_error("test_exe: is_exe('') should be false");
-
-p = fs_get_permissions("");
-if(p.length() != 0)
-    throw std::runtime_error("test_exe: get_permissions('') should be empty, got: " + p);
 
 // Non-existent file
 if (fs_is_file("not-exist"))
@@ -53,7 +47,7 @@ std::cout << "permissions before chmod(" << exe << ", true)  = " << fs_get_permi
 
 fs_chmod_exe(exe, true);
 
-p = fs_get_permissions(exe);
+std::string p = fs_get_permissions(exe);
 std::cout << "permissions after chmod(" << exe << ", true) = " << p << "\n";
 
 if (!fs_is_exe(exe)){

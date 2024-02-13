@@ -41,6 +41,7 @@ foreach(t IN ITEMS canonical core exe utf8)
   set_property(TEST Cpp_${t} PROPERTY LABELS "Cpp")
 endforeach()
 
+# --- homedir
 add_executable(cpp_env test_env.cpp)
 target_link_libraries(cpp_env PRIVATE ffilesystem)
 add_test(NAME CppHomedirEnv COMMAND cpp_env)
@@ -51,6 +52,30 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
   set_property(TEST CppHomedirNoEnv PROPERTY ENVIRONMENT_MODIFICATION "HOME=unset:;USERPROFILE=unset:;TEMP=unset:;TMPDIR=unset:")
   set_property(TEST CppHomedirNoEnv PROPERTY DISABLED $<BOOL:$ENV{CI}>)
 endif()
+
+# --- permissions
+
+set(perm_noread ${CMAKE_CURRENT_BINARY_DIR}/ffilesystem_permissions_noread)
+
+add_test(NAME Cpp_noread_setup
+COMMAND ${CMAKE_COMMAND} -Dperm_noread:FILEPATH=${perm_noread}
+  -P ${CMAKE_CURRENT_SOURCE_DIR}/../test_permissions_setup.cmake)
+set_property(TEST Cpp_noread_setup PROPERTY FIXTURES_SETUP Cpp_noread_fxt)
+set_property(TEST Cpp_noread_setup PROPERTY SKIP_RETURN_CODE 77)
+
+add_executable(test_permissions_cpp test_permissions.cpp)
+target_link_libraries(test_permissions_cpp PRIVATE ffilesystem)
+add_test(NAME Cpp_permissions
+COMMAND test_permissions_cpp $<TARGET_FILE:test_permissions_cpp> ${perm_noread}
+)
+set_property(TEST Cpp_permissions PROPERTY SKIP_RETURN_CODE 77)
+set_property(TEST Cpp_permissions PROPERTY DISABLED $<VERSION_LESS:${CMAKE_VERSION},3.19>)
+set_property(TEST Cpp_permissions PROPERTY FIXTURES_REQUIRED Cpp_noread_fxt)
+
+add_test(NAME Cpp_noread_cleanup COMMAND ${CMAKE_COMMAND} -E rm ${perm_noread})
+set_property(TEST Cpp_noread_cleanup PROPERTY DISABLED $<VERSION_LESS:${CMAKE_VERSION},3.19>)
+set_property(TEST Cpp_noread_cleanup PROPERTY FIXTURES_CLEANUP Cpp_noread_fxt)
+
 
 # --- binpath
 
@@ -69,7 +94,7 @@ COMMAND test_libpath_cpp
 )
 
 
-endif()
+endif(HAVE_CXX_FILESYSTEM)
 
 # --- shaky tests
 foreach(t IN ITEMS empty reserved)
