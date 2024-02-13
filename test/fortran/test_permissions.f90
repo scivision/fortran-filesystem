@@ -35,6 +35,7 @@ if (p(1:1) /= "r") then
     write(stderr, '(a)') "ERROR: test_exe: "//trim(reada)//" should be readable"
     error stop
 endif
+if(.not. is_readable(reada)) error stop "test_exe: "//trim(reada)//" should be readable"
 
 if(.not. exists(reada)) error stop "test_exe: "//trim(reada)//" should exist"
 
@@ -51,6 +52,7 @@ if (index(p, "r") /= 0) then
     write(stderr, '(a)') "test_exe: "//trim(noread)//" should not be readable"
     error stop 77
 endif
+if (is_readable(noread)) error stop "test_exe: "//trim(noread)//" should not be readable"
 
 if (.not. exists(noread)) error stop "test_exe: "//trim(noread)//" should exist"
 

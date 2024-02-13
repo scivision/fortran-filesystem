@@ -44,6 +44,7 @@ bool fs_is_char_device(std::string_view);
 
 bool fs_is_dir(std::string_view);
 bool fs_is_exe(std::string_view);
+bool fs_is_readable(std::string_view);
 
 bool fs_remove(std::string_view);
 
@@ -196,6 +197,7 @@ extern bool fs_is_char_device(const char*);
 extern bool fs_is_dir(const char*);
 extern bool fs_is_file(const char*);
 extern bool fs_is_exe(const char*);
+extern bool fs_is_readable(const char*);
 extern bool fs_is_reserved(const char*);
 
 extern bool fs_chmod_exe(const char*, bool);

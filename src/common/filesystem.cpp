@@ -475,6 +475,23 @@ bool fs_is_exe(std::string_view path)
 }
 
 
+bool fs_is_readable(const char* path)
+{
+  return fs_is_readable(std::string_view(path));
+}
+
+bool fs_is_readable(std::string_view path)
+{
+  std::error_code ec;
+  auto s = fs::status(path, ec);
+  if(ec || !fs::exists(s))
+    return false;
+
+  auto i =s.permissions() & (fs::perms::owner_read | fs::perms::group_read | fs::perms::others_read);
+  return i != fs::perms::none;
+}
+
+
 bool fs_is_file(const char* path)
 {
   return fs_is_file(std::string_view(path));

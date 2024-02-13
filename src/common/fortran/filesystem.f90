@@ -8,7 +8,7 @@ private
 public :: path_t  !< base class
 public :: get_homedir, canonical, resolve, get_cwd, set_cwd, make_tempdir, which !< utility procedures
 public :: normal, expanduser, as_posix, as_windows, &
-is_absolute, is_char_device, is_dir, is_file, is_exe, is_reserved, &
+is_absolute, is_char_device, is_dir, is_file, is_exe, is_readable, is_reserved, &
 is_symlink, &
 exists, &
 join, &
@@ -53,6 +53,7 @@ procedure, public :: exists=>f_exists
 procedure, public :: is_char_device=>f_is_char_device
 procedure, public :: is_file=>f_is_file
 procedure, public :: is_exe=>f_is_exe
+procedure, public :: is_readable=>f_is_readable
 procedure, public :: is_dir=>f_is_dir
 procedure, public :: is_reserved=>f_is_reserved
 procedure, public :: is_absolute=>f_is_absolute
@@ -327,6 +328,11 @@ end function
 
 module logical function is_exe(path)
 !! is "path" executable?
+character(*), intent(in) :: path
+end function
+
+module logical function is_readable(path)
+!! is "path" readable?
 character(*), intent(in) :: path
 end function
 
@@ -676,6 +682,11 @@ end function
 logical function f_is_exe(self) result(r)
 class(path_t), intent(in) :: self
 r = is_exe(self%path_str)
+end function
+
+logical function f_is_readable(self) result(r)
+class(path_t), intent(in) :: self
+r = is_readable(self%path_str)
 end function
 
 

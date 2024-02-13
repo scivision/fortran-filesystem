@@ -1,10 +1,7 @@
 program test_filesystem
 
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
-use filesystem, only : path_t, file_name, join, stem, suffix, root, get_cwd, &
-is_absolute, with_suffix, relative_to, is_dir, &
-is_windows, exists, parent, &
-assert_is_dir, normal, as_posix, as_windows, get_max_path
+use filesystem
 
 implicit none
 
@@ -351,6 +348,9 @@ p1 = path_t(".")
 if(.not. p1%is_dir()) error stop "did not detect '.' as directory"
 if(p1%is_file()) error stop "detected '.' as file"
 call assert_is_dir(".")
+
+if(.not. p1%is_readable()) error stop "%is_readable failed on '.'"
+if(.not. is_readable(p1%path())) error stop "is_readable failed on '.'"
 
 p2 = path_t('test-filesystem.h5')
 open(newunit=i, file=p2%path(), status='replace')

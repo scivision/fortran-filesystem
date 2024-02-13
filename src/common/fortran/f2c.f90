@@ -176,6 +176,11 @@ import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
 
+logical(c_bool) function fs_is_readable(path) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: path(*)
+end function
+
 logical(c_bool) function fs_is_reserved(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -487,6 +492,10 @@ end procedure
 
 module procedure is_exe
 is_exe = fs_is_exe(trim(path) // C_NULL_CHAR)
+end procedure
+
+module procedure is_readable
+is_readable = fs_is_readable(trim(path) // C_NULL_CHAR)
 end procedure
 
 module procedure is_file

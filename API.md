@@ -355,6 +355,19 @@ call p%chmod_exe(.true.)
 call chmod_exe("my/file.exe", .true.)
 ```
 
+---
+
+Is path (file or directory) readable by the user.
+
+```fortran
+!! logical
+
+p%is_readable()
+! or
+is_readable("my/file.txt")
+is_readable("./")
+```
+
 ## character(:), allocatable
 
 These procedures emit a string.

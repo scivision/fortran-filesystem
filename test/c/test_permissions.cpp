@@ -40,7 +40,7 @@ std::cout << "Permissions for " << read << ": " << p << std::endl;
 if(p.length() == 0)
     throw std::runtime_error("test_exe: get_permissions('" + read + "') should not be empty");
 
-if(p[0] != 'r')
+if(!fs_is_readable(read))
     throw std::runtime_error("test_exe: " + read + " should be readable");
 
 if(!fs_exists(read))
@@ -56,16 +56,16 @@ std::cout << "Permissions for " << noread << ": " << p << std::endl;
 if(p.length() == 0)
     throw std::runtime_error("test_exe: get_permissions('" + noread + "') should not be empty");
 
-if(p.find("r") != std::string::npos){
+if(fs_is_readable(noread)){
     std::cerr << "ERROR: test_exe: " << noread << " should not be readable\n";
     return 77;
 }
+
 if(!fs_exists(noread))
     throw std::runtime_error("test_exe: " + noread + " should exist");
 
 if(!fs_is_file(noread))
     throw std::runtime_error("test_exe: " + noread + " should be a file");
-
 
 return EXIT_SUCCESS;
 }
