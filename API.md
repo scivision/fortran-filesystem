@@ -345,14 +345,14 @@ is_exe("my/file.exe")
 
 Make regular file executable (or not) for owner.
 
-Windows: chmod_exe does NOT work (MinGW, oneAPI, MSVC).
+Windows: set_permissions(path, executable=) does NOT work (MinGW, oneAPI, MSVC).
 
 ```fortran
 !! subroutine
 
-call p%chmod_exe(.true.)
+call p%set_permissions(executable=.true.)
 ! or
-call chmod_exe("my/file.exe", .true.)
+call set_permissions("my/file.exe", executable=.true.)
 ```
 
 ---

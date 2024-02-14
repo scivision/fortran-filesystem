@@ -616,16 +616,15 @@ bool fs_is_dir(const char* path)
 
 bool fs_is_exe(const char* path)
 {
-  if (fs_is_dir(path))
+  if (!fs_is_file(path))
     return false;
 
 #ifdef _WIN32
   /* https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/access-s-waccess-s
-  * in Windows, all readable files are executable so we use _S_IEXEC
-  * instead of _access_s()
+  * in Windows, all readable files are executable.
+  * Do not use _S_IEXEC, it is not reliable.
   */
-  struct stat s;
-  return !stat(path, &s) && (s.st_mode & _S_IEXEC);
+  return true;
 #else
   return !access(path, X_OK);
 #endif
@@ -782,7 +781,7 @@ bool fs_remove(const char* path)
 }
 
 
-bool fs_chmod_exe(const char* path, bool executable)
+bool fs_set_permissions(const char* path, int readable, int writable, int executable)
 {
   struct stat s;
   if(stat(path, &s))
@@ -790,15 +789,33 @@ bool fs_chmod_exe(const char* path, bool executable)
   if(s.st_mode & S_IFCHR)
     return false; // special POSIX file character device like /dev/null
 
-return chmod(path, s.st_mode |  ((executable) ?
 #ifdef _MSC_VER
-    _S_IEXEC : !S_IEXEC
+  int m = s.st_mode;
+  int r = _S_IREAD, w = _S_IWRITE, x = _S_IEXEC;
 #else
-    S_IXUSR : !S_IXUSR
+  mode_t m = s.st_mode;
+  mode_t r = S_IRUSR, w = S_IWUSR, x = S_IXUSR;
 #endif
-) ) == 0;
-// need parentheses to keep intended precedence
+
+if(readable > 0)
+  m |= r;
+else if (readable < 0)
+  m &= ~r;
+
+if(writable > 0)
+  m |= w;
+else if (writable < 0)
+  m &= ~w;
+
+if(executable > 0)
+  m |= x;
+else if (executable < 0)
+  m &= ~x;
+
+return chmod(path, m) == 0;
+
 }
+
 
 size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
 {

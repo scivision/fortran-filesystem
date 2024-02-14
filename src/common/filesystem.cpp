@@ -972,28 +972,39 @@ std::string fs_expanduser(std::string_view path)
 }
 
 
-bool fs_chmod_exe(const char* path, bool executable)
+bool fs_set_permissions(const char* path, int readable, int writable, int executable)
 {
-  // make path file owner executable or not
-  // WINDOWS: DOES NOT WORK  -- sys/stat.h chmod() also does not work.
+  // make path file owner readable or not
   try{
-    fs_chmod_exe(std::string_view(path), executable);
+    fs_set_permissions(std::string_view(path), readable, writable, executable);
     return true;
   } catch(std::exception& e){
-    std::cerr << "ERROR:ffilesystem:chmod_exe: " << executable << " " << e.what() << "\n";
+    std::cerr << "ERROR:Ffilesystem:set_permissions: " << readable << " " << e.what() << "\n";
     return false;
   }
 }
 
-void fs_chmod_exe(std::string_view path, bool executable)
+void fs_set_permissions(std::string_view path, int readable, int writable, int executable)
 {
-  fs::path p(path);
 
-  if(!fs::is_regular_file(p))
-    throw std::runtime_error("fffilesystem:chmod_exe: " + p.generic_string() + " is not a regular file");
+  fs::path pth(path);
+  auto s = fs::status(pth);
 
-  fs::permissions(p, fs::perms::owner_exec,
-    executable ? fs::perm_options::add : fs::perm_options::remove);
+  if(!fs::is_regular_file(s))
+    throw std::runtime_error("Ffilesystem:set_permissions: " + pth.generic_string() + " is not a regular file");
+
+  if (readable != 0)
+    fs::permissions(pth, fs::perms::owner_read,
+      (readable > 0) ? fs::perm_options::add : fs::perm_options::remove);
+
+  if (writable != 0)
+    fs::permissions(pth, fs::perms::owner_write,
+      (writable > 0) ? fs::perm_options::add : fs::perm_options::remove);
+
+  if (executable != 0)
+    fs::permissions(pth, fs::perms::owner_exec,
+      (executable > 0) ? fs::perm_options::add : fs::perm_options::remove);
+
 }
 
 
@@ -1060,32 +1071,31 @@ size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
 
 std::string fs_get_permissions(std::string_view path)
 {
-  using std::filesystem::perms;
 
   auto s = fs::status(path);
   if (!fs::exists(s))
     return {};
 
-  perms p = s.permissions();
+  fs::perms p = s.permissions();
 
   std::string r = "---------";
-  if ((p & perms::owner_read) != perms::none)
+  if ((p & fs::perms::owner_read) != fs::perms::none)
     r[0] = 'r';
-  if ((p & perms::owner_write) != perms::none)
+  if ((p & fs::perms::owner_write) != fs::perms::none)
     r[1] = 'w';
-  if ((p & perms::owner_exec) != perms::none)
+  if ((p & fs::perms::owner_exec) != fs::perms::none)
     r[2] = 'x';
-  if ((p & perms::group_read) != perms::none)
+  if ((p & fs::perms::group_read) != fs::perms::none)
     r[3] = 'r';
-  if ((p & perms::group_write) != perms::none)
+  if ((p & fs::perms::group_write) != fs::perms::none)
     r[4] = 'w';
-  if ((p & perms::group_exec) != perms::none)
+  if ((p & fs::perms::group_exec) != fs::perms::none)
     r[5] = 'x';
-  if ((p & perms::others_read) != perms::none)
+  if ((p & fs::perms::others_read) != fs::perms::none)
     r[6] = 'r';
-  if ((p & perms::others_write) != perms::none)
+  if ((p & fs::perms::others_write) != fs::perms::none)
     r[7] = 'w';
-  if ((p & perms::others_exec) != perms::none)
+  if ((p & fs::perms::others_exec) != fs::perms::none)
     r[8] = 'x';
 
   return r;

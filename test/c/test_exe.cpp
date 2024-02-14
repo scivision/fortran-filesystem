@@ -10,7 +10,7 @@
 #include <crtdbg.h>
 #endif
 
-int main(int argc, char *argv[])
+int main()
 {
 
 #ifdef _MSC_VER
@@ -22,13 +22,8 @@ int main(int argc, char *argv[])
   _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #endif
 
-if (argc != 3) {
-    std::cerr << "Usage: test_exe <exe> <noexe>\n";
-    return EXIT_FAILURE;
-}
-
-std::string exe = argv[1];
-std::string noexe = argv[2];
+std::string exe = "test_exe";
+std::string noexe = "test_noexe";
 
 // Empty string
 if(fs_is_exe(""))
@@ -41,6 +36,12 @@ if (fs_is_exe("not-exist"))
     throw std::runtime_error("test_exe: not-exist-file cannot be executable");
 if(fs_get_permissions("not-exist").length() != 0)
     throw std::runtime_error("test_exe: get_permissions('not-exist') should be empty");
+
+fs_touch(exe);
+fs_touch(noexe);
+
+fs_set_permissions(exe, 0, 0, 1);
+fs_set_permissions(noexe, 0, 0, -1);
 
 if(fs_is_exe(fs_parent(exe)))
     throw std::runtime_error("test_exe: is_exe() should not detect directory " + fs_parent(exe));
@@ -74,13 +75,9 @@ if (fs_is_exe(noexe)){
 }
 
 // chmod setup
-exe = fs_join(fs_get_tempdir(), "dummy_exe");
-noexe = fs_join(fs_get_tempdir(), "dummy_no_exe");
 
-if(fs_exists(exe))
-    fs_remove(exe);
-if(fs_exists(noexe))
-    fs_remove(noexe);
+fs_remove(exe);
+fs_remove(noexe);
 
 // chmod(true)
 fs_touch(exe);
@@ -89,7 +86,7 @@ if (!fs_is_file(exe))
 
 std::cout << "permissions before chmod(" << exe << ", true)  = " << fs_get_permissions(exe) << "\n";
 
-fs_chmod_exe(exe, true);
+fs_set_permissions(exe, 0, 0, 1);
 
 p = fs_get_permissions(exe);
 std::cout << "permissions after chmod(" << exe << ", true) = " << p << "\n";
@@ -115,7 +112,7 @@ if (!fs_is_file(noexe))
 
 std::cout << "permissions before chmod(" << noexe << ", false)  = " << fs_get_permissions(noexe) << "\n";
 
-fs_chmod_exe(noexe, false);
+fs_set_permissions(noexe, 0, 0, 0);
 
 p = fs_get_permissions(noexe);
 std::cout << "permissions after chmod(" << noexe << ",false) = " << p << "\n";
@@ -142,6 +139,9 @@ else{
         throw std::runtime_error("test_exe: fs_which('ls') should return a path");
     std::cout << "fs_which('ls') = " << which << "\n";
 }
+
+fs_remove(exe);
+fs_remove(noexe);
 
 std::cout << "OK: c++ test_exe\n";
 

@@ -36,10 +36,10 @@ character(kind=C_CHAR), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-logical(C_BOOL) function fs_chmod_exe(path, executable) bind(C)
+logical(C_BOOL) function fs_set_permissions(path, readable, writable, executable) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
-logical(C_BOOL), intent(in), value :: executable
+integer(C_INT), intent(in), value :: readable, writable, executable
 end function
 
 integer(C_SIZE_T) function fs_get_permissions(path, perms, buffer_size) bind(C)
@@ -361,13 +361,34 @@ allocate(character(N) :: resolve)
 resolve = cbuf(:N)
 end procedure resolve
 
-module procedure chmod_exe
+module procedure set_permissions
 logical :: s
-s = fs_chmod_exe(trim(path) // C_NULL_CHAR, logical(executable, C_BOOL))
+
+integer(C_INT) :: r, w, e
+
+r = 0
+w = 0
+e = 0
+
+if(present(readable)) then
+  r = -1
+  if(readable) r = 1
+endif
+if(present(writable)) then
+  w = -1
+  if(writable) w = 1
+endif
+if(present(executable)) then
+  e = -1
+  if(executable) e = 1
+endif
+
+s = fs_set_permissions(trim(path) // C_NULL_CHAR, r, w, e)
 if(present(ok)) then
   ok = s
 elseif (.not. s) then
-  write(stderr, '(/,A,L1,A)') "ERROR: chmod_exe: failed to set permission ",executable, trim(path)
+  write(stderr, '(/,A,L1,1x,L1,1x,L1,1x,A)') "ERROR: set_permissions: failed to set permission ", &
+    readable,writable,executable, trim(path)
   error stop
 endif
 end procedure

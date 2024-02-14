@@ -19,7 +19,7 @@ make_absolute, &
 assert_is_file, assert_is_dir, &
 touch, create_symlink, &
 remove, get_tempdir, &
-chmod_exe, get_permissions, &
+chmod_exe, set_permissions, get_permissions, &
 fs_cpp, fs_lang, is_admin, is_bsd, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
 get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler, &
 short2long, long2short
@@ -76,7 +76,7 @@ procedure, public :: same_file=>f_same_file
 procedure, public :: remove=>fs_unlink
 procedure, public :: file_size=>f_file_size
 procedure, public :: space_available=>f_space_available
-procedure, public :: chmod_exe=>f_chmod_exe
+procedure, public :: set_permissions=>f_set_permissions
 procedure, public :: get_permissions=>f_get_permissions
 procedure, public :: long2short=>f_long2short
 procedure, public :: short2long=>f_short2long
@@ -404,10 +404,10 @@ module function get_tempdir()
 character(:), allocatable :: get_tempdir
 end function
 
-module subroutine chmod_exe(path, executable, ok)
-!! set owner executable bit for regular file
+module subroutine set_permissions(path, readable, writable, executable, ok)
+!! set owner readable bit for regular file
 character(*), intent(in) :: path
-logical, intent(in) :: executable
+logical, intent(in), optional :: readable, writable, executable
 logical, intent(out), optional :: ok
 end subroutine
 
@@ -737,12 +737,21 @@ class(path_t), intent(in) :: self
 length = len_trim(self%path_str)
 end function
 
-
-subroutine f_chmod_exe(self, executable, ok)
-class(path_t), intent(in) :: self
+subroutine chmod_exe(path, executable, ok)
+!! deprecated, use set_permissions
+character(*), intent(in) :: path
 logical, intent(in) :: executable
 logical, intent(out), optional :: ok
-call chmod_exe(self%path_str, executable, ok)
+
+call set_permissions(path, executable=executable, ok=ok)
+end subroutine
+
+
+subroutine f_set_permissions(self, readable, writable, executable, ok)
+class(path_t), intent(in) :: self
+logical, intent(in), optional :: readable, writable, executable
+logical, intent(out), optional :: ok
+call set_permissions(self%path_str, readable, writable, executable, ok)
 end subroutine
 
 character(9) function f_get_permissions(self)
