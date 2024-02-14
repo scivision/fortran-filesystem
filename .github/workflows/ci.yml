@@ -3,6 +3,8 @@ name: ci
 env:
   HOMEBREW_NO_INSTALL_CLEANUP: 1
   CTEST_NO_TESTS_ACTION: error
+  CMAKE_BUILD_PARALLEL_LEVEL: 4
+  CTEST_PARALLEL_LEVEL: 4
 
 on:
   push:
@@ -205,7 +207,7 @@ jobs:
 
     - name: upload Valgrind log
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: valgrind-log
         path: build-Valgrind/Testing/Temporary/MemoryChecker.*.log
@@ -234,7 +236,7 @@ jobs:
 
   #   steps:
   #   - uses: actions/checkout@v4
-  #   - uses: actions/setup-python@v2
+  #   - uses: actions/setup-python@v5
   #     with:
   #       python-version: '3.9'
 
@@ -247,7 +249,7 @@ jobs:
   #   - name: Code coverage
   #     run: cmake --build --preset run-coverage
 
-  #   - uses: actions/upload-artifact@v2
+  #   - uses: actions/upload-artifact@v4
   #     with:
   #       name: coverage-report-html
   #       path: build-coverage/coverage/

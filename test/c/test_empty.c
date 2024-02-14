@@ -151,7 +151,7 @@ int main(void){
         return EXIT_FAILURE;
     }
 
-    if(fs_chmod_exe(O, true))
+    if(fs_set_permissions(O, 0, 0, 0))
       return EXIT_FAILURE;
 
     printf("OK: test_c_empty\n");

@@ -5,32 +5,15 @@ use filesystem
 
 implicit none
 
-character(9) :: perm
-logical :: ok
-integer :: i
-
-valgrind: block
-
-character(:), allocatable :: e1, e2
-
-allocate(character(get_max_path()) :: e1, e2)
-
-if(command_argument_count() /= 2) error stop "specify <exe> <noexe>"
-call get_command_argument(1, e1, status=i)
-if(i/=0) error stop "ERROR:test_exe: get_command_argument(1) failed"
-call get_command_argument(2, e2, status=i)
-if(i/=0) error stop "ERROR:test_exe: get_command_argument(2) failed"
 
 call test_not_exist()
 print '(a)', "PASSED: test_not_exist"
 
-call test_exist(e1, e2)
+call test_exist()
 print '(a)', "PASSED: test_exist"
 
-end block valgrind
-
-call test_chmod()
-print '(a)', "PASSED: test_chmod"
+call test_set_permissions()
+print '(a)', "PASSED: test_set_permissions"
 
 call test_which()
 print '(a)', "PASSED: test_which()"
@@ -54,19 +37,25 @@ if(len_trim(get_permissions("not-exist-file")) /= 0) error stop "ERROR:test_exe:
 end subroutine test_not_exist
 
 
-subroutine test_exist(exe, noexe)
+subroutine test_exist()
 
-character(*), intent(in) :: exe, noexe
+character(:), allocatable :: exe, noexe
 
-character(9) :: pe,pn
+exe = canonical("test_exe")
+noexe = canonical("test_noexe")
+
+call touch(exe)
+call touch(noexe)
+
+call set_permissions(exe, executable=.true.)
+call set_permissions(noexe, executable=.false.)
 
 if(is_exe(parent(exe))) then
   write(stderr, '(a)') "ERROR:test_exe: directory" // parent(exe) // " should not be executable"
   error stop
 endif
 
-pe = get_permissions(exe)
-print '(a)', "permissions: " // trim(exe) // " = " // pe
+print '(a)', "permissions: " // trim(exe) // " = " // get_permissions(exe)
 
 if (.not. is_file(exe)) then
   write(stderr,'(a)') "ERROR:test_exe: " // trim(exe) // " is not a file."
@@ -78,8 +67,7 @@ if (.not. is_exe(exe)) then
   error stop
 endif
 
-pn = get_permissions(noexe)
-print '(a)', "permissions: " // trim(noexe) // " = " // pn
+print '(a)', "permissions: " // trim(noexe) // " = " // get_permissions(noexe)
 
 if(.not. is_file(noexe)) then
   write(stderr,'(a)') "ERROR:test_exe: " // trim(noexe) // " is not a file."
@@ -95,12 +83,18 @@ if (is_exe(noexe)) then
   endif
 endif
 
+call remove(exe)
+call remove(noexe)
+
 end subroutine test_exist
 
 
-subroutine test_chmod()
+subroutine test_set_permissions()
 
 type(path_t) :: p1, p2
+
+character(9) :: perm
+logical :: ok
 
 character(:), allocatable :: exe, noexe
 
@@ -115,18 +109,17 @@ call p1%touch()
 if(.not. p1%is_file()) error stop "ERROR:test_exe: " // p1%path() // " is not a file."
 
 perm = get_permissions(exe)
-print '(a)', "permissions before chmod(true) " // p1%path() // " = " // perm
+print '(a)', "permissions before set_permissions(exe=true) " // p1%path() // " = " // perm
 
-call chmod_exe(p1%path(), .true.)
+call set_permissions(p1%path(), executable=.true.)
 
-call chmod_exe(p1%path(), .false., ok)
-if (.not. ok) error stop "ERROR:test_exe: %chmod_exe(.true.) failed"
+call set_permissions(p1%path(), executable=.false., ok=ok)
+if (.not. ok) error stop "ERROR:test_exe: set_permissions(exe=.false.) failed"
 
-call p1%chmod_exe(.true.)
-
+call p1%set_permissions(executable=.true., ok=ok)
 
 perm = get_permissions(exe)
-print '(a)', "permissions after chmod(true): " // p1%path() // " = " // perm
+print '(a)', "permissions after set_permissions(exe=true): " // p1%path() // " = " // perm
 
 if (.not. p1%is_exe()) then
   write(stderr,'(a)') "ERROR:test_exe: %is_exe() did not detect executable file " // trim(exe)
@@ -157,8 +150,8 @@ endif
 perm = get_permissions(noexe)
 print '(a)', "permissions: " // trim(noexe) // " = " // perm
 
-call p2%chmod_exe(.false., ok)
-if (.not. ok) error stop "ERROR:test_exe: %chmod_exe(.false.) failed"
+call p2%set_permissions(executable=.false., ok=ok)
+if (.not. ok) error stop "ERROR:test_exe: set_permissions(exe=.false.) failed"
 
 if(.not. is_windows()) then
 !~ Windows file system is always executable to stdlib.
@@ -172,7 +165,7 @@ if(.not. is_windows()) then
 
 endif
 
-end subroutine test_chmod
+end subroutine test_set_permissions
 
 
 subroutine test_which()

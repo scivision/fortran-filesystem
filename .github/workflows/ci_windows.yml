@@ -2,6 +2,8 @@ name: ci_windows
 
 env:
   CTEST_NO_TESTS_ACTION: error
+  CMAKE_BUILD_PARALLEL_LEVEL: 4
+  CTEST_PARALLEL_LEVEL: 4
 
 on:
   push:

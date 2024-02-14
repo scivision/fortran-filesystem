@@ -31,12 +31,16 @@ case ("cpp", "lang", "compiler", "get_cwd", "homedir", "tempdir", &
   "is_admin", "is_bsd", "is_cygwin", "is_wsl", "is_mingw", "is_unix", "is_linux", "is_windows", "is_macos", &
     "max_path", "exe_path", "lib_path")
   if (argc /= 1) error stop "usage: ./filesystem_cli " // trim(fcn)
-case ("chmod_exe", "copy_file", "relative_to", "same_file", "with_suffix")
+case ("copy_file", "relative_to", "same_file", "with_suffix")
   if (argc /= 3) error stop "usage: ./filesystem_cli <function> [arg1 ...]"
   call get_command_argument(2, buf, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf)
   call get_command_argument(3, buf2, status=i)
   if (i /= 0) error stop "invalid path: " // trim(buf2)
+case ("set_perm")
+  if(argc /= 5) error stop "usage: ./filesystem_cli set_perm <path> <read> <write> <execute>"
+  call get_command_argument(2, buf, status=i)
+  if (i /= 0) error stop "invalid path: " // trim(buf)
 case default
   !! 2 arguments
   if (argc /= 2) error stop "usage: ./filesystem_cli <function> <path>"
@@ -81,23 +85,29 @@ case ("chdir", "set_cwd")
   print '(a)', "new cwd: " // trim(get_cwd())
 case ("perm")
   print '(A)', get_permissions(buf)
-case ("chmod_exe")
+case ("set_perm")
   block
-  logical :: m
-  integer :: ierr
+  logical :: r, w, x
+  character :: c
 
-  if(is_windows()) write(stderr,'(a)') "chmod_exe: not supported on windows"
+  if(is_windows()) write(stderr,'(a)') "set_permissions: not supported on windows"
 
   buf = canonical(buf)
 
-  read(buf2, '(L1)', iostat=ierr) m
-  if (ierr /= 0) then
-    write(stderr, '(a, i0)') "chmod_exe: could not read CLI true/false: error ", ierr
-    error stop
-  endif
+  call get_command_argument(3, c, status=i)
+  if (i /= 0) error stop "invalid read mode: " // trim(c)
+  read(c, '(L1)') r
 
-  write(stdout, '(a)', advance='no') "chmod " // get_permissions(buf) // " " // trim(buf) // " => "
-  call chmod_exe(buf, m)
+  call get_command_argument(4, c, status=i)
+  if (i /= 0) error stop "invalid write mode: " // trim(c)
+  read(c, '(L1)') w
+
+  call get_command_argument(5, c, status=i)
+  if (i /= 0) error stop "invalid execute mode: " // trim(c)
+  read(c, '(L1)') x
+
+  write(stdout, '(a)', advance='no') get_permissions(buf) // " " // trim(buf) // " => "
+  call set_permissions(buf, r, w, x)
   print '(a)', get_permissions(buf) // " " // trim(buf)
   end block
 case ("touch")
@@ -167,6 +177,7 @@ case default
   write(stderr,'(a)') "unknown function: " // trim(fcn)
   error stop
 end select
+
 
 end block valgrind
 

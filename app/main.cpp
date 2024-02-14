@@ -53,13 +53,15 @@ int main(int argc, char* argv[]){
   }
   else if (arg1 == "perm")
     std::cout << fs_get_permissions(arg2) << "\n";
-  else if (arg1 == "chmod_exe" && argc == 4){
+  else if (arg1 == "set_perm" && argc == 6){
     if(fs_is_windows())
       std::cerr << "chmod is not supported on Windows\n";
 
-    bool m = std::stoi(arg3);
+    int r = std::stoi(arg3);
+    int w = std::stoi(argv[4]);
+    int x = std::stoi(argv[5]);
     std::cout << "chmod " << fs_get_permissions(arg2) << " " << arg2 << " => ";
-    fs_chmod_exe(arg2, m);
+    fs_set_permissions(arg2, r, w, x);
     std::cout << fs_get_permissions(arg2) << " " << arg2 << "\n";
   }
   else if (arg1 == "cpp")

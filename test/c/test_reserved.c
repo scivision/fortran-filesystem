@@ -48,11 +48,15 @@ int main(void){
     }
     printf("OK: is_absolute(%s)\n", ref);
 
-    if(fs_is_dir(s))
+    if(fs_is_dir(s)){
+      fprintf(stderr,"FAIL: is_dir(%s)\n", s);
       return EXIT_FAILURE;
+    }
 
-    if(fs_is_exe(s))
+    if(fs_is_exe(s)){
+      fprintf(stderr,"FAIL: is_exe(%s)\n", s);
       return EXIT_FAILURE;
+    }
 
 if(!fs_is_windows()){
 
@@ -61,7 +65,7 @@ if(!fs_is_windows()){
     // create_directories(/dev/null)
     // remove(/dev/null)
     // create_symlink()
-    // chmod_exe()
+    // set_permissionss()
     //
     // since if testing with "root" privilidges,
     // it can make the system unusable until reboot!

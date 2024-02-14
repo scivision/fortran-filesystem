@@ -2,12 +2,14 @@ name: oneapi-linux
 
 env:
   CC: icx
+  CXX: icpx
   FC: ifx
 # https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
   CTEST_NO_TESTS_ACTION: error
   CMAKE_BUILD_PARALLEL_LEVEL: 4
+  CTEST_PARALLEL_LEVEL: 4
   CMAKE_BUILD_TYPE: Release
-  # debug triggers asan build errors, peculiar to GitHub Actions
+  # debug triggers asan build errors in general with oneAPI Linux
 
 on:
   push:
@@ -38,7 +40,7 @@ jobs:
 
     - name: cache install oneAPI
       id: cache-install
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           /opt/intel/oneapi
