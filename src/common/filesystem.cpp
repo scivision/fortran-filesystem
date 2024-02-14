@@ -328,7 +328,7 @@ int fs_create_symlink(const char* target, const char* link)
 void fs_create_symlink(std::string_view target, std::string_view link)
 {
   if(target.empty())
-    throw std::runtime_error("ffilesystem:create_symlink: target path does not exist");
+    throw std::runtime_error("ffilesystem:create_symlink: target path must not be empty");
     // confusing program errors if target is "" -- we'd never make such a symlink in real use.
 
   auto s = fs::status(target);
@@ -693,7 +693,7 @@ void fs_copy_file(std::string_view source, std::string_view dest, bool overwrite
   if(!fs::copy_file(s, d) || fs::is_regular_file(d))
     return;
 
-  throw std::runtime_error("ffilesystem:copy_file: could not copy");
+  throw std::runtime_error("ffilesystem:copy_file: could not copy file: " + s + " => " + d);
 }
 
 
@@ -1249,26 +1249,27 @@ std::string fs_long2short(std::string_view in){
 // https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getshortpathnamew
 // the path must exist
 
-    if (!fs::exists(in))
-      throw std::runtime_error("fs_long2short: path does not exist");
+  fs::path p(in);
+  if (!fs::exists(p))
+    throw std::runtime_error("fs_long2short: path does not exist " + p.generic_string());
 
 #ifdef _WIN32
-    auto buf = std::make_unique<char[]>(FS_MAX_PATH);
+  auto buf = std::make_unique<char[]>(FS_MAX_PATH);
 // size includes null terminator
-    DWORD L = GetShortPathNameA(in.data(), nullptr, 0);
-    if (L == 0)
-      throw std::runtime_error("fs_long2short:GetShortPathName: could not determine short path length");
+  DWORD L = GetShortPathNameA(in.data(), nullptr, 0);
+  if (L == 0)
+    throw std::runtime_error("fs_long2short:GetShortPathName: could not determine short path length");
 
 // convert long path
-    if(!GetShortPathNameA(in.data(), buf.get(), L))
-      throw std::runtime_error("fs_long2short:GetShortPathName: could not determine short path");
+  if(!GetShortPathNameA(in.data(), buf.get(), L))
+    throw std::runtime_error("fs_long2short:GetShortPathName: could not determine short path");
 
-    std::string out(buf.get());
+  std::string out(buf.get());
 #else
-    std::cerr << "WARNING:fs_long2short:ffilesystem: Windows-only\n";
-    std::string out(in);
+  std::cerr << "WARNING:fs_long2short:ffilesystem: Windows-only\n";
+  std::string out(in);
 #endif
-    return out;
+  return out;
 }
 
 
@@ -1280,8 +1281,9 @@ std::string fs_short2long(std::string_view in){
 // https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlongpathnamea
 // the path must exist
 
-    if (!fs::exists(in))
-      throw std::runtime_error("fs_short2long: path does not exist");
+  fs::path p(in);
+  if (!fs::exists(p))
+    throw std::runtime_error("fs_short2long: path does not exist " + p.generic_string());
 
 #ifdef _WIN32
     auto buf = std::make_unique<char[]>(FS_MAX_PATH);
