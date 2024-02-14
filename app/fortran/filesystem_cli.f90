@@ -12,6 +12,8 @@ implicit none
 integer :: i, L, argc
 character(16) :: fcn
 
+valgrind: block
+
 character(:), allocatable :: buf, buf2
 
 allocate(character(get_max_path()) :: buf, buf2)
@@ -166,5 +168,6 @@ case default
   error stop
 end select
 
+end block valgrind
 
 end program

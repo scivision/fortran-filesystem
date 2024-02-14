@@ -6,7 +6,8 @@ implicit none
 
 logical :: b
 
-block
+valgrind: block
+
 type(path_t) :: p1, p
 
 if (is_reserved("a")) error stop "a is not reserved"
@@ -37,6 +38,6 @@ else
     if (p%is_char_device()) error stop "/dev/null is not a char device on non-Unix systems"
 endif
 
-end block
+end block valgrind
 
 end program

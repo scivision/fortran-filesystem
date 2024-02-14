@@ -8,6 +8,8 @@ implicit none
 integer :: i
 character(9) :: p
 
+valgrind: block
+
 character(:), allocatable :: reada, noread, nowrite
 
 allocate(character(get_max_path()) :: reada, noread, nowrite)
@@ -79,5 +81,7 @@ if(is_writable(nowrite)) error stop "test_exe: "//trim(nowrite)//" should not be
 if (.not. exists(nowrite)) error stop "test_exe: "//trim(nowrite)//" should exist"
 
 if (.not. is_file(nowrite)) error stop "test_exe: "//trim(nowrite)//" should be a file"
+
+end block valgrind
 
 end program

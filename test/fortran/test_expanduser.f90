@@ -11,7 +11,8 @@ if(expanduser(".") /= ".") error stop "expanduser dot failed: " // expanduser(".
 
 if(expanduser("~P") /= "~P") error stop "expanduser ~P failed: " // expanduser("~P")
 
-block
+my_destructor: block
+
 type(path_t) :: p2, p3
 
 p2 = path_t("~")
@@ -34,7 +35,9 @@ endif
 
 if (expanduser("~//") /= expanduser("~/")) error stop "expanduser double separator failed: " // &
    expanduser("~//") // " /= " // expanduser("~/")
-end block
+
+end block my_destructor
+
 print *, "OK: filesystem: expanduser  ", expanduser("~")
 
 end program

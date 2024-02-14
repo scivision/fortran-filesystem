@@ -7,7 +7,8 @@ implicit none
 
 integer :: i, L
 
-block
+valgrind: block
+
 type(path_t) :: p_sym, p_tgt
 integer :: stat, shaky
 character :: buf1
@@ -127,7 +128,8 @@ if(.not. is_dir(link_dir)) then
   write(stderr,'(a)') "is_dir() should be true for existing symlink dir: " // link_dir
   error stop
 endif
-end block
+
+end block valgrind
 
 print *, "OK: filesystem symbolic links"
 

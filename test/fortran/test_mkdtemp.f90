@@ -5,8 +5,8 @@ use filesystem, only : make_tempdir, is_dir
 
 implicit none
 
+valgrind: block
 
-block
 character(:), allocatable :: temp_dir
 
 temp_dir = make_tempdir()
@@ -17,6 +17,7 @@ if(.not. is_dir(temp_dir)) then
 endif
 
 print '(a)', "OK: Fortran mkdtemp: " // temp_dir
-end block !< valgrind tweak
+
+end block valgrind
 
 end program

@@ -9,6 +9,8 @@ character(9) :: perm
 logical :: ok
 integer :: i
 
+valgrind: block
+
 character(:), allocatable :: e1, e2
 
 allocate(character(get_max_path()) :: e1, e2)
@@ -24,6 +26,8 @@ print '(a)', "PASSED: test_not_exist"
 
 call test_exist(e1, e2)
 print '(a)', "PASSED: test_exist"
+
+end block valgrind
 
 call test_chmod()
 print '(a)', "PASSED: test_chmod"
