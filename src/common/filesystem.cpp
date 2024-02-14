@@ -470,6 +470,11 @@ bool fs_is_exe(std::string_view path)
   if(ec || !fs::is_regular_file(s))
     return false;
 
+if(fs_is_mingw()){
+  // Windows MinGW bug with executable bit
+  return fs_is_readable(path);
+}
+
   auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
   return i != fs::perms::none;
 }

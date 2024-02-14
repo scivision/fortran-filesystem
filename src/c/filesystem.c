@@ -624,7 +624,7 @@ bool fs_is_exe(const char* path)
   * in Windows, all readable files are executable.
   * Do not use _S_IEXEC, it is not reliable.
   */
-  return true;
+  return fs_is_readable(path);
 #else
   return !access(path, X_OK);
 #endif
