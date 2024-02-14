@@ -13,10 +13,12 @@
 #include <fileapi.h>
 #include <io.h>
 #include <direct.h>
+#include <sys/utime.h>
 #else
 #include <pwd.h>  /* getpwuid */
 #include <unistd.h>
 #include <sys/statvfs.h>
+#include <sys/time.h>
 #endif
 
 #ifdef HAVE_UTSNAME_H
@@ -837,11 +839,32 @@ bool fs_touch(const char* path)
   if(strlen(path) == 0)
     return false;
 
-  if (fs_exists(path))
-    return fs_is_file(path);
+  if (fs_exists(path) && !fs_is_file(path)){
+    fprintf(stderr, "ERROR:ffilesystem:touch: %s exists but is not a file\n", path);
+    return false;
+  }
 
-  FILE* fid = fopen(path, "a");
-  fclose(fid);
+  if(fs_is_file(path)){
+#ifdef _WIN32
+    // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/utime-utime32-utime64-wutime-wutime32-wutime64
+    if(_utime(path, NULL)){
+#else
+    if(utimes(path, NULL)){
+#endif
+      fprintf(stderr, "ERROR:ffilesystem:touch: %s => %s\n", path, strerror(errno));
+      return false;
+    }
+  }
+
+  FILE* fid = fopen(path, "a+b");
+  if(!fid){
+    fprintf(stderr, "ERROR:ffilesystem:touch: %s => %s\n", path, strerror(errno));
+    return false;
+  }
+  if(fclose(fid)){
+    fprintf(stderr, "ERROR:ffilesystem:touch: %s => %s\n", path, strerror(errno));
+    return false;
+  }
 
   return fs_is_file(path);
 }

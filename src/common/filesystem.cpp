@@ -784,29 +784,24 @@ void fs_touch(std::string_view path)
   auto s = fs::status(p);
 
   if (fs::exists(s) && !fs::is_regular_file(s))
-    throw std::runtime_error("ffilesystem:touch: path exists, but is not a regular file");
+    throw std::runtime_error("ffilesystem:touch: " + p.generic_string() + " exists, but is not a regular file");
 
   if(fs::is_regular_file(s)) {
-
-    if ((s.permissions() & fs::perms::owner_write) == fs::perms::none)
-      throw std::runtime_error("ffilesystem:touch: path is not writable");
-
     fs::last_write_time(p, fs::file_time_type::clock::now());
-
     return;
   }
 
   std::ofstream ost;
-  ost.open(p, std::ios_base::out);
+  ost.open(p, std::ios_base::out | std::ios_base::binary);
   if(!ost.is_open())
-    throw std::runtime_error("filesystem:touch:open: file could not be created");
-
+    throw std::runtime_error("filesystem:touch: " + p.generic_string() + " could not be created");
   ost.close();
+
   // ensure user can access file, as default permissions may be mode 600 or such
   fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add);
 
   if(!fs::is_regular_file(p))
-    throw std::runtime_error("filesystem:touch: file could not be created");
+    throw std::runtime_error("filesystem:touch: " + p.generic_string() + " could not be created");
 }
 
 
@@ -992,10 +987,12 @@ bool fs_chmod_exe(const char* path, bool executable)
 
 void fs_chmod_exe(std::string_view path, bool executable)
 {
-  if(!fs::is_regular_file(path))
-    throw std::runtime_error("fffilesystem:chmod_exe: not a regular file");
+  fs::path p(path);
 
-  fs::permissions(path, fs::perms::owner_exec,
+  if(!fs::is_regular_file(p))
+    throw std::runtime_error("fffilesystem:chmod_exe: " + p.generic_string() + " is not a regular file");
+
+  fs::permissions(p, fs::perms::owner_exec,
     executable ? fs::perm_options::add : fs::perm_options::remove);
 }
 
