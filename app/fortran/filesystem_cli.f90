@@ -11,7 +11,7 @@ implicit none
 
 integer :: i, L, argc
 character(16) :: fcn
-
+logical :: ok
 valgrind: block
 
 character(:), allocatable :: buf, buf2
@@ -75,8 +75,8 @@ case ('is_mingw')
 case ('is_cygwin')
   print '(L1)', is_cygwin()
 case ("copy_file")
-  call copy_file(buf, buf2, status=i)
-  if (i /= 0) error stop "copy_file failed"
+  call copy_file(buf, buf2, status=ok)
+  if (.not. ok) error stop "copy_file failed"
 case ("get_cwd")
   print '(A)', trim(get_cwd())
 case ("chdir", "set_cwd")

@@ -34,6 +34,7 @@ endif()
 add_executable(fortran_same test_same.f90)
 target_link_libraries(fortran_same PRIVATE ffilesystem)
 add_test(NAME Fortran_same COMMAND fortran_same $<BOOL:${ffilesystem_shaky}>)
+set_property(TEST Fortran_same PROPERTY FIXTURES_REQUIRED mkdir_fxt)
 
 add_executable(fortran_filesize test_filesize.f90)
 target_link_libraries(fortran_filesize PRIVATE ffilesystem)
@@ -111,24 +112,26 @@ set_property(TEST Fortran_libpath PROPERTY DISABLED $<NOT:$<BOOL:${HAVE_CXX_FILE
 # --- fileop
 add_executable(test_fileop test_fileop.f90)
 target_link_libraries(test_fileop PRIVATE ffilesystem)
-
 add_test(NAME Fortran_fileop COMMAND test_fileop ${CMAKE_CURRENT_SOURCE_DIR})
 set_property(TEST Fortran_fileop PROPERTY WORKING_DIRECTORY $<TARGET_FILE_DIR:test_fileop>)
-set_property(TEST Fortran_fileop PROPERTY FIXTURES_SETUP ops_fxt)
 # workdir avoids test state being shared between tests
+
+add_executable(test_copyfile test_copyfile.f90)
+target_link_libraries(test_copyfile PRIVATE ffilesystem)
+add_test(NAME Fortran_copyfile COMMAND test_copyfile)
+set_property(TEST Fortran_copyfile PROPERTY WORKING_DIRECTORY $<TARGET_FILE_DIR:test_copyfile>)
 
 add_executable(test_mkdir test_mkdir.f90)
 target_link_libraries(test_mkdir PRIVATE ffilesystem)
 add_test(NAME Fortran_mkdir COMMAND test_mkdir)
 set_property(TEST Fortran_mkdir PROPERTY DISABLED $<AND:$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>,$<BOOL:${WIN32}>>)
+set_property(TEST Fortran_mkdir PROPERTY FIXTURES_SETUP mkdir_fxt)
 # --- props
 
 set_property(
 TEST Fortran_fileop Fortran_permissions Fortran_exepath Fortran_libpath Fortran_reserved Fortran_same Fortran_mkdtemp Fortran_symlink
 PROPERTY SKIP_REGULAR_EXPRESSION "not implemented;not available"
 )
-
-set_property(TEST Fortran_find PROPERTY FIXTURES_REQUIRED ops_fxt)
 
 set_property(TEST Fortran_relative Fortran_canonical Fortran_filesize PROPERTY FIXTURES_REQUIRED core_fxt)
 

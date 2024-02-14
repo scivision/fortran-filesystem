@@ -58,7 +58,8 @@ Windows users needing symlinks can use Gfortran with Clang, or Intel oneAPI.
 
 These subroutines are available in the "filesystem" module.
 
-Copy path to dest. Optionally, overwrite existing file.
+Copy source to destination.
+Optionally, overwrite existing file.
 
 ```fortran
 character(*) :: dest = "new/file.ext"
@@ -69,6 +70,10 @@ call copy_file("original.txt", "acopy.txt")
 
 ! overwrite
 call copy_file("original.txt", "acopy.txt", overwrite=.true.)
+
+character(*), intent(in) :: source, dest
+logical, intent(in), optional :: overwrite
+logical, intent(out), optional :: ok !< true if successful
 ```
 
 Make directory with parent directories if specified
@@ -350,9 +355,12 @@ Windows: set_permissions(path, executable=) does NOT work (MinGW, oneAPI, MSVC).
 ```fortran
 !! subroutine
 
-call p%set_permissions(executable=.true.)
+call p%set_permissions(readable, writable, executable=.true., ok)
 ! or
 call set_permissions("my/file.exe", executable=.true.)
+
+logical, intent(in), optional :: readable, writable, executable
+logical, intent(out), optional :: ok  !< true if successful
 ```
 
 ---

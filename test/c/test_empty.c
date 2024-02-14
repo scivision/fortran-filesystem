@@ -69,7 +69,7 @@ int main(void){
       return EXIT_FAILURE;
     printf("PASS: create_symlink\n");
 
-    if(fs_create_directories(O) != 1)
+    if(fs_create_directories(O))
       return EXIT_FAILURE;
     printf("PASS: create_directories\n");
 
@@ -112,7 +112,7 @@ int main(void){
       return EXIT_FAILURE;
     printf("PASS: expanduser\n");
 
-    if(fs_copy_file(O, O, false) == 0)
+    if(fs_copy_file(O, O, false))
       return EXIT_FAILURE;
 
     if(fs_relative_to(O, O, p, FS_MAX_PATH) != 0)

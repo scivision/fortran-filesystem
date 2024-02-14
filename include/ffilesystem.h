@@ -191,7 +191,7 @@ extern size_t fs_which(const char*, char*, size_t);
 extern bool fs_is_symlink(const char*);
 extern int fs_create_symlink(const char*, const char*);
 
-extern int fs_create_directories(const char*);
+extern bool fs_create_directories(const char*);
 extern bool fs_exists(const char*);
 
 extern bool fs_is_absolute(const char*);
@@ -213,7 +213,7 @@ extern size_t fs_canonical(const char*, bool, char*, size_t);
 extern size_t fs_resolve(const char*, bool, char*, size_t);
 
 extern bool fs_equivalent(const char*, const char*);
-extern int fs_copy_file(const char*, const char*, bool);
+extern bool fs_copy_file(const char*, const char*, bool);
 extern size_t fs_relative_to(const char*, const char*, char*, size_t);
 extern bool fs_touch(const char*);
 
