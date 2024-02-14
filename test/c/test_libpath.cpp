@@ -32,11 +32,11 @@ void test_lib_path(char* argv[]){
   std::string bindir = fs_lib_dir();
 
   std::string p;
-#ifdef __CYGWIN__
-  p = fs_parent(fs_as_cygpath(binpath));
-#else
-  p = fs_parent(binpath);
-#endif
+  if(fs_is_cygwin()){
+    p = fs_parent(fs_as_cygpath(binpath));
+  } else {
+    p = fs_parent(binpath);
+  }
   std::cout << "parent(lib_path): " << p << "\n";
 
   if(bindir.empty())

@@ -140,6 +140,7 @@ COMMAND test_libpath_fortran
   $<AND:$<BOOL:${BUILD_SHARED_LIBS}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>,$<BOOL:${HAVE_DLADDR}>>>
   $<TARGET_FILE_NAME:ffilesystem>
 )
+set_property(TEST Fortran_libpath PROPERTY DISABLED $<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>)
 
 # --- fileop
 add_executable(test_fileop test_fileop.f90)

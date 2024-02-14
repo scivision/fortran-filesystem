@@ -25,15 +25,12 @@ if(i/=0) error stop "ERROR:test_binpath:test_lib_path: get_command_argument fail
 if(L/=1) error stop "ERROR:test_binpath: expected argument 0 for static or 1 for shared"
 shared = s == '1'
 
-allocate(character(get_max_path()) :: binpath)
-allocate(character(get_max_path()) :: bindir)
-
 binpath = lib_path()
 bindir = lib_dir()
 
 if(.not. shared) then
-  if (len(binpath) /= 0) error stop "ERROR:test_binpath: lib_path should be empty for static library: " // binpath
-  if (len(bindir) /= 0) error stop "ERROR:test_binpath: lib_dir should be empty for static library: " // bindir
+  if (len_trim(binpath) /= 0) error stop "ERROR:test_binpath: lib_path should be empty for static library: " // trim(binpath)
+  if (len_trim(bindir) /= 0) error stop "ERROR:test_binpath: lib_dir should be empty for static library: " // trim(bindir)
   print *, "SKIPPED: lib_path/lib_dir: static library"
   return
 endif
@@ -43,9 +40,9 @@ if(i/=0) error stop "ERROR:test_binpath:test_lib_path: get_command_argument fail
 if(L<1) error stop "ERROR:test_binpath: expected lib_name as third argument"
 
 i = index(binpath, trim(name))
-if (i<1) error stop "ERROR:test_binpath: lib_path not found correctly: " // binpath // ' with name ' // trim(name)
+if (i<1) error stop "ERROR:test_binpath: lib_path not found correctly: " // trim(binpath) // ' with name ' // trim(name)
 
-print *, "OK: lib_path: ", binpath
+print *, "OK: lib_path: ", trim(binpath)
 
 if(len_trim(bindir)==0 .and. is_cygwin()) then
   print *, "SKIPPED: lib_dir: cygwin does not support lib_dir"

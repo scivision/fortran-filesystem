@@ -14,6 +14,7 @@
 #include <io.h>
 #include <direct.h>
 #else
+#include <pwd.h>  /* getpwuid */
 #include <unistd.h>
 #include <sys/statvfs.h>
 #endif
@@ -846,42 +847,6 @@ bool fs_touch(const char* path)
 }
 
 
-size_t fs_exe_dir(char* path, size_t buffer_size)
-{
-  char* buf = (char*) malloc(buffer_size);
-  if(!buf) return 0;
-
-  if(!fs_exe_path(buf, buffer_size)){
-    free(buf);
-    return 0;
-  }
-
-  size_t L = fs_parent(buf, path, buffer_size);
-
-  free(buf);
-  return L;
-}
-
-size_t fs_lib_dir(char* path, size_t buffer_size)
-{
-  char* buf = (char*) malloc(buffer_size);
-  if(!buf) return 0;
-
-  if(!fs_lib_path(buf, buffer_size)){
-    fprintf(stderr, "ERROR:ffilesystem:fs_lib_dir: fs_lib_path failed\n");
-    free(buf);
-    return 0;
-  }
-
-  if(FS_TRACE) printf("TRACE:fs_lib_dir: %s %zu\n", buf, buffer_size);
-
-  size_t L = fs_parent(buf, path, buffer_size);
-
-  free(buf);
-  return L;
-}
-
-
 size_t fs_make_absolute(const char* path, const char* top_path,
                         char* result, size_t buffer_size)
 {
@@ -955,4 +920,104 @@ size_t fs_short2long(const char* in, char* out, size_t buffer_size){
   strncpy(out, in, buffer_size);
   return strlen(out);
 #endif
+}
+
+/* environment variable functions */
+
+
+static size_t fs_getenv(const char* name, char* path, size_t buffer_size)
+{
+  // <stdlib.h>
+  char* buf = getenv(name);
+  if(!buf) // not error because sometimes we just check if envvar is defined
+    return 0;
+  else if(strlen(buf) >= buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem:fs_getenv: buffer_size %zu is too small for %s\n", buffer_size, name);
+    return 0;
+  }
+
+  return fs_normal(buf, path, buffer_size);
+}
+
+
+size_t fs_get_cwd(char* path, size_t buffer_size)
+{
+// <direct.h> https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
+// <unistd.h> https://www.man7.org/linux/man-pages/man3/getcwd.3.html
+#ifdef _WIN32
+  char* x = _getcwd(path, buffer_size);
+#else
+  char* x = getcwd(path, buffer_size);
+#endif
+
+  if(!x) {
+    fprintf(stderr, "ERROR:ffilesystem:fs_get_cwd: %s\n", strerror(errno));
+    return 0;
+  }
+
+  if(FS_TRACE) printf("TRACE:fs_get_cwd: %s  %s   buffer_size %zu  strlen %zu\n", x, path, buffer_size, strlen(path));
+
+  return fs_normal(path, path, buffer_size);
+}
+
+size_t fs_get_homedir(char* path, size_t buffer_size)
+{
+  size_t L = fs_getenv(fs_is_windows() ?  "USERPROFILE" : "HOME", path, buffer_size);
+  if (L)
+    return L;
+
+#ifdef _WIN32
+  return 0;
+#else
+  const char *h = getpwuid(geteuid())->pw_dir;
+  if (!h)
+    return 0;
+
+  return fs_normal(h, path, buffer_size);
+#endif
+}
+
+size_t fs_get_tempdir(char* path, size_t buffer_size)
+{
+  size_t L = fs_getenv("TMPDIR", path, buffer_size);
+  if(L)
+    return L;
+
+  if (buffer_size > 4 && fs_is_dir("/tmp")){
+    strcpy(path, "/tmp");
+    return 4;
+  }
+
+  return 0;
+}
+
+/* stubs for non-implemented functions */
+
+size_t fs_exe_dir(char* path, size_t buffer_size)
+{
+  fprintf(stderr, "ERROR:ffilesystem:fs_exe_dir: not implemented for non-C++\n");
+  (void) path; (void) buffer_size;
+  return 0;
+}
+
+size_t fs_lib_dir(char* path, size_t buffer_size)
+{
+  fprintf(stderr, "ERROR:ffilesystem:fs_lib_dir: not implemented for non-C++\n");
+  (void) path; (void) buffer_size;
+  return 0;
+}
+
+
+size_t fs_exe_path(char* path, size_t buffer_size)
+{
+  (void) path; (void) buffer_size;
+  fprintf(stderr, "ERROR:ffilesystem:fs_exe_path: not implemented for non-C++\n");
+  return 0;
+}
+
+size_t fs_lib_path(char* path, size_t buffer_size)
+{
+  (void) path; (void) buffer_size;
+  fprintf(stderr, "ERROR:ffilesystem:fs_lib_path: not implemented for non-C++\n");
+  return 0;
 }

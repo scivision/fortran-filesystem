@@ -6,20 +6,6 @@ foreach(t IN ITEMS canonical expanduser file env)
   set_property(TEST C_${t} PROPERTY LABELS "C")
 endforeach()
 
-add_executable(test_exepath_c test_exepath.c)
-target_link_libraries(test_exepath_c PRIVATE ffilesystem)
-add_test(NAME C_exepath
-COMMAND test_exepath_c $<TARGET_FILE_BASE_NAME:test_exepath_c>
-)
-
-add_executable(test_libpath_c test_libpath.c)
-target_link_libraries(test_libpath_c PRIVATE ffilesystem)
-add_test(NAME C_libpath
-COMMAND test_libpath_c
-  $<AND:$<BOOL:${BUILD_SHARED_LIBS}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>,$<BOOL:${HAVE_DLADDR}>>>
-  $<TARGET_FILE_NAME:ffilesystem>
-)
-
 # --- C++
 if(HAVE_CXX_FILESYSTEM)
 
@@ -118,6 +104,8 @@ COMMAND test_libpath_cpp
   $<AND:$<BOOL:${BUILD_SHARED_LIBS}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>,$<BOOL:${HAVE_DLADDR}>>>
   $<TARGET_FILE_NAME:ffilesystem>
 )
+set_property(TEST Cpp_libpath Cpp_exepath PROPERTY SKIP_RETURN_CODE 77)
+set_property(TEST Cpp_libpath Cpp_exepath PROPERTY SKIP_REGULAR_EXPRESSION "not implemented;not available")
 
 
 endif(HAVE_CXX_FILESYSTEM)
@@ -137,13 +125,10 @@ endforeach()
 
 # --- props
 
-set_property(TEST C_exepath C_reserved C_file
+set_property(TEST C_reserved C_file
 PROPERTY SKIP_REGULAR_EXPRESSION "not implemented")
 
-if(HAVE_CXX_FILESYSTEM)
-  set_property(TEST Cpp_exepath
-  PROPERTY SKIP_REGULAR_EXPRESSION "not implemented")
-else()
+if(NOT HAVE_CXX_FILESYSTEM)
   set_property(TEST C_reserved PROPERTY DISABLED $<$<BOOL:${WIN32}>:true>)
 endif()
 
