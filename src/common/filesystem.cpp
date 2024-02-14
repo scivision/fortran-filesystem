@@ -467,7 +467,8 @@ bool fs_is_exe(std::string_view path)
   std::error_code ec;
 
   auto s = fs::status(path, ec);
-  if(ec || !fs::is_regular_file(s))
+  // need reserved check for Windows
+  if(ec || !fs::is_regular_file(s) || fs_is_reserved(path))
     return false;
 
 if(fs_is_mingw()){
@@ -524,7 +525,8 @@ bool fs_is_file(std::string_view path)
   std::error_code ec;
   auto s = fs::status(path, ec);
 
-  return !ec && fs::is_regular_file(s);
+  // disqualify reserved names
+  return !ec && (fs::is_regular_file(s) && !fs_is_reserved(path));
 }
 
 

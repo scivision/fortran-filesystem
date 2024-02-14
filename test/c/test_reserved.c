@@ -48,11 +48,15 @@ int main(void){
     }
     printf("OK: is_absolute(%s)\n", ref);
 
-    if(fs_is_dir(s))
+    if(fs_is_dir(s)){
+      fprintf(stderr,"FAIL: is_dir(%s)\n", s);
       return EXIT_FAILURE;
+    }
 
-    if(fs_is_exe(s))
+    if(fs_is_exe(s)){
+      fprintf(stderr,"FAIL: is_exe(%s)\n", s);
       return EXIT_FAILURE;
+    }
 
 if(!fs_is_windows()){
 
