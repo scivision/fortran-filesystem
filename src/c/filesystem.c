@@ -26,11 +26,7 @@
 #endif
 
 
-#ifdef __linux
-#include <fcntl.h>  /* open() */
-#include <linux/fs.h>  /* FICLONE */
-#include <sys/ioctl.h> /* ioctl() */
-#elif TARGET_OS_MAC
+#if TARGET_OS_MAC
 #include <copyfile.h>
 #endif
 
@@ -1077,33 +1073,6 @@ bool fs_copy_file(const char* source, const char* dest, bool overwrite) {
       fprintf(stderr, "ERROR:ffilesystem:copy_file: could not copy file %s to %s\n", source, dest);
       return false;
     }
-#elif defined(__linux)
-  /* copy-on-write file works on the same filesystem, not between drives.
-  * based on kwSys:SystemTools:CloneFileContent
-  * https://www.man7.org/linux/man-pages/man2/ioctl_ficlonerange.2.html
-  */
-  int in = open(source, O_RDONLY);
-  if (in == -1) {
-    fprintf(stderr, "ERROR:ffilesystem:copy_file: could not open source file %s => %s\n", source, strerror(errno));
-    return false;
-  }
-
-  int out = open(dest, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-  if(out < 0){
-    close(in);
-    fprintf(stderr, "ERROR:ffilesystem:copy_file: could not open destination file %s => %s\n", dest, strerror(errno));
-    return false;
-  }
-
-  if (ioctl(out, FICLONE, in) < 0) {
-    close(in);
-    close(out);
-    fprintf(stderr, "ERROR:ffilesystem:copy_file: could not clone file %s to %s => %s\n", source, dest, strerror(errno));
-    return false;
-  }
-
-  close(in);
-  close(out);
 #elif TARGET_OS_MAC
   /* copy-on-write file
   * based on kwSys:SystemTools:CloneFileContent
@@ -1112,10 +1081,28 @@ bool fs_copy_file(const char* source, const char* dest, bool overwrite) {
   */
   if(copyfile(source, dest, NULL, COPYFILE_METADATA | COPYFILE_CLONE) < 0){
     fprintf(stderr, "ERROR:ffilesystem:copy_file: could not clone file %s to %s\n", source, dest);
+    return false;
   }
 #else
-  fprintf(stderr, "ERROR:ffilesystem:copy_file: not implemented without C++\n");
-  return false;
+    // https://stackoverflow.com/a/29082484
+    const int bufferSize = 4096;
+    char buf[bufferSize];
+    FILE *rid = fopen(source, "r");
+    FILE *wid = fopen(dest, "w");
+
+    if (rid == NULL || wid == NULL) {
+      fprintf(stderr, "ERROR:ffilesystem:copy_file: could not open file %s or %s\n", source, dest);
+      return false;
+    }
+
+    while (!feof(rid)) {
+      size_t bytes = fread(buf, 1, sizeof(buf), rid);
+      if (bytes)
+        fwrite(buf, 1, bytes, wid);
+    }
+
+    fclose(rid);
+    fclose(wid);
 #endif
 
   return fs_is_file(dest);
