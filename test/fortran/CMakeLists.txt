@@ -158,8 +158,8 @@ set_property(TEST Fortran_mkdir PROPERTY DISABLED $<AND:$<NOT:$<BOOL:${HAVE_CXX_
 # --- props
 
 set_property(
-TEST Fortran_fileop Fortran_permissions Fortran_exepath Fortran_reserved Fortran_same Fortran_mkdtemp Fortran_symlink
-PROPERTY SKIP_REGULAR_EXPRESSION "not implemented"
+TEST Fortran_fileop Fortran_permissions Fortran_exepath Fortran_libpath Fortran_reserved Fortran_same Fortran_mkdtemp Fortran_symlink
+PROPERTY SKIP_REGULAR_EXPRESSION "not implemented;not available"
 )
 
 set_property(TEST Fortran_find PROPERTY FIXTURES_REQUIRED ops_fxt)

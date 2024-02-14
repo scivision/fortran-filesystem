@@ -31,7 +31,7 @@ bindir = lib_dir()
 if(.not. shared) then
   if (len_trim(binpath) /= 0) error stop "ERROR:test_binpath: lib_path should be empty for static library: " // trim(binpath)
   if (len_trim(bindir) /= 0) error stop "ERROR:test_binpath: lib_dir should be empty for static library: " // trim(bindir)
-  print *, "SKIPPED: lib_path/lib_dir: static library"
+  print *, "SKIPPED: lib_path/lib_dir not available: static library"
   return
 endif
 
