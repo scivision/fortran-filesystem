@@ -12,7 +12,7 @@
 #include <windows.h>
 #include <fileapi.h>
 #include <io.h>
-#include <direct.h>
+#include <direct.h> /* _mkdir */
 #include <sys/utime.h>
 #else
 #include <pwd.h>  /* getpwuid */
@@ -297,7 +297,7 @@ size_t fs_with_suffix(const char* path, const char* suffix,
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size)
 {
   // also expands ~
-  // distinct from resolve
+  // distinct from resolve()
 
   if(strlen(path) == 0){
     result[0] = '\0';
@@ -361,7 +361,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 size_t fs_resolve(const char* path, bool strict, char* result, size_t buffer_size)
 {
   // also expands ~
-  // distinct from resolve
+  // distinct from canonical()
 
   if(strlen(path) == 0 || (strlen(path) == 1 && path[0] == '.'))
     return fs_get_cwd(result, buffer_size);
@@ -409,7 +409,7 @@ size_t fs_resolve(const char* path, bool strict, char* result, size_t buffer_siz
   const char* t = realpath(buf, buf2);
 #endif
 
-  if (!t) {
+  if (!t && strict) {
     fprintf(stderr, "ERROR:ffilesystem:resolve: %s   %s\n", buf, strerror(errno));
     free(buf);
     free(buf2);
@@ -1044,7 +1044,6 @@ size_t fs_get_tempdir(char* path, size_t buffer_size)
   return 0;
 }
 
-/* process */
 
 
 bool fs_copy_file(const char* source, const char* dest, bool overwrite) {
@@ -1123,49 +1122,77 @@ bool fs_copy_file(const char* source, const char* dest, bool overwrite) {
 
 }
 
-int fs_create_directories(const char* path) {
-// Windows:
-// * SHCreateDirectory is deprecated
-// * CreateDirectory needs parents to exist
-// so use a system call
-//
-// return 0 if successful, non-zero if not successful
+
+bool fs_create_directories(const char* path) {
 
   if(strlen(path) == 0) {
     fprintf(stderr, "ERROR:ffilesystem:create_directories: path must not be empty\n");
-    return 1;
+    return false;
   }
 
   if(fs_exists(path)){
     if(fs_is_dir(path))
-      return 0;
+      return true;
 
     fprintf(stderr, "ERROR:filesystem:create_directories: %s already exists but is not a directory\n", path);
-    return 1;
+    return false;
   }
 
-  if(fs_is_windows()){
-    fprintf(stderr, "ERROR:ffilesystem:create_directories: Windows not implemented without C++\n");
-    return 1;
+  // To disambiguate, use an absolute path -- must resolve multiple times because realpath only gives one level of non-existant path
+  char* buf = (char*) malloc(FS_MAX_PATH);
+  if(!buf) return false;
+
+  size_t L = fs_resolve(path, false, buf, FS_MAX_PATH);
+  if(L == 0){
+    free(buf);
+    return false;
   }
 
-#ifndef _WIN32
-  char* p = (char*) malloc(FS_MAX_PATH);
-  if(!p) return 1;
-  strncpy(p, path, FS_MAX_PATH-1);
-  size_t L = strlen(path);
-  p[L] = '\0';
+  if (FS_TRACE) printf("TRACE: mkdir %s resolved => %s\n", path, buf);
 
-  int r;
-// from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
-  r = execlp("mkdir", "mkdir", "-p", p, NULL);
-
-  free(p);
-
-  return r != -1 ? 0 : r;
+// use mkdir() building up directory components using strtok()
+mkdir_loop: ;
+  char* q = strtok(buf, "/");
+  char* dir = (char*) malloc(L + 2);
+  // + 2 to account for \0 and leading /
+  if (!dir) {
+    free(buf);
+    return false;
+  }
+  strcpy(dir, "/");
+  while (q) {
+    strcat(dir, q);
+    if (FS_TRACE) printf("TRACE: mkdir %s\n", dir);
+    if (
+#ifdef _MSC_VER
+      _mkdir(dir)
+#else
+      mkdir(dir, S_IRWXU)
 #endif
-}
+        && errno != EEXIST) {
+      fprintf(stderr, "ERROR:ffilesystem:create_directories: %s %s => %s\n", buf, dir, strerror(errno));
+      free(buf);
+      free(dir);
+      return false;
+    }
+    strcat(dir, "/");
+    q = strtok(NULL, "/");
+  }
+  /* check that path was adequately resolved and created */
+  size_t L1 = fs_resolve(path, false, buf, FS_MAX_PATH);
+  if(L1 != L){
+    if (FS_TRACE) printf("TRACE: mkdir %s iteration resolved => %s\n", path, buf);
+    L = L1;
+    free(dir);
+    goto mkdir_loop;
+  }
 
+  free(dir);
+
+  bool ok = fs_is_dir(buf);
+  free(buf);
+  return ok;
+}
 
 
 /* stubs for non-implemented functions */

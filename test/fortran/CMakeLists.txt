@@ -34,6 +34,7 @@ endif()
 add_executable(fortran_same test_same.f90)
 target_link_libraries(fortran_same PRIVATE ffilesystem)
 add_test(NAME Fortran_same COMMAND fortran_same $<BOOL:${ffilesystem_shaky}>)
+set_property(TEST Fortran_same PROPERTY FIXTURES_REQUIRED mkdir_fxt)
 
 add_executable(fortran_filesize test_filesize.f90)
 target_link_libraries(fortran_filesize PRIVATE ffilesystem)
@@ -124,6 +125,7 @@ add_executable(test_mkdir test_mkdir.f90)
 target_link_libraries(test_mkdir PRIVATE ffilesystem)
 add_test(NAME Fortran_mkdir COMMAND test_mkdir)
 set_property(TEST Fortran_mkdir PROPERTY DISABLED $<AND:$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>,$<BOOL:${WIN32}>>)
+set_property(TEST Fortran_mkdir PROPERTY FIXTURES_SETUP mkdir_fxt)
 # --- props
 
 set_property(

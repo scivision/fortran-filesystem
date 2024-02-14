@@ -89,7 +89,7 @@ import
 character(kind=C_CHAR), intent(in) :: target(*), link(*)
 end function
 
-integer(C_INT) function fs_create_directories(path) bind(C)
+logical(C_BOOL) function fs_create_directories(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
@@ -417,13 +417,13 @@ end procedure
 
 
 module procedure mkdir
-integer :: ierr
+logical :: ok
 
-ierr = fs_create_directories(trim(path) // C_NULL_CHAR)
+ok = fs_create_directories(trim(path) // C_NULL_CHAR)
 if(present(status)) then
-  status = ierr
-elseif (ierr /= 0) then
-  write(stderr,'(a,i0)') "ERROR:filesystem:mkdir: failed to create directory: " // trim(path) // " error code: ", ierr
+  status = ok
+elseif (.not. ok) then
+  write(stderr,'(a,i0)') "ERROR:filesystem:mkdir: failed to create directory: " // trim(path)
   error stop
 endif
 end procedure mkdir

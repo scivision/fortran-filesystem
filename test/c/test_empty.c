@@ -69,7 +69,7 @@ int main(void){
       return EXIT_FAILURE;
     printf("PASS: create_symlink\n");
 
-    if(fs_create_directories(O) != 1)
+    if(fs_create_directories(O))
       return EXIT_FAILURE;
     printf("PASS: create_directories\n");
 

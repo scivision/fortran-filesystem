@@ -359,31 +359,33 @@ void fs_create_symlink(std::string_view target, std::string_view link)
     : fs::create_symlink(target, link);
 }
 
-int fs_create_directories(const char* path)
+bool fs_create_directories(const char* path)
 {
   try{
     fs_create_directories(std::string_view(path));
-    return 0;
+    return true;
   } catch(std::exception& e){
     std::cerr << "ERROR:ffilesystem:create_directories: " << e.what() << "\n";
-    return 1;
+    return false;
   }
 }
 
 void fs_create_directories(std::string_view path)
 {
-  auto s = fs::status(path);
+
+  fs::path p(path);
+  auto s = fs::status(p);
 
   if(fs::exists(s)){
     if(fs::is_directory(s))
        return;
-    throw std::runtime_error("ffilesystem:create_directories: already exists but non-directory");
+    throw std::runtime_error("ffilesystem:create_directories: " + p.generic_string() + " exists but non-directory");
   }
-  if(fs::create_directories(path) || fs::is_directory(path))
+  if(fs::create_directories(p) || fs::is_directory(p))
     return;
   // old MacOS return false even if directory was created
 
-  throw std::runtime_error("ffilesystem:create_directories: could not create directory");
+  throw std::runtime_error("ffilesystem:create_directories: could not create directory " + p.generic_string());
 }
 
 

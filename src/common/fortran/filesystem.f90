@@ -210,7 +210,7 @@ end function
 module subroutine mkdir(path, status)
 !! create a directory, with parents if needed
 character(*), intent(in) :: path
-integer, intent(out), optional :: status
+logical, intent(out), optional :: status
 end subroutine
 
 module subroutine utime(filename)

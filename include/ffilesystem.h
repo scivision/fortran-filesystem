@@ -191,7 +191,7 @@ extern size_t fs_which(const char*, char*, size_t);
 extern bool fs_is_symlink(const char*);
 extern int fs_create_symlink(const char*, const char*);
 
-extern int fs_create_directories(const char*);
+extern bool fs_create_directories(const char*);
 extern bool fs_exists(const char*);
 
 extern bool fs_is_absolute(const char*);
