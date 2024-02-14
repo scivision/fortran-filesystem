@@ -655,14 +655,14 @@ bool fs_equivalent(std::string_view path1, std::string_view path2)
 }
 
 
-int fs_copy_file(const char* source, const char* dest, bool overwrite)
+bool fs_copy_file(const char* source, const char* dest, bool overwrite)
 {
   try{
     fs_copy_file(std::string_view(source), std::string_view(dest), overwrite);
-    return 0;
+    return true;
   } catch(std::exception& e){
     std::cerr << "ERROR:ffilesystem:copy_file: " << e.what() << "\n";
-    return 1;
+    return false;
   }
 }
 
@@ -671,17 +671,24 @@ void fs_copy_file(std::string_view source, std::string_view dest, bool overwrite
   std::string s = fs_canonical(source, true);
   std::string d = fs_canonical(dest, false);
 
-  auto opt = fs::copy_options::none;
-
-  if (overwrite) {
+//   auto opt = fs::copy_options::none;
+// opt |= fs::copy_options::overwrite_existing;
 // WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
-    if(fs_exists(d))
-      fs::remove(d);
 
-    opt |= fs::copy_options::overwrite_existing;
+  if(fs_exists(dest)){
+    if(fs_is_file(dest)){
+      if(overwrite){
+        if(!fs_remove(dest))
+          throw std::runtime_error("ffilesystem:copy_file: could not remove existing destination file: " + d);
+      } else {
+        throw std::runtime_error("ffilesystem:copy_file: destination file exists but overwrite=false: " + d);
+      }
+    } else {
+        throw std::runtime_error("ffilesystem:copy_file: destination path exists: " + d);
+    }
   }
 
-  if(!fs::copy_file(s, d, opt) || fs::is_regular_file(d))
+  if(!fs::copy_file(s, d) || fs::is_regular_file(d))
     return;
 
   throw std::runtime_error("ffilesystem:copy_file: could not copy");

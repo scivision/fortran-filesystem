@@ -21,6 +21,19 @@
 #include <sys/time.h>
 #endif
 
+#if defined(__APPLE__) && defined(__MACH__)
+#include "TargetConditionals.h"  /* TARGET_OS_MAC */
+#endif
+
+
+#ifdef __linux
+#include <fcntl.h>  /* open() */
+#include <linux/fs.h>  /* FICLONE */
+#include <sys/ioctl.h> /* ioctl() */
+#elif TARGET_OS_MAC
+#include <copyfile.h>
+#endif
+
 #ifdef HAVE_UTSNAME_H
 #include <sys/utsname.h>
 #endif
@@ -1034,33 +1047,80 @@ size_t fs_get_tempdir(char* path, size_t buffer_size)
 /* process */
 
 
-// --- system calls for mkdir and copy_file
-int fs_copy_file(const char* source, const char* destination, bool overwrite) {
+bool fs_copy_file(const char* source, const char* dest, bool overwrite) {
+  if(!fs_is_file(source)) {
+    fprintf(stderr,"ERROR:ffilesystem:copy_file: source file does not exist %s\n", source);
+    return false;
+  }
+  if(strlen(dest) == 0) {
+    fprintf(stderr, "ERROR:ffilesystem:copy_file: destination path must not be empty\n");
+    return false;
+  }
 
-if(!fs_is_file(source)) {
-  fprintf(stderr,"ERROR:ffilesystem:copy_file: source file must exist\n");
-  return 1;
-}
-if(strlen(destination) == 0) {
-  fprintf(stderr, "ERROR:ffilesystem:copy_file: destination path must not be empty\n");
-  return 1;
-}
-
-  if(overwrite){
-    if(fs_is_file(destination)){
-      if(!fs_remove(destination)){
-        fprintf(stderr, "ERROR:ffilesystem:copy_file: could not remove existing file %s\n", destination);
+  if(fs_exists(dest)){
+    if(fs_is_file(dest)){
+      if(overwrite){
+        if(!fs_remove(dest))
+          fprintf(stderr, "ERROR:ffilesystem:copy_file: could not remove existing destination file %s\n", dest);
+      } else {
+        fprintf(stderr, "ERROR:ffilesystem:copy_file: destination file exists but overwrite=false %s\n", dest);
+        return false;
       }
+    } else {
+      fprintf(stderr, "ERROR:ffilesystem:copy_file: destination path exists %s\n", dest);
+      return false;
     }
   }
 
-#ifdef _WIN32
-    return CopyFile(source, destination, true) ? 0 : 1;
+
+#if defined(_WIN32)
+    if(!CopyFile(source, dest, true)){
+      fprintf(stderr, "ERROR:ffilesystem:copy_file: could not copy file %s to %s\n", source, dest);
+      return false;
+    }
+#elif defined(__linux)
+  /* copy-on-write file works on the same filesystem, not between drives.
+  * based on kwSys:SystemTools:CloneFileContent
+  * https://www.man7.org/linux/man-pages/man2/ioctl_ficlonerange.2.html
+  */
+  int in = open(source, O_RDONLY);
+  if (in == -1) {
+    fprintf(stderr, "ERROR:ffilesystem:copy_file: could not open source file %s => %s\n", source, strerror(errno));
+    return false;
+  }
+
+  int out = open(dest, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  if(out < 0){
+    close(in);
+    fprintf(stderr, "ERROR:ffilesystem:copy_file: could not open destination file %s => %s\n", dest, strerror(errno));
+    return false;
+  }
+
+  if (ioctl(out, FICLONE, in) < 0) {
+    close(in);
+    close(out);
+    fprintf(stderr, "ERROR:ffilesystem:copy_file: could not clone file %s to %s => %s\n", source, dest, strerror(errno));
+    return false;
+  }
+
+  close(in);
+  close(out);
+#elif TARGET_OS_MAC
+  /* copy-on-write file
+  * based on kwSys:SystemTools:CloneFileContent
+  * https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/copyfile.3.html
+  * COPYFILE_CLONE is a 'best try' flag, which falls back to a copy if the clone fails.
+  */
+  if(copyfile(source, dest, NULL, COPYFILE_METADATA | COPYFILE_CLONE) < 0){
+    fprintf(stderr, "ERROR:ffilesystem:copy_file: could not clone file %s to %s\n", source, dest);
+  }
 #else
-// from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
-  int r = execlp("cp", "cp", source, destination, NULL);
-  return r != -1 ? 0 : r;
+  fprintf(stderr, "ERROR:ffilesystem:copy_file: not implemented without C++\n");
+  return false;
 #endif
+
+  return fs_is_file(dest);
+
 }
 
 int fs_create_directories(const char* path) {
@@ -1097,6 +1157,7 @@ int fs_create_directories(const char* path) {
   p[L] = '\0';
 
   int r;
+// from: https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152177
   r = execlp("mkdir", "mkdir", "-p", p, NULL);
 
   free(p);

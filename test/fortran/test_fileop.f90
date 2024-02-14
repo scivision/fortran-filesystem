@@ -2,8 +2,7 @@ program test_fileop
 
 use, intrinsic:: iso_fortran_env, only : stderr=>error_unit
 
-use filesystem, only : path_t, copy_file, is_absolute, get_cwd, normal, is_dir, &
-mkdir, touch, copy_file, assert_is_file, get_max_path, set_cwd, canonical
+use filesystem
 
 implicit none
 
@@ -21,9 +20,6 @@ print '(a)', "OK: chdir set_cwd"
 
 call test_touch()
 print '(a)', "OK: touch"
-
-call test_copyfile()
-print '(a)', "OK: copy_file"
 
 deallocate(buf) !< valgrind
 
@@ -72,30 +68,6 @@ if(.not. p%is_file()) error stop "touch failed"
 call assert_is_file(p%path())
 
 end subroutine test_touch
-
-
-subroutine test_copyfile()
-
-type(path_t) :: p1, p2
-integer :: u
-
-!> create dummy file
-p1 = path_t('test-filesystem.h5')
-open(newunit=u, file=p1%path(), status='replace')
-close(u)
-if(.not. p1%is_file()) error stop "did not detect " // p1%path() // " as file"
-
-!> copy a file
-p2 = path_t('test-filesystem.h5.copy')
-call p1%copy_file(p2%path(), overwrite=.true.)
-if(.not. p2%is_file()) error stop "did not detect " // p2%path() // " as file"
-
-!> empty target
-! omitted because this fails when ABI shaky e.g. macOS with Clang+Gfortran
-! call copy_file(p1%path(), "", status=i)
-! if(i==0) error stop "copy_file should fail on empty target"
-
-end subroutine test_copyfile
 
 
 end program

@@ -97,7 +97,7 @@ if(!fs_is_windows()){
     if(strcmp(p, ref) != 0)
       return EXIT_FAILURE;
 
-    if(fs_copy_file(s, s, false) == 0){
+    if(fs_copy_file(s, s, false)){
       fprintf(stderr,"FAIL: copy_file(%s)\n", s);
       return EXIT_FAILURE;
     }

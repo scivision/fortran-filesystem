@@ -111,11 +111,14 @@ set_property(TEST Fortran_libpath PROPERTY DISABLED $<NOT:$<BOOL:${HAVE_CXX_FILE
 # --- fileop
 add_executable(test_fileop test_fileop.f90)
 target_link_libraries(test_fileop PRIVATE ffilesystem)
-
 add_test(NAME Fortran_fileop COMMAND test_fileop ${CMAKE_CURRENT_SOURCE_DIR})
 set_property(TEST Fortran_fileop PROPERTY WORKING_DIRECTORY $<TARGET_FILE_DIR:test_fileop>)
-set_property(TEST Fortran_fileop PROPERTY FIXTURES_SETUP ops_fxt)
 # workdir avoids test state being shared between tests
+
+add_executable(test_copyfile test_copyfile.f90)
+target_link_libraries(test_copyfile PRIVATE ffilesystem)
+add_test(NAME Fortran_copyfile COMMAND test_copyfile)
+set_property(TEST Fortran_copyfile PROPERTY WORKING_DIRECTORY $<TARGET_FILE_DIR:test_copyfile>)
 
 add_executable(test_mkdir test_mkdir.f90)
 target_link_libraries(test_mkdir PRIVATE ffilesystem)

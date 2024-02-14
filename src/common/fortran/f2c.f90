@@ -49,10 +49,10 @@ character(kind=C_CHAR), intent(out) :: perms(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_INT) function fs_copy_file(source, dest, overwrite) bind(C)
+logical(C_BOOL) function fs_copy_file(source, dest, overwrite) bind(C)
 import
 character(kind=c_char), intent(in) :: source(*), dest(*)
-logical(c_bool), intent(in), value :: overwrite
+logical(C_BOOL), intent(in), value :: overwrite
 end function
 
 
@@ -404,15 +404,14 @@ end procedure
 
 
 module procedure copy_file
-logical(c_bool) :: ow
-integer(C_INT) :: ierr
+logical(c_bool) :: ow, ok
 ow = .false.
 if(present(overwrite)) ow = overwrite
-ierr = fs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
+ok = fs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
 if (present(status)) then
-  status = ierr
-elseif(ierr /= 0) then
-  error stop "failed to copy file: " // src // " to " // dest
+  status = ok
+elseif(.not. ok) then
+  error stop "ERROR:ffilesystem:copy_file: failed to copy file: " // src // " to " // dest
 endif
 end procedure
 

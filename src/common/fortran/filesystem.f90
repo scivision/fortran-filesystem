@@ -222,7 +222,7 @@ module subroutine copy_file(src, dest, overwrite, status)
 !! copy single file from src to dest
 character(*), intent(in) :: src, dest
 logical, intent(in), optional :: overwrite
-integer, intent(out), optional :: status
+logical, intent(out), optional :: status
 end subroutine
 
 module logical function is_absolute(path)
