@@ -128,8 +128,6 @@ TEST Fortran_fileop Fortran_permissions Fortran_exepath Fortran_libpath Fortran_
 PROPERTY SKIP_REGULAR_EXPRESSION "not implemented;not available"
 )
 
-set_property(TEST Fortran_find PROPERTY FIXTURES_REQUIRED ops_fxt)
-
 set_property(TEST Fortran_relative Fortran_canonical Fortran_filesize PROPERTY FIXTURES_REQUIRED core_fxt)
 
 get_property(test_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
