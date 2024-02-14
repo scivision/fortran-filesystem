@@ -151,6 +151,10 @@ set_property(TEST Fortran_fileop PROPERTY WORKING_DIRECTORY $<TARGET_FILE_DIR:te
 set_property(TEST Fortran_fileop PROPERTY FIXTURES_SETUP ops_fxt)
 # workdir avoids test state being shared between tests
 
+add_executable(test_mkdir test_mkdir.f90)
+target_link_libraries(test_mkdir PRIVATE ffilesystem)
+add_test(NAME Fortran_mkdir COMMAND test_mkdir)
+set_property(TEST Fortran_mkdir PROPERTY DISABLED $<AND:$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>,$<BOOL:${WIN32}>>)
 # --- props
 
 set_property(
