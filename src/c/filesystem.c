@@ -53,7 +53,7 @@ long fs_lang(){
 }
 
 #ifndef _WIN32
-static bool str_ends_with(const char *s, const char *suffix) {
+static inline bool str_ends_with(const char *s, const char *suffix) {
   /* https://stackoverflow.com/a/41652727 */
     size_t slen = strlen(s);
     size_t suffix_len = strlen(suffix);

@@ -2,7 +2,7 @@ set_property(DIRECTORY PROPERTY LABELS "fortran")
 
 if(ffilesystem_cli)
 add_test(NAME Fortran_CLI_Cpp COMMAND filesystem_cli cpp)
-if(ffilesystem_cpp)
+if(HAVE_CXX_FILESYSTEM)
   set_property(TEST Fortran_CLI_Cpp PROPERTY PASS_REGULAR_EXPRESSION "^T")
 else()
   set_property(TEST Fortran_CLI_Cpp PROPERTY PASS_REGULAR_EXPRESSION "^F")
