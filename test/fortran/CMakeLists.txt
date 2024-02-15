@@ -54,7 +54,8 @@ message(VERBOSE "CMake test link file ${test_symlink_file}")
 add_executable(fortran_symlink test_symlink.f90)
 target_link_libraries(fortran_symlink PRIVATE ffilesystem)
 add_test(NAME Fortran_symlink
-COMMAND fortran_symlink ${test_symlink_file} $<BOOL:${ffilesystem_shaky}>)
+COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:fortran_symlink> ${test_symlink_file} $<BOOL:${ffilesystem_shaky}>)
+# the -E env launcher is needed to catch subprocess abort for macOS with Clang (shaky exception handling in general)
 
 # if(ffilesystem_shaky)
 #   set_property(TEST ${shaky_tests} PROPERTY SKIP_REGULAR_EXPRESSION "(uncaught exception|[bB]us error|SIGABRT)")
