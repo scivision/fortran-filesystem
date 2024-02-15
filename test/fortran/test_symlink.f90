@@ -14,7 +14,7 @@ integer :: shaky
 character :: buf1
 logical :: ok
 
-character(:), allocatable :: tgt, cmake_link, link, linko, tgt_dir, link_dir, buf
+character(:), allocatable :: tgt, rtgt, cmake_link, link, linko, tgt_dir, link_dir, buf
 
 allocate(character(get_max_path()) :: buf)
 
@@ -72,7 +72,30 @@ if (is_symlink(link)) then
   call remove(link)
 endif
 call create_symlink(tgt, link)
-print '(a)', "PASSED: created symlink " // link
+print '(a)', "PASSED: create_symlink " // link
+
+!> read_symlink
+rtgt = read_symlink(link)
+if(rtgt /= tgt) then
+  write(stderr, '(a)') "read_symlink() failed: " // rtgt // " /= " // tgt
+  error stop
+endif
+print '(a)', "PASSED: read_symlink " // rtgt // " == " // tgt
+
+!> read_symlink non-symlink
+rtgt = read_symlink(tgt)
+if (len_trim(rtgt) > 0) then
+  write(stderr, '(a)') "read_symlink() should return empty string for non-symlink file: " // rtgt
+  error stop
+endif
+
+!> read_symlink non-existant
+rtgt = read_symlink("not-exist-file")
+if (len_trim(rtgt) > 0) then
+  write(stderr, '(a)') "read_symlink() should return empty string for non-existant file: " // rtgt
+  error stop
+endif
+
 
 if (p_sym%is_symlink()) then
   print *, "deleting old symlink " // p_sym%path()

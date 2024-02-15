@@ -153,6 +153,14 @@ p = path_t("~/my/path")
 p = p%expanduser()
 ```
 
+Read symlink target if path is a symbolic link--empty string if not a symlink.
+
+```fortran
+target = p%read_symlink()
+! or
+target = read_symlink("my/symlink")
+```
+
 Resolve path. This means to canonicalize the path, normalizing, resolving symbolic links, and resolving relative paths when the path exists.
 This is distinct from canonical, which does not pin relative paths to a specific directory when the path does not exist.
 

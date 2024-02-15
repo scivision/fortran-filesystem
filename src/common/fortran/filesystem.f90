@@ -9,7 +9,7 @@ public :: path_t  !< base class
 public :: get_homedir, canonical, resolve, get_cwd, set_cwd, make_tempdir, which !< utility procedures
 public :: normal, expanduser, as_posix, as_windows, &
 is_absolute, is_char_device, is_dir, is_file, is_exe, is_readable, is_writable, is_reserved, &
-is_symlink, &
+is_symlink, read_symlink, &
 exists, &
 join, &
 copy_file, mkdir, &
@@ -59,6 +59,7 @@ procedure, public :: is_dir=>f_is_dir
 procedure, public :: is_reserved=>f_is_reserved
 procedure, public :: is_absolute=>f_is_absolute
 procedure, public :: is_symlink=>f_is_symlink
+procedure, public :: read_symlink=>f_read_symlink
 procedure, public :: create_symlink=>f_create_symlink
 procedure, public :: copy_file=>f_copy_file
 procedure, public :: mkdir=>f_mkdir
@@ -171,10 +172,10 @@ module logical function is_file(path)
 character(*), intent(in) :: path
 end function
 
-module function expanduser(path)
+module function expanduser(path) result (r)
 !! resolve home directory as Fortran does not understand tilde
 !! works for Linux, Mac, Windows, ...
-character(:), allocatable :: expanduser
+character(:), allocatable :: r
 character(*), intent(in) :: path
 end function
 
@@ -356,6 +357,12 @@ module logical function is_symlink(path)
 !! .true.: "path" is a symbolic link
 !! .false.: "path" is not a symbolic link, or does not exist,
 !!           or platform/drive not capable of symlinks
+character(*), intent(in) :: path
+end function
+
+module function read_symlink(path) result (r)
+!! resolve symbolic link--error/empty if not symlink
+character(:), allocatable :: r
 character(*), intent(in) :: path
 end function
 
@@ -707,6 +714,12 @@ function f_expanduser(self) result(r)
 class(path_t), intent(in) :: self
 type(path_t) :: r
 r%path_str = expanduser(self%path_str)
+end function
+
+function f_read_symlink(self) result(r)
+class(path_t), intent(in) :: self
+type(path_t) :: r
+r%path_str = read_symlink(self%path_str)
 end function
 
 

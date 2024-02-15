@@ -84,6 +84,13 @@ character(kind=C_CHAR), intent(out) :: path(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
+integer(C_SIZE_T) function fs_read_symlink(path, result, buffer_size) bind(C)
+import
+character(kind=c_char), intent(in) :: path(*)
+character(kind=c_char), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
 logical(C_BOOL) function fs_create_symlink(target, link) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: target(*), link(*)
@@ -429,6 +436,16 @@ endif
 end procedure mkdir
 
 
+module procedure read_symlink
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(max_path()) :: cbuf)
+N = fs_read_symlink(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+allocate(character(N) :: r)
+r = cbuf(:N)
+end procedure
+
+
 module procedure create_symlink
 
 logical(C_BOOL) :: s
@@ -460,8 +477,8 @@ character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
 N = fs_expanduser(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
-allocate(character(N) :: expanduser)
-expanduser = cbuf(:N)
+allocate(character(N) :: r)
+r = cbuf(:N)
 end procedure
 
 module procedure file_name
