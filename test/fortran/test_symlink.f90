@@ -10,8 +10,9 @@ integer :: i, L
 valgrind: block
 
 type(path_t) :: p_sym, p_tgt
-integer :: stat, shaky
+integer :: shaky
 character :: buf1
+logical :: ok
 
 character(:), allocatable :: tgt, cmake_link, link, linko, tgt_dir, link_dir, buf
 
@@ -31,14 +32,14 @@ if(.not.is_symlink(cmake_link)) then
   error stop
 endif
 
-tgt = tgt_dir // "/test.txt"
+tgt = join(tgt_dir, "test.txt")
 call touch(tgt)
 
 p_tgt = path_t(tgt)
 
-link = tgt_dir // "/test.link"
-linko = tgt_dir // "/test_oo.link"
-link_dir = tgt_dir // "/my_link.dir"
+link = join(tgt_dir, "test.link")
+linko = join(tgt_dir, "test_oo.link")
+link_dir = join(tgt_dir, "my_link.dir")
 
 ! print *, "TRACE:test_symlink: target: " // tgt
 ! print *, "TRACE:test_symlink: link: " // link
@@ -51,16 +52,16 @@ if(command_argument_count() > 1) then
 endif
 
 if(shaky == 0) then
-  call create_symlink(tgt, "", stat)
-  if (stat == 0) error stop "create_symlink() should fail with empty link"
+  call create_symlink(tgt, "", ok)
+  if (ok) error stop "ERROR: create_symlink() should fail with empty link"
   print '(a)', "PASSED: create_symlink: empty link"
   if(is_symlink(tgt)) then
     write(stderr, '(a)') "is_symlink() should be false for non-symlink file: " // tgt
     error stop
   endif
 
-  call create_symlink("", link, stat)
-  if (stat == 0) error stop "create_symlink() should fail with empty target"
+  call create_symlink("", link, ok)
+  if (ok) error stop "ERROR: create_symlink() should fail with empty target"
   print '(a)', "PASSED: create_symlink: empty target"
 endif
 

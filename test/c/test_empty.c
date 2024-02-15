@@ -65,7 +65,7 @@ int main(void){
       return EXIT_FAILURE;
     printf("PASS: is_symlink\n");
 
-    if(fs_create_symlink(O, O) == 0)
+    if(fs_create_symlink(O, O))
       return EXIT_FAILURE;
     printf("PASS: create_symlink\n");
 

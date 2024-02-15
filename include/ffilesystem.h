@@ -34,6 +34,7 @@ std::string fs_which(std::string_view);
 
 bool fs_is_symlink(std::string_view);
 void fs_create_symlink(std::string_view, std::string_view);
+std::string fs_read_symlink(std::string_view);
 
 void fs_create_directories(std::string_view);
 
@@ -189,7 +190,8 @@ extern size_t fs_with_suffix(const char*, const char*, char*, size_t);
 extern size_t fs_which(const char*, char*, size_t);
 
 extern bool fs_is_symlink(const char*);
-extern int fs_create_symlink(const char*, const char*);
+extern bool fs_create_symlink(const char*, const char*);
+extern size_t fs_read_symlink(const char*, char*, size_t);
 
 extern bool fs_create_directories(const char*);
 extern bool fs_exists(const char*);

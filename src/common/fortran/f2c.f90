@@ -84,7 +84,7 @@ character(kind=C_CHAR), intent(out) :: path(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_INT) function fs_create_symlink(target, link) bind(C)
+logical(C_BOOL) function fs_create_symlink(target, link) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: target(*), link(*)
 end function
@@ -362,7 +362,7 @@ resolve = cbuf(:N)
 end procedure resolve
 
 module procedure set_permissions
-logical :: s
+logical(C_BOOL) :: s
 
 integer(C_INT) :: r, w, e
 
@@ -404,25 +404,25 @@ end procedure
 
 
 module procedure copy_file
-logical(c_bool) :: ow, ok
+logical(c_bool) :: ow, s
 ow = .false.
 if(present(overwrite)) ow = overwrite
-ok = fs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
-if (present(status)) then
-  status = ok
-elseif(.not. ok) then
+s = fs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
+if (present(ok)) then
+  ok = s
+elseif(.not. s) then
   error stop "ERROR:ffilesystem:copy_file: failed to copy file: " // src // " to " // dest
 endif
 end procedure
 
 
 module procedure mkdir
-logical :: ok
+logical(C_BOOL) :: s
 
-ok = fs_create_directories(trim(path) // C_NULL_CHAR)
-if(present(status)) then
-  status = ok
-elseif (.not. ok) then
+s = fs_create_directories(trim(path) // C_NULL_CHAR)
+if(present(ok)) then
+  ok = s
+elseif (.not. s) then
   write(stderr,'(a,i0)') "ERROR:filesystem:mkdir: failed to create directory: " // trim(path)
   error stop
 endif
@@ -430,16 +430,14 @@ end procedure mkdir
 
 
 module procedure create_symlink
-integer(C_INT) :: ierr
 
-ierr = fs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)
-if(present(status)) then
-  status = ierr
-elseif (ierr < 0) then
-  write(stderr, '(a,1x,i0)') "ERROR:filesystem:create_symlink: platform is not capable of symlinks: " // trim(link), ierr
-  error stop
-elseif (ierr /= 0) then
-  write(stderr,'(a,1x,i0)') "ERROR:filesystem:create_symlink: " // trim(link), ierr
+logical(C_BOOL) :: s
+
+s = fs_create_symlink(trim(tgt) // C_NULL_CHAR, trim(link) // C_NULL_CHAR)
+if(present(ok)) then
+  ok =s
+elseif (.not. s) then
+  write(stderr,'(a,1x,i0)') "ERROR:Ffilesystem:create_symlink: " // trim(link)
   error stop
 endif
 end procedure

@@ -75,7 +75,7 @@ case ('is_mingw')
 case ('is_cygwin')
   print '(L1)', is_cygwin()
 case ("copy_file")
-  call copy_file(buf, buf2, status=ok)
+  call copy_file(buf, buf2, ok=ok)
   if (.not. ok) error stop "copy_file failed"
 case ("get_cwd")
   print '(A)', trim(get_cwd())

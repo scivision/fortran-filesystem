@@ -207,10 +207,10 @@ character(*), intent(in) :: path
 logical, intent(in), optional :: strict
 end function
 
-module subroutine mkdir(path, status)
+module subroutine mkdir(path, ok)
 !! create a directory, with parents if needed
 character(*), intent(in) :: path
-logical, intent(out), optional :: status
+logical, intent(out), optional :: ok
 end subroutine
 
 module subroutine utime(filename)
@@ -218,11 +218,11 @@ module subroutine utime(filename)
 character(*), intent(in) :: filename
 end subroutine
 
-module subroutine copy_file(src, dest, overwrite, status)
+module subroutine copy_file(src, dest, overwrite, ok)
 !! copy single file from src to dest
 character(*), intent(in) :: src, dest
 logical, intent(in), optional :: overwrite
-logical, intent(out), optional :: status
+logical, intent(out), optional :: ok
 end subroutine
 
 module logical function is_absolute(path)
@@ -359,9 +359,9 @@ module logical function is_symlink(path)
 character(*), intent(in) :: path
 end function
 
-module subroutine create_symlink(tgt, link, status)
+module subroutine create_symlink(tgt, link, ok)
 character(*), intent(in) :: tgt, link
-integer, intent(out), optional :: status
+logical, intent(out), optional :: ok
 end subroutine
 
 module function compiler() result(r)
@@ -643,11 +643,11 @@ r = is_symlink(self%path_str)
 end function
 
 
-subroutine f_create_symlink(self, link, status)
+subroutine f_create_symlink(self, link, ok)
 class(path_t), intent(in) :: self
 character(*), intent(in) :: link
-integer, intent(out), optional :: status
-call create_symlink(self%path_str, link, status)
+logical, intent(out), optional :: ok
+call create_symlink(self%path_str, link, ok)
 end subroutine
 
 

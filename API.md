@@ -35,28 +35,28 @@ m = get_max_path()
 
 ## System capabilities
 
-Not every system is capable of every filesystem feature; for example Windows MinGW GCC is missing symbolic (soft) links.
-The optional argument in `create_symlink(..., status)` tells if the symlink was created.
+
+Logical: ffilesystem is using C++ backend
 
 ```fortran
-integer :: ierr
-
-call create_symlink("my/path", "my/symlink", status=ierr)
-
-if(ierr == 0) then
-! OK
-elseif(ierr < 0) then
-  error stop "create_symlink not possible on this system"
-else
-  error stop "create_symlink failed"
-endif
+fs_cpp()
 ```
 
-Windows users needing symlinks can use Gfortran with Clang, or Intel oneAPI.
+integer (long): the C `__STDC_VERSION__` or C++ level of macro `__cplusplus`
+
+```fortran
+fs_lang()
+```
 
 ## subroutines
 
 These subroutines are available in the "filesystem" module.
+
+```fortran
+call create_symlink("my/path", "my/symlink", ok)
+
+logical, intent(out), optional :: ok !< true if succeeded
+```
 
 Copy source to destination.
 Optionally, overwrite existing file.
@@ -632,16 +632,4 @@ is_admin()
 
 ```fortran
 C_INT  is_wsl()  !< Windows Subsystem for Linux > 0 if true
-```
-
-Logical: ffilesystem is using C++ backend
-
-```fortran
-fs_cpp()
-```
-
-integer (long): the C `__STDC_VERSION__` or C++ level of macro `__cplusplus`
-
-```fortran
-fs_lang()
 ```

@@ -314,14 +314,29 @@ bool fs_is_symlink(std::string_view path)
   return !ec && fs::is_symlink(s);
 }
 
-int fs_create_symlink(const char* target, const char* link)
+size_t fs_read_symlink(const char* path, char* result, size_t buffer_size)
+{
+  try{
+    return fs_str2char(fs_read_symlink(std::string_view(path)), result, buffer_size);
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:read_symlink: " << e.what() << "\n";
+    return 0;
+  }
+}
+
+std::string fs_read_symlink(std::string_view path)
+{
+  return fs::read_symlink(path).generic_string();
+}
+
+bool fs_create_symlink(const char* target, const char* link)
 {
   try{
     fs_create_symlink(std::string_view(target), std::string_view(link));
-    return 0;
+    return true;
   } catch(std::exception& e){
     std::cerr << "ERROR:ffilesystem:create_symlink: " << e.what() << "\n";
-    return 1;
+    return false;
   }
 }
 

@@ -743,24 +743,44 @@ bool fs_is_symlink(const char* path)
 #endif
 }
 
+size_t fs_read_symlink(const char* path, char* result, size_t buffer_size)
+{
+  if(!fs_is_symlink(path)){
+    fprintf(stderr, "ERROR:ffilesystem:read_symlink: %s is not a symlink\n", path);
+    return 0;
+  }
+#ifdef _WIN32
+  fprintf(stderr, "ERROR:ffilesystem:read_symlink: not implemented for non-C++\n");
+  return 0;
+#else
+  ssize_t L = readlink(path, result, buffer_size);
+  if (L < 0){
+    fprintf(stderr, "ERROR:ffilesystem:read_symlink: %s => %s\n", path, strerror(errno));
+    return 0;
+  }
+  result[L] = '\0';
+  return L;
+#endif
+}
 
-int fs_create_symlink(const char* target, const char* link)
+
+bool fs_create_symlink(const char* target, const char* link)
 {
   if(!fs_exists(target)) {
     fprintf(stderr, "ERROR:filesystem:create_symlink: target path does not exist\n");
-    return 1;
+    return false;
   }
   if(!link || strlen(link) == 0) {
     fprintf(stderr, "ERROR:filesystem:create_symlink: link path must not be empty\n");
-    return 1;
+    return false;
   }
 
 #ifdef _WIN32
   fprintf(stderr, "ERROR:ffilesystem:create_symlink: not implemented for non-C++\n");
-  return 1;
+  return false;
 #else
   // <unistd.h>
-  return symlink(target, link);
+  return symlink(target, link) == 0;
 #endif
 }
 
