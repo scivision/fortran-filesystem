@@ -12,6 +12,10 @@ The library also provides header
 that can be used from C and C++ project code--see
 [example](./example).
 
+For C++ users, **C++17 standard** is required.
+For C users, **C99 standard** is required.
+FFortran uses **Fortran 2008 standard** and either the C or C++ Ffilesystem backend.
+
 For full features, Ffilesystem uses
 [C++ stdlib filesystem](https://en.cppreference.com/w/cpp/filesystem).
 For the less common case that a compatible C++ isn't available on Unix-like systems, FFilesystem downloads and uses
@@ -152,4 +156,4 @@ led to
 patches to the C++ filesystem library in various C++ standard library implementations noted in that discussion.
 Ffilesystem does NOT use remove_all, which was the TOCTOU concern addressed above.
 
-Since the underlying C++17 filesystem is not thread-safe, race conditions can occur if multiple threads are accessing the same filesystem object regardless of the code language used in the Ffilesystem library.
+Since the underlying C++ filesystem is not thread-safe, race conditions can occur if multiple threads are accessing the same filesystem object regardless of the code language used in the Ffilesystem library.

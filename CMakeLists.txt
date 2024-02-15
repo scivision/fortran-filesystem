@@ -15,10 +15,31 @@ include(CTest) # needed for "ctest -T memcheck"
 include(FetchContent)
 include(GNUInstallDirs)
 
-set(CMAKE_C_STANDARD 11)
+# some parts of ffilesystem have optional C++20 features.
+# almost all ffilesystem functions work with C++17 (emits warnings for unavailable functions)
+# ffilesystem does not build at all with C++14 due to C++17 code in every function
+#
+# https://cmake.org/cmake/help/latest/prop_tgt/CXX_STANDARD.html
+if(DEFINED ${PROJECT_NAME}_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD ${${PROJECT_NAME}_CXX_STANDARD})
+else()
+  set(CMAKE_CXX_STANDARD 20)
+endif()
+# https://cmake.org/cmake/help/latest/prop_tgt/CXX_EXTENSIONS.html
+if(DEFINED ${PROJECT_NAME}_CXX_EXTENSIONS)
+  set(CMAKE_CXX_EXTENSIONS ${${PROJECT_NAME}_CXX_EXTENSIONS})
+endif()
 
-# some parts of ffilesystem have optional C++20 features
-set(CMAKE_CXX_STANDARD 20)
+# https://cmake.org/cmake/help/latest/prop_tgt/C_STANDARD.html
+if(DEFINED ${PROJECT_NAME}_C_STANDARD)
+  set(CMAKE_C_STANDARD ${${PROJECT_NAME}_C_STANDARD})
+else()
+  set(CMAKE_C_STANDARD 99)
+endif()
+# https://cmake.org/cmake/help/latest/prop_tgt/C_EXTENSIONS.html
+if(DEFINED ${PROJECT_NAME}_C_EXTENSIONS)
+  set(CMAKE_C_EXTENSIONS ${${PROJECT_NAME}_C_EXTENSIONS})
+endif()
 
 message(STATUS "${PROJECT_NAME} ${PROJECT_VERSION} CMake ${CMAKE_VERSION} ${CMAKE_SYSTEM_NAME} Toolchain ${CMAKE_TOOLCHAIN_FILE}")
 
