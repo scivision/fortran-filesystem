@@ -1048,7 +1048,7 @@ size_t fs_get_homedir(char* path, size_t buffer_size)
 
 size_t fs_get_tempdir(char* path, size_t buffer_size)
 {
-  size_t L = fs_getenv("TMPDIR", path, buffer_size);
+  size_t L = fs_getenv(fs_is_windows() ? "TEMP" : "TMPDIR", path, buffer_size);
   if(L)
     return L;
 
