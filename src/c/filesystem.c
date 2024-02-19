@@ -444,13 +444,6 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
   if(fs_is_absolute(to) != fs_is_absolute(from))
     return 0;
 
-  if(strcmp(to, from) == 0){
-    // short circuit if trivially equal
-    result[0] = '.';
-    result[1] = '\0';
-    return 1;
-  }
-
   cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
 
   cwk_path_get_relative(from, to, result, buffer_size);
@@ -474,7 +467,7 @@ size_t fs_which(const char* name, char* result, size_t buffer_size)
     return 0;
   }
 
-  char sep[2] = {fs_is_windows() ? ';' : ':', '\0'};
+  const char sep[2] = {fs_pathsep(), '\0'};
 
   char* p = strtok(path, sep);
   char* buf = (char*) malloc(buffer_size);
@@ -500,9 +493,9 @@ uintmax_t fs_file_size(const char* path)
 {
   struct stat s;
 
-  return !fs_is_file(path) ? 0
-    : stat(path, &s) ? 0
-    : s.st_size;
+  if (fs_is_file(path) && !stat(path, &s))
+    return s.st_size;
+  return 0;
 }
 
 uintmax_t fs_space_available(const char* path)
@@ -1166,12 +1159,16 @@ mkdir_loop: ;
     free(buf);
     return false;
   }
-  strcpy(dir, "/");
+
+  dir[1] = '\0';
+  dir[0] = (fs_is_windows()) ? '\0' : '/';
+
   while (q) {
     strcat(dir, q);
     if (FS_TRACE) printf("TRACE: mkdir %s\n", dir);
+
     if (
-#ifdef _MSC_VER
+#ifdef _WIN32
       _mkdir(dir)
 #else
       mkdir(dir, S_IRWXU)

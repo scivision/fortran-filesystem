@@ -2,8 +2,9 @@
 #define FFILESYSTEM_H
 
 
+#ifndef FS_TRACE
 #define FS_TRACE 0
-
+#endif
 
 #ifdef __cplusplus
 
@@ -160,6 +161,8 @@ constexpr size_t FS_MAX_PATH = fs_max_path();
 extern bool fs_cpp();
 extern long fs_lang();
 extern size_t fs_get_max_path();
+
+extern char fs_pathsep();
 
 extern bool fs_is_admin();
 extern bool fs_is_bsd();

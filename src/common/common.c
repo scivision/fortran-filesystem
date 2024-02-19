@@ -74,3 +74,7 @@ bool fs_is_mingw(){
   return false;
 #endif
 }
+
+char fs_pathsep(){
+  return fs_is_windows() ? ';' : ':';
+}
