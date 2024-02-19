@@ -57,7 +57,7 @@ endif()
 include(cmake/compilers.cmake)
 
 # CPPcheck
-if(cppcheck)
+if(${PROJECT_NAME}_cppcheck)
   find_program(cppcheck_exe NAMES cppcheck REQUIRED)
   set(cppcheck_opts --enable=all --inline-suppr --quiet --suppressions-list=${PROJECT_SOURCE_DIR}/cppcheck.supp)
   set(CMAKE_C_CPPCHECK ${cppcheck_exe} --std=c++${CMAKE_CXX_STANDARD} ${cppcheck_opts})
@@ -91,11 +91,12 @@ $<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:${cwalk_SOURCE_DIR}/include>
 )
 
 target_compile_definitions(ffilesystem PRIVATE
-"$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS>"
-"$<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:CWK_EXPORTS>"
-"$<$<BOOL:${HAVE_UTSNAME_H}>:HAVE_UTSNAME_H>"
-"$<$<BOOL:${${PROJECT_NAME}_WIN32_SYMLINK}>:WIN32_SYMLINK>"
-"$<$<BOOL:${HAVE_DLADDR}>:HAVE_DLADDR>"
+"$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<BOOL:${MSVC}>>:_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS>"
+"$<$<AND:$<COMPILE_LANGUAGE:C>,$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>>:CWK_EXPORTS>"
+"$<$<AND:$<COMPILE_LANGUAGE:C>,$<BOOL:${HAVE_UTSNAME_H}>>:HAVE_UTSNAME_H>"
+"$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${${PROJECT_NAME}_WIN32_SYMLINK}>>:WIN32_SYMLINK>"
+"$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${HAVE_DLADDR}>>:HAVE_DLADDR>"
+"$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<BOOL:${ffilesystem_trace}>>:FS_TRACE=1>"
 )
 set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)
 set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
