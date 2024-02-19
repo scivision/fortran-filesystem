@@ -151,14 +151,14 @@ add_compile_options(
 endif()
 
 # --- code coverage
-if(coverage)
+if(${PROJECT_NAME}_coverage)
   include(CodeCoverage)
   append_coverage_compiler_flags()
   set(COVERAGE_EXCLUDES ${PROJECT_SOURCE_DIR}/src/tests)
 endif()
 
 # --- clang-tidy
-if(tidy)
+if(${PROJECT_NAME}_tidy)
   find_program(CLANG_TIDY_EXE NAMES clang-tidy REQUIRED
   PATHS /opt/homebrew/opt/llvm/bin
   )
@@ -168,7 +168,7 @@ if(tidy)
 endif()
 
 # --- IWYU
-if(iwyu)
+if(${PROJECT_NAME}_iwyu)
   find_program(IWYU_EXE NAMES include-what-you-use REQUIRED)
   message(STATUS "IWYU_EXE: ${IWYU_EXE}")
   set(iwyu_cmd ${IWYU_EXE})

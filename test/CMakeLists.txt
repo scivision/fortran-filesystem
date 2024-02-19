@@ -1,15 +1,33 @@
 add_compile_definitions($<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
 
-add_subdirectory(c)
+set(${PROJECT_NAME}_fortran_test_flags
+  "$<$<AND:$<Fortran_COMPILER_ID:GNU>,$<VERSION_LESS:$<Fortran_COMPILER_VERSION>,13>>:-Wno-maybe-uninitialized>"
+)
 
-if(ffilesystem_fortran)
-  add_subdirectory(fortran)
+foreach(t IN ITEMS cpp fortran core empty environment executable exepath fileops libpath mkdtemp permissions reserved symlink windows)
+
+add_subdirectory(${t})
+
+# tests run much faster in serial, especially on Windows
+get_property(n DIRECTORY ${t} PROPERTY TESTS)
+
+# --- Windows shared DLLs
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
+
+  set_property(TEST ${n} DIRECTORY ${t} PROPERTY RUN_SERIAL true)
+
+  if(BUILD_SHARED_LIBS AND (CYGWIN OR WIN32))
+    set_property(TEST ${n} DIRECTORY ${t}
+    PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_append:$<TARGET_FILE_DIR:ffilesystem>"
+    )
+  endif()
 endif()
 
+endforeach()
 
 # --- coverage
 
-if(coverage)
+if(${PROJECT_NAME}_coverage)
   setup_target_for_coverage_gcovr_html(
   NAME coverage
   EXECUTABLE ${CMAKE_CTEST_COMMAND}

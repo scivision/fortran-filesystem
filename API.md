@@ -329,11 +329,12 @@ p%is_absolute()
 is_absolute("my/path")
 ```
 
-Does path "p" resolve to the same path as "other".
+Does path "p" *resolve* to the same path as "other".
 To be true:
 
 * path must exist
 * path must be traversable  E.g. "a/b/../c" resolves to "a/c" iff a/b also exists.
+* symlink resolves to its target
 
 ```fortran
 p%same_file(other)

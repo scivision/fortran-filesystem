@@ -16,8 +16,8 @@ char bin[FS_MAX_PATH];
 
 fs_exe_path(bin, FS_MAX_PATH);
 std::string exepath = bin;
-  if (exepath.find(argv[1]) == std::string::npos)
-    throw std::runtime_error("ERROR:test_exepath: exe_path not found correctly: " + exepath);
+if (exepath.find(argv[1]) == std::string::npos)
+  throw std::runtime_error("ERROR:test_exepath: exe_path not found correctly: " + exepath);
 
 
 std::string bindir = fs_exe_dir();

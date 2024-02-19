@@ -327,6 +327,7 @@ size_t fs_read_symlink(const char* path, char* result, size_t buffer_size)
 std::string fs_read_symlink(std::string_view path)
 {
   return fs::read_symlink(path).generic_string();
+  // try-catch with fs::canonical fallback not helpful here
 }
 
 bool fs_create_symlink(const char* target, const char* link)

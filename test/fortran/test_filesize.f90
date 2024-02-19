@@ -37,10 +37,7 @@ end subroutine
 
 subroutine test_file_size()
 
-integer :: u, d(10)
-
-character :: shaky_char
-integer :: shaky, ierr
+integer :: u, d(10), ierr
 
 type(path_t) :: p1
 
@@ -55,14 +52,6 @@ else
   fn = "test_filesize.dat"
 endif
 
-shaky = 0
-if(command_argument_count() > 1) then
-  call get_command_argument(2, shaky_char, status=ierr)
-  if(ierr /= 0) error stop "failed to get shaky from command line argument"
-  read(shaky_char, '(i1)') shaky
-endif
-
-print '(a,i2)', "shaky platform: ", shaky
 print '(a)', "file_size path: ", trim(fn)
 
 d = 0
@@ -77,11 +66,6 @@ close(u)
 if (p1%file_size() /= size(d)*storage_size(d)/8) error stop "size mismatch OO"
 if (p1%file_size() /= file_size(p1%path())) error stop "size mismatch functional"
 print '(a, i0)', "PASSED: filesize as expected: ", p1%file_size()
-
-if (shaky /= 0) then
-  print '(a)', "skipping empty filesize test due to shaky platform"
-  return
-endif
 
 !> shaky platform
 

@@ -11,21 +11,15 @@
 
 
 
-void test_lib_path(char* argv[]){
-
-  int shared = atoi(argv[1]);
-  if(!shared){
-    std::cerr << "SKIP: lib_path: feature not available\n";
-    return;
-  }
+void test_lib_path(char* path, char* ref){
 
   std::string binpath = fs_lib_path();
 
   if(binpath.empty())
     throw std::runtime_error("ERROR:test_binpath: lib_path should be non-empty: " + binpath);
 
-  if(binpath.find(argv[2]) == std::string::npos)
-    throw std::runtime_error("ERROR:test_binpath: lib_path not found correctly: " + binpath + " does not contain " + argv[3]);
+  if(binpath.find(path) == std::string::npos)
+    throw std::runtime_error("ERROR:test_binpath: lib_path not found correctly: " + binpath + " does not contain " + ref);
 
   std::cout << "OK: lib_path: " << binpath << "\n";
 
@@ -64,7 +58,10 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  test_lib_path(argv);
+  if (!atoi(argv[1]))
+    throw std::runtime_error("lib_path: feature not available");
+
+  test_lib_path(argv[2], argv[3]);
 
   return EXIT_SUCCESS;
 }
