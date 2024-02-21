@@ -11,7 +11,7 @@ call test_setter_getter()
 print '(a)', "OK: getter setter"
 
 call test_separator(c)
-print '(a)', "OK: filesyste: separator"
+print '(a)', "OK: filesystem: separator"
 
 call test_normal()
 print '(a)', "OK: filesystem: normal"
@@ -44,7 +44,7 @@ call test_absolute()
 print '(a)', "OK: filesystem: absolute"
 
 if (c>0) then
-  write(stderr,'(a,i0,a)') "ERRPR: test_core total of ", c, " errors"
+  write(stderr,'(a,i0,a)') "ERROR: test_core total of ", c, " errors"
   error stop
 endif
 
@@ -70,6 +70,20 @@ integer, intent(inout) :: c
 type(path_t) :: p
 
 character(:), allocatable :: b
+
+character :: sep
+
+sep = pathsep()
+
+if(is_windows() .and. .not. sep == ";") then
+  write(stderr,*) "ERROR: pathsep: ", sep
+  c = c+1
+endif
+
+if(.not. is_windows() .and. .not. sep == ":") then
+  write(stderr,*) "ERROR: pathsep: ", sep
+  c = c+1
+endif
 
 b = as_posix("")
 if (b /= "") then

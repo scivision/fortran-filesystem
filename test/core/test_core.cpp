@@ -48,6 +48,11 @@ if(fs_file_name("../file_name.txt") != "file_name.txt")
 if(fs_is_windows() && fs_file_name("c:\\my\\path") != "path")
   throw std::runtime_error("file_name windows: " + fs_file_name("c:\\my\\path"));
 
+if(fs_is_windows() && fs_pathsep() != ';')
+  throw std::runtime_error("pathsep windows");
+if(!fs_is_windows() && fs_pathsep() != ':')
+  throw std::runtime_error("pathsep unix");
+
 }
 
 

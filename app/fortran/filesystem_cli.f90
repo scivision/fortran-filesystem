@@ -27,7 +27,7 @@ call get_command_argument(1, fcn, length=L, status=i)
 if (L == 0 .or. i /= 0) error stop "invalid function name: " // trim(fcn)
 
 select case (fcn)
-case ("cpp", "lang", "compiler", "get_cwd", "homedir", "tempdir", &
+case ("cpp", "lang", "compiler", "pathsep", "get_cwd", "homedir", "tempdir", &
   "is_admin", "is_bsd", "is_cygwin", "is_wsl", "is_mingw", "is_unix", "is_linux", "is_windows", "is_macos", &
     "max_path", "exe_path", "lib_path")
   if (argc /= 1) error stop "usage: ./filesystem_cli " // trim(fcn)
@@ -50,6 +50,8 @@ end select
 
 
 select case (fcn)
+case ("pathsep")
+  print '(A)', pathsep()
 case ("compiler")
   print '(a,/,a)', compiler(), compiler_version()
 case ("cpp")

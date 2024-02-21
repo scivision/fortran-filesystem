@@ -32,7 +32,9 @@ int main(int argc, char* argv[]){
   if(argc > 3)
     arg3 = argv[3];
 
-  if (arg1 == "touch"){
+  if (arg1 == "pathsep")
+    std::cout << fs_pathsep() << "\n";
+  else if (arg1 == "touch"){
     std::cout << "touch " << arg2 << "\n";
     fs_touch(arg2);
   }
@@ -137,7 +139,7 @@ int main(int argc, char* argv[]){
   else if (arg1 == "normal")
     std::cout << fs_normal(arg2) << "\n";
   else{
-    std::cerr << "fs_cli <function_name> [<arg1> ...]" << "\n";
+    std::cerr << "fs_cli <function_name> [<arg1> ...]\n";
     return EXIT_FAILURE;
   }
 

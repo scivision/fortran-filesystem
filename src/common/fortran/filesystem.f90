@@ -1,6 +1,6 @@
 module filesystem
 
-use, intrinsic:: iso_c_binding, only: C_BOOL, C_INT, C_LONG
+use, intrinsic:: iso_c_binding, only: C_BOOL, C_CHAR, C_INT, C_LONG
 use, intrinsic:: iso_fortran_env, only: stderr=>error_unit, int64
 
 implicit none
@@ -20,7 +20,8 @@ assert_is_file, assert_is_dir, &
 touch, create_symlink, &
 remove, get_tempdir, &
 chmod_exe, set_permissions, get_permissions, &
-fs_cpp, fs_lang, is_admin, is_bsd, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
+fs_cpp, fs_lang, pathsep, &
+is_admin, is_bsd, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
 get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler, &
 short2long, long2short
 !! functional API
@@ -487,6 +488,17 @@ endif
 get_path = self%path_str(i1:i2)
 
 end function get_path
+
+character function pathsep()
+!! path separater (not file separator)
+!! we do this discretely in Fortran as there is a long-standing bug
+!! in nvfortran with passing single characters from C to Fortran caller
+if (is_windows()) then
+  pathsep = ";"
+else
+  pathsep = ":"
+endif
+end function
 
 
 !> one-liner methods calling actual procedures
