@@ -5,6 +5,7 @@
 [![ci_windows](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_windows.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_windows.yml)
 [![oneapi-linux](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/oneapi-linux.yml)
 [![ci_fpm](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_fpm.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_fpm.yml)
+[![ci_meson](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml)
 
 Platform independent (Linux, macOS, Windows, Cygwin, WSL, BSD, ...), object-oriented Fortran filesystem "Ffilesystem" path manipulation library.
 The library also provides header
@@ -91,6 +92,8 @@ Ffilesystem can be built with CMake or Fortran Package Manager (FPM).
 
 Please see the [API docs](./API.md) for extensive list of functions/subroutines.
 
+Use any one of these methods to build Ffilesystem (CMake is recommended):
+
 CMake:
 
 ```sh
@@ -98,6 +101,15 @@ cmake -B build
 cmake --build build
 # optional
 ctest --test-dir build
+```
+
+Meson:
+
+```sh
+meson setup build
+meson compile -C build
+# optional
+meson test -C build
 ```
 
 Fortran Package Manager:
