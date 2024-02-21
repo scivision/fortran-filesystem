@@ -127,10 +127,13 @@ int main(int argc, char* argv[]){
   else if (arg1 == "create_symlink"){
     std::cout << "create_symlink " << arg2 << " <= " << arg3 << "\n";
     fs_create_symlink(arg2, arg3);
-  }
-  else if (arg1 == "is_symlink")
+  } else if (arg1 == "is_symlink")
     std::cout << fs_is_symlink(arg2) << "\n";
-  else if (arg1 == "mkdir"){
+
+  else if (arg1 == "copy_file"){
+    std::cout << "copy_file " << arg2 << " => " << arg3 << "\n";
+    fs_copy_file(arg2, arg3, false);
+  } else if (arg1 == "mkdir"){
     std::cout << "mkdir " << arg2 << "\n";
     fs_create_directories(arg2);
   }
