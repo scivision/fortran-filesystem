@@ -691,10 +691,11 @@ r = is_writable(self%path_str)
 end function
 
 
-subroutine f_mkdir(self)
+subroutine f_mkdir(self, ok)
 !! create a directory, with parents if needed
 class(path_t), intent(in) :: self
-call mkdir(self%path_str)
+logical, intent(out), optional :: ok
+call mkdir(self%path_str, ok=ok)
 end subroutine
 
 
