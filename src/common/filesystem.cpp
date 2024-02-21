@@ -201,9 +201,10 @@ std::string fs_as_cygpath(std::string_view path)
   std::string p(path);
   std::replace(p.begin(), p.end(), '\\', '/');
 
-  return p[1] == ':' && std::isalpha(p[0])
-    ? "/cygdrive/" + p.substr(0, 1) + p.substr(2)
-    : p;
+ if(p[1] == ':' && std::isalpha(p[0]))
+    return "/cygdrive/" + p.substr(0, 1) + p.substr(2);
+
+  return p;
 }
 
 
@@ -623,7 +624,9 @@ std::string fs_canonical(std::string_view path, bool strict)
     // canonical(path, false) is distinct from resolve(path, false) for non-existing paths.
     return ex.generic_string();
 
-  return strict ? fs::canonical(ex).generic_string() : fs::weakly_canonical(ex).generic_string();
+  return strict
+    ? fs::canonical(ex).generic_string()
+    : fs::weakly_canonical(ex).generic_string();
 }
 
 
@@ -651,7 +654,9 @@ std::string fs_resolve(std::string_view path, bool strict)
     // canonical(path, false) is distinct from resolve(path, false) for non-existing paths.
     ex = fs_get_cwd() / ex;
 
-  return strict ? fs::canonical(ex).generic_string() : fs::weakly_canonical(ex).generic_string();
+  return strict
+    ? fs::canonical(ex).generic_string()
+    : fs::weakly_canonical(ex).generic_string();
 }
 
 
@@ -776,7 +781,7 @@ std::string fs_which(std::string_view name)
       return p;
   }
 
-  const char pathsep = fs_is_windows() ? ';' : ':';
+  const char pathsep = fs_pathsep();
 
   std::string::size_type start = 0;
   std::string::size_type end = path.find_first_of(pathsep, start);
