@@ -698,13 +698,14 @@ call mkdir(self%path_str)
 end subroutine
 
 
-subroutine f_copy_file(self, dest, overwrite)
+subroutine f_copy_file(self, dest, overwrite, ok)
 !! copy file from source to destination
 !! OVERWRITES existing destination files
 class(path_t), intent(in) :: self
 character(*), intent(in) :: dest
 logical, intent(in), optional :: overwrite
-call copy_file(self%path_str, dest, overwrite)
+logical, intent(out), optional :: ok
+call copy_file(self%path_str, dest, overwrite, ok)
 end subroutine
 
 
