@@ -117,9 +117,9 @@ int fs_is_wsl() {
       return 1;
 #endif
     return -1;
-#endif
-
+#else
   return 0;
+#endif
 }
 
 static size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
@@ -306,14 +306,15 @@ bool fs_is_symlink(std::string_view path)
 #ifdef WIN32_SYMLINK
   DWORD a = GetFileAttributes(path.data());
   return (a != INVALID_FILE_ATTRIBUTES) && (a & FILE_ATTRIBUTE_REPARSE_POINT);
-#endif
-
+#else
   std::error_code ec;
   auto s = fs::symlink_status(path, ec);
   // NOTE: use of symlink_status here like lstat(), else logic is wrong with fs::status()
 
   return !ec && fs::is_symlink(s);
+#endif
 }
+
 
 size_t fs_read_symlink(const char* path, char* result, size_t buffer_size)
 {
@@ -369,11 +370,11 @@ void fs_create_symlink(std::string_view target, std::string_view link)
     msg += "Enable Windows developer mode to use symbolic links: https://learn.microsoft.com/en-us/windows/apps/get-started/developer-mode-features-and-debugging";
 
   throw std::runtime_error(msg);
-#endif
-
+#else
   fs::is_directory(s)
     ? fs::create_directory_symlink(target, link)
     : fs::create_symlink(target, link);
+#endif
 }
 
 bool fs_create_directories(const char* path)
