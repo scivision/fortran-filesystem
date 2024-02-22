@@ -983,14 +983,16 @@ std::string fs_expanduser(std::string_view path)
     return {};
   // cannot call .front() on empty string_view() (MSVC)
 
-  if(path.front() != '~' || (path.length() > 1 && path.substr(0, 2) != "~/"))
+  if(path.front() != '~' || (path.length() > 1 && path.substr(0, 2) != "~/")){
+    if (FS_TRACE) std::cout << "TRACE:expanduser: not leading tilde " << path << "\n";
     return fs_normal(path);
+  }
 
   std::string h = fs_get_homedir();
   if (h.empty())
     return fs_normal(path);
 
-  // std::cout << "TRACE:expanduser: path(home) " << home << "\n";
+  if (FS_TRACE) std::cout << "TRACE:expanduser: path(home) " << h << "\n";
 
 // drop duplicated separators
 // NOT .lexical_normal to handle "~/.."
