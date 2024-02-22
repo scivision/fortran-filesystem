@@ -7,11 +7,11 @@
 
 int main() {
 
-  std::cout << "current working dir " << fs_get_cwd() << "\n";;
+  std::cout << "current working dir " << fs_get_cwd() << "\n";
 
-  std::cout << "home dir " << fs_get_homedir() << "\n";;
+  std::cout << "home dir " << fs_get_homedir() << "\n";
 
-  std::cout << "expanduser('~') " << fs_expanduser("~") << "\n";;
+  std::cout << "expanduser('~') " << fs_expanduser("~") << "\n";
 
   return EXIT_SUCCESS;
 }
