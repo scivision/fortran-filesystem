@@ -28,34 +28,37 @@ int main(void){
     const char ref[] = "/dev/null";
 #endif
 
-    char p[FS_MAX_PATH];
+    const size_t maxp = fs_get_max_path();
+
+    char* p = (char*)malloc(maxp * sizeof(char));
+    if(!p) goto err;
 
     printf("Begin test_reserved\n");
 
-    fs_normal(s, p, FS_MAX_PATH);
+    fs_normal(s, p, maxp);
     if (strcmp(p, ref) != 0){
       fprintf(stderr,"FAIL: normal(%s)  %s\n", s, p);
-      return EXIT_FAILURE;
+      goto err;
     }
     printf("OK: normal(%s)\n", p);
 
     bool b = fs_is_absolute(s);
     if (fs_is_windows()){
-      if(b) return EXIT_FAILURE;
+      if(b) goto err;
     }
     else{
-      if(!b) return EXIT_FAILURE;
+      if(!b) goto err;
     }
     printf("OK: is_absolute(%s)\n", ref);
 
     if(fs_is_dir(s)){
       fprintf(stderr,"FAIL: is_dir(%s)\n", s);
-      return EXIT_FAILURE;
+      goto err;
     }
 
     if(fs_is_exe(s)){
       fprintf(stderr,"FAIL: is_exe(%s)\n", s);
-      return EXIT_FAILURE;
+      goto err;
     }
 
 if(!fs_is_windows()){
@@ -70,52 +73,52 @@ if(!fs_is_windows()){
     // since if testing with "root" privilidges,
     // it can make the system unusable until reboot!
 
-    if(!fs_exists(s))
-      return EXIT_FAILURE;
+    if(!fs_exists(s)) goto err;
     printf("OK: exists(%s)\n", ref);
 
     b = fs_is_file(s);
     if(b){
       fprintf(stderr,"FAIL: is_file(%s) %d\n", s, b);
-      return EXIT_FAILURE;
+      goto err;
     }
 
-    if(fs_canonical(s, false, p, FS_MAX_PATH) == 0){
+    if(fs_canonical(s, false, p, maxp) == 0){
       fprintf(stderr,"FAIL: canonical(%s)  %s\n", s, p);
-      return EXIT_FAILURE;
+      goto err;
     }
     printf("OK: canonical(%s)\n", p);
 
-    fs_relative_to(s, s, p, FS_MAX_PATH);
+    fs_relative_to(s, s, p, maxp);
     if(strcmp(p, ".") != 0){
       fprintf(stderr,"FAIL: relative_to(%s)  %s\n", ref, p);
-      return EXIT_FAILURE;
+      goto err;
     }
 }
 
-    fs_expanduser(s, p, FS_MAX_PATH);
-    if(strcmp(p, ref) != 0)
-      return EXIT_FAILURE;
+    fs_expanduser(s, p, maxp);
+    if(strcmp(p, ref) != 0) goto err;
 
     if(fs_copy_file(s, s, false)){
       fprintf(stderr,"FAIL: copy_file(%s)\n", s);
-      return EXIT_FAILURE;
+      goto err;
     }
     printf("OK: copy_file(%s)\n", s);
 
-    if(fs_touch(s))
-      return EXIT_FAILURE;
+    if(fs_touch(s)) goto err;
     printf("OK: touch(%s)\n", ref);
 
-    if(fs_file_size(s) != 0)
-      return EXIT_FAILURE;
+    if(fs_file_size(s) != 0) goto err;
     printf("OK: file_size(%s)\n", ref);
 
-    if(fs_is_symlink(s))
-      return EXIT_FAILURE;
+    if(fs_is_symlink(s)) goto err;
     printf("OK: is_symlink(%s)\n", s);
 
     printf("PASS: test_reserved.cpp\n");
 
+    free(p);
     return EXIT_SUCCESS;
+
+err:
+    free(p);
+    return EXIT_FAILURE;
 }

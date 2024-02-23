@@ -1,10 +1,22 @@
 #ifndef FFILESYSTEM_H
 #define FFILESYSTEM_H
 
-
 #ifndef FS_TRACE
 #define FS_TRACE 0
 #endif
+
+// maximum path length
+#if defined (__APPLE__)
+#include <sys/syslimits.h>
+#elif !defined (_MSC_VER)
+#ifdef __cplusplus
+#include <climits>
+#else
+#include <limits.h>
+#endif
+#endif
+// end maximum path length
+
 
 #ifdef __cplusplus
 
@@ -110,53 +122,6 @@ extern "C" {
 
 #endif
 
-// maximum path length
-#define PATH_LIMIT 4096
-// absolute maximum, in case a system has ill-defined maximum path length
-
-#if defined(_WIN32) && !defined(NOMINMAX)
-#define NOMINMAX
-#endif
-
-#if defined (__APPLE__)
-#include <sys/syslimits.h>
-#elif !defined (_MSC_VER)
-#ifdef __cplusplus
-#include <climits>
-#else
-#include <limits.h>
-#endif
-#endif
-
-#ifdef __cplusplus
-constexpr size_t fs_max_path() {
-  size_t m = 256;
-  constexpr size_t pmax = 4096;  // arbitrary absolute maximum
-#ifdef PATH_MAX
-  m = PATH_MAX;
-#elif defined (_MAX_PATH)
-  m = _MAX_PATH;
-#elif defined (_POSIX_PATH_MAX)
-  m = _POSIX_PATH_MAX;
-#endif
-  return std::min(m, pmax);
-}
-constexpr size_t FS_MAX_PATH = fs_max_path();
-#else
-#ifndef min
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif
-#ifdef PATH_MAX
-#define FS_MAX_PATH PATH_MAX
-#elif defined (_MAX_PATH)
-#define FS_MAX_PATH _MAX_PATH
-#elif defined (_POSIX_PATH_MAX)
-#define FS_MAX_PATH _POSIX_PATH_MAX
-#else
-#define FS_MAX_PATH 256
-#endif
-#endif
-// end maximum path length
 
 extern bool fs_cpp();
 extern long fs_lang();

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <exception>
+#include <memory>
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -12,10 +13,8 @@
 
 void test_exe_path(char* argv[])
 {
-char bin[FS_MAX_PATH];
 
-fs_exe_path(bin, FS_MAX_PATH);
-std::string exepath = bin;
+std::string exepath = fs_exe_path();
 if (exepath.find(argv[1]) == std::string::npos)
   throw std::runtime_error("ERROR:test_exepath: exe_path not found correctly: " + exepath);
 

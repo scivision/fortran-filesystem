@@ -58,7 +58,20 @@ static void dl_dummy_func() {}
 
 static std::string fs_generate_random_alphanumeric_string(std::size_t);
 
-size_t fs_get_max_path(){ return FS_MAX_PATH; };
+
+size_t fs_get_max_path(){
+
+  size_t m = 256;
+#if defined(PATH_MAX)
+  m = PATH_MAX;
+#elif defined (_MAX_PATH)
+  m = _MAX_PATH;
+#elif defined (_POSIX_PATH_MAX)
+  m = _POSIX_PATH_MAX;
+#endif
+  return (m < 4096) ? m : 4096; // arbitrary absolute maximum
+
+}
 
 
 bool fs_cpp()
@@ -947,7 +960,7 @@ std::string fs_get_homedir()
   std::string homedir;
 #ifdef _WIN32
   // works on MSYS2, MSVC, oneAPI.
-  DWORD L = FS_MAX_PATH;
+  DWORD L = fs_get_max_path();
   auto buf = std::make_unique<char[]>(L);
   // process with query permission
   HANDLE hToken = nullptr;
@@ -1064,19 +1077,19 @@ std::string fs_exe_path()
   // https://stackoverflow.com/a/4031835
   // https://stackoverflow.com/a/1024937
 
-  auto buf = std::make_unique<char[]>(FS_MAX_PATH);
+  auto buf = std::make_unique<char[]>(fs_get_max_path());
 
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if (!GetModuleFileNameA(nullptr, buf.get(), FS_MAX_PATH))
+  if (!GetModuleFileNameA(nullptr, buf.get(), fs_get_max_path()))
     throw std::runtime_error("ffilesystem:exe_path: GetModuleFileName failed");
 #elif defined(__linux__) || defined(__CYGWIN__)
   // https://man7.org/linux/man-pages/man2/readlink.2.html
-  size_t L = readlink("/proc/self/exe", buf.get(), FS_MAX_PATH);
-  if (L < 1 || L >= FS_MAX_PATH)
+  size_t L = readlink("/proc/self/exe", buf.get(), fs_get_max_path());
+  if (L < 1 || L >= fs_get_max_path())
     throw std::runtime_error("ffilesystem:exe_path: readlink failed");
 #elif defined(__APPLE__)
-  uint32_t mp = FS_MAX_PATH;
+  uint32_t mp = fs_get_max_path();
   if(_NSGetExecutablePath(buf.get(), &mp))
     throw std::runtime_error("ffilesystem:exe_path: _NSGetExecutablePath failed");
 #else
@@ -1155,10 +1168,10 @@ size_t fs_lib_path(char* path, size_t buffer_size)
 std::string fs_lib_path()
 {
 #if (defined(_WIN32) || defined(__CYGWIN__)) && defined(FS_DLL_NAME)
-  auto buf = std::make_unique<char[]>(FS_MAX_PATH);
+  auto buf = std::make_unique<char[]>(fs_get_max_path());
 
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if(!GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf.get(), FS_MAX_PATH))
+  if(!GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf.get(), fs_get_max_path()))
     throw std::runtime_error("ffilesystem:lib_path: GetModuleFileName failed");
 
   std::string s(buf.get());
@@ -1278,7 +1291,7 @@ std::string fs_long2short(std::string_view in){
     throw std::runtime_error("fs_long2short: path does not exist " + p.generic_string());
 
 #ifdef _WIN32
-  auto buf = std::make_unique<char[]>(FS_MAX_PATH);
+  auto buf = std::make_unique<char[]>(fs_get_max_path());
 // size includes null terminator
   DWORD L = GetShortPathNameA(in.data(), nullptr, 0);
   if (L == 0)
@@ -1310,7 +1323,7 @@ std::string fs_short2long(std::string_view in){
     throw std::runtime_error("fs_short2long: path does not exist " + p.generic_string());
 
 #ifdef _WIN32
-    auto buf = std::make_unique<char[]>(FS_MAX_PATH);
+    auto buf = std::make_unique<char[]>(fs_get_max_path());
 // size includes null terminator
     DWORD L = GetLongPathNameA(in.data(), nullptr, 0);
     if(L == 0)

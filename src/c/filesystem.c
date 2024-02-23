@@ -21,10 +21,16 @@
 #include <sys/time.h>
 #endif
 
+#if defined(_WIN32) && !defined(NOMINMAX)
+#define NOMINMAX
+#endif
+#ifndef min
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+
 #if defined(__APPLE__) && defined(__MACH__)
 #include "TargetConditionals.h"  /* TARGET_OS_MAC */
 #endif
-
 
 #if TARGET_OS_MAC
 #include <copyfile.h>
@@ -37,7 +43,20 @@
 #include "ffilesystem.h"
 #include <cwalk.h>
 
-size_t fs_get_max_path(){ return FS_MAX_PATH; }
+
+size_t fs_get_max_path(){
+
+#if defined(PATH_MAX)
+  return PATH_MAX;
+#elif defined (_MAX_PATH)
+  return _MAX_PATH;
+#elif defined (_POSIX_PATH_MAX)
+  return _POSIX_PATH_MAX;
+#else
+  return 256;
+#endif
+
+ }
 
 bool fs_cpp(){
 // tell if fs core is C or C++
@@ -509,12 +528,12 @@ uintmax_t fs_space_available(const char* path)
   if(!fs_exists(path))
     return 0;
 
-  char* r = (char*) malloc(FS_MAX_PATH);
+  char* r = (char*) malloc(fs_get_max_path());
   if(!r)
     return 0;
 
   // for robustness and clarity, use root of path
-  if (!fs_root(path, r, FS_MAX_PATH))
+  if (!fs_root(path, r, fs_get_max_path()))
     goto retzero;
 
   struct statvfs stat;
@@ -537,15 +556,15 @@ bool fs_equivalent(const char* path1, const char* path2)
 {
 // both paths must exist, or they are not equivalent -- return false
 
-  char* buf1 = (char*) malloc(FS_MAX_PATH);
+  char* buf1 = (char*) malloc(fs_get_max_path());
   if(!buf1) return false;
-  char* buf2 = (char*) malloc(FS_MAX_PATH);
+  char* buf2 = (char*) malloc(fs_get_max_path());
   if(!buf2) {
     free(buf1);
     return false;
   }
 
-  if((!fs_canonical(path1, true, buf1, FS_MAX_PATH) || !fs_canonical(path2, true, buf2, FS_MAX_PATH) ||
+  if((!fs_canonical(path1, true, buf1, fs_get_max_path()) || !fs_canonical(path2, true, buf2, fs_get_max_path()) ||
       fs_is_char_device(path1) || fs_is_char_device(path2)) ||
     !(fs_is_dir(buf1) || fs_is_dir(buf2) || fs_is_file(buf1) || fs_is_file(buf2))){
 
@@ -743,6 +762,8 @@ size_t fs_read_symlink(const char* path, char* result, size_t buffer_size)
     return 0;
   }
 #ifdef _WIN32
+  (void) result;
+  (void) buffer_size;
   fprintf(stderr, "ERROR:ffilesystem:read_symlink: not implemented for non-C++\n");
   return 0;
 #else
@@ -1139,10 +1160,10 @@ bool fs_create_directories(const char* path) {
   }
 
   // To disambiguate, use an absolute path -- must resolve multiple times because realpath only gives one level of non-existant path
-  char* buf = (char*) malloc(FS_MAX_PATH);
+  char* buf = (char*) malloc(fs_get_max_path());
   if(!buf) return false;
 
-  size_t L = fs_resolve(path, false, buf, FS_MAX_PATH);
+  size_t L = fs_resolve(path, false, buf, fs_get_max_path());
   if(L == 0){
     free(buf);
     return false;
@@ -1183,7 +1204,7 @@ mkdir_loop: ;
     q = strtok(NULL, "/");
   }
   /* check that path was adequately resolved and created */
-  size_t L1 = fs_resolve(path, false, buf, FS_MAX_PATH);
+  size_t L1 = fs_resolve(path, false, buf, fs_get_max_path());
   if(L1 != L){
     if (FS_TRACE) printf("TRACE: mkdir %s iteration resolved => %s\n", path, buf);
     L = L1;
