@@ -574,18 +574,18 @@ bool fs_is_reserved(std::string_view path)
 #ifndef _WIN32
     return false;
     (void) path;
-#elif __cplusplus >= 202002L
+#elif defined(__cpp_lib_ranges)
   if (path.empty())
     return false;
 
-  std::set<std::string> reserved {
+  std::set<std::string, std::less<>> reserved {
       "CON", "PRN", "AUX", "NUL",
       "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
       "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
 
   std::string p(path);
 
-  std::transform(p.begin(), p.end(), p.begin(), ::toupper);
+  std::ranges::transform(p.begin(), p.end(), p.begin(), ::toupper);
 
   return reserved.contains(p);
 #else
