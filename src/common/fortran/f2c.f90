@@ -205,9 +205,14 @@ character(kind=c_char), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function fs_make_absolute(path, top_path, result, buffer_size) bind(C)
+logical(C_BOOL) function fs_is_subdir(subdir, dir) bind(C)
 import
-character(kind=c_char), intent(in) :: path(*), top_path(*)
+character(kind=C_CHAR), intent(in) :: subdir(*), dir(*)
+end function
+
+integer(C_SIZE_T) function fs_make_absolute(path, base, result, buffer_size) bind(C)
+import
+character(kind=c_char), intent(in) :: path(*), base(*)
 character(kind=c_char), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
@@ -584,11 +589,15 @@ allocate(character(N) :: r)
 r = cbuf(:N)
 end procedure
 
+module procedure is_subdir
+is_subdir = fs_is_subdir(trim(subdir) // C_NULL_CHAR, trim(dir) // C_NULL_CHAR)
+end procedure
+
 module procedure make_absolute
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = fs_make_absolute(trim(path) // C_NULL_CHAR, trim(top_path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_make_absolute(trim(path) // C_NULL_CHAR, trim(base) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: make_absolute)
 make_absolute = cbuf(:N)
 end procedure

@@ -110,6 +110,8 @@ int main(int argc, char* argv[]){
     std::cout << fs_exists(arg2) << "\n";
   else if (arg1 == "is_dir")
     std::cout << fs_is_dir(arg2) << "\n";
+  else if (arg1 == "is_subdir")
+    std::cout << fs_is_subdir(arg2, arg3) << "\n";
   else if (arg1 == "is_exe")
     std::cout << fs_is_exe(arg2) << "\n";
   else if (arg1 == "which")

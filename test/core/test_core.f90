@@ -40,6 +40,9 @@ print '(a)', "OK: filesystem: root"
 call test_is_dir()
 print '(a)', "OK: filesystem: is_dir"
 
+call test_is_subdir()
+print '(a)', "OK: filesystem: is_subdir"
+
 call test_absolute()
 print '(a)', "OK: filesystem: absolute"
 
@@ -378,6 +381,26 @@ if(is_dir("not-exist-dir")) error stop "not-exist-dir should not exist"
 deallocate(r)
 
 end subroutine test_is_dir
+
+
+subroutine test_is_subdir()
+
+type(path_t) :: p1
+
+p1 = path_t("a/b/c")
+
+if (.not. p1%is_subdir("a/b")) error stop "a/b/c is subdir of a/b"
+if (.not. p1%is_subdir("a/b/")) error stop "a/b/c is subdir of a/b/"
+if (.not. p1%is_subdir("a")) error stop "a/b/c is subdir of a"
+
+if(p1%is_subdir("a/b/c")) error stop "a/b/c is not subdir of a/b/c"
+if(p1%is_subdir("a/b/c/")) error stop "a/b/c/ is not subdir of a/b/c"
+
+p1 = path_t("a/b/c/d/..")
+
+if (.not. p1%is_subdir("a/b/")) error stop "a/b/c/d/.. is subdir of a/b/"
+
+end subroutine test_is_subdir
 
 
 subroutine test_absolute()

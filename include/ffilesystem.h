@@ -82,6 +82,8 @@ void fs_set_cwd(std::string_view path);
 uintmax_t fs_file_size(std::string_view);
 uintmax_t fs_space_available(std::string_view);
 
+bool fs_is_subdir(std::string_view, std::string_view);
+
 void fs_set_permissions(std::string_view, int, int, int);
 
 std::string fs_get_permissions(std::string_view);
@@ -172,6 +174,7 @@ extern bool fs_is_exe(const char*);
 extern bool fs_is_readable(const char*);
 extern bool fs_is_writable(const char*);
 extern bool fs_is_reserved(const char*);
+extern bool fs_is_subdir(const char*, const char*);
 
 extern bool fs_set_permissions(const char*, int, int, int);
 

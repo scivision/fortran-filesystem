@@ -267,6 +267,14 @@ Error stop if directory does not exist
 call assert_is_dir("my/dir")
 ```
 
+Is path a subdirectory under (not just equal to) of "dir":
+
+```fortran
+p%is_subdir(dir)
+
+is_subdir("my/dir", "my")
+```
+
 ---
 
 Is "path" a file or directory (or a symbolic link to existing file or directory).

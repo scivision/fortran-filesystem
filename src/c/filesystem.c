@@ -929,18 +929,43 @@ bool fs_touch(const char* path)
   return fs_is_file(path);
 }
 
+bool fs_is_subdir(const char* subdir, const char* dir)
+{
+  // is subdir a subdirectory of dir -- lexical operation
+  size_t m = fs_get_max_path();
 
-size_t fs_make_absolute(const char* path, const char* top_path,
+  char* buf1 = (char*) malloc(m);
+  if(!buf1) return false;
+  char* buf2 = (char*) malloc(m);
+  if(!buf2) {
+    free(buf1);
+    return false;
+  }
+
+  size_t Ls = fs_normal(subdir, buf1, m);
+  size_t Ld = fs_normal(dir, buf2, m);
+
+  bool yes = Ls > Ld && strncmp(buf1, buf2, Ld) == 0;
+
+  free(buf1);
+  free(buf2);
+
+  return yes;
+
+}
+
+
+size_t fs_make_absolute(const char* path, const char* base,
                         char* result, size_t buffer_size)
 {
   size_t L1 = fs_expanduser(path, result, buffer_size);
 
-  if (L1 > 0 && fs_is_absolute(result))
+  if (fs_is_absolute(result))
     return L1;
 
   char* buf = (char*) malloc(buffer_size);
   if(!buf) return 0;
-  size_t L2 = fs_expanduser(top_path, buf, buffer_size);
+  size_t L2 = fs_expanduser(base, buf, buffer_size);
   if(L2 == 0){
     free(buf);
     return L1;

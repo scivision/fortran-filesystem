@@ -1025,6 +1025,27 @@ std::string fs_expanduser(std::string_view path)
 }
 
 
+bool fs_is_subdir(const char* subdir, const char* dir)
+{
+  try{
+    return fs_is_subdir(std::string_view(subdir), std::string_view(dir));
+  } catch(std::exception& e){
+    std::cerr << "ERROR:ffilesystem:is_subdir: " << e.what() << "\n";
+    return false;
+  }
+}
+
+bool fs_is_subdir(std::string_view subdir, std::string_view dir)
+{
+  // subdir is a subdirectory of dir -- lexical operation
+
+  std::string s = fs_normal(subdir);
+  std::string d = fs_normal(dir);
+
+  return (s.length() > d.length()) && s.compare(0, d.length(), d) == 0;
+}
+
+
 bool fs_set_permissions(const char* path, int readable, int writable, int executable)
 {
   // make path file owner readable or not
@@ -1199,21 +1220,21 @@ std::string fs_lib_dir()
 }
 
 
-size_t fs_make_absolute(const char* path, const char* top_path, char* out, size_t buffer_size)
+size_t fs_make_absolute(const char* path, const char* base, char* out, size_t buffer_size)
 {
-  return fs_str2char(fs_make_absolute(std::string_view(path), std::string_view(top_path)), out, buffer_size);
+  return fs_str2char(fs_make_absolute(std::string_view(path), std::string_view(base)), out, buffer_size);
 }
 
-std::string fs_make_absolute(std::string_view path, std::string_view top_path)
+std::string fs_make_absolute(std::string_view path, std::string_view base)
 {
   std::string out = fs_expanduser(path);
 
-  if (!out.empty() && fs_is_absolute(out))
+  if (fs_is_absolute(out))
     return out;
 
-  std::string buf = fs_expanduser(top_path);
+  std::string buf = fs_expanduser(base);
 
-  return buf.empty() ? out : fs_join(buf, out);
+  return fs_join(buf, out);
 }
 
 // --- mkdtemp

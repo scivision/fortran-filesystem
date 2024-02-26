@@ -8,7 +8,7 @@ private
 public :: path_t  !< base class
 public :: get_homedir, canonical, resolve, get_cwd, set_cwd, make_tempdir, which !< utility procedures
 public :: normal, expanduser, as_posix, as_windows, &
-is_absolute, is_char_device, is_dir, is_file, is_exe, is_readable, is_writable, is_reserved, &
+is_absolute, is_char_device, is_dir, is_file, is_exe, is_subdir, is_readable, is_writable, is_reserved, &
 is_symlink, read_symlink, &
 exists, &
 join, &
@@ -57,6 +57,7 @@ procedure, public :: is_exe=>f_is_exe
 procedure, public :: is_readable=>f_is_readable
 procedure, public :: is_writable=>f_is_writable
 procedure, public :: is_dir=>f_is_dir
+procedure, public :: is_subdir=>f_is_subdir
 procedure, public :: is_reserved=>f_is_reserved
 procedure, public :: is_absolute=>f_is_absolute
 procedure, public :: is_symlink=>f_is_symlink
@@ -180,14 +181,19 @@ character(:), allocatable :: r
 character(*), intent(in) :: path
 end function
 
-module function make_absolute(path, top_path)
+module logical function is_subdir(subdir, dir)
+!! is subdir a subdirectory of dir
+character(*), intent(in) :: subdir, dir
+end function
+
+module function make_absolute(path, base)
 !! if path is absolute, return expanded path
-!! if path is relative, top_path / path
+!! if path is relative, base / path
 !!
-!! idempotent iff top_path is absolute
+!! idempotent iff base is absolute
 
 character(:), allocatable :: make_absolute
-character(*), intent(in) :: path, top_path
+character(*), intent(in) :: path, base
 end function
 
 module function get_homedir()
@@ -649,6 +655,12 @@ end function
 logical function f_is_dir(self) result(r)
 class(path_t), intent(in) :: self
 r = is_dir(self%path_str)
+end function
+
+logical function f_is_subdir(self, dir) result(r)
+class(path_t), intent(in) :: self
+character(*), intent(in) :: dir
+r = is_subdir(self%path_str, dir)
 end function
 
 logical function f_is_reserved(self) result(r)
