@@ -357,7 +357,7 @@ bool fs_create_symlink(const char* target, const char* link)
   try{
     fs_create_symlink(std::string_view(target), std::string_view(link));
     return true;
-  } catch(std::exception& e){
+  } catch(fs::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:create_symlink: " << e.what() << "\n";
     return false;
   }
@@ -366,13 +366,13 @@ bool fs_create_symlink(const char* target, const char* link)
 void fs_create_symlink(std::string_view target, std::string_view link)
 {
   if(target.empty())
-    throw std::runtime_error("ffilesystem:create_symlink: target path must not be empty");
+    throw fs::filesystem_error("ffilesystem:create_symlink: target path must not be empty", link, target, std::make_error_code(std::errc::no_such_file_or_directory));
     // confusing program errors if target is "" -- we'd never make such a symlink in real use.
 
   auto s = fs::status(target);
 
   if(link.empty())
-    throw std::runtime_error("ffilesystem:create_symlink: link path must not be empty");
+    throw fs::filesystem_error("ffilesystem:create_symlink: link path must not be empty", link, target, std::make_error_code(std::errc::no_such_file_or_directory));
     // macOS needs empty check to avoid SIGABRT
 
 #ifdef WIN32_SYMLINK
@@ -389,7 +389,7 @@ void fs_create_symlink(std::string_view target, std::string_view link)
   if(err == ERROR_PRIVILEGE_NOT_HELD)
     msg += "Enable Windows developer mode to use symbolic links: https://learn.microsoft.com/en-us/windows/apps/get-started/developer-mode-features-and-debugging";
 
-  throw std::runtime_error(msg);
+  throw fs::filesystem_error(msg, link, target, std::make_error_code(std::errc::no_such_file_or_directory));
 #else
   fs::is_directory(s)
     ? fs::create_directory_symlink(target, link)
@@ -402,7 +402,7 @@ bool fs_create_directories(const char* path)
   try{
     fs_create_directories(std::string_view(path));
     return true;
-  } catch(std::exception& e){
+  } catch(fs::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:create_directories: " << e.what() << "\n";
     return false;
   }
@@ -416,13 +416,13 @@ void fs_create_directories(std::string_view path)
   if(auto s = fs::status(p); fs::exists(s)){
     if(fs::is_directory(s))
        return;
-    throw std::runtime_error("ffilesystem:create_directories: " + p.generic_string() + " exists but non-directory");
+    throw fs::filesystem_error("ffilesystem:create_directories: exists but non-directory", p, std::make_error_code(std::errc::file_exists));
   }
   if(fs::create_directories(p) || fs::is_directory(p))
     return;
   // old MacOS return false even if directory was created
 
-  throw std::runtime_error("ffilesystem:create_directories: could not create directory " + p.generic_string());
+  throw fs::filesystem_error("ffilesystem:create_directories: could not create directory", p, std::make_error_code(std::errc::no_such_file_or_directory));
 }
 
 
@@ -730,7 +730,7 @@ bool fs_copy_file(const char* source, const char* dest, bool overwrite)
   try{
     fs_copy_file(std::string_view(source), std::string_view(dest), overwrite);
     return true;
-  } catch(std::exception& e){
+  } catch(fs::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:copy_file: " << e.what() << "\n";
     return false;
   }
@@ -749,19 +749,19 @@ void fs_copy_file(std::string_view source, std::string_view dest, bool overwrite
     if(fs_is_file(dest)){
       if(overwrite){
         if(!fs_remove(dest))
-          throw std::runtime_error("ffilesystem:copy_file: could not remove existing destination file: " + d);
+          throw fs::filesystem_error("ffilesystem:copy_file: could not remove existing destination file:", d, std::make_error_code(std::errc::no_such_file_or_directory));
       } else {
-        throw std::runtime_error("ffilesystem:copy_file: destination file exists but overwrite=false: " + d);
+        throw fs::filesystem_error("ffilesystem:copy_file: destination file exists but overwrite=false:", d, std::make_error_code(std::errc::file_exists));
       }
     } else {
-        throw std::runtime_error("ffilesystem:copy_file: destination path exists: " + d);
+        throw fs::filesystem_error("ffilesystem:copy_file: destination path exists:", d, std::make_error_code(std::errc::file_exists));
     }
   }
 
   if(!fs::copy_file(s, d) || fs::is_regular_file(d))
     return;
 
-  throw std::runtime_error("ffilesystem:copy_file: could not copy file: " + s + " => " + d);
+  throw fs::filesystem_error("ffilesystem:copy_file: could not copy file:", s, d, std::make_error_code(std::errc::no_such_file_or_directory));
 }
 
 
@@ -857,7 +857,7 @@ bool fs_touch(const char* path)
   try{
     fs_touch(std::string_view(path));
     return true;
-  } catch(std::exception& e){
+  } catch(fs::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:touch: " << path << " " << e.what() << "\n";
     return false;
   }
@@ -870,7 +870,7 @@ void fs_touch(std::string_view path)
   auto s = fs::status(p);
 
   if (fs::exists(s) && !fs::is_regular_file(s))
-    throw std::runtime_error("ffilesystem:touch: " + p.generic_string() + " exists, but is not a regular file");
+    throw fs::filesystem_error("ffilesystem:touch: exists, but is not a regular file", p, std::make_error_code(std::errc::no_such_file_or_directory));
 
   if(fs::is_regular_file(s)) {
     fs::last_write_time(p, fs::file_time_type::clock::now());
@@ -880,7 +880,7 @@ void fs_touch(std::string_view path)
   std::ofstream ost;
   ost.open(p, std::ios_base::out | std::ios_base::binary);
   if(!ost.is_open())
-    throw std::runtime_error("filesystem:touch: " + p.generic_string() + " could not be created");
+    throw fs::filesystem_error("filesystem:touch: could not create", p, std::make_error_code(std::errc::no_such_file_or_directory));
   ost.close();
 
 #if defined(__cpp_using_enum)
@@ -893,7 +893,7 @@ void fs_touch(std::string_view path)
   fs::permissions(p, owner_read | owner_write, fs::perm_options::add);
 
   if(!fs::is_regular_file(p))
-    throw std::runtime_error("filesystem:touch: " + p.generic_string() + " could not be created");
+    throw fs::filesystem_error("filesystem:touch: could not create", p, std::make_error_code(std::errc::no_such_file_or_directory));
 }
 
 
@@ -983,12 +983,7 @@ void fs_set_cwd(std::string_view path)
 
 size_t fs_get_homedir(char* path, size_t buffer_size)
 {
-  try{
-    return fs_str2char(fs_get_homedir(), path, buffer_size);
-  } catch (std::exception& e) {
-    std::cerr << "ERROR:ffilesystem:get_homedir: " << e.what() << "\n";
-    return 0;
-  }
+  return fs_str2char(fs_get_homedir(), path, buffer_size);
 }
 
 std::string fs_get_homedir()
@@ -1008,19 +1003,19 @@ std::string fs_get_homedir()
   HANDLE hToken = nullptr;
   if(!OpenProcessToken( GetCurrentProcess(), TOKEN_QUERY, &hToken)){
 		CloseHandle(hToken);
-    throw std::runtime_error("ffilesystem:get_homedir: OpenProcessToken(GetCurrentProcess): "  + std::system_category().message(GetLastError()));
+    return {};
   }
 
   bool ok = GetUserProfileDirectoryA(hToken, buf.get(), &L);
   CloseHandle(hToken);
   if (!ok)
-    throw std::runtime_error("ffilesystem:get_homedir: GetUserProfileDirectory: "  + std::system_category().message(GetLastError()));
+    return {};
 
   homedir = fs_normal(std::string(buf.get()));
 #else
   const char *h = getpwuid(geteuid())->pw_dir;
   if (!h)
-    throw std::runtime_error("ffilesystem:get_homedir: getpwuid: "  + std::system_category().message(errno));
+    return {};
   homedir = fs_normal(std::string(h));
 #endif
 
@@ -1097,7 +1092,7 @@ bool fs_set_permissions(const char* path, int readable, int writable, int execut
   try{
     fs_set_permissions(std::string_view(path), readable, writable, executable);
     return true;
-  } catch(std::exception& e){
+  } catch(fs::filesystem_error& e){
     std::cerr << "ERROR:Ffilesystem:set_permissions: " << readable << " " << e.what() << "\n";
     return false;
   }
@@ -1110,7 +1105,7 @@ void fs_set_permissions(std::string_view path, int readable, int writable, int e
   auto s = fs::status(pth);
 
   if(!fs::is_regular_file(s))
-    throw std::runtime_error("Ffilesystem:set_permissions: " + pth.generic_string() + " is not a regular file");
+    throw fs::filesystem_error("Ffilesystem:set_permissions: not a regular file", pth, std::make_error_code(std::errc::not_supported));
 
 #if defined(__cpp_using_enum)
   using enum std::filesystem::perms;
@@ -1137,14 +1132,8 @@ void fs_set_permissions(std::string_view path, int readable, int writable, int e
 
 size_t fs_exe_path(char* path, size_t buffer_size)
 {
-  try{
-    return fs_str2char(fs_exe_path(), path, buffer_size);
-  } catch (std::exception& e) {
-    std::cerr << "ERROR:ffilesystem:exe_path: " << e.what() << "\n";
-    return 0;
-  }
+  return fs_str2char(fs_exe_path(), path, buffer_size);
 }
-
 
 std::string fs_exe_path()
 {
@@ -1156,18 +1145,19 @@ std::string fs_exe_path()
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
   if (!GetModuleFileNameA(nullptr, buf.get(), static_cast<DWORD>(fs_get_max_path())))
-    throw std::runtime_error("ffilesystem:exe_path: GetModuleFileName failed");
+    return {};
 #elif defined(__linux__) || defined(__CYGWIN__)
   // https://man7.org/linux/man-pages/man2/readlink.2.html
   size_t L = readlink("/proc/self/exe", buf.get(), fs_get_max_path());
   if (L < 1 || L >= fs_get_max_path())
-    throw std::runtime_error("ffilesystem:exe_path: readlink failed");
+    return {};
 #elif defined(__APPLE__)
   uint32_t mp = fs_get_max_path();
   if(_NSGetExecutablePath(buf.get(), &mp))
-    throw std::runtime_error("ffilesystem:exe_path: _NSGetExecutablePath failed");
+    return {};
 #else
-  throw std::runtime_error("ffilesystem:exe_path: not implemented for this platform");
+  std::cerr << "ERROR:ffilesystem:exe_path: not implemented for this platform\n";
+  return {};
 #endif
 
   std::string s(buf.get());
@@ -1246,12 +1236,7 @@ std::string fs_get_permissions(std::string_view path)
 
 size_t fs_lib_path(char* path, size_t buffer_size)
 {
-  try{
-    return fs_str2char(fs_lib_path(), path, buffer_size);
-  } catch (std::exception& e) {
-    std::cerr << "ERROR:ffilesystem:lib_path: " << e.what() << "\n";
-    return 0;
-  }
+  return fs_str2char(fs_lib_path(), path, buffer_size);
 }
 
 std::string fs_lib_path()
@@ -1261,7 +1246,7 @@ std::string fs_lib_path()
 
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
   if(!GetModuleFileNameA(GetModuleHandleA(FS_DLL_NAME), buf.get(), fs_get_max_path()))
-    throw std::runtime_error("ffilesystem:lib_path: GetModuleFileName failed");
+    return {};
 
   std::string s(buf.get());
   return s;
