@@ -27,7 +27,7 @@
 
 // for get_homedir backup method
 #ifdef _WIN32
-#include <userenv.h>
+#include <UserEnv.h>
 #else
 #include <sys/types.h>
 #include <pwd.h>
@@ -90,7 +90,7 @@ bool fs_is_admin(){
   // running as admin / root / superuser
 #ifdef _WIN32
   BOOL adm = FALSE;
-	HANDLE hToken = NULL;
+	HANDLE hToken = nullptr;
 	TOKEN_ELEVATION elevation;
 	DWORD dwSize;
 
@@ -333,7 +333,7 @@ size_t fs_read_symlink(const char* path, char* result, size_t buffer_size)
 {
   try{
     return fs_str2char(fs_read_symlink(std::string_view(path)), result, buffer_size);
-  } catch(std::exception& e){
+  } catch(std::filesystem::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:read_symlink: " << e.what() << "\n";
     return 0;
   }
@@ -600,7 +600,7 @@ bool fs_remove(const char* path)
 {
   try {
     return fs_remove(std::string_view(path));
-  } catch(std::exception& e){
+  } catch(std::filesystem::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:remove: " << e.what() << "\n";
     return false;
   }
@@ -615,7 +615,7 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 {
   try{
     return fs_str2char(fs_canonical(std::string_view(path), strict), result, buffer_size);
-  } catch(std::exception& e){
+  } catch(std::filesystem::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:canonical: " << e.what() << "\n";
     return 0;
   }
@@ -648,7 +648,7 @@ size_t fs_resolve(const char* path, bool strict, char* result, size_t buffer_siz
 {
   try{
     return fs_str2char(fs_resolve(std::string_view(path), strict), result, buffer_size);
-  } catch(std::exception& e){
+  } catch(std::filesystem::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:resolve: " << e.what() << "\n";
     return 0;
   }
@@ -678,7 +678,7 @@ bool fs_equivalent(const char* path1, const char* path2)
 {
   try{
     return fs_equivalent(std::string_view(path1), std::string_view(path2));
-  } catch(std::exception& e){
+  } catch(std::filesystem::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:equivalent: " << e.what() << "\n";
     return false;
   }
@@ -736,7 +736,7 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
 {
   try{
     return fs_str2char(fs_relative_to(to, from), result, buffer_size);
-  } catch(std::exception& e){
+  } catch(std::filesystem::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:relative_to: " << e.what() << "\n";
     return 0;
   }
@@ -763,7 +763,7 @@ size_t fs_which(const char* name, char* result, size_t buffer_size)
 {
   try{
     return fs_str2char(fs_which(std::string_view(name)), result, buffer_size);
-  } catch(std::exception& e){
+  } catch(std::filesystem::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:which: " << e.what() << "\n";
     return 0;
   }
@@ -860,8 +860,8 @@ size_t fs_get_tempdir(char* path, size_t buffer_size)
 {
   try {
     return fs_str2char(fs_get_tempdir(), path, buffer_size);
-  } catch(std::exception& e){
-    std::cerr << "ERROR:ffilesystem:get_tempdir: " << e.what() << "\n";
+  } catch(std::filesystem::filesystem_error& e){
+    std::cerr << "ERROR:Ffilesystem:get_tempdir: " << e.what() << "\n";
     return 0;
   }
 }
@@ -876,8 +876,8 @@ uintmax_t fs_file_size(const char* path)
 {
   try{
     return fs_file_size(std::string_view(path));
-  } catch(std::exception& e){
-    std::cerr << "ERROR:ffilesystem:file_size: " << e.what() << "\n";
+  } catch(std::filesystem::filesystem_error& e){
+    std::cerr << "ERROR:Ffilesystem:file_size: " << e.what() << "\n";
     return 0;
   }
 }
@@ -892,7 +892,7 @@ uintmax_t fs_space_available(const char* path)
 {
   try{
     return fs_space_available(std::string_view(path));
-  } catch(std::exception& e){
+  } catch(std::filesystem::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:space_available: " << e.what() << "\n";
     return 0;
   }
@@ -902,7 +902,7 @@ uintmax_t fs_space_available(std::string_view path)
 {
   // filesystem space available for device holding path
 
-  return static_cast<std::intmax_t>(fs::space(path).available);
+  return fs::space(path).available;
 }
 
 
@@ -910,7 +910,7 @@ size_t fs_get_cwd(char* path, size_t buffer_size)
 {
   try{
     return fs_str2char(fs_get_cwd(), path, buffer_size);
-  } catch(std::exception& e){
+  } catch(std::filesystem::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:get_cwd: " << e.what() << "\n";
     return 0;
   }
@@ -927,7 +927,7 @@ bool fs_set_cwd(const char *path)
   try{
     fs::current_path(path);
     return true;
-  } catch (std::exception& e) {
+  } catch (std::filesystem::filesystem_error& e) {
     std::cerr << "ERROR:ffilesystem:set_cwd: " << e.what() << "\n";
     return false;
   }
@@ -1029,7 +1029,7 @@ bool fs_is_subdir(const char* subdir, const char* dir)
 {
   try{
     return fs_is_subdir(std::string_view(subdir), std::string_view(dir));
-  } catch(std::exception& e){
+  } catch(std::filesystem::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:is_subdir: " << e.what() << "\n";
     return false;
   }
@@ -1137,7 +1137,7 @@ size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
 {
   try{
     return fs_str2char(fs_get_permissions(std::string_view(path)), result, buffer_size);
-  } catch(std::exception& e){
+  } catch(std::filesystem::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:get_permissions: " << e.what() << "\n";
     return 0;
   }
