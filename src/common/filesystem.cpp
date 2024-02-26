@@ -515,8 +515,17 @@ if(fs_is_mingw()){
   return fs_is_readable(path);
 }
 
-  auto i = s.permissions() & (fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec);
-  return i != fs::perms::none;
+#if defined(__cpp_using_enum)
+  using enum std::filesystem::perms;
+#else
+  fs::perms none = fs::perms::none;
+  fs::perms others_exec = fs::perms::others_exec;
+  fs::perms group_exec = fs::perms::group_exec;
+  fs::perms owner_exec = fs::perms::owner_exec;
+#endif
+
+  auto i = s.permissions() & (owner_exec | group_exec | others_exec);
+  return i != none;
 }
 
 
@@ -532,8 +541,17 @@ bool fs_is_readable(std::string_view path)
   if(ec || !fs::exists(s))
     return false;
 
-  auto i =s.permissions() & (fs::perms::owner_read | fs::perms::group_read | fs::perms::others_read);
-  return i != fs::perms::none;
+#if defined(__cpp_using_enum)
+  using enum std::filesystem::perms;
+#else
+  fs::perms none = fs::perms::none;
+  fs::perms owner_read = fs::perms::owner_read;
+  fs::perms group_read = fs::perms::group_read;
+  fs::perms others_read = fs::perms::others_read;
+#endif
+
+  auto i = s.permissions() & (owner_read | group_read | others_read);
+  return i != none;
 }
 
 
@@ -549,8 +567,17 @@ bool fs_is_writable(std::string_view path)
   if(ec || !fs::exists(s))
     return false;
 
-  auto i = s.permissions() & (fs::perms::owner_write | fs::perms::group_write | fs::perms::others_write);
-  return i != fs::perms::none;
+#if defined(__cpp_using_enum)
+  using enum std::filesystem::perms;
+#else
+  fs::perms owner_write = fs::perms::owner_write;
+  fs::perms group_write = fs::perms::group_write;
+  fs::perms others_write = fs::perms::others_write;
+  fs::perms none = fs::perms::none;
+#endif
+
+  auto i = s.permissions() & (owner_write | group_write | others_write);
+  return i != none;
 }
 
 
@@ -855,8 +882,14 @@ void fs_touch(std::string_view path)
     throw std::runtime_error("filesystem:touch: " + p.generic_string() + " could not be created");
   ost.close();
 
+#if defined(__cpp_using_enum)
+  using enum std::filesystem::perms;
+#else
+  fs::perms owner_read = fs::perms::owner_read;
+  fs::perms owner_write = fs::perms::owner_write;
+#endif
   // ensure user can access file, as default permissions may be mode 600 or such
-  fs::permissions(p, fs::perms::owner_read | fs::perms::owner_write, fs::perm_options::add);
+  fs::permissions(p, owner_read | owner_write, fs::perm_options::add);
 
   if(!fs::is_regular_file(p))
     throw std::runtime_error("filesystem:touch: " + p.generic_string() + " could not be created");
@@ -1074,16 +1107,24 @@ void fs_set_permissions(std::string_view path, int readable, int writable, int e
   if(!fs::is_regular_file(s))
     throw std::runtime_error("Ffilesystem:set_permissions: " + pth.generic_string() + " is not a regular file");
 
+#if defined(__cpp_using_enum)
+  using enum std::filesystem::perms;
+#else
+  fs::perms owner_read = fs::perms::owner_read;
+  fs::perms owner_write = fs::perms::owner_write;
+  fs::perms owner_exec = fs::perms::owner_exec;
+#endif
+
   if (readable != 0)
-    fs::permissions(pth, fs::perms::owner_read,
+    fs::permissions(pth, owner_read,
       (readable > 0) ? fs::perm_options::add : fs::perm_options::remove);
 
   if (writable != 0)
-    fs::permissions(pth, fs::perms::owner_write,
+    fs::permissions(pth, owner_write,
       (writable > 0) ? fs::perm_options::add : fs::perm_options::remove);
 
   if (executable != 0)
-    fs::permissions(pth, fs::perms::owner_exec,
+    fs::permissions(pth, owner_exec,
       (executable > 0) ? fs::perm_options::add : fs::perm_options::remove);
 
 }
@@ -1159,24 +1200,39 @@ std::string fs_get_permissions(std::string_view path)
 
   fs::perms p = s.permissions();
 
+#if defined(__cpp_using_enum)
+  using enum std::filesystem::perms;
+#else
+  fs::perms none = fs::perms::none;
+  fs::perms owner_read = fs::perms::owner_read;
+  fs::perms owner_write = fs::perms::owner_write;
+  fs::perms owner_exec = fs::perms::owner_exec;
+  fs::perms group_read = fs::perms::group_read;
+  fs::perms group_write = fs::perms::group_write;
+  fs::perms group_exec = fs::perms::group_exec;
+  fs::perms others_read = fs::perms::others_read;
+  fs::perms others_write = fs::perms::others_write;
+  fs::perms others_exec = fs::perms::others_exec;
+#endif
+
   std::string r = "---------";
-  if ((p & fs::perms::owner_read) != fs::perms::none)
+  if ((p & owner_read) != none)
     r[0] = 'r';
-  if ((p & fs::perms::owner_write) != fs::perms::none)
+  if ((p & owner_write) != none)
     r[1] = 'w';
-  if ((p & fs::perms::owner_exec) != fs::perms::none)
+  if ((p & owner_exec) != none)
     r[2] = 'x';
-  if ((p & fs::perms::group_read) != fs::perms::none)
+  if ((p & group_read) != none)
     r[3] = 'r';
-  if ((p & fs::perms::group_write) != fs::perms::none)
+  if ((p & group_write) != none)
     r[4] = 'w';
-  if ((p & fs::perms::group_exec) != fs::perms::none)
+  if ((p & group_exec) != none)
     r[5] = 'x';
-  if ((p & fs::perms::others_read) != fs::perms::none)
+  if ((p & others_read) != none)
     r[6] = 'r';
-  if ((p & fs::perms::others_write) != fs::perms::none)
+  if ((p & others_write) != none)
     r[7] = 'w';
-  if ((p & fs::perms::others_exec) != fs::perms::none)
+  if ((p & others_exec) != none)
     r[8] = 'x';
 
   return r;
