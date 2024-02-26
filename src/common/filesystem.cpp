@@ -189,7 +189,11 @@ std::string fs_as_posix(std::string_view path)
 {
   // force posix file separator
   std::string p(path);
+#if defined(__cpp_lib_ranges)
+  std::ranges::replace(p, '\\', '/');
+#else
   std::replace(p.begin(), p.end(), '\\', '/');
+#endif
   return p;
 }
 
@@ -203,7 +207,9 @@ std::string fs_as_windows(std::string_view path)
 {
   // force windows file seperator
   std::string p(path);
-  std::replace(p.begin(), p.end(), '/', '\\');
+#if defined(__cpp_lib_ranges)
+  std::ranges::replace(p, '/', '\\');
+#endif
   return p;
 }
 
@@ -212,11 +218,12 @@ std::string fs_as_cygpath(std::string_view path)
   // like command line "cygpath --unix"
 
   std::string p(path);
-  std::replace(p.begin(), p.end(), '\\', '/');
+#if defined(__cpp_lib_ranges)
+  std::ranges::replace(p, '\\', '/');
 
  if(p[1] == ':' && std::isalpha(p[0]))
     return "/cygdrive/" + p.substr(0, 1) + p.substr(2);
-
+#endif
   return p;
 }
 
