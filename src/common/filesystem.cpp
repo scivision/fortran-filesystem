@@ -405,9 +405,8 @@ void fs_create_directories(std::string_view path)
 {
 
   fs::path p(path);
-  auto s = fs::status(p);
 
-  if(fs::exists(s)){
+  if(auto s = fs::status(p); fs::exists(s)){
     if(fs::is_directory(s))
        return;
     throw std::runtime_error("ffilesystem:create_directories: " + p.generic_string() + " exists but non-directory");
@@ -801,7 +800,7 @@ std::string fs_which(std::string_view name)
   std::string::size_type end = path.find_first_of(pathsep, start);
 
   while (end != std::string::npos) {
-    p = fs_join(path.substr(start, end - start), n);
+    p = fs_join(std::string_view(path).substr(start, end - start), n);
     if (FS_TRACE) std::cout << "TRACE:ffilesystem:which: " << p << "\n";
     if (fs_is_exe(p))
       return p;
@@ -809,7 +808,8 @@ std::string fs_which(std::string_view name)
     start = end + 1;
     end = path.find_first_of(pathsep, start);
   }
-  p = fs_join(path.substr(start), n);
+
+  p = fs_join(std::string_view(path).substr(start), n);
   if(fs_is_exe(p))
     return p;
 
