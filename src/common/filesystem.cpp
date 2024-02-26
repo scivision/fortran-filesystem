@@ -1310,26 +1310,26 @@ std::string fs_make_absolute(std::string_view path, std::string_view base)
 size_t fs_make_tempdir(char* result, size_t buffer_size){
   // Fortran / C / C++ interface function
 
-  std::string tmpdir;
   try{
-    tmpdir = fs_make_tempdir("tmp.");
+    return fs_str2char(fs_make_tempdir("tmp."), result, buffer_size);
   } catch(fs::filesystem_error& e) {
     std::cerr << "ERROR:ffilesystem:make_tempdir: " << e.what() << "\n";
     return 0;
   }
-  return fs_str2char(tmpdir, result, buffer_size);
 }
 
 
-std::string fs_make_tempdir(std::string prefix)
+std::string fs_make_tempdir(std::string_view prefix)
 {
   // make unique temporary directory starting with prefix
 
   fs::path t;
   size_t Lname = 16;  // arbitrary length for random string
+  fs::path temp = fs::temp_directory_path();
 
   do {
-    t = (fs::temp_directory_path() / (prefix + fs_generate_random_alphanumeric_string(Lname)));
+    t = (temp / (prefix.data() + fs_generate_random_alphanumeric_string(Lname)));
+    if(FS_TRACE) std::cout << "TRACE:make_tempdir: " << t << "\n";
   } while (fs::is_directory(t));
 
   if (!fs::create_directory(t))
@@ -1377,18 +1377,18 @@ std::string fs_long2short(std::string_view in){
 
   fs::path p(in);
   if (!fs::exists(p))
-    throw std::runtime_error("fs_long2short: path does not exist " + p.generic_string());
+    throw fs::filesystem_error("fs_long2short: path does not exist", p, std::error_code(errno, std::system_category()));
 
 #ifdef _WIN32
   auto buf = std::make_unique<char[]>(fs_get_max_path());
 // size includes null terminator
   DWORD L = GetShortPathNameA(in.data(), nullptr, 0);
   if (L == 0)
-    throw std::runtime_error("fs_long2short:GetShortPathName: could not determine short path length");
+    throw fs::filesystem_error("fs_long2short:GetShortPathName: could not determine short path length", p, std::error_code(GetLastError(), std::system_category()));
 
 // convert long path
   if(!GetShortPathNameA(in.data(), buf.get(), L))
-    throw std::runtime_error("fs_long2short:GetShortPathName: could not determine short path");
+    throw fs::filesystem_error("fs_long2short:GetShortPathName: could not determine short path", p, std::error_code(GetLastError(), std::system_category()));
 
   std::string out(buf.get());
 #else
@@ -1409,18 +1409,18 @@ std::string fs_short2long(std::string_view in){
 
   fs::path p(in);
   if (!fs::exists(p))
-    throw std::runtime_error("fs_short2long: path does not exist " + p.generic_string());
+    throw fs::filesystem_error("fs_short2long: path does not exist", p, std::error_code(errno, std::system_category()));
 
 #ifdef _WIN32
     auto buf = std::make_unique<char[]>(fs_get_max_path());
 // size includes null terminator
     DWORD L = GetLongPathNameA(in.data(), nullptr, 0);
     if(L == 0)
-      throw std::runtime_error("fs_short2long:GetLongPathName: could not determine path length");
+      throw fs::filesystem_error("fs_short2long:GetLongPathName: could not determine path length", p, std::error_code(GetLastError(), std::system_category()));
 
 // convert short path
     if(!GetLongPathNameA(in.data(), buf.get(), L))
-      throw std::runtime_error("fs_short2long:GetLongPathName could not determine path length");
+      throw fs::filesystem_error("fs_short2long:GetLongPathName could not determine path length", p, std::error_code(GetLastError(), std::system_category()));
 
     std::string out(buf.get());
 #else

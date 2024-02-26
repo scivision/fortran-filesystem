@@ -106,7 +106,7 @@ std::string fs_make_absolute(std::string_view, std::string_view);
 
 std::string fs_compiler();
 
-std::string fs_make_tempdir(std::string);
+std::string fs_make_tempdir(std::string_view);
 
 std::string fs_short2long(std::string_view);
 std::string fs_long2short(std::string_view);
