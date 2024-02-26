@@ -488,7 +488,8 @@ size_t fs_which(const char* name, char* result, size_t buffer_size)
 
   const char sep[2] = {fs_pathsep(), '\0'};
 
-  char* p = strtok(path, sep);
+// strtok_r, strtok_s not necessarily available, and non-C++ is fallback
+  char* p = strtok(path, sep);  // NOSONAR
   char* buf = (char*) malloc(buffer_size);
   if(!buf) return 0;
 
@@ -500,7 +501,7 @@ size_t fs_which(const char* name, char* result, size_t buffer_size)
       free(buf);
       return L;
     }
-    p = strtok(NULL, sep);
+    p = strtok(NULL, sep);  // NOSONAR
   }
 
   free(buf);
@@ -1202,8 +1203,9 @@ bool fs_create_directories(const char* path) {
   if (FS_TRACE) printf("TRACE: mkdir %s resolved => %s\n", path, buf);
 
 // use mkdir() building up directory components using strtok()
+// strtok_r, strtok_s not necessarily available, and non-C++ is fallback
 mkdir_loop: ;
-  char* q = strtok(buf, "/");
+  char* q = strtok(buf, "/");  // NOSONAR
   char* dir = (char*) malloc(L + 2);
   // + 2 to account for \0 and leading /
   if (!dir) {
@@ -1231,7 +1233,7 @@ mkdir_loop: ;
       return false;
     }
     strcat(dir, "/");
-    q = strtok(NULL, "/");
+    q = strtok(NULL, "/"); // NOSONAR
   }
   /* check that path was adequately resolved and created */
   size_t L1 = fs_resolve(path, false, buf, m);
