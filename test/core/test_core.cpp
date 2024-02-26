@@ -9,6 +9,23 @@
 
 #include "ffilesystem.h"
 
+void test_as_posix(){
+
+
+  std::string p;
+
+  if(!fs_as_posix(p).empty())
+    throw std::runtime_error("ERROR:test_as_posix: " + p);
+
+  p = "C:\\my\\path";
+  if(fs_as_posix(p) != "C:/my/path")
+    throw std::runtime_error("ERROR:test_as_posix: " + p);
+
+  std::cout << "OK: as_posix\n";
+
+
+}
+
 void test_filename()
 {
 
@@ -67,6 +84,7 @@ int main() {
   _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #endif
 
+  test_as_posix();
   test_filename();
 
   return EXIT_SUCCESS;
