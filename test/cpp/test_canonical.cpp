@@ -36,8 +36,8 @@ if(homep.empty())
   throw std::runtime_error("fs_parent(fs_get_homedir()) failed");
 
 // -- relative dir
-std::string homer = fs_canonical("~/..", true);
-if(homep != homer)
+
+if(std::string homer = fs_canonical("~/..", true); homep != homer)
   throw std::runtime_error("fs_canonical(~/..) != fs_parent(fs_get_homedir()) " + homer + " != " + homep);
 
 // -- relative file

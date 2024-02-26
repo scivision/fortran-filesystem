@@ -783,7 +783,8 @@ std::string fs_relative_to(std::string_view to, std::string_view from)
   if (to.empty() || from.empty())
     return {};
 
-  fs::path tp(to), fp(from);
+  fs::path tp(to);
+  fs::path fp(from);
   // cannot be relative, avoid bugs with MacOS
   if(tp.is_absolute() != fp.is_absolute())
     return {};
@@ -993,6 +994,7 @@ size_t fs_get_homedir(char* path, size_t buffer_size)
 std::string fs_get_homedir()
 {
 
+  // do not if() auto-init, it will segfault if getenv() is nullptr (env var not set)
   auto r = std::getenv(fs_is_windows() ? "USERPROFILE" : "HOME");
   if (r && std::strlen(r) > 0)
     return fs_normal(r);
@@ -1000,7 +1002,7 @@ std::string fs_get_homedir()
   std::string homedir;
 #ifdef _WIN32
   // works on MSYS2, MSVC, oneAPI.
-  DWORD L = static_cast<DWORD>(fs_get_max_path());
+  auto L = static_cast<DWORD>(fs_get_max_path());
   auto buf = std::make_unique<char[]>(L);
   // process with query permission
   HANDLE hToken = nullptr;

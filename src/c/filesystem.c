@@ -908,16 +908,15 @@ bool fs_touch(const char* path)
     return false;
   }
 
-  if(fs_is_file(path)){
+  if(fs_is_file(path) &&
 #ifdef _WIN32
     // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/utime-utime32-utime64-wutime-wutime32-wutime64
-    if(_utime(path, NULL)){
+    _utime(path, NULL)){
 #else
-    if(utimes(path, NULL)){
+    utimes(path, NULL)){
 #endif
-      fprintf(stderr, "ERROR:ffilesystem:touch: %s => %s\n", path, strerror(errno));
-      return false;
-    }
+    fprintf(stderr, "ERROR:ffilesystem:touch: %s => %s\n", path, strerror(errno));
+    return false;
   }
 
   FILE* fid = fopen(path, "a+b");
