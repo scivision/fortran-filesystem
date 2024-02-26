@@ -528,12 +528,14 @@ uintmax_t fs_space_available(const char* path)
   if(!fs_exists(path))
     return 0;
 
-  char* r = (char*) malloc(fs_get_max_path());
+  const size_t m = fs_get_max_path();
+
+  char* r = (char*) malloc(m);
   if(!r)
     return 0;
 
   // for robustness and clarity, use root of path
-  if (!fs_root(path, r, fs_get_max_path()))
+  if (!fs_root(path, r, m))
     goto retzero;
 
   struct statvfs stat;
@@ -556,15 +558,17 @@ bool fs_equivalent(const char* path1, const char* path2)
 {
 // both paths must exist, or they are not equivalent -- return false
 
-  char* buf1 = (char*) malloc(fs_get_max_path());
+  const size_t m = fs_get_max_path();
+
+  char* buf1 = (char*) malloc(m);
   if(!buf1) return false;
-  char* buf2 = (char*) malloc(fs_get_max_path());
+  char* buf2 = (char*) malloc(m);
   if(!buf2) {
     free(buf1);
     return false;
   }
 
-  if((!fs_canonical(path1, true, buf1, fs_get_max_path()) || !fs_canonical(path2, true, buf2, fs_get_max_path()) ||
+  if((!fs_canonical(path1, true, buf1, m) || !fs_canonical(path2, true, buf2, m) ||
       fs_is_char_device(path1) || fs_is_char_device(path2)) ||
     !(fs_is_dir(buf1) || fs_is_dir(buf2) || fs_is_file(buf1) || fs_is_file(buf2))){
 
@@ -932,7 +936,7 @@ bool fs_touch(const char* path)
 bool fs_is_subdir(const char* subdir, const char* dir)
 {
   // is subdir a subdirectory of dir -- lexical operation
-  size_t m = fs_get_max_path();
+  const size_t m = fs_get_max_path();
 
   char* buf1 = (char*) malloc(m);
   if(!buf1) return false;
@@ -1184,11 +1188,13 @@ bool fs_create_directories(const char* path) {
     return false;
   }
 
+  const size_t m = fs_get_max_path();
+
   // To disambiguate, use an absolute path -- must resolve multiple times because realpath only gives one level of non-existant path
-  char* buf = (char*) malloc(fs_get_max_path());
+  char* buf = (char*) malloc(m);
   if(!buf) return false;
 
-  size_t L = fs_resolve(path, false, buf, fs_get_max_path());
+  size_t L = fs_resolve(path, false, buf, m);
   if(L == 0){
     free(buf);
     return false;
@@ -1229,7 +1235,7 @@ mkdir_loop: ;
     q = strtok(NULL, "/");
   }
   /* check that path was adequately resolved and created */
-  size_t L1 = fs_resolve(path, false, buf, fs_get_max_path());
+  size_t L1 = fs_resolve(path, false, buf, m);
   if(L1 != L){
     if (FS_TRACE) printf("TRACE: mkdir %s iteration resolved => %s\n", path, buf);
     L = L1;
