@@ -606,8 +606,8 @@ bool fs_is_reserved(std::string_view path)
 {
 
 #ifndef _WIN32
-    return false;
     (void) path;
+    return false;
 #elif defined(__cpp_lib_ranges)
   if (path.empty())
     return false;
