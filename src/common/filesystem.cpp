@@ -1037,23 +1037,26 @@ std::string fs_expanduser(std::string_view path)
   if(path.empty())
     return {};
   // cannot call .front() on empty string_view() (MSVC)
+  std::string p = fs_as_posix(path);
 
-  if(path.front() != '~' || (path.length() > 1 && path.substr(0, 2) != "~/")){
-    if (FS_TRACE) std::cout << "TRACE:expanduser: not leading tilde " << path << "\n";
-    return fs_normal(path);
+#ifdef __cpp_lib_starts_ends_with
+  if(!p.starts_with('~') || (p.length() > 1 && !p.starts_with("~/"))){
+#else
+  if(p.front() != '~' || (p.length() > 1 && p.substr(0, 2) != "~/")){
+#endif
+    if (FS_TRACE) std::cout << "TRACE:expanduser: not leading tilde " << p << "\n";
+    return fs_normal(p);
   }
 
   std::string h = fs_get_homedir();
   if (h.empty())
-    return fs_normal(path);
+    return fs_normal(p);
 
   if (FS_TRACE) std::cout << "TRACE:expanduser: path(home) " << h << "\n";
 
 // drop duplicated separators
 // NOT .lexical_normal to handle "~/.."
   std::regex r("/{2,}");
-
-  std::string p(path);
   p = std::regex_replace(p, r, "/");
 
   if(FS_TRACE) std::cout << "TRACE:expanduser: path deduped " << p << "\n";
