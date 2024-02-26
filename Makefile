@@ -22,7 +22,7 @@ FOBJS := $(FSRCS:%=$(BUILD_DIR)/%.o)
 
 all: $(NAME)
 
-$(NAME): app/main.cpp $(OBJS)
+$(NAME): app/repl.cpp $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $< $(LDFLAGS)
 
 $(FNAME): app/fortran/filesystem_cli.f90 $(FOBJS) $(OBJS)

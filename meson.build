@@ -32,7 +32,7 @@ filesystem = library('filessystem',
 sources: [fsrcs, csrcs, cppsrcs],
 include_directories: inc)
 
-executable('fs_cli', sources: 'app/main.cpp', link_with: filesystem,
+executable('fs_cli', sources: 'app/repl.cpp', link_with: filesystem,
 include_directories: inc, install: true)
 
 if fortran

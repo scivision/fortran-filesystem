@@ -3,8 +3,13 @@ if(NOT HAVE_CXX_FILESYSTEM)
 endif()
 
 if(ffilesystem_cli)
-add_test(NAME Cpp_CLI_Cpp COMMAND fs_cli cpp)
-set_property(TEST Cpp_CLI_Cpp PROPERTY PASS_REGULAR_EXPRESSION "^1")
+
+add_test(NAME Cpp_CLI_Cpp
+COMMAND ${CMAKE_COMMAND}
+-Dexe=$<TARGET_FILE:fs_cli>
+"-Dregex=Ffilesystem\> 1"
+-P ${CMAKE_CURRENT_SOURCE_DIR}/../stdin.cmake
+)
 endif()
 
 foreach(t IN ITEMS canonical expanduser file utf8)

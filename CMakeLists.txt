@@ -142,11 +142,11 @@ endif()
 
 if(ffilesystem_cli)
   if(HAVE_CXX_FILESYSTEM)
-  add_executable(fs_cli app/main.cpp)
-  target_compile_definitions(fs_cli PRIVATE "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>")
-  target_link_libraries(fs_cli PRIVATE ffilesystem)
+    add_executable(fs_cli app/repl.cpp)
+    target_compile_definitions(fs_cli PRIVATE "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>")
+    target_link_libraries(fs_cli PRIVATE ffilesystem)
 
-  install(TARGETS fs_cli EXPORT ${PROJECT_NAME}-targets)
+    install(TARGETS fs_cli EXPORT ${PROJECT_NAME}-targets)
   endif()
 
   if(ffilesystem_fortran)

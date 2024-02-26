@@ -103,14 +103,6 @@ call p%remove()
 call remove("my/file.txt")
 ```
 
-write text in character variable to file (overwriting existing file)
-
-```fortran
-call p%write_text(text)
-! or
-call write_text(filename, text)
-```
-
 create symbolic link to file or directory:
 
 ```fortran
@@ -532,15 +524,6 @@ relative_to("/a/b/c", "/a/b")  !< "c"
 
 p = path_t("/a/b/c")
 p%relative_to("/a")  !< "b/c"
-```
-
-Read text from file into character variable (up to max_length characters).
-
-```fortran
-text = p%read_text(filename)
-text = p%read_text(filename, 16384)  !< default length
-! or
-text = read_text(filename)
 ```
 
 ## System
