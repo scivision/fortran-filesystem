@@ -1,6 +1,6 @@
 option(ffilesystem_cpp "Use C++ filesystem for full functionality" on)
 option(ffilesystem_fortran "use the Fortran interaces to C functions" on)
-option(ffilesystem_cli "Build CLI" on)
+option(ffilesystem_cli "Build CLI" ${PROJECT_IS_TOP_LEVEL})
 option(ffilesystem_fallback "Fallback to non-C++ filesystem.c if C++ stdlib is not working")
 option(ffilesystem_trace "debug trace output" off)
 
