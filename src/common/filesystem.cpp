@@ -1000,7 +1000,7 @@ std::string fs_get_homedir()
   std::string homedir;
 #ifdef _WIN32
   // works on MSYS2, MSVC, oneAPI.
-  DWORD L = fs_get_max_path();
+  DWORD L = static_cast<DWORD>(fs_get_max_path());
   auto buf = std::make_unique<char[]>(L);
   // process with query permission
   HANDLE hToken = nullptr;
@@ -1150,7 +1150,7 @@ std::string fs_exe_path()
 
 #ifdef _WIN32
  // https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
-  if (!GetModuleFileNameA(nullptr, buf.get(), fs_get_max_path()))
+  if (!GetModuleFileNameA(nullptr, buf.get(), static_cast<DWORD>(fs_get_max_path())))
     throw std::runtime_error("ffilesystem:exe_path: GetModuleFileName failed");
 #elif defined(__linux__) || defined(__CYGWIN__)
   // https://man7.org/linux/man-pages/man2/readlink.2.html

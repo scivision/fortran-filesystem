@@ -56,7 +56,8 @@ endif()
 
 if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
   check_cxx_symbol_exists(__cpp_lib_starts_ends_with "string" cpp20_string_ends_with)
-  check_cxx_symbol_exists(__cpp_lib_ranges "string" cpp20_ranges)
+  check_cxx_symbol_exists(__cpp_lib_ranges "algorithm" cpp20_ranges)
+  check_cxx_symbol_exists(__cpp_using_enum "" cpp20_using_enum)
 endif()
 
 endfunction()
