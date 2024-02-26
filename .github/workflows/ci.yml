@@ -132,6 +132,8 @@ jobs:
 
     strategy:
       matrix:
+# github actions clang 13, 14 have broken stdc++ between clang and GCC
+# https://github.com/actions/runner-images/issues/8659
         clang-version: [13, 14, 15]
         shared: [false]
         cpp: [true, false]
