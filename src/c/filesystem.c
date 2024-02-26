@@ -536,22 +536,23 @@ uintmax_t fs_space_available(const char* path)
     return 0;
 
   // for robustness and clarity, use root of path
-  if (!fs_root(path, r, m))
-    goto retzero;
+  if (!fs_root(path, r, m)){
+    fprintf(stderr, "ERROR:ffilesystem:space_available: %s => could not get root\n", path);
+    free(r);
+    return 0;
+  }
 
   struct statvfs stat;
 
   if (statvfs(r, &stat)) {
     fprintf(stderr, "ERROR:ffilesystem:space_available: %s => %s\n", r, strerror(errno));
-    goto retzero;
+    free(r);
+    return 0;
   }
   free(r);
 
   return stat.f_bsize * stat.f_bavail;
 
-retzero:
-  free(r);
-  return 0;
 #endif
 }
 
@@ -1173,38 +1174,9 @@ bool fs_copy_file(const char* source, const char* dest, bool overwrite) {
 }
 
 
-bool fs_create_directories(const char* path) {
-
-  if(strlen(path) == 0) {
-    fprintf(stderr, "ERROR:ffilesystem:create_directories: path must not be empty\n");
-    return false;
-  }
-
-  if(fs_exists(path)){
-    if(fs_is_dir(path))
-      return true;
-
-    fprintf(stderr, "ERROR:filesystem:create_directories: %s already exists but is not a directory\n", path);
-    return false;
-  }
-
-  const size_t m = fs_get_max_path();
-
-  // To disambiguate, use an absolute path -- must resolve multiple times because realpath only gives one level of non-existant path
-  char* buf = (char*) malloc(m);
-  if(!buf) return false;
-
-  size_t L = fs_resolve(path, false, buf, m);
-  if(L == 0){
-    free(buf);
-    return false;
-  }
-
-  if (FS_TRACE) printf("TRACE: mkdir %s resolved => %s\n", path, buf);
-
-// use mkdir() building up directory components using strtok()
+static bool _mkdir_segment(char* buf, size_t L) {
+  // use mkdir() building up directory components using strtok()
 // strtok_r, strtok_s not necessarily available, and non-C++ is fallback
-mkdir_loop: ;
   char* q = strtok(buf, "/");  // NOSONAR
   char* dir = (char*) malloc(L + 2);
   // + 2 to account for \0 and leading /
@@ -1235,16 +1207,61 @@ mkdir_loop: ;
     strcat(dir, "/");
     q = strtok(NULL, "/"); // NOSONAR
   }
-  /* check that path was adequately resolved and created */
-  size_t L1 = fs_resolve(path, false, buf, m);
-  if(L1 != L){
-    if (FS_TRACE) printf("TRACE: mkdir %s iteration resolved => %s\n", path, buf);
-    L = L1;
-    free(dir);
-    goto mkdir_loop;
-  }
 
   free(dir);
+  return true;
+}
+
+
+bool fs_create_directories(const char* path) {
+
+  if(strlen(path) == 0) {
+    fprintf(stderr, "ERROR:ffilesystem:create_directories: path must not be empty\n");
+    return false;
+  }
+
+  if(fs_exists(path)){
+    if(fs_is_dir(path))
+      return true;
+
+    fprintf(stderr, "ERROR:filesystem:create_directories: %s already exists but is not a directory\n", path);
+    return false;
+  }
+
+  const size_t m = fs_get_max_path();
+
+  // To disambiguate, use an absolute path -- must resolve multiple times because realpath only gives one level of non-existant path
+  char* buf = (char*) malloc(m);
+  if(!buf) return false;
+
+  size_t L = fs_resolve(path, false, buf, m);
+  if(L == 0){
+    free(buf);
+    return false;
+  }
+
+  if (FS_TRACE) printf("TRACE: mkdir %s resolved => %s\n", path, buf);
+  if(!_mkdir_segment(buf, L))
+    return false;
+
+  /* check that path was adequately resolved and created */
+  size_t L1 = fs_resolve(path, false, buf, m);
+
+  const size_t max_depth = 1000;  // sanity check in case algorithm fails
+  size_t i = 1;
+  while (L1 != L) {
+    if(!_mkdir_segment(buf, L1))
+      return false;
+    i++;
+    if(i > max_depth) {
+      fprintf(stderr, "ERROR:ffilesystem:create_directories: %s => too many iterations\n", path);
+      free(buf);
+      return false;
+    }
+    L = L1;
+    L1 = fs_resolve(path, false, buf, m);
+    if (FS_TRACE) printf("TRACE: mkdir %s iteration %zu resolved => %s   L1 %zu  L %zu\n", path, i, buf, L1, L);
+  }
 
   bool ok = fs_is_dir(buf);
   free(buf);
