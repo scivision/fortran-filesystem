@@ -37,7 +37,7 @@ include_directories: inc, install: true)
 
 if fortran
 executable('filesystem_cli',
-  sources: 'app/fortran/filesystem_cli.f90',
+  sources: 'app/fortran/repl.f90',
   link_with: filesystem,
   install: true)
 endif

@@ -25,7 +25,7 @@ all: $(NAME)
 $(NAME): app/repl.cpp $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $< $(LDFLAGS)
 
-$(FNAME): app/fortran/filesystem_cli.f90 $(FOBJS) $(OBJS)
+$(FNAME): app/fortran/repl.f90 $(FOBJS) $(OBJS)
 	$(FC) $(FFLAGS) $(FOBJS) $(OBJS) -o $@ $< $(LDFLAGS) -lstdc++
 
 $(BUILD_DIR)/%.c.o: %.c
