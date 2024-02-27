@@ -423,7 +423,7 @@ s = fs_copy_file(trim(src) // C_NULL_CHAR, trim(dest) // C_NULL_CHAR, ow)
 if (present(ok)) then
   ok = s
 elseif(.not. s) then
-  error stop "ERROR:ffilesystem:copy_file: failed to copy file: " // src // " to " // dest
+  error stop "ERROR:ffilesystem:copy_file: failed to copy file: " // trim(src) // " to " // trim(dest)
 endif
 end procedure
 

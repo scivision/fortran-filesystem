@@ -5,12 +5,19 @@ endif()
 set_property(DIRECTORY PROPERTY LABELS "fortran")
 
 if(ffilesystem_cli)
-add_test(NAME Fortran_CLI_Cpp COMMAND filesystem_cli cpp)
+
 if(HAVE_CXX_FILESYSTEM)
-  set_property(TEST Fortran_CLI_Cpp PROPERTY PASS_REGULAR_EXPRESSION "^T")
+  set(_r "^Ffilesystem\> T")
 else()
-  set_property(TEST Fortran_CLI_Cpp PROPERTY PASS_REGULAR_EXPRESSION "^F")
+  set(_r "^Ffilesystem\> F")
 endif()
+
+add_test(NAME Fortran_CLI_Cpp
+COMMAND ${CMAKE_COMMAND} -Dexe=$<TARGET_FILE:filesystem_cli>
+-Dregex=${_r}
+-P ${CMAKE_CURRENT_SOURCE_DIR}/../stdin.cmake
+)
+
 endif()
 
 foreach(t IN ITEMS canonical expanduser find relative resolve utf8)

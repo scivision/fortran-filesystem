@@ -149,7 +149,7 @@ while (true){
   else if (args.at(0) == "is_writable")
     std::cout << fs_is_writable(args.at(1)) << "\n";
   else if (args.at(0) == "perm")
-    std::cout << fs_get_permissions(args.at(1)) << "\n";
+    std::cout << fs_get_permissions(fs_expanduser(args.at(1))) << "\n";
   else if (args.at(0) == "mkdtemp"){
     try {
       std::cout << fs_make_tempdir(args.at(1)) << "\n";
@@ -187,7 +187,7 @@ while (true){
     }
   else if (args.at(0) == "space"){
     try {
-      std::cout << fs_space_available(args.at(1)) << "\n";
+      std::cout << fs_space_available(fs_expanduser(args.at(1))) << "\n";
     } catch (std::filesystem::filesystem_error& e){
       std::cerr << e.what() << "\n";
     }

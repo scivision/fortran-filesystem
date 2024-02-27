@@ -124,8 +124,7 @@ GNU Make:
 make
 ```
 
-For user convenience, we provide a demo executable "filesystem_cli" that allows simple testing of what the filesystem routines do.
-We also provide a REPL "fs_cli" that allows interactive testing of Ffilesystem routines.
+We provide Fortran REPL "filesystem_cli" and C++ REPL "fs_cli" for interactive testing of Ffilesystem routines.
 
 ## Usage from other projects
 
