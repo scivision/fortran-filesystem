@@ -126,6 +126,10 @@ while (true){
     std::cout << fs_root(args.at(1)) << "\n";
   else if (args.at(0) == "stem")
     std::cout << fs_stem(args.at(1)) << "\n";
+  else if (args.at(0) == "suffix")
+    std::cout << fs_suffix(args.at(1)) << "\n";
+  else if (args.at(0) == "filename")
+    std::cout << fs_file_name(args.at(1)) << "\n";
   else if (args.at(0) == "is_absolute")
     std::cout << fs_is_absolute(args.at(1)) << "\n";
   else if (args.at(0) == "exists")
@@ -146,7 +150,13 @@ while (true){
     std::cout << fs_is_writable(args.at(1)) << "\n";
   else if (args.at(0) == "perm")
     std::cout << fs_get_permissions(args.at(1)) << "\n";
-  else if (args.at(0) == "long2short"){
+  else if (args.at(0) == "mkdtemp"){
+    try {
+      std::cout << fs_make_tempdir(args.at(1)) << "\n";
+    } catch (std::filesystem::filesystem_error& e){
+      std::cerr << e.what() << "\n";
+    }
+  } else if (args.at(0) == "long2short"){
     try {
       std::cout << fs_long2short(args.at(1)) << "\n";
     } catch (std::filesystem::filesystem_error& e){
@@ -161,7 +171,13 @@ while (true){
     }
   } else if (args.at(0) == "is_symlink")
     std::cout << fs_is_symlink(args.at(1)) << "\n";
-  else if (args.at(0) == "normal")
+  else if (args.at(0) == "read_symlink"){
+    try {
+      std::cout << fs_read_symlink(args.at(1)) << "\n";
+    } catch (std::filesystem::filesystem_error& e){
+      std::cerr << e.what() << "\n";
+    }
+  } else if (args.at(0) == "normal")
     std::cout << fs_normal(args.at(1)) << "\n";
   else if (args.at(0) == "size")
     try {
@@ -169,7 +185,13 @@ while (true){
     } catch (std::filesystem::filesystem_error& e){
       std::cerr << e.what() << "\n";
     }
-  else if (args.at(0) == "mkdir"){
+  else if (args.at(0) == "space"){
+    try {
+      std::cout << fs_space_available(args.at(1)) << "\n";
+    } catch (std::filesystem::filesystem_error& e){
+      std::cerr << e.what() << "\n";
+    }
+  } else if (args.at(0) == "mkdir"){
     try {
       std::cout << "mkdir " << args.at(1) << "\n";
       fs_create_directories(args.at(1));
@@ -198,6 +220,8 @@ while (true){
 
   if (args.at(0) == "is_subdir")
     std::cout << fs_is_subdir(args.at(1), args.at(2)) << "\n";
+  else if (args.at(0) == "join")
+    std::cout << fs_join(args.at(1), args.at(2)) << "\n";
   else if (args.at(0) == "relative_to")
     std::cout << fs_relative_to(args.at(1), args.at(2)) << "\n";
   else if (args.at(0) == "same")
