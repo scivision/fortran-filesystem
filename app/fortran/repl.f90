@@ -14,7 +14,7 @@ character(Lcmd) :: cmd
 character(100) :: arg1, arg2
 
 integer :: i, i0, i1
-logical :: ok
+logical :: ok, done
 
 character, parameter :: delim = " "
 
@@ -33,6 +33,7 @@ main : do
     cmd = inp(:i1-1)
   end if
 
+  done = .true.
   select case (cmd)
   case ("cpp")
     print '(L1)', fs_cpp()
@@ -74,7 +75,11 @@ main : do
     print '(A)', lib_dir()
   case("lib_path")
     print '(A)', lib_path()
+  case default
+    done = .false.
   end select
+
+  if (done) cycle
 
   i0 = i1 + 1
   i1 = i0 + index(inp(i0:), delim)
@@ -82,6 +87,7 @@ main : do
   !print '(2i3)', i0, i1
   arg1 = inp(i0:i1-1)
 
+  done = .true.
   select case (cmd)
   case ("expanduser")
     print '(A)', expanduser(arg1)
@@ -138,14 +144,18 @@ main : do
     endif
   case ("chdir")
     print '(l1)', set_cwd(expanduser(arg1))
-
+  case default
+    done = .false.
   end select
+
+  if (done) cycle
 
   i0 = i1 !< not +1
   i1 = i0 + index(inp(i0:), delim)
   if(i1 == 0) error stop "not enough arguments for " // trim(cmd)
   arg2 = inp(i0:i1-1)
 
+  done = .true.
   select case (cmd)
   case ("is_subdir")
     print '(L1)', is_subdir(arg1, arg2)
@@ -167,8 +177,12 @@ main : do
     call copy_file(arg1, arg2, ok=ok)
     if (.not. ok) write(stderr, "(a)") "ERROR: failed to copy " // trim(arg1) // " -> " // trim(arg2)
   case default
-    write(stderr, "(a)") "unknown command: " // trim(cmd)
+    done = .false.
   end select
+
+  if (done) cycle
+
+  write(stderr, "(a)") "unknown command: " // trim(cmd)
 end do main
 
 end program repl
