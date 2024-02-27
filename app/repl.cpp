@@ -207,6 +207,15 @@ while (true){
     } catch (std::filesystem::filesystem_error& e){
       std::cerr << e.what() << "\n";
     }
+  } else if (args.at(0) == "ls") {
+    for (auto const& dir_entry : std::filesystem::directory_iterator{fs_expanduser(args.at(1))}){
+      fs::path p = dir_entry.path();
+      std::cout << p;
+      if (fs_is_file(p.generic_string()))
+        std::cout << " " << fs_file_size(p.generic_string());
+
+      std::cout << " " << fs_get_permissions(p.generic_string()) << "\n";
+    }
   } else {
     std::cerr << args.at(0) << " requires more arguments or is unknown function\n";
   }
