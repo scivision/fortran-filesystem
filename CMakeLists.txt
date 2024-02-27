@@ -66,13 +66,12 @@ endif()
 
 # --- filesystem library
 
-set(FETCHCONTENT_QUIET OFF)
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-
 if(NOT HAVE_CXX_FILESYSTEM)
+  set(FETCHCONTENT_QUIET OFF)
+  set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+
   FetchContent_Declare(cwalk
-  GIT_REPOSITORY https://github.com/likle/cwalk
-  GIT_TAG v1.2.9
+  URL https://github.com/likle/cwalk/archive/refs/tags/v1.2.9.tar.gz
   TLS_VERIFY ${CMAKE_TLS_VERIFY}
   )
   if(NOT cwalk_POPULATED)

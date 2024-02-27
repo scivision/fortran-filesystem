@@ -1,6 +1,8 @@
 // use ffilesystem library from C
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "ffilesystem.h"
 
@@ -14,9 +16,17 @@ int main(void) {
   printf("current working dir %s\n", d);
 
   fs_get_homedir(d, FS_MAX_PATH);
+  if(strlen(d) <= 1){
+    fprintf(stderr, "home dir failed  %s\n", d);
+    return EXIT_FAILURE;
+  }
   printf("home dir %s\n", d);
 
   fs_expanduser("~", d, FS_MAX_PATH);
+  if(strlen(d) <= 1){
+    fprintf(stderr, "expanduser('~') failed  %s\n", d);
+    return EXIT_FAILURE;
+  }
   printf("expanduser('~') %s\n", d);
 
   free(d);

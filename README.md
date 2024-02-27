@@ -1,4 +1,4 @@
-# Ffilesystem: for Fortran using C or C++
+# Ffilesystem: for Fortran using C++ filesystem or standalone C stdlib functions
 
 [![DOI](https://zenodo.org/badge/433875623.svg)](https://zenodo.org/badge/latestdoi/433875623)
 [![ci](https://github.com/scivision/fortran-filesystem/actions/workflows/ci.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci.yml)
@@ -8,9 +8,9 @@
 [![ci_meson](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml/badge.svg)](https://github.com/scivision/fortran-filesystem/actions/workflows/ci_meson.yml)
 
 Platform independent (Linux, macOS, Windows, Cygwin, WSL, BSD, ...), object-oriented Fortran filesystem "Ffilesystem" path manipulation library.
-The library also provides header
+Ffilesystem header
 [ffilesystem.h](./include/ffilesystem.h)
-that can be used from C and C++ project code--see
+can be used from C and C++ project code--see
 [example](./example).
 
 For C++ users, **C++17 standard** is required.

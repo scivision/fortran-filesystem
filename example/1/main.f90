@@ -4,10 +4,18 @@ use filesystem
 
 implicit none
 
+character(:), allocatable :: h
+
 print '(a)', "current working dir " // get_cwd()
 
-print '(a)', "home dir " // get_homedir()
+h = get_homedir()
+if(len_trim(h) == 0) error stop "homedir failed"
+print '(a)', "home dir " // h
 
-print '(a)', "expanduser('~') " // expanduser('~')
+h = expanduser('~')
+if(len_trim(h) == 0) error stop "expanduser failed"
+print '(a)', "expanduser('~') " // h
+
+deallocate(h)
 
 end program
