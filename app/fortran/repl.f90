@@ -24,7 +24,9 @@ main : do
   read(stdin, '(A)', iostat=i) inp
   if (i /= 0) exit
   if (is_iostat_end(i)) exit
+  if (len_trim(inp) == 1 .and. (inp(1:1) == "q" .or. iachar(inp(1:1)) == 4)) exit
   if (len_trim(inp) == 0) cycle
+
 
   i1 = index(inp, delim)
   if (i1 == 0) then
@@ -82,10 +84,25 @@ main : do
   if (done) cycle
 
   i0 = i1 + 1
-  i1 = i0 + index(inp(i0:), delim)
-  if(i1 == 0) error stop "not enough arguments for " // trim(cmd)
-  !print '(2i3)', i0, i1
-  arg1 = inp(i0:i1-1)
+  !> check for quoted argument
+  if (inp(i0:i0) == '"') then
+    i0 = i0 + 1
+    i1 = i0 + index(inp(i0:), '"')
+    if (i1 == 0) then
+      write(stderr, '(a)') "unterminated quoted argument"
+      cycle
+    endif
+    arg1 = inp(i0:i1-2)
+    i0 = i1 + 1
+  else
+    i1 = i0 + index(inp(i0:), delim)
+    if(i1 == 0) then
+      write(stderr, '(a)') "not enough arguments for " // trim(cmd)
+      cycle
+    endif
+    arg1 = inp(i0:i1-1)
+    i0 = i1
+  end if
 
   done = .true.
   select case (cmd)
@@ -144,16 +161,30 @@ main : do
     endif
   case ("chdir")
     print '(l1)', set_cwd(expanduser(arg1))
+  case ("longname")
+    print '(A)', short2long(arg1)
+  case ("shortname")
+    print '(A)', long2short(arg1)
   case default
     done = .false.
   end select
 
   if (done) cycle
 
-  i0 = i1 !< not +1
-  i1 = i0 + index(inp(i0:), delim)
-  if(i1 == 0) error stop "not enough arguments for " // trim(cmd)
-  arg2 = inp(i0:i1-1)
+  !> check for quoted argument
+  if (inp(i0:i0) == '"') then
+    i0 = i0 + 1
+    i1 = i0 + index(inp(i0:), '"')
+    if (i1 == 0) then
+      write(stderr, '(a)') "unterminated quoted argument"
+      cycle
+    endif
+    arg2 = inp(i0:i1-2)
+  else
+    i1 = i0 + index(inp(i0:), delim)
+    if(i1 == 0) error stop "not enough arguments for " // trim(cmd)
+    arg2 = inp(i0:i1-1)
+  endif
 
   done = .true.
   select case (cmd)

@@ -156,14 +156,14 @@ while (true){
     } catch (std::filesystem::filesystem_error& e){
       std::cerr << e.what() << "\n";
     }
-  } else if (args.at(0) == "long2short"){
+  } else if (args.at(0) == "shortname"){
     try {
       std::cout << fs_long2short(args.at(1)) << "\n";
     } catch (std::filesystem::filesystem_error& e){
       std::cerr << e.what() << "\n";
     }
     std::cout << fs_long2short(args.at(1)) << "\n";
-  } else if (args.at(0) == "short2long"){
+  } else if (args.at(0) == "longname"){
     try {
       std::cout << fs_short2long(args.at(1)) << "\n";
     } catch (std::filesystem::filesystem_error& e){
