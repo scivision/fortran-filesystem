@@ -21,13 +21,6 @@
 #include <sys/time.h>
 #endif
 
-#if defined(_WIN32) && !defined(NOMINMAX)
-#define NOMINMAX
-#endif
-#ifndef min
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif
-
 #if defined(__APPLE__) && defined(__MACH__)
 #include "TargetConditionals.h"  /* TARGET_OS_MAC */
 #endif
@@ -170,7 +163,7 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size)
   cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
 
   size_t L = cwk_path_normalize(path, result, buffer_size);
-  if(L > buffer_size){
+  if(L >= buffer_size){
     fprintf(stderr, "ERROR:ffilesystem: output buffer too small for string\n");
     return 0;
   }
@@ -197,10 +190,13 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size)
 
 if(FS_TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
 
-  strncpy(result, base, buffer_size);
-  size_t L = strlen(result);
-  result[L] = '\0';
+  size_t L = strlen(base);
+  if(L >= buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem:fs_file_name: buffer_size %zu too small\n", buffer_size);
+    return 0;
+  }
 
+  strncpy(result, base, buffer_size);
   return L;
 }
 
@@ -214,15 +210,18 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size)
     return 0;
   }
 
+  if(strlen(buf) >= buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem:fs_stem: buffer_size %zu too small\n", buffer_size);
+    free(buf);
+    return 0;
+  }
+
   char* pos = strrchr(buf, '.');
   if (pos && pos != buf){
     strncpy(result, buf, pos-buf);
-    result[pos-buf] = '\0';
-  }
-  else {
+    result[pos-buf] = '\0';  // need this to truncate suffix
+  } else
     strncpy(result, buf, buffer_size);
-    result[strlen(result)] = '\0';
-  }
 
   free(buf);
   return strlen(result);
@@ -254,13 +253,18 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size)
     return 0;
   }
 
-  size_t M = min(L-1, buffer_size-1);
-  strncpy(result, buf, M);
+  if (L >= buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem:fs_parent: buffer_size too small for string\n");
+    free(buf);
+    return 0;
+  }
+  L--; // remove trailing slash
+  strncpy(result, buf, L);
+  result[L] = '\0';
   free(buf);
-  result[M] = '\0';
 
-if(FS_TRACE) printf("TRACE: parent: %s => %s  %zu\n", path, result, M);
-  return M;
+if(FS_TRACE) printf("TRACE: parent: %s => %s  %zu\n", path, result, L);
+  return L;
 }
 
 
@@ -274,13 +278,10 @@ size_t fs_suffix(const char* path, char* result, size_t buffer_size)
   }
 
   char* pos = strrchr(buf, '.');
-  if (pos && pos != buf){
+  if (pos && pos != buf)
     strncpy(result, pos, buffer_size);
-    result[strlen(result)] = '\0';
-  }
-  else {
+  else
     result[0] = '\0';
-  }
 
   free(buf);
 
@@ -295,11 +296,15 @@ size_t fs_with_suffix(const char* path, const char* suffix,
     return fs_stem(path, result, buffer_size);
 
   if(path[0] == '.'){
+    size_t L = strlen(path) + strlen(suffix);
+    if (L >= buffer_size){
+      fprintf(stderr, "ERROR:ffilesystem:fs_with_suffix: buffer_size too small for string\n");
+      return 0;
+    }
     // workaround for leading dot filename
     strncpy(result, path, buffer_size);
-    result[strlen(result)] = '\0';
     strncat(result, suffix, buffer_size);
-    return strlen(result);
+    return L;
   }
 
   cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
@@ -729,12 +734,15 @@ size_t fs_root(const char* path, char* result, size_t buffer_size)
 
   cwk_path_get_root(path, &L);
 
-  size_t M = min(L, buffer_size);
-  strncpy(result, path, M);
-  result[M] = '\0';
+  if(L >= buffer_size){
+     fprintf(stderr, "ERROR:ffilesystem:fs_root: buffer_size %zu too small\n", buffer_size);
+     return 0;
+  }
 
-if(FS_TRACE) printf("TRACE: root: %s => %s  %zu\n", path, result, M);
-  return M;
+  strncpy(result, path, L);
+
+if(FS_TRACE) printf("TRACE: root: %s => %s  %zu\n", path, result, L);
+  return L;
 }
 
 
@@ -982,8 +990,13 @@ size_t fs_make_absolute(const char* path, const char* base,
     return 0;
   }
   L1 = fs_join(buf, result, buf2, buffer_size);
+  if(L1 >= buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem:fs_make_absolute: buffer_size %zu too small\n", buffer_size);
+    free(buf);
+    free(buf2);
+    return 0;
+  }
   strncpy(result, buf2, buffer_size);
-  result[L1] = '\0';
   free(buf);
   free(buf2);
   return L1;
@@ -1018,6 +1031,10 @@ size_t fs_long2short(const char* in, char* out, size_t buffer_size){
   return 0;
 #else
   fprintf(stderr, "ERROR:ffilesystem:fs_long2short: windows-only\n");
+  if(strlen(in) >= buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem:fs_long2short: buffer_size %zu too small\n", buffer_size);
+    return 0;
+  }
   strncpy(out, in, buffer_size);
   return strlen(out);
 #endif
@@ -1030,6 +1047,10 @@ size_t fs_short2long(const char* in, char* out, size_t buffer_size){
   return 0;
 #else
   fprintf(stderr, "ERROR:ffilesystem:fs_short2long: windows-only\n");
+  if(strlen(in) >= buffer_size){
+    fprintf(stderr, "ERROR:ffilesystem:fs_short2long: buffer_size %zu too small\n", buffer_size);
+    return 0;
+  }
   strncpy(out, in, buffer_size);
   return strlen(out);
 #endif
@@ -1097,7 +1118,7 @@ size_t fs_get_tempdir(char* path, size_t buffer_size)
     return L;
 
   if (buffer_size > 4 && fs_is_dir("/tmp")){
-    strcpy(path, "/tmp");
+    strncpy(path, "/tmp", 5);
     return 4;
   }
 

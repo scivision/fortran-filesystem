@@ -251,12 +251,14 @@ end subroutine test_stem
 subroutine test_parent()
 
 type(path_t) :: p1, p2
+character(:), allocatable :: p
 
 if(parent("") /= "") error stop "parent empty: " // parent("")
 
 p1 = path_t("a/b/c")
-if (p1%parent() /= "a/b") then
-  write(stderr,*) "parent failed: ", p1%parent()
+p = p1%parent()
+if (len_trim(p) /= 3 .or. p /= "a/b") then
+  write(stderr, '(a,i0)') "parent failed: " // trim(p) // " expected a/b length: ", len_trim(p)
   error stop
 endif
 p2 = path_t(p1%parent())

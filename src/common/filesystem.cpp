@@ -143,7 +143,7 @@ static size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
     return 0;
   }
 
-  std::strcpy(result, s.data());
+  std::strncpy(result, s.data(), buffer_size);
   return std::strlen(result);
 }
 
