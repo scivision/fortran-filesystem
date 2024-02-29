@@ -164,7 +164,7 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size)
 
   size_t L = cwk_path_normalize(path, result, buffer_size);
   if(L >= buffer_size){
-    fprintf(stderr, "ERROR:ffilesystem: output buffer too small for string\n");
+    fprintf(stderr, "ERROR:ffilesystem:normal: output buffer %zu too small\n", buffer_size);
     return 0;
   }
 
@@ -210,11 +210,7 @@ size_t fs_stem(const char* path, char* result, size_t buffer_size)
     return 0;
   }
 
-  if(strlen(buf) >= buffer_size){
-    fprintf(stderr, "ERROR:ffilesystem:fs_stem: buffer_size %zu too small\n", buffer_size);
-    free(buf);
-    return 0;
-  }
+  // no need to recheck buffer_size as it's already checked in fs_file_name()
 
   char* pos = strrchr(buf, '.');
   if (pos && pos != buf){
@@ -602,7 +598,7 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
   if(!buf) return 0;
   if (!fs_get_homedir(buf, buffer_size)) {
     free(buf);
-    return fs_normal(path, result, buffer_size);
+    return 0;
   }
 
   // ~ alone
