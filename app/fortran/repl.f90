@@ -18,6 +18,8 @@ logical :: ok, done
 
 character, parameter :: delim = " "
 
+if(is_admin()) write(stderr, '(a)') "WARNING: running as admin / sudo"
+
 main : do
   write(stdout, "(a)", advance="no") "Ffilesystem> "
 

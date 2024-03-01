@@ -24,6 +24,9 @@ int main(){
   _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #endif
 
+if(fs_is_admin())
+  std::cerr << "WARNING: running as admin / sudo\n";
+
 while (true){
 
   std::string inp;
