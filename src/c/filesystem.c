@@ -177,20 +177,22 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size)
 
 size_t fs_file_name(const char* path, char* result, size_t buffer_size)
 {
-  if(strlen(path) == 0){
-    result[0] = '\0';
+  size_t L = strlen(path);
+  if(L == 0)
     return 0;
-  }
+
+  // same as C++17 std::filesystem::path::filename()
+  if (path[L-1] == '/' || (fs_is_windows() && path[L-1] == '\\'))
+    return 0;
 
   const char *base;
 
   cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
 
-  cwk_path_get_basename(path, &base, NULL);
+  cwk_path_get_basename(path, &base, &L);
 
 if(FS_TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
 
-  size_t L = strlen(base);
   if(L >= buffer_size){
     fprintf(stderr, "ERROR:ffilesystem:fs_file_name: buffer_size %zu too small\n", buffer_size);
     return 0;
@@ -245,7 +247,6 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size)
   cwk_path_get_dirname(buf, &L);
   if(L == 0){
     free(buf);
-    result[0] = '\0';
     return 0;
   }
 
@@ -315,10 +316,8 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
   // also expands ~
   // distinct from resolve()
 
-  if(strlen(path) == 0){
-    result[0] = '\0';
+  if(strlen(path) == 0)
     return 0;
-  }
 
   if(strlen(path) == 1 && path[0] == '.')
     return fs_get_cwd(result, buffer_size);
@@ -456,7 +455,6 @@ bool fs_set_cwd(const char* path){
 
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
 {
-  result[0] = '\0';
   if((strlen(to) == 0) || (strlen(from) == 0))
     return 0;
 
@@ -474,7 +472,6 @@ size_t fs_relative_to(const char* to, const char* from, char* result, size_t buf
 
 size_t fs_which(const char* name, char* result, size_t buffer_size)
 {
-  result[0] = '\0';
   if(strlen(name) == 0)
     return 0;
 
