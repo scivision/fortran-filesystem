@@ -177,6 +177,8 @@ p2 = path_t("a")
 if (p1%file_name() /= "c") error stop "file_name failed: " // p1%file_name()
 if (p2%file_name() /= "a") error stop "file_name idempotent failed: " // p2%file_name()
 
+if(file_name("file/") /= "") error stop "file_name trailing separator should be empty " // file_name("file/")
+
 if(file_name("file_name") /= "file_name") then
   write(stderr,*) "ERROR: file_name plain filename: " // file_name("file_name")
   error stop
