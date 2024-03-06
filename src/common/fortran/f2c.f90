@@ -1,5 +1,6 @@
 submodule (filesystem) fort2c_ifc
 
+use, intrinsic:: iso_fortran_env, only: stderr=>error_unit
 use, intrinsic :: iso_c_binding, only : C_NULL_CHAR, C_SIZE_T
 
 implicit none
