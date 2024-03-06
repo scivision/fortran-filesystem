@@ -94,18 +94,23 @@ bool fs_is_admin(){
 	TOKEN_ELEVATION elevation;
 	DWORD dwSize;
 
-	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
-		goto fin;
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)){
+    if (hToken)
+		  CloseHandle(hToken);
+	  return adm;
+  }
 
-	if (!GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize))
-		goto fin;
+	if (!GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize)){
+    if (hToken)
+		  CloseHandle(hToken);
+	  return adm;
+  }
 
 	adm = elevation.TokenIsElevated;
 
-fin:
-  if (hToken)
-		CloseHandle(hToken);
-	return adm;
+  CloseHandle(hToken);
+  return adm;
+
 #else
   return geteuid() == 0;
 #endif
