@@ -1051,8 +1051,10 @@ std::string Ffs::expanduser(std::string_view path)
   }
 
   std::string h = Ffs::get_homedir();
-  if (h.empty())
-    return Ffs::normal(p);
+  if (h.empty()){
+    std::cerr << "ERROR:ffilesystem:expanduser: could not get home directory\n";
+    return {};
+  }
 
   if (FS_TRACE) std::cout << "TRACE:expanduser: path(home) " << h << "\n";
 
