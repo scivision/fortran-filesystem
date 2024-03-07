@@ -997,9 +997,8 @@ size_t fs_get_homedir(char* path, size_t buffer_size)
 std::string Ffs::get_homedir()
 {
 
-  // do not if() auto-init, it will segfault if getenv() is nullptr (env var not set)
-  auto r = std::getenv(fs_is_windows() ? "USERPROFILE" : "HOME");
-  if (r && std::strlen(r) > 0)
+  // r && std::strlen(r) > 0 is in case getenv returns nullptr
+  if(auto r = std::getenv(fs_is_windows() ? "USERPROFILE" : "HOME"); r && std::strlen(r) > 0)
     return Ffs::normal(r);
 
   std::string homedir;
