@@ -22,10 +22,10 @@ FOBJS := $(FSRCS:%=$(BUILD_DIR)/%.o)
 
 all: $(NAME)
 
-$(NAME): app/repl.cpp $(OBJS)
+$(NAME): app/main.cpp $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $< $(LDFLAGS)
 
-$(FNAME): app/fortran/repl.f90 $(FOBJS) $(OBJS)
+$(FNAME): app/fortran/main.f90 $(FOBJS) $(OBJS)
 	$(FC) $(FFLAGS) $(FOBJS) $(OBJS) -o $@ $< $(LDFLAGS) -lstdc++
 
 $(BUILD_DIR)/%.c.o: %.c

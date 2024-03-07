@@ -1,15 +1,230 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
+#include <vector>
+#include <functional>
+#include <map>
+#include <exception>
+
+#include <filesystem>
 
 #ifdef _MSC_VER
+#define WIN32_LEAN_AND_MEAN
 #include <crtdbg.h>
 #endif
 
 #include "ffilesystem.h"
 
 
-int main(int argc, char* argv[]){
+static void no_arg(std::string_view fun){
+
+  // map string to function call using std::map std::function
+
+  std::map<std::string_view, std::function<bool()>> mbool =
+  {
+    {"cpp", fs_cpp},
+    {"is_admin", fs_is_admin},
+    {"is_bsd", fs_is_bsd},
+    {"is_linux", fs_is_linux},
+    {"is_macos", fs_is_macos},
+    {"is_unix", fs_is_unix},
+    {"is_windows", fs_is_windows},
+    {"is_mingw", fs_is_mingw},
+    {"is_cygwin", fs_is_cygwin}
+  };
+
+  std::map<std::string_view, std::function<std::string()>> mstring =
+  {
+    {"compiler", Ffs::compiler},
+    {"homedir", Ffs::get_homedir},
+    {"cwd", Ffs::get_cwd},
+    {"tempdir", Ffs::get_tempdir},
+    {"exe_dir", Ffs::exe_dir},
+    {"exe_path", Ffs::exe_path},
+    {"lib_path", Ffs::lib_path},
+    {"lib_dir", Ffs::lib_dir}
+  };
+
+  std::map<std::string_view, std::function<int()>> mint =
+  {
+    {"is_wsl", fs_is_wsl}
+  };
+
+  std::map<std::string_view, std::function<char()>> mchar =
+  {
+    {"pathsep", fs_pathsep}
+  };
+
+  std::map<std::string_view, std::function<long()>> mlong =
+  {
+    {"lang", fs_lang}
+  };
+
+  if (mbool.contains(fun))
+    std::cout << mbool[fun]() << "\n";
+  else if (mstring.contains(fun))
+    std::cout << mstring[fun]() << "\n";
+  else if (mint.contains(fun))
+    std::cout << mint[fun]() << "\n";
+  else if (mchar.contains(fun))
+    std::cout << mchar[fun]() << "\n";
+  else if (mlong.contains(fun))
+    std::cout << mlong[fun]() << "\n";
+  else
+    std::cerr << fun << " not a known function\n";
+
+}
+
+static void one_arg(std::string_view fun, std::string_view a1){
+
+  std::map<std::string_view, std::function<bool(std::string_view)>> mbool =
+  {
+    {"is_dir", Ffs::is_dir},
+    {"is_exe", Ffs::is_exe},
+    {"is_file", Ffs::is_file},
+    {"remove", Ffs::remove},
+    {"is_reserved", Ffs::is_reserved},
+    {"is_readable", Ffs::is_readable},
+    {"is_writable", Ffs::is_writable},
+    {"is_symlink", Ffs::is_symlink},
+    {"exists", Ffs::exists},
+    {"is_absolute", Ffs::is_absolute},
+    {"is_char", Ffs::is_char_device},
+    {"mkdir", Ffs::mkdir}
+  };
+
+  std::map<std::string_view, std::function<std::string(std::string_view)>> mstring =
+  {
+    {"as_posix", Ffs::as_posix},
+    {"as_windows", Ffs::as_windows},
+    {"as_cygpath", Ffs::as_cygpath},
+    {"expanduser", Ffs::expanduser},
+    {"which", Ffs::which},
+    {"parent", Ffs::parent},
+    {"root", Ffs::root},
+    {"stem", Ffs::stem},
+    {"suffix", Ffs::suffix},
+    {"filename", Ffs::file_name},
+    {"perm", Ffs::get_permissions},
+    {"read_symlink", Ffs::read_symlink},
+    {"normal", Ffs::normal},
+    {"mkdtemp", Ffs::mkdtemp},
+    {"shortname", Ffs::shortname},
+    {"longname", Ffs::longname}
+  };
+
+  std::map<std::string_view, std::function<std::string(std::string_view, bool)>> mstrb =
+  {
+    {"canonical", Ffs::canonical},
+    {"resolve", Ffs::resolve}
+  };
+
+  std::map<std::string_view, std::function<uintmax_t(std::string_view)>> mmax =
+  {
+    {"size", Ffs::file_size},
+    {"space", Ffs::space_available}
+  };
+
+  std::map<std::string_view, std::function<void(std::string_view)>> mvoid =
+  {
+    {"touch", Ffs::touch}
+  };
+
+  if(mbool.contains(fun))
+    std::cout << mbool[fun](a1) << "\n";
+  else if (mstring.contains(fun))
+    std::cout << mstring[fun](a1) << "\n";
+  else if (mstrb.contains(fun))
+    std::cout << mstrb[fun](a1, false) << "\n";
+  else if (mmax.contains(fun))
+    std::cout << mmax[fun](a1) << "\n";
+  else if (mvoid.contains(fun))
+    mvoid[fun](a1);
+  else if (fun == "chdir" || fun == "set_cwd") {
+    std::cout << "cwd: " << Ffs::get_cwd() << "\n";
+    try {
+      Ffs::chdir(a1);
+      std::cout << "new cwd: " << Ffs::get_cwd() << "\n";
+    } catch (std::filesystem::filesystem_error& e){
+      std::cerr << e.what() << "\n";
+    }
+  } else if (fun == "ls") {
+    for (auto const& dir_entry : std::filesystem::directory_iterator{Ffs::expanduser(a1)}){
+      fs::path p = dir_entry.path();
+      std::cout << p;
+      if (Ffs::is_file(p.generic_string()))
+        std::cout << " " << Ffs::file_size(p.generic_string());
+
+      std::cout << " " << Ffs::get_permissions(p.generic_string()) << "\n";
+    }
+  } else {
+    std::cerr << fun << " requires more arguments or is unknown function\n";
+  }
+}
+
+
+static void two_arg(std::string_view fun, std::string_view a1, std::string_view a2){
+
+  std::map<std::string_view, std::function<bool(std::string_view, std::string_view)>> mbool =
+  {
+    {"is_subdir", Ffs::is_subdir},
+    {"same", Ffs::equivalent}
+  };
+
+  std::map<std::string_view, std::function<std::string(std::string_view, std::string_view)>> mstring =
+  {
+    {"join", Ffs::join},
+    {"relative_to", Ffs::relative_to},
+    {"with_suffix", Ffs::with_suffix}
+  };
+
+  std::map<std::string_view, std::function<void(std::string_view, std::string_view)>> mvoid =
+  {
+    {"create_symlink", Ffs::create_symlink}
+  };
+
+  std::map<std::string_view, std::function<void(std::string_view, std::string_view, bool)>> mvoidb =
+  {
+    {"copy", Ffs::copy_file}
+  };
+
+  if (mbool.contains(fun))
+    std::cout << mbool[fun](a1, a2) << "\n";
+  else if (mstring.contains(fun))
+    std::cout << mstring[fun](a1, a2) << "\n";
+  else if (mvoid.contains(fun))
+    mvoid[fun](a1, a2);
+  else if (mvoidb.contains(fun))
+    mvoidb[fun](a1, a2, false);
+  else
+    std::cerr << fun << " requires more arguments or is unknown function\n";
+
+}
+
+static void four_arg(std::string_view fun, std::string_view a1, std::string_view a2, std::string_view a3, std::string_view a4){
+  if (fun == "set_perm"){
+    int r = std::stoi(a2.data());
+    int w = std::stoi(a3.data());
+    int x = std::stoi(a4.data());
+
+    std::cout << "before chmod " << a1 << " " << Ffs::get_permissions(a1) << "\n";
+
+    try {
+      Ffs::set_permissions(a1, r, w, x);
+    } catch (std::filesystem::filesystem_error& e){
+      std::cerr << e.what() << "\n";
+      return;
+    }
+
+    std::cout << "after chmod " << a1 << " " << Ffs::get_permissions(a1) << "\n";
+  } else {
+    std::cerr << fun << " requires more arguments or is unknown function\n";
+  }
+
+}
+
+
+int main(){
 #ifdef _MSC_VER
   _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
   _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
@@ -19,136 +234,57 @@ int main(int argc, char* argv[]){
   _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #endif
 
-  if (argc == 1) {
-    std::cerr << "fs_cli <function_name> [<arg1> ...]\n";
-    return EXIT_FAILURE;
-  }
+if(fs_is_admin())
+  std::cerr << "WARNING: running as admin / sudo\n";
 
-  std::string arg1 = argv[1];
-  std::string arg2, arg3;
-  // default initializer for std::string is empty string
-  if(argc > 2)
-    arg2 = argv[2];
-  if(argc > 3)
-    arg3 = argv[3];
+while (true){
 
-  if (arg1 == "pathsep")
-    std::cout << fs_pathsep() << "\n";
-  else if (arg1 == "touch"){
-    std::cout << "touch " << arg2 << "\n";
-    Ffs::touch(arg2);
-  }
-  else if (arg1 == "remove")
-    std::cout << "remove " << arg2 << " " << Ffs::remove(arg2) << "\n";
-  else if (arg1 == "expanduser")
-    std::cout << Ffs::expanduser(arg2) << "\n";
-  else if (arg1 == "canonical")
-    std::cout << Ffs::canonical(arg2, false) << "\n";
-  else if (arg1 == "resolve")
-    std::cout << Ffs::resolve(arg2, false) << "\n";
-  else if (arg1 == "compiler")
-    std::cout << fs_compiler() << "\n";
-  else if (arg1 == "chdir" || arg1 == "set_cwd"){
-    std::cout << "cwd: " << Ffs::get_cwd() << "\n";
-    Ffs::chdir(arg2);
-    std::cout << "new cwd: " << Ffs::get_cwd() << "\n";
-  }
-  else if (arg1 == "perm")
-    std::cout << Ffs::get_permissions(arg2) << "\n";
-  else if (arg1 == "set_perm" && argc == 6){
-    if(fs_is_windows())
-      std::cerr << "chmod is not supported on Windows\n";
+  std::string inp;
 
-    int r = std::stoi(arg3);
-    int w = std::stoi(argv[4]);
-    int x = std::stoi(argv[5]);
-    std::cout << "chmod " << Ffs::get_permissions(arg2) << " " << arg2 << " => ";
-    Ffs::set_permissions(arg2, r, w, x);
-    std::cout << Ffs::get_permissions(arg2) << " " << arg2 << "\n";
-  }
-  else if (arg1 == "cpp")
-    std::cout << fs_cpp() << "\n";
-  else if (arg1 == "lang")
-    std::cout << fs_lang() << "\n";
-  else if (arg1 == "homedir")
-    std::cout << Ffs::get_homedir() << "\n";
-  else if (arg1 == "tempdir")
-    std::cout << Ffs::get_tempdir() << "\n";
-  else if (arg1 == "lib_path")
-    std::cout << Ffs::lib_path() << "\n";
-  else if (arg1 == "lib_dir")
-    std::cout << Ffs::lib_dir() << "\n";
-  else if (arg1 == "exe_path")
-    std::cout << Ffs::exe_path() << "\n";
-  else if (arg1 == "exe_dir")
-    std::cout << Ffs::exe_dir() << "\n";
-  else if (arg1 == "is_admin")
-    std::cout << fs_is_admin() << "\n";
-  else if (arg1 == "is_bsd")
-    std::cout << fs_is_bsd() << "\n";
-  else if (arg1 == "is_linux")
-    std::cout << fs_is_linux() << "\n";
-  else if (arg1 == "is_macos")
-    std::cout << fs_is_macos() << "\n";
-  else if (arg1 == "is_unix")
-    std::cout << fs_is_unix() << "\n";
-  else if (arg1 == "is_windows")
-    std::cout << fs_is_windows() << "\n";
-  else if (arg1 == "is_wsl")
-    std::cout << fs_is_wsl() << "\n";
-  else if (arg1 == "is_mingw")
-    std::cout << fs_is_mingw() << "\n";
-  else if (arg1 == "is_cygwin")
-    std::cout << fs_is_cygwin() << "\n";
-  else if (arg1 == "parent")
-    std::cout << Ffs::parent(arg2) << "\n";
-  else if (arg1 == "root")
-    std::cout << Ffs::root(arg2) << "\n";
-  else if (arg1 == "file_size")
-    std::cout << Ffs::file_size(arg2) << "\n";
-  else if (arg1 == "exists")
-    std::cout << Ffs::exists(arg2) << "\n";
-  else if (arg1 == "is_dir")
-    std::cout << Ffs::is_dir(arg2) << "\n";
-  else if (arg1 == "is_subdir")
-    std::cout << Ffs::is_subdir(arg2, arg3) << "\n";
-  else if (arg1 == "is_exe")
-    std::cout << Ffs::is_exe(arg2) << "\n";
-  else if (arg1 == "which")
-    std::cout << Ffs::which(arg2) << "\n";
-  else if (arg1 == "long2short")
-    std::cout << Ffs::shortname(arg2) << "\n";
-  else if (arg1 == "short2long")
-    std::cout << Ffs::longname(arg2) << "\n";
-  else if (arg1 == "is_char")
-    std::cout << Ffs::is_char_device(arg2) << "\n";
-  else if (arg1 == "is_file")
-    std::cout << Ffs::is_file(arg2) << "\n";
-  else if (arg1 == "same")
-    std::cout << Ffs::equivalent(arg2, arg3) << "\n";
-  else if (arg1 == "create_symlink"){
-    std::cout << "create_symlink " << arg2 << " <= " << arg3 << "\n";
-    Ffs::create_symlink(arg2, arg3);
-  } else if (arg1 == "is_symlink")
-    std::cout << Ffs::is_symlink(arg2) << "\n";
+  std::cout << "Ffilesystem> ";
 
-  else if (arg1 == "copy_file"){
-    std::cout << "copy_file " << arg2 << " => " << arg3 << "\n";
-    Ffs::copy_file(arg2, arg3, false);
-  } else if (arg1 == "mkdir"){
-    std::cout << "mkdir " << arg2 << "\n";
-    Ffs::mkdir(arg2);
+  std::getline(std::cin, inp);
+
+  // "\x04" is Ctrl-D on Windows.
+  // EOF for non-Windows
+  if (std::cin.eof() || inp == "\x04" || inp == "q")
+    break;
+
+  // split variable inp on space-delimiters
+  const char delimiter = ' ';
+  size_t pos = 0;
+  std::vector<std::string> args;
+  // FIXME: loop getline() instead
+  while ((pos = inp.find(delimiter)) != std::string::npos) {
+      args.push_back(inp.substr(0, pos));
+      inp.erase(0, pos + 1);  // + 1 as delimiter is 1 char
   }
-  else if (arg1 == "relative_to")
-    std::cout << Ffs::relative_to(arg2, arg3) << "\n";
-  else if (arg1 == "normal")
-    std::cout << Ffs::normal(arg2) << "\n";
-  else{
-    std::cerr << "fs_cli <function_name> [<arg1> ...]\n";
-    return EXIT_FAILURE;
+  // last argument
+  args.push_back(inp);
+
+  if(args.empty())
+    continue;
+
+  size_t argc = args.size();
+
+  switch (argc){
+  case 1:
+    no_arg(args.at(0));
+    break;
+  case 2:
+    one_arg(args.at(0), args.at(1));
+    break;
+  case 3:
+    two_arg(args.at(0), args.at(1), args.at(2));
+    break;
+  case 5:
+    four_arg(args.at(0), args.at(1), args.at(2), args.at(3), args.at(4));
+    break;
   }
 
 
-  return EXIT_SUCCESS;
+}
+
+return EXIT_SUCCESS;
 
 }
