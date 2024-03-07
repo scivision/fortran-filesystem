@@ -642,11 +642,12 @@ bool fs_remove(const char* path)
 bool Ffs::remove(std::string_view path)
 {
   std::error_code ec;
-  return fs::remove(path, ec);
+  auto b = fs::remove(path, ec);
   if (ec){
     std::cerr << "ERROR:ffilesystem:remove: " << ec.message() << "\n";
     return false;
   }
+  return b;
 }
 
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size)
@@ -744,17 +745,17 @@ bool fs_copy_file(const char* source, const char* dest, bool overwrite)
 
 void Ffs::copy_file(std::string_view source, std::string_view dest, bool overwrite)
 {
-  std::string s = Ffs::canonical(source, true);
-  std::string d = Ffs::canonical(dest, false);
+  fs::path s(Ffs::canonical(source, true));
+  fs::path d(Ffs::canonical(dest, false));
 
 //   auto opt = fs::copy_options::none;
 // opt |= fs::copy_options::overwrite_existing;
 // WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
 
-  if(Ffs::exists(dest)){
-    if(Ffs::is_file(dest)){
+  if(fs::exists(d)){
+    if(fs::is_regular_file(d)){
       if(overwrite){
-        if(!Ffs::remove(dest))
+        if(!fs::remove(d))
           throw fs::filesystem_error("ffilesystem:copy_file: could not remove existing destination file:", d, std::make_error_code(std::errc::no_such_file_or_directory));
       } else {
         throw fs::filesystem_error("ffilesystem:copy_file: destination file exists but overwrite=false:", d, std::make_error_code(std::errc::file_exists));
