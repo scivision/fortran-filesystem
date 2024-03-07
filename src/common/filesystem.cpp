@@ -636,17 +636,17 @@ bool Ffs::is_reserved(std::string_view path)
 
 bool fs_remove(const char* path)
 {
-  try {
-    return Ffs::remove(std::string_view(path));
-  } catch(std::filesystem::filesystem_error& e){
-    std::cerr << "ERROR:ffilesystem:remove: " << e.what() << "\n";
-    return false;
-  }
+  return Ffs::remove(std::string_view(path));
 }
 
 bool Ffs::remove(std::string_view path)
 {
-  return fs::remove(path);
+  std::error_code ec;
+  return fs::remove(path, ec);
+  if (ec){
+    std::cerr << "ERROR:ffilesystem:remove: " << ec.message() << "\n";
+    return false;
+  }
 }
 
 size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_size)
@@ -773,17 +773,12 @@ void Ffs::copy_file(std::string_view source, std::string_view dest, bool overwri
 
 size_t fs_relative_to(const char* to, const char* from, char* result, size_t buffer_size)
 {
-  try{
-    return fs_str2char(Ffs::relative_to(to, from), result, buffer_size);
-  } catch(std::filesystem::filesystem_error& e){
-    std::cerr << "ERROR:ffilesystem:relative_to: " << e.what() << "\n";
-    return 0;
-  }
+  return fs_str2char(Ffs::relative_to(to, from), result, buffer_size);
 }
 
 std::string Ffs::relative_to(std::string_view to, std::string_view from)
 {
-  // pure lexical operation
+  // fs::relative resolves symlinks and normalizes both paths first
 
   // undefined case, avoid bugs with MacOS
   if (to.empty() || from.empty())
@@ -795,18 +790,19 @@ std::string Ffs::relative_to(std::string_view to, std::string_view from)
   if(tp.is_absolute() != fp.is_absolute())
     return {};
 
-  return fs::relative(tp, fp).generic_string();
+  std::error_code ec;
+  auto r = fs::relative(tp, fp, ec);
+  if(ec){
+    std::cerr << "ERROR:ffilesystem:relative_to: " << ec.message() << "\n";
+    return {};
+  }
+  return r.generic_string();
 }
 
 
 size_t fs_which(const char* name, char* result, size_t buffer_size)
 {
-  try{
-    return fs_str2char(Ffs::which(std::string_view(name)), result, buffer_size);
-  } catch(std::filesystem::filesystem_error& e){
-    std::cerr << "ERROR:ffilesystem:which: " << e.what() << "\n";
-    return 0;
-  }
+  return fs_str2char(Ffs::which(std::string_view(name)), result, buffer_size);
 }
 
 std::string Ffs::which(std::string_view name)
