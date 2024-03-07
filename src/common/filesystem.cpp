@@ -372,14 +372,21 @@ bool fs_create_symlink(const char* target, const char* link)
 
 void Ffs::create_symlink(std::string_view target, std::string_view link)
 {
+
+#if defined(__cpp_using_enum)
+  using enum std::errc;
+#else
+  std::errc no_such_file_or_directory = std::errc::no_such_file_or_directory;
+#endif
+
   if(target.empty())
-    throw fs::filesystem_error("ffilesystem:create_symlink: target path must not be empty", link, target, std::make_error_code(std::errc::no_such_file_or_directory));
+    throw fs::filesystem_error("ffilesystem:create_symlink: target path must not be empty", link, target, std::make_error_code(no_such_file_or_directory));
     // confusing program errors if target is "" -- we'd never make such a symlink in real use.
 
   auto s = fs::status(target);
 
   if(link.empty())
-    throw fs::filesystem_error("ffilesystem:create_symlink: link path must not be empty", link, target, std::make_error_code(std::errc::no_such_file_or_directory));
+    throw fs::filesystem_error("ffilesystem:create_symlink: link path must not be empty", link, target, std::make_error_code(no_such_file_or_directory));
     // macOS needs empty check to avoid SIGABRT
 
 #ifdef WIN32_SYMLINK
@@ -396,7 +403,7 @@ void Ffs::create_symlink(std::string_view target, std::string_view link)
   if(err == ERROR_PRIVILEGE_NOT_HELD)
     msg += "Enable Windows developer mode to use symbolic links: https://learn.microsoft.com/en-us/windows/apps/get-started/developer-mode-features-and-debugging";
 
-  throw fs::filesystem_error(msg, link, target, std::make_error_code(std::errc::no_such_file_or_directory));
+  throw fs::filesystem_error(msg, link, target, std::make_error_code(no_such_file_or_directory));
 #else
   fs::is_directory(s)
     ? fs::create_directory_symlink(target, link)
@@ -752,23 +759,30 @@ void Ffs::copy_file(std::string_view source, std::string_view dest, bool overwri
 // opt |= fs::copy_options::overwrite_existing;
 // WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
 
+#if defined(__cpp_using_enum)
+  using enum std::errc;
+#else
+  std::errc no_such_file_or_directory = std::errc::no_such_file_or_directory;
+  std::errc file_exists = std::errc::file_exists;
+#endif
+
   if(fs::exists(d)){
     if(fs::is_regular_file(d)){
       if(overwrite){
         if(!fs::remove(d))
-          throw fs::filesystem_error("ffilesystem:copy_file: could not remove existing destination file:", d, std::make_error_code(std::errc::no_such_file_or_directory));
+          throw fs::filesystem_error("ffilesystem:copy_file: could not remove existing destination file:", d, std::make_error_code(no_such_file_or_directory));
       } else {
-        throw fs::filesystem_error("ffilesystem:copy_file: destination file exists but overwrite=false:", d, std::make_error_code(std::errc::file_exists));
+        throw fs::filesystem_error("ffilesystem:copy_file: destination file exists but overwrite=false:", d, std::make_error_code(file_exists));
       }
     } else {
-        throw fs::filesystem_error("ffilesystem:copy_file: destination path exists:", d, std::make_error_code(std::errc::file_exists));
+        throw fs::filesystem_error("ffilesystem:copy_file: destination path exists:", d, std::make_error_code(file_exists));
     }
   }
 
   if(!fs::copy_file(s, d) || fs::is_regular_file(d))
     return;
 
-  throw fs::filesystem_error("ffilesystem:copy_file: could not copy file:", s, d, std::make_error_code(std::errc::no_such_file_or_directory));
+  throw fs::filesystem_error("ffilesystem:copy_file: could not copy file:", s, d, std::make_error_code(no_such_file_or_directory));
 }
 
 
@@ -872,8 +886,18 @@ void Ffs::touch(std::string_view path)
 
   auto s = fs::status(p);
 
+#if defined(__cpp_using_enum)
+  using enum std::filesystem::perms;
+  using enum std::errc;
+#else
+  fs::perms owner_read = fs::perms::owner_read;
+  fs::perms owner_write = fs::perms::owner_write;
+  std::errc no_such_file_or_directory = std::errc::no_such_file_or_directory;
+#endif
+
+
   if (fs::exists(s) && !fs::is_regular_file(s))
-    throw fs::filesystem_error("ffilesystem:touch: exists, but is not a regular file", p, std::make_error_code(std::errc::no_such_file_or_directory));
+    throw fs::filesystem_error("ffilesystem:touch: exists, but is not a regular file", p, std::make_error_code(no_such_file_or_directory));
 
   if(fs::is_regular_file(s)) {
     fs::last_write_time(p, fs::file_time_type::clock::now());
@@ -883,20 +907,15 @@ void Ffs::touch(std::string_view path)
   std::ofstream ost;
   ost.open(p, std::ios_base::out | std::ios_base::binary);
   if(!ost.is_open())
-    throw fs::filesystem_error("filesystem:touch: could not create", p, std::make_error_code(std::errc::no_such_file_or_directory));
+    throw fs::filesystem_error("filesystem:touch: could not create", p, std::make_error_code(no_such_file_or_directory));
   ost.close();
 
-#if defined(__cpp_using_enum)
-  using enum std::filesystem::perms;
-#else
-  fs::perms owner_read = fs::perms::owner_read;
-  fs::perms owner_write = fs::perms::owner_write;
-#endif
+
   // ensure user can access file, as default permissions may be mode 600 or such
   fs::permissions(p, owner_read | owner_write, fs::perm_options::add);
 
   if(!fs::is_regular_file(p))
-    throw fs::filesystem_error("filesystem:touch: could not create", p, std::make_error_code(std::errc::no_such_file_or_directory));
+    throw fs::filesystem_error("filesystem:touch: could not create", p, std::make_error_code(no_such_file_or_directory));
 }
 
 
