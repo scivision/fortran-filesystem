@@ -959,17 +959,18 @@ uintmax_t Ffs::space_available(std::string_view path)
 
 size_t fs_get_cwd(char* path, size_t buffer_size)
 {
-  try{
-    return fs_str2char(Ffs::get_cwd(), path, buffer_size);
-  } catch(std::filesystem::filesystem_error& e){
-    std::cerr << "ERROR:ffilesystem:get_cwd: " << e.what() << "\n";
-    return 0;
-  }
+  return fs_str2char(Ffs::get_cwd(), path, buffer_size);
 }
 
 std::string Ffs::get_cwd()
 {
-  return fs::current_path().generic_string();
+  std::error_code ec;
+  auto s = fs::current_path(ec);
+  if (ec){
+    std::cerr << "ERROR:ffilesystem:get_cwd: " << ec.message() << "\n";
+    return {};
+  }
+  return s.generic_string();
 }
 
 
@@ -1077,12 +1078,7 @@ std::string Ffs::expanduser(std::string_view path)
 
 bool fs_is_subdir(const char* subdir, const char* dir)
 {
-  try{
-    return Ffs::is_subdir(std::string_view(subdir), std::string_view(dir));
-  } catch(std::filesystem::filesystem_error& e){
-    std::cerr << "ERROR:ffilesystem:is_subdir: " << e.what() << "\n";
-    return false;
-  }
+  return Ffs::is_subdir(std::string_view(subdir), std::string_view(dir));
 }
 
 bool Ffs::is_subdir(std::string_view subdir, std::string_view dir)
@@ -1188,19 +1184,15 @@ std::string Ffs::exe_dir()
 
 size_t fs_get_permissions(const char* path, char* result, size_t buffer_size)
 {
-  try{
-    return fs_str2char(Ffs::get_permissions(std::string_view(path)), result, buffer_size);
-  } catch(std::filesystem::filesystem_error& e){
-    std::cerr << "ERROR:ffilesystem:get_permissions: " << e.what() << "\n";
-    return 0;
-  }
+  return fs_str2char(Ffs::get_permissions(std::string_view(path)), result, buffer_size);
 }
 
 std::string Ffs::get_permissions(std::string_view path)
 {
 
-  auto s = fs::status(path);
-  if (!fs::exists(s))
+  std::error_code ec;
+  auto s = fs::status(path, ec);
+  if(ec || !fs::exists(s))
     return {};
 
   fs::perms p = s.permissions();
