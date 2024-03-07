@@ -22,35 +22,35 @@ int main(){
 #endif
 
 // -- home directory
-std::string home = fs_get_homedir();
+std::string home = Ffs::get_homedir();
 if(home.empty())
-  throw std::runtime_error("fs_get_homedir() failed");
+  throw std::runtime_error("get_homedir() failed");
 
-std::string homex = fs_canonical("~", true);
+std::string homex = Ffs::canonical("~", true);
 
 if (home != homex)
-  throw std::runtime_error("fs_canonical(~) != fs_get_homedir()");
+  throw std::runtime_error("Ffs::canonical(~) != get_homedir()");
 
-std::string homep = fs_parent(home);
+std::string homep = Ffs::parent(home);
 if(homep.empty())
-  throw std::runtime_error("fs_parent(fs_get_homedir()) failed");
+  throw std::runtime_error("Ffs::parent(get_homedir()) failed");
 
 // -- relative dir
 
-if(std::string homer = fs_canonical("~/..", true); homep != homer)
-  throw std::runtime_error("fs_canonical(~/..) != fs_parent(fs_get_homedir()) " + homer + " != " + homep);
+if(std::string homer = Ffs::canonical("~/..", true); homep != homer)
+  throw std::runtime_error("Ffs::canonical(~/..) != Ffs::parent(get_homedir()) " + homer + " != " + homep);
 
 // -- relative file
 if(fs_is_cygwin())
   // Cygwin can't handle non-existing canonical paths
   return EXIT_SUCCESS;
 
-std::string homef = fs_canonical("~/../not-exist.txt", false);
+std::string homef = Ffs::canonical("~/../not-exist.txt", false);
 if(homef.empty())
-  throw std::runtime_error("fs_canonical(\"~/../not-exist.txt\") failed");
+  throw std::runtime_error("Ffs::canonical(\"~/../not-exist.txt\") failed");
 
 if (homef.length() <= 13)
-  throw std::runtime_error("fs_canonical(\"~/../not-exist.txt\") didn't expand ~  " + homef);
+  throw std::runtime_error("Ffs::canonical(\"~/../not-exist.txt\") didn't expand ~  " + homef);
 
 return EXIT_SUCCESS;
 }

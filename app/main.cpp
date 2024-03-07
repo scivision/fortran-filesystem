@@ -36,25 +36,25 @@ int main(int argc, char* argv[]){
     std::cout << fs_pathsep() << "\n";
   else if (arg1 == "touch"){
     std::cout << "touch " << arg2 << "\n";
-    fs_touch(arg2);
+    Ffs::touch(arg2);
   }
   else if (arg1 == "remove")
-    std::cout << "remove " << arg2 << " " << fs_remove(arg2) << "\n";
+    std::cout << "remove " << arg2 << " " << Ffs::remove(arg2) << "\n";
   else if (arg1 == "expanduser")
-    std::cout << fs_expanduser(arg2) << "\n";
+    std::cout << Ffs::expanduser(arg2) << "\n";
   else if (arg1 == "canonical")
-    std::cout << fs_canonical(arg2, false) << "\n";
+    std::cout << Ffs::canonical(arg2, false) << "\n";
   else if (arg1 == "resolve")
-    std::cout << fs_resolve(arg2, false) << "\n";
+    std::cout << Ffs::resolve(arg2, false) << "\n";
   else if (arg1 == "compiler")
     std::cout << fs_compiler() << "\n";
   else if (arg1 == "chdir" || arg1 == "set_cwd"){
-    std::cout << "cwd: " << fs_get_cwd() << "\n";
-    fs_set_cwd(arg2);
-    std::cout << "new cwd: " << fs_get_cwd() << "\n";
+    std::cout << "cwd: " << Ffs::get_cwd() << "\n";
+    Ffs::chdir(arg2);
+    std::cout << "new cwd: " << Ffs::get_cwd() << "\n";
   }
   else if (arg1 == "perm")
-    std::cout << fs_get_permissions(arg2) << "\n";
+    std::cout << Ffs::get_permissions(arg2) << "\n";
   else if (arg1 == "set_perm" && argc == 6){
     if(fs_is_windows())
       std::cerr << "chmod is not supported on Windows\n";
@@ -62,26 +62,26 @@ int main(int argc, char* argv[]){
     int r = std::stoi(arg3);
     int w = std::stoi(argv[4]);
     int x = std::stoi(argv[5]);
-    std::cout << "chmod " << fs_get_permissions(arg2) << " " << arg2 << " => ";
-    fs_set_permissions(arg2, r, w, x);
-    std::cout << fs_get_permissions(arg2) << " " << arg2 << "\n";
+    std::cout << "chmod " << Ffs::get_permissions(arg2) << " " << arg2 << " => ";
+    Ffs::set_permissions(arg2, r, w, x);
+    std::cout << Ffs::get_permissions(arg2) << " " << arg2 << "\n";
   }
   else if (arg1 == "cpp")
     std::cout << fs_cpp() << "\n";
   else if (arg1 == "lang")
     std::cout << fs_lang() << "\n";
   else if (arg1 == "homedir")
-    std::cout << fs_get_homedir() << "\n";
+    std::cout << Ffs::get_homedir() << "\n";
   else if (arg1 == "tempdir")
-    std::cout << fs_get_tempdir() << "\n";
+    std::cout << Ffs::get_tempdir() << "\n";
   else if (arg1 == "lib_path")
-    std::cout << fs_lib_path() << "\n";
+    std::cout << Ffs::lib_path() << "\n";
   else if (arg1 == "lib_dir")
-    std::cout << fs_lib_dir() << "\n";
+    std::cout << Ffs::lib_dir() << "\n";
   else if (arg1 == "exe_path")
-    std::cout << fs_exe_path() << "\n";
+    std::cout << Ffs::exe_path() << "\n";
   else if (arg1 == "exe_dir")
-    std::cout << fs_exe_dir() << "\n";
+    std::cout << Ffs::exe_dir() << "\n";
   else if (arg1 == "is_admin")
     std::cout << fs_is_admin() << "\n";
   else if (arg1 == "is_bsd")
@@ -101,48 +101,48 @@ int main(int argc, char* argv[]){
   else if (arg1 == "is_cygwin")
     std::cout << fs_is_cygwin() << "\n";
   else if (arg1 == "parent")
-    std::cout << fs_parent(arg2) << "\n";
+    std::cout << Ffs::parent(arg2) << "\n";
   else if (arg1 == "root")
-    std::cout << fs_root(arg2) << "\n";
+    std::cout << Ffs::root(arg2) << "\n";
   else if (arg1 == "file_size")
-    std::cout << fs_file_size(arg2) << "\n";
+    std::cout << Ffs::file_size(arg2) << "\n";
   else if (arg1 == "exists")
-    std::cout << fs_exists(arg2) << "\n";
+    std::cout << Ffs::exists(arg2) << "\n";
   else if (arg1 == "is_dir")
-    std::cout << fs_is_dir(arg2) << "\n";
+    std::cout << Ffs::is_dir(arg2) << "\n";
   else if (arg1 == "is_subdir")
-    std::cout << fs_is_subdir(arg2, arg3) << "\n";
+    std::cout << Ffs::is_subdir(arg2, arg3) << "\n";
   else if (arg1 == "is_exe")
-    std::cout << fs_is_exe(arg2) << "\n";
+    std::cout << Ffs::is_exe(arg2) << "\n";
   else if (arg1 == "which")
-    std::cout << fs_which(arg2) << "\n";
+    std::cout << Ffs::which(arg2) << "\n";
   else if (arg1 == "long2short")
-    std::cout << fs_long2short(arg2) << "\n";
+    std::cout << Ffs::shortname(arg2) << "\n";
   else if (arg1 == "short2long")
-    std::cout << fs_short2long(arg2) << "\n";
+    std::cout << Ffs::longname(arg2) << "\n";
   else if (arg1 == "is_char")
-    std::cout << fs_is_char_device(arg2) << "\n";
+    std::cout << Ffs::is_char_device(arg2) << "\n";
   else if (arg1 == "is_file")
-    std::cout << fs_is_file(arg2) << "\n";
+    std::cout << Ffs::is_file(arg2) << "\n";
   else if (arg1 == "same")
-    std::cout << fs_equivalent(arg2, arg3) << "\n";
+    std::cout << Ffs::equivalent(arg2, arg3) << "\n";
   else if (arg1 == "create_symlink"){
     std::cout << "create_symlink " << arg2 << " <= " << arg3 << "\n";
-    fs_create_symlink(arg2, arg3);
+    Ffs::create_symlink(arg2, arg3);
   } else if (arg1 == "is_symlink")
-    std::cout << fs_is_symlink(arg2) << "\n";
+    std::cout << Ffs::is_symlink(arg2) << "\n";
 
   else if (arg1 == "copy_file"){
     std::cout << "copy_file " << arg2 << " => " << arg3 << "\n";
-    fs_copy_file(arg2, arg3, false);
+    Ffs::copy_file(arg2, arg3, false);
   } else if (arg1 == "mkdir"){
     std::cout << "mkdir " << arg2 << "\n";
-    fs_create_directories(arg2);
+    Ffs::mkdir(arg2);
   }
   else if (arg1 == "relative_to")
-    std::cout << fs_relative_to(arg2, arg3) << "\n";
+    std::cout << Ffs::relative_to(arg2, arg3) << "\n";
   else if (arg1 == "normal")
-    std::cout << fs_normal(arg2) << "\n";
+    std::cout << Ffs::normal(arg2) << "\n";
   else{
     std::cerr << "fs_cli <function_name> [<arg1> ...]\n";
     return EXIT_FAILURE;

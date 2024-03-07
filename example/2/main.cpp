@@ -9,16 +9,16 @@
 
 int main() {
 
-  std::cout << "current working dir " << fs_get_cwd() << "\n";
+  std::cout << "current working dir " << Ffs::get_cwd() << "\n";
 
   std::string h;
-  h = fs_get_homedir();
+  h = Ffs::get_homedir();
   if (h.empty())
     throw std::runtime_error("home dir not found");
 
   std::cout << "home dir " << h << "\n";
 
-  h = fs_expanduser("~");
+  h = Ffs::expanduser("~");
   if (h.empty())
     throw std::runtime_error("home dir not found");
 

@@ -30,86 +30,82 @@
 
 namespace fs = std::filesystem;
 
+class Ffs
+{
+public:
+  static std::string compiler();
+  static std::string get_homedir();
+  static std::string get_tempdir();
+  static std::string get_cwd();
 
-std::string fs_as_posix(std::string_view);
-std::string fs_as_windows(std::string_view);
-std::string fs_as_cygpath(std::string_view);
+  static std::string exe_path();
+  static std::string exe_dir();
+  static std::string lib_path();
+  static std::string lib_dir();
 
-std::string fs_normal(std::string_view);
-std::string fs_file_name(std::string_view);
-std::string fs_stem(std::string_view);
-std::string fs_join(std::string_view, std::string_view);
-std::string fs_parent(std::string_view);
-std::string fs_suffix(std::string_view);
-std::string fs_with_suffix(std::string_view, std::string_view);
+  static std::string expanduser(std::string_view);
 
-std::string fs_which(std::string_view);
+  static bool is_absolute(std::string_view);
+  static bool is_char_device(std::string_view);
 
-bool fs_is_symlink(std::string_view);
-void fs_create_symlink(std::string_view, std::string_view);
-std::string fs_read_symlink(std::string_view);
+  static bool is_dir(std::string_view);
+  static bool is_exe(std::string_view);
+  static bool is_readable(std::string_view);
+  static bool is_writable(std::string_view);
+  static bool is_symlink(std::string_view);
+  static bool exists(std::string_view);
+  static bool is_file(std::string_view);
+  static bool is_reserved(std::string_view);
+  static bool is_subdir(std::string_view, std::string_view);
 
-void fs_create_directories(std::string_view);
+  static bool remove(std::string_view);
 
-std::string fs_root(std::string_view);
+  static std::string as_posix(std::string_view);
+  static std::string as_windows(std::string_view);
+  static std::string as_cygpath(std::string_view);
 
-bool fs_is_absolute(std::string_view);
-bool fs_is_char_device(std::string_view);
+  static std::string normal(std::string_view);
+  static std::string file_name(std::string_view);
+  static std::string stem(std::string_view);
+  static std::string parent(std::string_view);
+  static std::string suffix(std::string_view);
+  static std::string root(std::string_view);
+  static std::string which(std::string_view);
 
-bool fs_is_dir(std::string_view);
-bool fs_is_exe(std::string_view);
-bool fs_is_readable(std::string_view);
-bool fs_is_writable(std::string_view);
+  static void touch(std::string_view);
 
-bool fs_remove(std::string_view);
+  static std::string canonical(std::string_view, bool);
+  static std::string resolve(std::string_view, bool);
 
-std::string fs_canonical(std::string_view, bool);
-std::string fs_resolve(std::string_view, bool);
+  static std::string read_symlink(std::string_view);
+  static std::string get_permissions(std::string_view);
 
-bool fs_equivalent(std::string_view, std::string_view);
+  static uintmax_t file_size(std::string_view);
+  static uintmax_t space_available(std::string_view);
 
-void fs_copy_file(std::string_view, std::string_view, bool);
+  static std::string mkdtemp(std::string_view);
 
-std::string fs_relative_to(std::string_view, std::string_view);
+  static std::string shortname(std::string_view);
+  static std::string longname(std::string_view);
 
-void fs_touch(std::string_view);
+  static void mkdir(std::string_view);
+  static void chdir(std::string_view);
 
-std::string fs_get_tempdir();
+  static bool equivalent(std::string_view, std::string_view);
 
-std::string fs_get_cwd();
-void fs_set_cwd(std::string_view path);
+  static std::string join(std::string_view, std::string_view);
+  static std::string relative_to(std::string_view, std::string_view);
+  static std::string with_suffix(std::string_view, std::string_view);
+  static std::string make_absolute(std::string_view, std::string_view);
 
-uintmax_t fs_file_size(std::string_view);
-uintmax_t fs_space_available(std::string_view);
+  static void create_symlink(std::string_view, std::string_view);
+  static void copy_file(std::string_view, std::string_view, bool);
 
-bool fs_is_subdir(std::string_view, std::string_view);
+  static void set_permissions(std::string_view, int, int, int);
+  // Disallow creating an instance of this object
+  Ffs() = delete;
+};
 
-void fs_set_permissions(std::string_view, int, int, int);
-
-std::string fs_get_permissions(std::string_view);
-
-bool fs_exists(std::string_view);
-std::string fs_expanduser(std::string_view);
-
-std::string fs_get_homedir();
-
-bool fs_is_file(std::string_view);
-bool fs_is_reserved(std::string_view);
-
-std::string fs_exe_path();
-std::string fs_exe_dir();
-
-std::string fs_lib_path();
-std::string fs_lib_dir();
-
-std::string fs_make_absolute(std::string_view, std::string_view);
-
-std::string fs_compiler();
-
-std::string fs_make_tempdir(std::string_view);
-
-std::string fs_short2long(std::string_view);
-std::string fs_long2short(std::string_view);
 
 #endif // __cpp_lib_filesystem
 

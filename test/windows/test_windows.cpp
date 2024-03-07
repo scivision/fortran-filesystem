@@ -17,13 +17,13 @@ int main(int argc, char** argv){
     if (long_path.empty())
       throw std::runtime_error("input is empty");
 
-    std::string short_path = fs_long2short(long_path);
+    std::string short_path = Ffs::shortname(long_path);
 
     std::cout << long_path << " => " << short_path << '\n';
     if(short_path.empty())
       throw std::runtime_error("short_path is empty");
 
-    std::string long_path2 = fs_short2long(short_path);
+    std::string long_path2 = Ffs::longname(short_path);
 
     std::cout << short_path << " => " << long_path2 << '\n';
     if(long_path2.empty())

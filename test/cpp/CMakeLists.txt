@@ -2,7 +2,7 @@ if(NOT HAVE_CXX_FILESYSTEM)
   return()
 endif()
 
-if(ffilesystem_cli)
+if(TARGET fs_cli)
 
 add_test(NAME Cpp_CLI_Cpp
 COMMAND ${CMAKE_COMMAND}
@@ -10,6 +10,7 @@ COMMAND ${CMAKE_COMMAND}
 "-Dregex=Ffilesystem\> 1"
 -P ${CMAKE_CURRENT_SOURCE_DIR}/../stdin.cmake
 )
+
 endif()
 
 foreach(t IN ITEMS canonical expanduser file utf8)

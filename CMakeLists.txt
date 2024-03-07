@@ -140,7 +140,7 @@ endif()
 # --- CLI
 
 if(ffilesystem_cli)
-  if(HAVE_CXX_FILESYSTEM)
+  if(HAVE_CXX_FILESYSTEM AND cpp20_ranges)
     add_executable(fs_cli app/repl.cpp)
     target_compile_definitions(fs_cli PRIVATE "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>")
     target_link_libraries(fs_cli PRIVATE ffilesystem)

@@ -27,10 +27,10 @@ int main(int argc, char *argv[]){
 
   std::string drive(argv[0]);
 
-  if(fs_file_size(drive) == 0)
+  if(Ffs::file_size(drive) == 0)
     throw std::runtime_error("failed to get own file size");
 
-  uintmax_t avail = fs_space_available(drive);
+  uintmax_t avail = Ffs::space_available(drive);
   if(avail == 0)
     throw std::runtime_error("failed to get space available of own drive " + drive);
 

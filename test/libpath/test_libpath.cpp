@@ -13,7 +13,7 @@
 
 void test_lib_path(char* path, char* ref){
 
-  std::string binpath = fs_lib_path();
+  std::string binpath = Ffs::lib_path();
 
   if(binpath.empty())
     throw std::runtime_error("ERROR:test_binpath: lib_path should be non-empty: " + binpath);
@@ -23,20 +23,20 @@ void test_lib_path(char* path, char* ref){
 
   std::cout << "OK: lib_path: " << binpath << "\n";
 
-  std::string bindir = fs_lib_dir();
+  std::string bindir = Ffs::lib_dir();
 
   std::string p;
   if(fs_is_cygwin()){
-    p = fs_parent(fs_as_cygpath(binpath));
+    p = Ffs::parent(Ffs::as_cygpath(binpath));
   } else {
-    p = fs_parent(binpath);
+    p = Ffs::parent(binpath);
   }
   std::cout << "parent(lib_path): " << p << "\n";
 
   if(bindir.empty())
     throw std::runtime_error("ERROR:test_binpath: lib_dir should be non-empty: " + bindir);
 
-  if(!fs_equivalent(bindir, p))
+  if(!Ffs::equivalent(bindir, p))
     throw std::runtime_error("ERROR:test_binpath_c: lib_dir and parent(lib_path) should be equivalent: " + bindir + " != " + p);
 
   std::cout << "OK: lib_dir: " << bindir << "\n";

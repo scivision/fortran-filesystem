@@ -18,6 +18,7 @@ int main(void) {
   fs_get_homedir(d, FS_MAX_PATH);
   if(strlen(d) <= 1){
     fprintf(stderr, "home dir failed  %s\n", d);
+    free(d);
     return EXIT_FAILURE;
   }
   printf("home dir %s\n", d);
@@ -25,6 +26,7 @@ int main(void) {
   fs_expanduser("~", d, FS_MAX_PATH);
   if(strlen(d) <= 1){
     fprintf(stderr, "expanduser('~') failed  %s\n", d);
+    free(d);
     return EXIT_FAILURE;
   }
   printf("expanduser('~') %s\n", d);

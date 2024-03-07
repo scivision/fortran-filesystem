@@ -26,46 +26,46 @@ std::string exe = "test_exe";
 std::string noexe = "test_noexe";
 
 // Empty string
-if(fs_is_exe(""))
+if(Ffs::is_exe(""))
     throw std::runtime_error("test_exe: is_exe('') should be false");
 
 // Non-existent file
-if (fs_is_file("not-exist"))
+if (Ffs::is_file("not-exist"))
     throw std::runtime_error("test_exe: not-exist-file should not exist.");
-if (fs_is_exe("not-exist"))
+if (Ffs::is_exe("not-exist"))
     throw std::runtime_error("test_exe: not-exist-file cannot be executable");
-if(fs_get_permissions("not-exist").length() != 0)
+if(Ffs::get_permissions("not-exist").length() != 0)
     throw std::runtime_error("test_exe: get_permissions('not-exist') should be empty");
 
-fs_touch(exe);
-fs_touch(noexe);
+Ffs::touch(exe);
+Ffs::touch(noexe);
 
-fs_set_permissions(exe, 0, 0, 1);
-fs_set_permissions(noexe, 0, 0, -1);
+Ffs::set_permissions(exe, 0, 0, 1);
+Ffs::set_permissions(noexe, 0, 0, -1);
 
-if(fs_is_exe(fs_parent(exe)))
-    throw std::runtime_error("test_exe: is_exe() should not detect directory " + fs_parent(exe));
+if(Ffs::is_exe(Ffs::parent(exe)))
+    throw std::runtime_error("test_exe: is_exe() should not detect directory " + Ffs::parent(exe));
 
 std::string p;
 
-std::cout << "permissions: " << exe << " = " << fs_get_permissions(exe) << "\n";
+std::cout << "permissions: " << exe << " = " << Ffs::get_permissions(exe) << "\n";
 
-if (!fs_is_file(exe)){
+if (!Ffs::is_file(exe)){
     std::cerr << "test_exe: " << exe << " is not a file.\n";
     return 77;
 }
 
-if (!fs_is_exe(exe))
+if (!Ffs::is_exe(exe))
   throw std::runtime_error("test_exe: " + exe + " is not executable and should be.");
 
-std::cout << "permissions: " << noexe << " = " << fs_get_permissions(noexe) << "\n";
+std::cout << "permissions: " << noexe << " = " << Ffs::get_permissions(noexe) << "\n";
 
-if (!fs_is_file(noexe)){
+if (!Ffs::is_file(noexe)){
   std::cerr << "test_exe: " << noexe << " is not a file.\n";
   return 77;
 }
 
-if (fs_is_exe(noexe)){
+if (Ffs::is_exe(noexe)){
   if(fs_is_windows()){
     std::cerr << "XFAIL:Windows: test_exe: is_exe() did not detect non-executable file " << noexe << " on Windows\n";
   }
@@ -76,22 +76,22 @@ if (fs_is_exe(noexe)){
 
 // chmod setup
 
-fs_remove(exe);
-fs_remove(noexe);
+Ffs::remove(exe);
+Ffs::remove(noexe);
 
 // chmod(true)
-fs_touch(exe);
-if (!fs_is_file(exe))
+Ffs::touch(exe);
+if (!Ffs::is_file(exe))
     throw std::runtime_error("test_exe: " + exe + " is not a file.");
 
-std::cout << "permissions before chmod(" << exe << ", true)  = " << fs_get_permissions(exe) << "\n";
+std::cout << "permissions before chmod(" << exe << ", true)  = " << Ffs::get_permissions(exe) << "\n";
 
-fs_set_permissions(exe, 0, 0, 1);
+Ffs::set_permissions(exe, 0, 0, 1);
 
-p = fs_get_permissions(exe);
+p = Ffs::get_permissions(exe);
 std::cout << "permissions after chmod(" << exe << ", true) = " << p << "\n";
 
-if (!fs_is_exe(exe)){
+if (!Ffs::is_exe(exe)){
   if(fs_is_windows()){
     std::cerr << "XFAIL:Windows: test_exe: is_exe() did not detect executable file " << exe << " on Windows\n";
   }
@@ -106,42 +106,42 @@ if (!fs_is_windows()){
 }
 
 // chmod(false)
-fs_touch(noexe);
-if (!fs_is_file(noexe))
+Ffs::touch(noexe);
+if (!Ffs::is_file(noexe))
     throw std::runtime_error("test_exe: " + noexe + " is not a file.");
 
-std::cout << "permissions before chmod(" << noexe << ", false)  = " << fs_get_permissions(noexe) << "\n";
+std::cout << "permissions before chmod(" << noexe << ", false)  = " << Ffs::get_permissions(noexe) << "\n";
 
-fs_set_permissions(noexe, 0, 0, 0);
+Ffs::set_permissions(noexe, 0, 0, 0);
 
-p = fs_get_permissions(noexe);
+p = Ffs::get_permissions(noexe);
 std::cout << "permissions after chmod(" << noexe << ",false) = " << p << "\n";
 
 if(!fs_is_windows())
 {
-  if (fs_is_exe(noexe))
+  if (Ffs::is_exe(noexe))
     throw std::runtime_error("test_exe: did not detect non-executable file.");
 
   if (p[2] != '-')
     throw std::runtime_error("test_exe: expected POSIX perms for " + noexe + " to be '-' in index 2");
 }
 
-// test fs_which
+// test Ffs::which
 if(fs_is_windows()){
-    std::string which = fs_which("cmd.exe");
+    std::string which = Ffs::which("cmd.exe");
     if(which.length() == 0)
-        throw std::runtime_error("test_exe: fs_which('cmd.exe') should return a path");
-    std::cout << "fs_which('cmd.exe') = " << which << "\n";
+        throw std::runtime_error("test_exe: Ffs::which('cmd.exe') should return a path");
+    std::cout << "Ffs::which('cmd.exe') = " << which << "\n";
     }
 else{
-    std::string which = fs_which("ls");
+    std::string which = Ffs::which("ls");
     if(which.length() == 0)
-        throw std::runtime_error("test_exe: fs_which('ls') should return a path");
-    std::cout << "fs_which('ls') = " << which << "\n";
+        throw std::runtime_error("test_exe: Ffs::which('ls') should return a path");
+    std::cout << "Ffs::which('ls') = " << which << "\n";
 }
 
-fs_remove(exe);
-fs_remove(noexe);
+Ffs::remove(exe);
+Ffs::remove(noexe);
 
 std::cout << "OK: c++ test_exe\n";
 
