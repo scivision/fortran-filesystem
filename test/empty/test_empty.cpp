@@ -76,11 +76,8 @@ int main(int argc, char *argv[]){
       std::cerr << e.what() << "\n";
     }
 
-    try{
-      Ffs::mkdir("");
-    } catch (std::filesystem::filesystem_error& e){
-      std::cerr << e.what() << "\n";
-    }
+    if(Ffs::mkdir(""))
+      throw std::runtime_error("Ffs::mkdir");
 
     if(!Ffs::root("").empty())
       throw std::runtime_error("Ffs::root");

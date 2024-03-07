@@ -343,18 +343,20 @@ bool Ffs::is_symlink(std::string_view path)
 
 size_t fs_read_symlink(const char* path, char* result, size_t buffer_size)
 {
-  try{
-    return fs_str2char(Ffs::read_symlink(std::string_view(path)), result, buffer_size);
-  } catch(std::filesystem::filesystem_error& e){
-    std::cerr << "ERROR:ffilesystem:read_symlink: " << e.what() << "\n";
-    return 0;
-  }
+  return fs_str2char(Ffs::read_symlink(std::string_view(path)), result, buffer_size);
 }
 
 std::string Ffs::read_symlink(std::string_view path)
 {
-  return fs::read_symlink(path).generic_string();
-  // try-catch with fs::canonical fallback not helpful here
+  std::error_code ec;
+  auto p = fs::read_symlink(path, ec);
+  if(ec){
+    std::cerr << "ERROR:ffilesystem:read_symlink: " << ec.message() << "\n";
+    return {};
+  }
+
+  return p.generic_string();
+  // fs::canonical fallback not helpful here
 }
 
 bool fs_create_symlink(const char* target, const char* link)
@@ -402,32 +404,30 @@ void Ffs::create_symlink(std::string_view target, std::string_view link)
 #endif
 }
 
-bool fs_create_directories(const char* path)
+bool fs_mkdir(const char* path)
 {
-  try{
-    Ffs::mkdir(std::string_view(path));
-    return true;
-  } catch(fs::filesystem_error& e){
-    std::cerr << "ERROR:ffilesystem:create_directories: " << e.what() << "\n";
-    return false;
-  }
+  return Ffs::mkdir(std::string_view(path));
 }
 
-void Ffs::mkdir(std::string_view path)
+bool Ffs::mkdir(std::string_view path)
 {
 
   fs::path p(path);
 
-  if(auto s = fs::status(p); fs::exists(s)){
-    if(fs::is_directory(s))
-       return;
-    throw fs::filesystem_error("ffilesystem:create_directories: exists but non-directory", p, std::make_error_code(std::errc::file_exists));
-  }
-  if(fs::create_directories(p) || fs::is_directory(p))
-    return;
-  // old MacOS return false even if directory was created
+  std::error_code ec;
+  auto s = fs::is_directory(p, ec);
+  if (!ec && s)
+    return true;
 
-  throw fs::filesystem_error("ffilesystem:create_directories: could not create directory", p, std::make_error_code(std::errc::no_such_file_or_directory));
+  fs::create_directories(p, ec);
+  // old MacOS return false even if directory was created
+  if (ec){
+    std::cerr << "ERROR:ffilesystem:mkdir: " << ec.message() << "\n";
+    return false;
+  }
+
+  s = fs::is_directory(p, ec);
+  return !ec && s;
 }
 
 

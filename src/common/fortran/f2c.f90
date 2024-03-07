@@ -97,7 +97,7 @@ import
 character(kind=C_CHAR), intent(in) :: target(*), link(*)
 end function
 
-logical(C_BOOL) function fs_create_directories(path) bind(C)
+logical(C_BOOL) function fs_mkdir(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
 end function
@@ -432,7 +432,7 @@ end procedure
 module procedure mkdir
 logical(C_BOOL) :: s
 
-s = fs_create_directories(trim(path) // C_NULL_CHAR)
+s = fs_mkdir(trim(path) // C_NULL_CHAR)
 if(present(ok)) then
   ok = s
 elseif (.not. s) then

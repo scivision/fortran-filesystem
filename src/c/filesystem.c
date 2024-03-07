@@ -1227,7 +1227,7 @@ static bool _mkdir_segment(char* buf, size_t L) {
 }
 
 
-bool fs_create_directories(const char* path) {
+bool fs_mkdir(const char* path) {
 
   if(strlen(path) == 0) {
     fprintf(stderr, "ERROR:ffilesystem:create_directories: path must not be empty\n");

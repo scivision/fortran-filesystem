@@ -89,7 +89,8 @@ static void one_arg(std::string_view fun, std::string_view a1){
     {"is_symlink", Ffs::is_symlink},
     {"exists", Ffs::exists},
     {"is_absolute", Ffs::is_absolute},
-    {"is_char", Ffs::is_char_device}
+    {"is_char", Ffs::is_char_device},
+    {"mkdir", Ffs::mkdir}
   };
 
   std::map<std::string_view, std::function<std::string(std::string_view)>> mstring =
@@ -126,7 +127,6 @@ static void one_arg(std::string_view fun, std::string_view a1){
 
   std::map<std::string_view, std::function<void(std::string_view)>> mvoid =
   {
-    {"mkdir", Ffs::mkdir},
     {"touch", Ffs::touch}
   };
 

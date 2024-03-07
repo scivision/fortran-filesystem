@@ -88,7 +88,7 @@ public:
   static std::string shortname(std::string_view);
   static std::string longname(std::string_view);
 
-  static void mkdir(std::string_view);
+  static bool mkdir(std::string_view);
   static void chdir(std::string_view);
 
   static bool equivalent(std::string_view, std::string_view);
@@ -159,7 +159,7 @@ bool fs_is_symlink(const char*);
 bool fs_create_symlink(const char*, const char*);
 size_t fs_read_symlink(const char*, char*, size_t);
 
-bool fs_create_directories(const char*);
+bool fs_mkdir(const char*);
 bool fs_exists(const char*);
 
 bool fs_is_absolute(const char*);
