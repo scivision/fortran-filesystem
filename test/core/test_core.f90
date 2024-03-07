@@ -154,6 +154,8 @@ if(join("a", "") /= "a") error stop "join a: " // join("a", "")
 
 if(join("", "b") /= "b") error stop "join b: " // join("", "b")
 
+if(join("a/b/" , "c/") /= "a/b/c") error stop "join a/b c/: " // join("a/b/", "c/")
+
 
 p1 = path_t("a/b")
 

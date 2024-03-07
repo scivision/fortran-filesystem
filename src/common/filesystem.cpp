@@ -280,7 +280,7 @@ std::string Ffs::join(std::string_view path, std::string_view other)
   if (other.empty())
     return std::string(path);
 
-  return (fs::path(path) / other).lexically_normal().generic_string();
+  return Ffs::normal((fs::path(path) / other).generic_string());
 }
 
 
