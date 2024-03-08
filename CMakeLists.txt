@@ -169,7 +169,7 @@ include(cmake/install.cmake)
 include(FeatureSummary)
 
 add_feature_info(Fortran ffilesystem_fortran "Fortran bindings")
-add_feature_info(CXX_FILESYSTEM HAVE_CXX_FILESYSTEM "C++17 filesystem")
+add_feature_info(Cpp HAVE_CXX_FILESYSTEM "C++ stdlib filesystem")
 add_feature_info(shared BUILD_SHARED_LIBS "Build shared library: enables lib_path(), lib_dir()")
 
-feature_summary(WHAT ALL)
+feature_summary(WHAT ENABLED_FEATURES DESCRIPTION "${PROJECT_NAME} enabled features:")

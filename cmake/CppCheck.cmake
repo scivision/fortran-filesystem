@@ -51,7 +51,7 @@ if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
 endif()
 
 if(NOT cpp20_format)
-  message(STATUS "fs_compiler() will return empty as compiler doesn't have C++20 std::format")
+  message(VERBOSE "fs_compiler() will return empty as compiler doesn't have C++20 std::format")
 endif()
 
 if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
