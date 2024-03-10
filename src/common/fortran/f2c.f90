@@ -16,11 +16,6 @@ import
 character(kind=C_CHAR), intent(inout) :: path(*)
 end subroutine
 
-subroutine fs_as_windows(path) bind(C)
-import
-character(kind=C_CHAR), intent(inout) :: path(*)
-end subroutine
-
 integer(C_SIZE_T) function fs_canonical(path, strict, result, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -326,17 +321,6 @@ N = len_trim(path)
 allocate(character(N+1) :: cbuf)
 cbuf = trim(path) // C_NULL_CHAR
 call fs_as_posix(cbuf)
-allocate(character(N) :: r)
-r = cbuf(:N)
-end procedure
-
-module procedure as_windows
-character(kind=c_char, len=:), allocatable :: cbuf
-integer :: N
-N = len_trim(path)
-allocate(character(N+1) :: cbuf)
-cbuf = trim(path) // C_NULL_CHAR
-call fs_as_windows(cbuf)
 allocate(character(N) :: r)
 r = cbuf(:N)
 end procedure

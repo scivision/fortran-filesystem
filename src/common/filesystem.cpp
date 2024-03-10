@@ -144,7 +144,7 @@ static size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
 {
   if(s.length() >= buffer_size){
     result = nullptr;
-    std::cerr << "ERROR:ffilesystem: output buffer too small for string: " << s << "\n";
+    std::cerr << "ERROR:ffilesystem: output buffer " << buffer_size << " too small for string: " << s << "\n";
     return 0;
   }
 
@@ -187,49 +187,14 @@ std::string Ffs::compiler()
 
 void fs_as_posix(char* path)
 {
-  std::replace(path, path + std::strlen(path), '\\', '/');
+  std::string p = Ffs::as_posix(std::string_view(path));
+  fs_str2char(p, path, strlen(path)+1);
 }
 
 std::string Ffs::as_posix(std::string_view path)
 {
-  // force posix file separator
-  std::string p(path);
-#if defined(__cpp_lib_ranges)
-  std::ranges::replace(p, '\\', '/');
-#else
-  std::replace(p.begin(), p.end(), '\\', '/');
-#endif
-  return p;
-}
-
-
-void fs_as_windows(char* path)
-{
-  std::replace(path, path + std::strlen(path), '/', '\\');
-}
-
-std::string Ffs::as_windows(std::string_view path)
-{
-  // force windows file seperator
-  std::string p(path);
-#if defined(__cpp_lib_ranges)
-  std::ranges::replace(p, '/', '\\');
-#endif
-  return p;
-}
-
-std::string Ffs::as_cygpath(std::string_view path)
-{
-  // like command line "cygpath --unix"
-
-  std::string p(path);
-#if defined(__cpp_lib_ranges)
-  std::ranges::replace(p, '\\', '/');
-
- if(p[1] == ':' && std::isalpha(p[0]))
-    return "/cygdrive/" + p.substr(0, 1) + p.substr(2);
-#endif
-  return p;
+  // force posix file separator on Windows
+  return fs::path(path).generic_string();
 }
 
 
@@ -245,6 +210,16 @@ std::string Ffs::normal(std::string_view path)
   if (s.length() > 1 && s.back() == '/')
     s.pop_back();
   return s;
+}
+
+std::string Ffs::lexically_normal(std::string_view path)
+{
+  return fs::path(path).lexically_normal().generic_string();
+}
+
+std::string Ffs::make_preferred(std::string_view path)
+{
+  return fs::path(path).make_preferred().generic_string();
 }
 
 
@@ -616,13 +591,12 @@ bool fs_is_reserved(const char* path)
 bool Ffs::is_reserved(std::string_view path)
 // https://learn.microsoft.com/en-gb/windows/win32/fileio/naming-a-file#naming-conventions
 {
-
-#ifndef _WIN32
-    (void) path;
-    return false;
-#elif defined(__cpp_lib_ranges)
   if (path.empty())
     return false;
+
+#ifndef _WIN32
+  return false;
+#elif defined(__cpp_lib_ranges)
 
   std::set<std::string, std::less<>> reserved {
       "CON", "PRN", "AUX", "NUL",
@@ -779,7 +753,7 @@ void Ffs::copy_file(std::string_view source, std::string_view dest, bool overwri
     }
   }
 
-  if(!fs::copy_file(s, d) || fs::is_regular_file(d))
+  if(fs::copy_file(s, d))
     return;
 
   throw fs::filesystem_error("ffilesystem:copy_file: could not copy file:", s, d, std::make_error_code(no_such_file_or_directory));
@@ -1037,12 +1011,12 @@ std::string Ffs::get_homedir()
   if (!ok)
     return {};
 
-  homedir = Ffs::normal(std::string(buf.get()));
+  homedir = Ffs::normal(std::string_view(buf.get()));
 #else
   const char *h = getpwuid(geteuid())->pw_dir;
   if (!h)
     return {};
-  homedir = Ffs::normal(std::string(h));
+  homedir = Ffs::normal(std::string_view(h));
 #endif
 
   return homedir;
@@ -1058,15 +1032,22 @@ std::string Ffs::expanduser(std::string_view path)
   if(path.empty())
     return {};
   // cannot call .front() on empty string_view() (MSVC)
-  std::string p = Ffs::as_posix(path);
 
-#ifdef __cpp_lib_starts_ends_with
-  if(!p.starts_with('~') || (p.length() > 1 && !p.starts_with("~/"))){
+  std::set <char> filesep = {'/', fs::path::preferred_separator};
+
+  if(FS_TRACE) std::cout << "TRACE:expanduser: filesep set.size" << filesep.size() << "\n";
+
+  if(path.front() != '~' || (path.length() > 1 &&
+#if __cplusplus >= 202002L
+  !filesep.contains(path[1])
 #else
-  if(p.front() != '~' || (p.length() > 1 && p.substr(0, 2) != "~/")){
+  filesep.find(path[1]) == filesep.end()
 #endif
-    if (FS_TRACE) std::cout << "TRACE:expanduser: not leading tilde " << p << "\n";
-    return Ffs::normal(p);
+  )){
+
+    if (FS_TRACE) std::cout << "TRACE:expanduser: not leading tilde " << path << "\n";
+
+    return Ffs::normal(path);
   }
 
   std::string h = Ffs::get_homedir();
@@ -1080,6 +1061,7 @@ std::string Ffs::expanduser(std::string_view path)
 // drop duplicated separators
 // NOT .lexical_normal to handle "~/.."
   std::regex r("/{2,}");
+  std::string p = Ffs::as_posix(path);
   p = std::regex_replace(p, r, "/");
 
   if(FS_TRACE) std::cout << "TRACE:expanduser: path deduped " << p << "\n";
@@ -1087,9 +1069,7 @@ std::string Ffs::expanduser(std::string_view path)
   if (p.length() < 3)
     return h;
 
-  fs::path home(h);
-
-  return Ffs::normal((home / p.substr(2)).generic_string());
+  return Ffs::normal((fs::path(h) / path.substr(2)).generic_string());
 }
 
 

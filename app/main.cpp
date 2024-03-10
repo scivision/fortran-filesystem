@@ -96,8 +96,6 @@ static void one_arg(std::string_view fun, std::string_view a1){
   std::map<std::string_view, std::function<std::string(std::string_view)>> mstring =
   {
     {"as_posix", Ffs::as_posix},
-    {"as_windows", Ffs::as_windows},
-    {"as_cygpath", Ffs::as_cygpath},
     {"expanduser", Ffs::expanduser},
     {"which", Ffs::which},
     {"parent", Ffs::parent},
@@ -108,6 +106,8 @@ static void one_arg(std::string_view fun, std::string_view a1){
     {"perm", Ffs::get_permissions},
     {"read_symlink", Ffs::read_symlink},
     {"normal", Ffs::normal},
+    {"lexically_normal", Ffs::lexically_normal},
+    {"make_preferred", Ffs::make_preferred},
     {"mkdtemp", Ffs::mkdtemp},
     {"shortname", Ffs::shortname},
     {"longname", Ffs::longname}

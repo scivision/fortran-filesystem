@@ -34,12 +34,6 @@ int main(int argc, char *argv[]){
     Ffs::as_posix(O);
     std::cout << "PASS: as_posix(char*)\n";
 
-    // p = Ffs::as_posix("");
-    // std::cout << "PASS: as_posix(string)\n";
-
-    Ffs::as_windows(O);
-    std::cout << "PASS: as_windows\n";
-
     if(!Ffs::normal("").empty())
       throw std::runtime_error("Ffs::normal");
 

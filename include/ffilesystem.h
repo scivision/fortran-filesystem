@@ -61,10 +61,11 @@ public:
   static bool remove(std::string_view);
 
   static std::string as_posix(std::string_view);
-  static std::string as_windows(std::string_view);
-  static std::string as_cygpath(std::string_view);
 
   static std::string normal(std::string_view);
+  static std::string lexically_normal(std::string_view);
+  static std::string make_preferred(std::string_view);
+
   static std::string file_name(std::string_view);
   static std::string stem(std::string_view);
   static std::string parent(std::string_view);
@@ -138,7 +139,6 @@ bool fs_is_mingw();
 bool fs_is_cygwin();
 
 void fs_as_posix(char*);
-void fs_as_windows(char*);
 
 size_t fs_normal(const char*, char*, size_t);
 

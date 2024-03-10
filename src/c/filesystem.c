@@ -136,22 +136,14 @@ if((size_t)L >= buffer_size){  // cppcheck-suppress unsignedLessThanZero
 
 void fs_as_posix(char* path)
 {
-// force posix file seperator
+// force posix file seperator on Windows
+  if(!fs_is_windows())
+    return;
+
   char s = '\\';
   char *p = strchr(path, s);
   while (p) {
     *p = '/';
-    p = strchr(p+1, s);
-  }
-}
-
-void fs_as_windows(char* path)
-{
-// force Windows file seperator
-  char s = '/';
-  char *p = strchr(path, s);
-  while (p) {
-    *p = '\\';
     p = strchr(p+1, s);
   }
 }
@@ -168,8 +160,7 @@ size_t fs_normal(const char* path, char* result, size_t buffer_size)
     return 0;
   }
 
-  if(fs_is_windows())
-    fs_as_posix(result);
+  fs_as_posix(result);
 
   return L;
 }
@@ -190,8 +181,6 @@ size_t fs_file_name(const char* path, char* result, size_t buffer_size)
   cwk_path_set_style(fs_is_windows() ? CWK_STYLE_WINDOWS : CWK_STYLE_UNIX);
 
   cwk_path_get_basename(path, &base, &L);
-
-if(FS_TRACE) printf("TRACE:file_name: %s => %s\n", path, base);
 
   if(L >= buffer_size){
     fprintf(stderr, "ERROR:ffilesystem:fs_file_name: buffer_size %zu too small\n", buffer_size);
@@ -260,7 +249,6 @@ size_t fs_parent(const char* path, char* result, size_t buffer_size)
   result[L] = '\0';
   free(buf);
 
-if(FS_TRACE) printf("TRACE: parent: %s => %s  %zu\n", path, result, L);
   return L;
 }
 
@@ -324,27 +312,19 @@ size_t fs_canonical(const char* path, bool strict, char* result, size_t buffer_s
 
   char* buf = (char*) malloc(buffer_size);
   if(!buf) return 0;
-  if(!fs_expanduser(path, buf, buffer_size)){
-    free(buf);
-    return 0;
-  }
-
-  if(FS_TRACE) printf("TRACE:canonical in: %s  expanded: %s  buffer_size %zu\n", path, buf, buffer_size);
+  fs_expanduser(path, buf, buffer_size);
 
   bool e = fs_exists(buf);
-  size_t L;
+  size_t L = 0;
 
   if(!e) {
     if(strict){
-      fprintf(stderr, "ERROR:ffilesystem:canonical: %s => does not exist and strict=true\n", buf);
-      free(buf);
-      return 0;
-    }
-    else {
+      fprintf(stderr, "ERROR:ffilesystem:canonical: \"%s\" => does not exist and strict=true\n", buf);
+    } else {
       L = fs_normal(buf, result, buffer_size);
-      free(buf);
-      return L;
     }
+    free(buf);
+    return L;
   }
 
   char* buf2 = (char*) malloc(buffer_size);
@@ -383,32 +363,23 @@ size_t fs_resolve(const char* path, bool strict, char* result, size_t buffer_siz
 
   char* buf = (char*) malloc(buffer_size);
   if(!buf) return 0;
-  if(!fs_expanduser(path, buf, buffer_size)){
-    free(buf);
-    return 0;
-  }
-
-  if(FS_TRACE) printf("TRACE:resolve: in: %s  expanded: %s  buffer_size %zu\n", path, buf, buffer_size);
+  fs_expanduser(path, buf, buffer_size);
 
   bool e = fs_exists(buf);
-  size_t L;
+  size_t L = 0;
 
   if(!e) {
     if(strict){
       fprintf(stderr, "ERROR:ffilesystem:resolve: %s => does not exist and strict=true\n", buf);
       free(buf);
       return 0;
-    }
-    else if (fs_is_absolute(buf)){
+    } else if (fs_is_absolute(buf)){
       L = fs_normal(buf, result, buffer_size);
       free(buf);
       return L;
-    }
-    else{
-        if(!fs_join(".", buf, buf, buffer_size)){
-        free(buf);
-        return 0;
-      }
+    } else if (!fs_join(".", buf, buf, buffer_size)){
+      free(buf);
+      return 0;
     }
   }
 
@@ -609,11 +580,8 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 
   strcat(buf, "/");
 
-  if(FS_TRACE) printf("TRACE:expanduser: homedir %s\n", buf);
-
   strcat(buf, path+2);
   L = fs_normal(buf, result, buffer_size);
-  if(FS_TRACE) printf("TRACE:expanduser result: %s\n", result);
 
   free(buf);
 
@@ -734,7 +702,6 @@ size_t fs_root(const char* path, char* result, size_t buffer_size)
 
   strncpy(result, path, L);
 
-if(FS_TRACE) printf("TRACE: root: %s => %s  %zu\n", path, result, L);
   return L;
 }
 
@@ -1058,7 +1025,7 @@ static size_t fs_getenv(const char* name, char* path, size_t buffer_size)
   char* buf = getenv(name);
   if(!buf) // not error because sometimes we just check if envvar is defined
     return 0;
-  else if(strlen(buf) >= buffer_size){
+  if(strlen(buf) >= buffer_size){
     fprintf(stderr, "ERROR:ffilesystem:fs_getenv: buffer_size %zu is too small for %s\n", buffer_size, name);
     return 0;
   }
@@ -1069,20 +1036,17 @@ static size_t fs_getenv(const char* name, char* path, size_t buffer_size)
 
 size_t fs_get_cwd(char* path, size_t buffer_size)
 {
-// <direct.h> https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd?view=msvc-170
-// <unistd.h> https://www.man7.org/linux/man-pages/man3/getcwd.3.html
 #ifdef _WIN32
-  char* x = _getcwd(path, buffer_size);
+// <direct.h> https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd
+  if(!_getcwd(path, buffer_size)){
 #else
-  char* x = getcwd(path, buffer_size);
+// <unistd.h> https://www.man7.org/linux/man-pages/man3/getcwd.3.html
+  if(!getcwd(path, buffer_size)){
 #endif
 
-  if(!x) {
     fprintf(stderr, "ERROR:ffilesystem:fs_get_cwd: %s\n", strerror(errno));
     return 0;
   }
-
-  if(FS_TRACE) printf("TRACE:fs_get_cwd: %s  %s   buffer_size %zu  strlen %zu\n", x, path, buffer_size, strlen(path));
 
   return fs_normal(path, path, buffer_size);
 }

@@ -17,9 +17,15 @@ void test_as_posix(){
   if(!Ffs::as_posix(p).empty())
     throw std::runtime_error("ERROR:test_as_posix: " + p);
 
-  p = "C:\\my\\path";
-  if(Ffs::as_posix(p) != "C:/my/path")
-    throw std::runtime_error("ERROR:test_as_posix: " + p);
+  if(fs_is_windows()){
+    p = "a\\b";
+    if(Ffs::as_posix(p) != "a/b")
+      throw std::runtime_error("ERROR:test_as_posix: " + Ffs::as_posix(p) + " != a/b");
+
+    p = "C:\\my\\path";
+    if(Ffs::as_posix(p) != "C:/my/path")
+      throw std::runtime_error("ERROR:test_as_posix: " + p);
+  }
 
   std::cout << "OK: as_posix\n";
 

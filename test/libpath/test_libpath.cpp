@@ -26,11 +26,7 @@ void test_lib_path(char* path, char* ref){
   std::string bindir = Ffs::lib_dir();
 
   std::string p;
-  if(fs_is_cygwin()){
-    p = Ffs::parent(Ffs::as_cygpath(binpath));
-  } else {
-    p = Ffs::parent(binpath);
-  }
+  p = Ffs::parent(binpath);
   std::cout << "parent(lib_path): " << p << "\n";
 
   if(bindir.empty())

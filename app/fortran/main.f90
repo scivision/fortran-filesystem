@@ -108,6 +108,8 @@ main : do
 
   done = .true.
   select case (cmd)
+  case ("as_posix")
+    print '(a)', as_posix(arg1)
   case ("expanduser")
     print '(A)', expanduser(arg1)
   case ("which")

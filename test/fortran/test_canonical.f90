@@ -83,6 +83,13 @@ if (file%path() /= "../" // dummy) then
   error stop
 end if
 
+file = path_t("not-exist/dir/../")
+file = file%canonical()
+if (file%path() /= "not-exist") then
+  write(stderr,*) 'ERROR: relative dir did not canonicalize: ' // file%path()
+  error stop
+end if
+
 !> empty
 if(canonical("") /= "") error stop "canonical('') " // canonical("") // " /= ''"
 

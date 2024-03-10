@@ -7,7 +7,7 @@ implicit none
 private
 public :: path_t  !< base class
 public :: get_homedir, canonical, resolve, get_cwd, set_cwd, make_tempdir, which !< utility procedures
-public :: normal, expanduser, as_posix, as_windows, &
+public :: normal, expanduser, as_posix, &
 is_absolute, is_char_device, is_dir, is_file, is_exe, is_subdir, is_readable, is_writable, is_reserved, &
 is_symlink, read_symlink, &
 exists, &
@@ -46,7 +46,6 @@ contains
 procedure, public :: path=>get_path
 procedure, public :: length
 procedure, public :: as_posix=>f_as_posix
-procedure, public :: as_windows=>f_as_windows
 procedure, public :: join=>f_join
 procedure, public :: relative_to=>f_relative_to
 procedure, public :: normal=>f_normal
@@ -102,12 +101,6 @@ end function
 
 module function as_posix(path) result(r)
 !! force Posix file separator "/"
-character(*), intent(in) :: path
-character(:), allocatable :: r
-end function
-
-module function as_windows(path) result(r)
-!! force Windows file separator "\"
 character(*), intent(in) :: path
 character(:), allocatable :: r
 end function
@@ -514,13 +507,6 @@ function f_as_posix(self) result(r)
 class(path_t), intent(in) :: self
 type(path_t) :: r
 r%path_str = as_posix(self%path_str)
-end function
-
-function f_as_windows(self) result(r)
-!! force Windows "\" file separator
-class(path_t), intent(in) :: self
-type(path_t) :: r
-r%path_str = as_windows(self%path_str)
 end function
 
 function f_relative_to(self, other) result(r)

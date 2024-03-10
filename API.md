@@ -116,22 +116,13 @@ call create_symlink(target, link)
 These methods emit a new "path_t" object.
 It can be a new path_t object, or reassign to the existing path_t object.
 
-Force file separators (if any) to Posix "/"
+On Windows, force file separators (if any) to Posix "/"
 
 ```fortran
 p = path_t('my\path')
 p = p%as_posix()
 
 ! my/path
-```
-
-Force file separators (if any) to Windows "\"
-
-```fortran
-p = path_t('my/path')
-p = p%as_windows()
-
-! my\path
 ```
 
 Expand home directory, swapping file separators "\" for "/" and drop redundant file separators "//".
@@ -405,13 +396,6 @@ Force file separators (if any) to Posix "/"
 ```fortran
 as_posix('my\path')
 ! my/path
-```
-
-Force file separators (if any) to Windows "\"
-
-```fortran
-as_windows('my/path')
-! my\path
 ```
 
 Join path_t with other path string using posix separators.

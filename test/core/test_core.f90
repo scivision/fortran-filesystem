@@ -94,11 +94,7 @@ if (b /= "") then
   c = c+1
 endif
 
-b = as_windows("")
-if (b /= "") then
-  write(stderr,*) "ERROR:as_windows empty: " // b, len_trim(b)
-  c = c+1
-endif
+if(is_windows()) then
 
 b = as_posix("a" // char(92) // "b")
 if (b /= "a/b") then
@@ -114,18 +110,6 @@ if (b /= "a/b") then
   c = c+1
 endif
 
-b = as_windows("a/b")
-if (b /= "a" // char(92) // "b") then
-  write(stderr,*) "ERROR: as_windows(): " // b
-  c = c+1
-endif
-
-p = path_t("a/b")
-p = p%as_windows()
-b = p%path()
-if (b /= "a" // char(92) // "b") then
-  write(stderr,*) "%as_windows: " // b
-  c = c+1
 endif
 
 if (c>0) write(stderr,'(a,i0,a)') "test_separator ", c, " errors"
