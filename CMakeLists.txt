@@ -41,18 +41,20 @@ if(DEFINED ${PROJECT_NAME}_C_EXTENSIONS)
   set(CMAKE_C_EXTENSIONS ${${PROJECT_NAME}_C_EXTENSIONS})
 endif()
 
-message(STATUS "${PROJECT_NAME} ${PROJECT_VERSION} CMake ${CMAKE_VERSION} ${CMAKE_SYSTEM_NAME} Toolchain ${CMAKE_TOOLCHAIN_FILE}")
+set(_msg "${PROJECT_NAME} ${PROJECT_VERSION} CMake ${CMAKE_VERSION} ${CMAKE_SYSTEM_NAME} Toolchain ${CMAKE_TOOLCHAIN_FILE}")
 
 include(options.cmake)
 if(ffilesystem_cpp)
   enable_language(CXX)
-  message(STATUS "${PROJECT_NAME}  CXX_STANDARD ${CMAKE_CXX_STANDARD}")
+  string(APPEND _msg " CXX_STANDARD ${CMAKE_CXX_STANDARD}")
 else()
-  message(STATUS "${PROJECT_NAME}  C_STANDARD ${CMAKE_C_STANDARD}")
+  string(APPEND _msg " C_STANDARD ${CMAKE_C_STANDARD}")
 endif()
 if(ffilesystem_fortran)
   enable_language(Fortran)
 endif()
+
+message(STATUS "${_msg}")
 
 include(cmake/compilers.cmake)
 
