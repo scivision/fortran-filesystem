@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-extern bool has_filename(const char*);
+#include "myfs.h"
+
 
 int main(int argc, char* argv[]) {
 

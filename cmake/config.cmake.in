@@ -8,8 +8,6 @@ set(ffilesystem_fortran @ffilesystem_fortran@)
 set(ffilesystem_shared @BUILD_SHARED_LIBS@)
 set(ffilesystem_libpath $<AND:$<BOOL:${ffilesystem_shared}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>,$<BOOL:${ffilesystem_dladdr}>>>)
 
-set(ffilesystem_shaky @ffilesystem_shaky@)
-
 target_link_libraries(ffilesystem::filesystem INTERFACE
 @GNU_stdfs@
 $<$<BOOL:${ffilesystem_dladdr}>:${CMAKE_DL_LIBS}>

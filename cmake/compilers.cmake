@@ -60,13 +60,24 @@ if(NOT DEFINED ${PROJECT_NAME}_abi_ok)
     message(CHECK_PASS "OK")
   else()
     message(CHECK_FAIL "Failed")
-    message(WARNING "
-    Disabling C++ filesystem due to ABI-incompatible compilers:
-    C compiler ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}
-    C++ compiler ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}
-    Fortran compiler ${CMAKE_Fortran_COMPILER_ID} ${CMAKE_Fortran_COMPILER_VERSION}"
-    )
+    message(WARNING "Disabling C++ filesystem due to ABI-incompatible compilers")
     set(HAVE_CXX_FILESYSTEM false CACHE BOOL "ABI problem with C++ filesystem" FORCE)
+  endif()
+endif()
+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.25 AND ffilesystem_fortran)
+  message(CHECK_START "checking that C++ exception handling works")
+  try_compile(exception_compile
+    PROJECT exception
+    SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/exception_check
+    OUTPUT_VARIABLE abi_output
+  )
+  if(abi_output MATCHES "ld: warning: could not create compact unwind for")
+    message(CHECK_FAIL "no")
+    set(HAVE_CXX_TRYCATCH false CACHE BOOL "C++ exception handling broken")
+  else()
+    message(CHECK_PASS "yes")
+    set(HAVE_CXX_TRYCATCH true CACHE BOOL "C++ exception handling works")
   endif()
 endif()
 
@@ -98,15 +109,6 @@ if(ffilesystem_cpp AND NOT ffilesystem_fallback AND NOT HAVE_CXX_FILESYSTEM)
   message(FATAL_ERROR "C++ filesystem not available. To fallback to C filesystem:
   cmake -Dffilesystem_fallback=on -B build"
   )
-endif()
-
-# warn of shaky macOS compiler mix
-set(ffilesystem_shaky false)
-if(HAVE_CXX_FILESYSTEM AND APPLE)
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-    set(ffilesystem_shaky true)
-    message(WARNING "macOS Clang compiler with Gfortran may not catch C++ exceptions, which may halt the user program if a filesystem error occurs.")
-  endif()
 endif()
 
 # fixes errors about needing -fPIE
