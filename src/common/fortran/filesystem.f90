@@ -24,16 +24,7 @@ fs_cpp, fs_lang, pathsep, &
 is_admin, is_bsd, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
 get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler, &
 short2long, long2short
-!! functional API
 
-!! Maximum path length is dynamically determined for this computer.
-!! A fixed length eases sending data to/from C/C++.
-!!
-!! Physical filesystem maximum filename and path lengths are OS and config dependent.
-!! Notional limits:
-!! MacOS: 1024 from sys/syslimits.h PATH_MAX
-!! Linux: 4096 from https://www.ibm.com/docs/en/spectrum-protect/8.1.13?topic=parameters-file-specification-syntax
-!! Windows: 32767 from https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd
 
 type :: path_t
 
@@ -97,6 +88,15 @@ interface  !< fs_cpp.f90
 
 integer module function get_max_path()
 !! returns dynamic MAX_PATH for this computer
+!! Maximum path length is dynamically determined for this computer.
+!! A fixed length eases sending data to/from C/C++.
+!!
+!! Physical filesystem maximum filename and path lengths are OS and config dependent.
+!! Notional limits:
+!! MacOS: 1024 from sys/syslimits.h PATH_MAX
+!! Linux: 4096 from https://www.ibm.com/docs/en/spectrum-protect/8.1.13?topic=parameters-file-specification-syntax
+!! Windows: 32767 from https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd
+
 end function
 
 module function as_posix(path) result(r)
@@ -472,17 +472,10 @@ class(path_t), intent(in) :: self
 integer, intent(in), optional :: istart, iend
 integer :: i1, i2
 
-if(present(istart)) then
-  i1 = istart
-else
-  i1 = 1
-endif
-
-if(present(iend)) then
-  i2 = iend
-else
-  i2 = len_trim(self%path_str)
-endif
+i1 = 1
+i2 = len_trim(self%path_str)
+if(present(istart)) i1 = istart
+if(present(iend))   i2 = iend
 
 get_path = self%path_str(i1:i2)
 
