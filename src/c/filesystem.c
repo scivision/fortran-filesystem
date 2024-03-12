@@ -21,11 +21,8 @@
 #include <sys/time.h>
 #endif
 
-#if defined(__APPLE__) && defined(__MACH__)
-#include "TargetConditionals.h"  /* TARGET_OS_MAC */
-#endif
 
-#if TARGET_OS_MAC
+#if defined(__APPLE__) && defined(__MACH__)
 #include <copyfile.h>
 #endif
 
@@ -1115,7 +1112,7 @@ bool fs_copy_file(const char* source, const char* dest, bool overwrite) {
       fprintf(stderr, "ERROR:ffilesystem:copy_file: could not copy file %s to %s\n", source, dest);
       return false;
     }
-#elif TARGET_OS_MAC
+#elif defined(__APPLE__) && defined(__MACH__)
   /* copy-on-write file
   * based on kwSys:SystemTools:CloneFileContent
   * https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/copyfile.3.html
