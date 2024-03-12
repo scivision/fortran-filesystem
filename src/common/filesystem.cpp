@@ -726,12 +726,6 @@ bool fs_copy_file(const char* source, const char* dest, bool overwrite)
 
 void Ffs::copy_file(std::string_view source, std::string_view dest, bool overwrite)
 {
-  fs::path s(Ffs::canonical(source, true));
-  fs::path d(Ffs::canonical(dest, false));
-
-//   auto opt = fs::copy_options::none;
-// opt |= fs::copy_options::overwrite_existing;
-// WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
 
 #if defined(__cpp_using_enum)
   using enum std::errc;
@@ -739,6 +733,18 @@ void Ffs::copy_file(std::string_view source, std::string_view dest, bool overwri
   std::errc no_such_file_or_directory = std::errc::no_such_file_or_directory;
   std::errc file_exists = std::errc::file_exists;
 #endif
+
+  if(dest.empty())
+    throw fs::filesystem_error("ffilesystem:copy_file: destination path must not be empty", source, dest,
+      std::make_error_code(no_such_file_or_directory));
+  // for clarity of UX
+
+  fs::path s(Ffs::canonical(source, true));
+  fs::path d(Ffs::canonical(dest, false));
+
+//   auto opt = fs::copy_options::none;
+// opt |= fs::copy_options::overwrite_existing;
+// WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
 
   if(fs::exists(d)){
     if(fs::is_regular_file(d)){
