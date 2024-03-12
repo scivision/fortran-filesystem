@@ -30,14 +30,20 @@ HAVE_CXX_FILESYSTEM
 )
 
 if(NOT HAVE_CXX_FILESYSTEM)
-  message(WARNING "C++ compiler has filesystem feature, but filesystem is broken in libstdc++ ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+  message(WARNING "C++ stdlib filesystem is broken in libstdc++ ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
   return()
 endif()
 
 check_cxx_symbol_exists(__cpp_lib_make_unique "memory" cpp14_make_unique)
 if(NOT cpp14_make_unique)
-  message(WARNING "C++ compiler has filesystem feature, but lacks C++14 std::make_unique()")
+  message(WARNING "C++ compiler has filesystem feature, but lacks C++14 std::make_unique() -- disabling C++ filesystem")
   set(HAVE_CXX_FILESYSTEM false CACHE BOOL "C++14 make_unique is missing" FORCE)
+  return()
+endif()
+
+if(NOT DEFINED PROJECT_IS_TOP_LEVEL OR NOT PROJECT_IS_TOP_LEVEL)
+  # these checks are normally not significant for end users--save time on slow systems
+  # like HPC login nodes
   return()
 endif()
 
