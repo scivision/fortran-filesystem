@@ -4,7 +4,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake)
 
 set(ffilesystem_cpp @HAVE_CXX_FILESYSTEM@)
 set(ffilesystem_dladdr @HAVE_DLADDR@)
-set(ffilesystem_fortran @ffilesystem_fortran@)
+set(ffilesystem_fortran @HAVE_Fortran_FILESYSTEM@)
 set(ffilesystem_shared @BUILD_SHARED_LIBS@)
 set(ffilesystem_libpath $<AND:$<BOOL:${ffilesystem_shared}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>,$<BOOL:${ffilesystem_dladdr}>>>)
 

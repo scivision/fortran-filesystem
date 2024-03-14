@@ -14,6 +14,7 @@ VERSION 5.5.1
 include(CTest) # needed for "ctest -T memcheck"
 include(FetchContent)
 include(GNUInstallDirs)
+include(CheckLanguage)
 
 # some parts of ffilesystem have optional C++20 features.
 # almost all ffilesystem functions work with C++17 (emits warnings for unavailable functions)
@@ -51,7 +52,13 @@ else()
   string(APPEND _msg " C_STANDARD ${CMAKE_C_STANDARD}")
 endif()
 if(ffilesystem_fortran)
-  enable_language(Fortran)
+  check_language(Fortran)
+  if(CMAKE_Fortran_COMPILER)
+    enable_language(Fortran)
+    set(HAVE_Fortran_FILESYSTEM ON)
+  else()
+    set(HAVE_Fortran_FILESYSTEM OFF)
+  endif()
 endif()
 
 message(STATUS "${_msg}")
@@ -84,7 +91,7 @@ endif()
 
 add_library(ffilesystem src/common/common.c
 "$<IF:$<BOOL:${HAVE_CXX_FILESYSTEM}>,src/common/filesystem.cpp,src/c/filesystem.c;${cwalk_SOURCE_DIR}/src/cwalk.c>"
-"$<$<BOOL:${ffilesystem_fortran}>:src/common/fortran/filesystem.f90;src/common/fortran/f2c.f90>"
+"$<$<BOOL:${HAVE_Fortran_FILESYSTEM}>:src/common/fortran/filesystem.f90;src/common/fortran/f2c.f90>"
 )
 target_include_directories(ffilesystem PRIVATE
 ${PROJECT_SOURCE_DIR}/include
@@ -108,7 +115,6 @@ if(BUILD_SHARED_LIBS AND (WIN32 OR CYGWIN))
 endif()
 
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
-# include -Dffilesystem_fortran=off, the ffilesystem CMake package will fail on use if directory not exist
 
 target_include_directories(ffilesystem PUBLIC
 "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include;${PROJECT_SOURCE_DIR}/include>"
@@ -122,7 +128,7 @@ ${GNU_stdfs}
 )
 # both Advapi32 and Userenv must be linked
 
-if(ffilesystem_fortran)
+if(HAVE_Fortran_FILESYSTEM)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/filesystem.mod TYPE INCLUDE)
 endif()
 
@@ -150,7 +156,7 @@ if(ffilesystem_cli)
     install(TARGETS fs_cli EXPORT ${PROJECT_NAME}-targets)
   endif()
 
-  if(ffilesystem_fortran)
+  if(HAVE_Fortran_FILESYSTEM)
   add_executable(filesystem_cli app/fortran/main.f90)
   target_link_libraries(filesystem_cli PRIVATE ffilesystem)
   set_property(TARGET filesystem_cli PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -170,7 +176,7 @@ include(cmake/install.cmake)
 
 include(FeatureSummary)
 
-add_feature_info(Fortran ffilesystem_fortran "Fortran bindings")
+add_feature_info(Fortran HAVE_Fortran_FILESYSTEM "Fortran bindings")
 add_feature_info(Cpp HAVE_CXX_FILESYSTEM "C++ stdlib filesystem")
 add_feature_info(shared BUILD_SHARED_LIBS "Build shared library: enables lib_path(), lib_dir()")
 

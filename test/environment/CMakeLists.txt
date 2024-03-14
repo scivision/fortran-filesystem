@@ -1,6 +1,6 @@
 set(_noenv)
 
-if(${PROJECT_NAME}_fortran)
+if(HAVE_Fortran_FILESYSTEM)
 
 add_executable(test_env test_env.f90)
 target_link_libraries(test_env PRIVATE ffilesystem)

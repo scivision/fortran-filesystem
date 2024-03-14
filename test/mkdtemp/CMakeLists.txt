@@ -1,4 +1,4 @@
-if(${PROJECT_NAME}_fortran)
+if(HAVE_Fortran_FILESYSTEM)
 
 add_executable(test_fortran_mkdtemp test_mkdtemp.f90)
 target_link_libraries(test_fortran_mkdtemp PRIVATE ffilesystem)

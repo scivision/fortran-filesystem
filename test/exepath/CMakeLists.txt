@@ -8,7 +8,7 @@ add_test(NAME Cpp_exepath COMMAND test_exepath_cpp test_exepath_cpp)
 endif()
 
 
-if(${PROJECT_NAME}_fortran)
+if(HAVE_Fortran_FILESYSTEM)
 
 add_executable(test_exepath_fortran test_exepath.f90)
 target_link_libraries(test_exepath_fortran PRIVATE ffilesystem)

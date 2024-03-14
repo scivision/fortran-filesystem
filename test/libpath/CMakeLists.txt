@@ -8,7 +8,7 @@ COMMAND test_libpath_cpp
 )
 endif()
 
-if(${PROJECT_NAME}_fortran)
+if(HAVE_Fortran_FILESYSTEM)
 add_executable(test_libpath_fortran test_libpath.f90)
 target_link_libraries(test_libpath_fortran PRIVATE ffilesystem)
 target_compile_options(test_libpath_fortran PRIVATE ${${PROJECT_NAME}_fortran_test_flags})

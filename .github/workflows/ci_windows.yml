@@ -28,33 +28,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: config
-      run: >-
-        cmake -Bbuild
-        --install-prefix=${{ runner.temp }}
-        -Dffilesystem_fortran:BOOL=off
-        -Dffilesystem_cpp:BOOL=on
-        -DBUILD_SHARED_LIBS:BOOL=off
+    - name: Debug workflow
+      run: cmake --workflow --preset debug
 
-    - name: Debug build
-      run: cmake --build build --config Debug
-
-    - name: Debug test
-      run: ctest --test-dir build -C Debug -V
-
-    - name: Release build
-      run: cmake --build build --config Release
-
-    - name: Release test
-      run: ctest --test-dir build -C Release -V
+    - name: Release workflow
+      run: cmake --workflow --preset release
 
     - name: Install Release
       run: cmake --install build --config Release
 
     - name: example configure
-      run: cmake -S example -B example/build
-      env:
-        CMAKE_PREFIX_PATH: ${{ runner.temp }}
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=build/local
 
     - name: example build
       run: cmake --build example/build --config Release
@@ -86,10 +70,7 @@ jobs:
 
     - name: config shared=${{ matrix.shared }}
       run: >-
-        cmake
-        --preset multi
-        --install-prefix ${{ runner.temp }}
-        -Dffilesystem_cpp:BOOL=on
+        cmake --preset multi
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
     - name: Debug workflow
@@ -102,7 +83,7 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake -G Ninja -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+      run: cmake -G Ninja -S example -B example/build -DCMAKE_PREFIX_PATH=build/local
 
     - run: cmake --build example/build
 

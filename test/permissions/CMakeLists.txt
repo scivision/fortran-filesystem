@@ -9,7 +9,7 @@ endif()
 
 
 
-if(${PROJECT_NAME}_fortran)
+if(HAVE_Fortran_FILESYSTEM)
 add_executable(test_permissions_fortran test_permissions.f90)
 target_link_libraries(test_permissions_fortran PRIVATE ffilesystem)
 set_property(TARGET test_permissions_fortran PROPERTY LINKER_LANGUAGE Fortran)

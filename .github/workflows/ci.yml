@@ -46,9 +46,7 @@ jobs:
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
-        cmake
-        --preset multi
-        --install-prefix=${{ runner.temp }}
+        cmake --preset multi
         -Dffilesystem_cpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
@@ -66,7 +64,7 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=build/local
 
     - run: cmake --build example/build
 
@@ -99,9 +97,7 @@ jobs:
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
-        cmake
-        --preset multi
-        --install-prefix=${{ runner.temp }}
+        cmake --preset multi
         -Dffilesystem_cpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
@@ -119,7 +115,7 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=build/local
 
     - run: cmake --build example/build
 
@@ -161,9 +157,7 @@ jobs:
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
-        cmake
-        --preset multi
-        --install-prefix ${{ runner.temp }}
+        cmake --preset multi
         -Dffilesystem_cpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
@@ -181,7 +175,7 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=build/local
 
     - run: cmake --build example/build
 
@@ -291,9 +285,7 @@ jobs:
 
     - name: config cpp=${{ matrix.cpp }} shared=${{ matrix.shared }}
       run: >-
-        cmake
-        --preset multi
-        --install-prefix=${{ runner.temp }}
+        cmake --preset multi
         -Dffilesystem_cpp:BOOL=${{ matrix.cpp }}
         -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
 
@@ -311,7 +303,7 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=build/local
 
     - run: cmake --build example/build
 

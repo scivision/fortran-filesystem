@@ -1,4 +1,4 @@
-if(NOT ${PROJECT_NAME}_fortran)
+if(NOT HAVE_Fortran_FILESYSTEM)
   return()
 endif()
 

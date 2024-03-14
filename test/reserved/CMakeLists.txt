@@ -6,7 +6,7 @@ add_test(NAME C_reserved COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:test_rese
 
 set_property(TEST C_reserved PROPERTY SKIP_REGULAR_EXPRESSION "SIGABRT;[aA]bort")
 
-if(ffilesystem_fortran)
+if(HAVE_Fortran_FILESYSTEM)
 add_executable(test_reserved_fortran test_reserved.f90)
 target_link_libraries(test_reserved_fortran PRIVATE ffilesystem)
 set_property(TARGET test_reserved_fortran PROPERTY LINKER_LANGUAGE Fortran)

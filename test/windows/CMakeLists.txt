@@ -8,7 +8,7 @@ add_test(NAME Cpp_windows COMMAND test_Cpp_windows)
 endif()
 
 
-if(ffilesystem_fortran)
+if(HAVE_Fortran_FILESYSTEM)
 
 add_executable(test_Fortran_windows test_windows.f90)
 target_link_libraries(test_Fortran_windows PRIVATE ffilesystem)
