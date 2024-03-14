@@ -28,17 +28,20 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Debug workflow
-      run: cmake --workflow --preset debug
+    - name: Configure
+      run: cmake -B build
 
-    - name: Release workflow
-      run: cmake --workflow --preset release
+    - name: build Release
+      run: cmake --build build --config Release
+
+    - name: test Release
+      run: ctest --test-dir build -C Release -V
 
     - name: Install Release
       run: cmake --install build --config Release
 
     - name: example configure
-      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=build/local
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/local
 
     - name: example build
       run: cmake --build example/build --config Release
@@ -83,7 +86,7 @@ jobs:
       run: cmake --install build
 
     - name: example workflow
-      run: cmake -G Ninja -S example -B example/build -DCMAKE_PREFIX_PATH=build/local
+      run: cmake -G Ninja -S example -B example/build -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/local
 
     - run: cmake --build example/build
 

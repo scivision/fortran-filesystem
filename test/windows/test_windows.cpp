@@ -1,36 +1,53 @@
 #include <cstdlib>
 #include <iostream>
-#include <exception>
 #include <string>
+
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
 
 #include "ffilesystem.h"
 
+[[noreturn]] void err(std::string_view m){
+    std::cerr << "ERROR: " << m << "\n";
+    std::exit(EXIT_FAILURE);
+}
+
 int main(int argc, char** argv){
 
-    std::string long_path;
+#ifdef _MSC_VER
+_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+_CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+#endif
 
-    if(argc < 2)
-      long_path = std::getenv("PROGRAMFILES");
-    else
-      long_path = argv[1];
+std::string long_path;
 
-    if (long_path.empty())
-      throw std::runtime_error("input is empty");
+if(argc < 2)
+  long_path = std::getenv("PROGRAMFILES");
+else
+  long_path = argv[1];
 
-    std::string short_path = Ffs::shortname(long_path);
+if (long_path.empty())
+  err("input is empty");
 
-    std::cout << long_path << " => " << short_path << '\n';
-    if(short_path.empty())
-      throw std::runtime_error("short_path is empty");
+std::string short_path = Ffs::shortname(long_path);
 
-    std::string long_path2 = Ffs::longname(short_path);
+std::cout << long_path << " => " << short_path << '\n';
+if(short_path.empty())
+  err("short_path is empty");
 
-    std::cout << short_path << " => " << long_path2 << '\n';
-    if(long_path2.empty())
-      throw std::runtime_error("long_path is empty");
+std::string long_path2 = Ffs::longname(short_path);
 
-    if (long_path != long_path2)
-      throw std::runtime_error("long_path != long_path2");
+std::cout << short_path << " => " << long_path2 << '\n';
+if(long_path2.empty())
+  err("long_path is empty");
 
-    return EXIT_SUCCESS;
+if (long_path != long_path2)
+  err("long_path != long_path2");
+
+return EXIT_SUCCESS;
 }

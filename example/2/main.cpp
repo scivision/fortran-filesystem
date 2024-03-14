@@ -2,10 +2,15 @@
 
 #include <iostream>
 #include <string>
-#include <exception>
 #include <cstdlib>
 
 #include "ffilesystem.h"
+
+[[noreturn]] void err(std::string_view m){
+    std::cerr << "ERROR: " << m << "\n";
+    std::exit(EXIT_FAILURE);
+}
+
 
 int main() {
 
@@ -14,13 +19,13 @@ int main() {
   std::string h;
   h = Ffs::get_homedir();
   if (h.empty())
-    throw std::runtime_error("home dir not found");
+    err("home dir not found");
 
   std::cout << "home dir " << h << "\n";
 
   h = Ffs::expanduser("~");
   if (h.empty())
-    throw std::runtime_error("home dir not found");
+    err("home dir not found");
 
   std::cout << "expanduser('~') " << h << "\n";
 

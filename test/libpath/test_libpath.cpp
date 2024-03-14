@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <exception>
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -9,6 +8,10 @@
 
 #include "ffilesystem.h"
 
+[[noreturn]] void err(std::string_view m){
+    std::cerr << "ERROR: " << m << "\n";
+    std::exit(EXIT_FAILURE);
+}
 
 
 void test_lib_path(char* path, char* ref){
@@ -16,10 +19,10 @@ void test_lib_path(char* path, char* ref){
   std::string binpath = Ffs::lib_path();
 
   if(binpath.empty())
-    throw std::runtime_error("ERROR:test_binpath: lib_path should be non-empty: " + binpath);
+    err("test_binpath: lib_path should be non-empty: " + binpath);
 
   if(binpath.find(path) == std::string::npos)
-    throw std::runtime_error("ERROR:test_binpath: lib_path not found correctly: " + binpath + " does not contain " + ref);
+    err("test_binpath: lib_path not found correctly: " + binpath + " does not contain " + ref);
 
   std::cout << "OK: lib_path: " << binpath << "\n";
 
@@ -30,10 +33,10 @@ void test_lib_path(char* path, char* ref){
   std::cout << "parent(lib_path): " << p << "\n";
 
   if(bindir.empty())
-    throw std::runtime_error("ERROR:test_binpath: lib_dir should be non-empty: " + bindir);
+    err("test_binpath: lib_dir should be non-empty: " + bindir);
 
   if(!Ffs::equivalent(bindir, p))
-    throw std::runtime_error("ERROR:test_binpath_c: lib_dir and parent(lib_path) should be equivalent: " + bindir + " != " + p);
+    err("test_binpath_c: lib_dir and parent(lib_path) should be equivalent: " + bindir + " != " + p);
 
   std::cout << "OK: lib_dir: " << bindir << "\n";
 }
@@ -55,7 +58,7 @@ int main(int argc, char* argv[])
   }
 
   if (!atoi(argv[1]))
-    throw std::runtime_error("lib_path: feature not available");
+    err("lib_path: feature not available");
 
   test_lib_path(argv[2], argv[3]);
 

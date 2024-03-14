@@ -16,7 +16,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <system_error>
-#include <exception>
 #include <filesystem>
 
 #if __has_include(<format>)

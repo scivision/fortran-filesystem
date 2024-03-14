@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
-#include <exception>
 
 #include <filesystem>
 
@@ -10,6 +9,12 @@
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #endif
+
+[[noreturn]] void err(std::string_view m){
+    std::cerr << "ERROR: " << m << "\n";
+    std::exit(EXIT_FAILURE);
+}
+
 
 int main()
 {
@@ -27,26 +32,26 @@ int main()
   std::cout << "current working dir " << fpath << "\n";
 
   if(!Ffs::exists(fpath))
-    throw std::runtime_error("current working dir " + fpath + " does not exist");
+    err("current working dir " + fpath + " does not exist");
 
   std::string cpath = std::filesystem::current_path().string();
 
   std::string s = Ffs::normal(cpath);
 
   if (fpath != s)
-    throw std::runtime_error("C cwd " + s + " != Fortran cwd " + fpath);
+    err("C cwd " + s + " != Fortran cwd " + fpath);
 
 // --- homedir
   std::string p = Ffs::get_homedir();
   std::cout << "Home directory " << p << "\n";
   if (p != Ffs::expanduser("~"))
-    throw std::runtime_error("home dir " + p + " != expanduser('~') " + Ffs::expanduser("~"));
+    err("home dir " + p + " != expanduser('~') " + Ffs::expanduser("~"));
 
 // --- tempdir
   std::string t = Ffs::get_tempdir();
   std::cout << "Temp directory " << t << "\n";
   if (!Ffs::exists(t))
-    throw std::runtime_error("Fortran: temp dir " + t + " does not exist");
+    err("Fortran: temp dir " + t + " does not exist");
 
   std::cout << "OK: C++ environment\n";
 

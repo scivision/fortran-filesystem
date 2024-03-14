@@ -1,8 +1,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <exception>
-#include <memory>
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -10,23 +8,28 @@
 
 #include "ffilesystem.h"
 
+[[noreturn]] void err(std::string_view m){
+    std::cerr << "ERROR: " << m << "\n";
+    std::exit(EXIT_FAILURE);
+}
+
 
 void test_exe_path(char* argv[])
 {
 
 std::string exepath = Ffs::exe_path();
 if (exepath.find(argv[1]) == std::string::npos)
-  throw std::runtime_error("ERROR:test_exepath: exe_path not found correctly: " + exepath);
+  err("test_exepath: exe_path not found correctly: " + exepath);
 
 
 std::string bindir = Ffs::exe_dir();
 if(bindir.empty())
-  throw std::runtime_error("ERROR:test_exepath: exe_dir not found correctly: " + bindir);
+  err("test_exepath: exe_dir not found correctly: " + bindir);
 
 std::string p = Ffs::parent(exepath);
 
 if(!Ffs::equivalent(bindir, p))
-  throw std::runtime_error("ERROR:test_exepath: exe_dir and parent(exe_path) should be equivalent: " + bindir + " != " + p);
+  err("test_exepath: exe_dir and parent(exe_path) should be equivalent: " + bindir + " != " + p);
 
 std::cout << "OK: exe_path: " << exepath << "\n";
 std::cout << "OK: exe_dir: " << bindir << "\n";

@@ -10,7 +10,7 @@
 
 
 [[noreturn]] void err(std::string_view m){
-    std::cerr << "ERROR: test_exe: " << m << "\n";
+    std::cerr << "ERROR: " << m << "\n";
     std::exit(EXIT_FAILURE);
 }
 
@@ -46,7 +46,7 @@ if(!Ffs::is_readable(read))
     err(read + " should be readable");
 
 if(!Ffs::exists(read))
-   err(read + " should exist");
+    err(read + " should exist");
 
 if(!Ffs::is_file(read))
     err(read + " should be a file");

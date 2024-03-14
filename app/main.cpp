@@ -4,7 +4,6 @@
 #include <vector>
 #include <functional>
 #include <map>
-#include <exception>
 
 #include <filesystem>
 

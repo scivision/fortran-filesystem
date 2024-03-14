@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
-#include <exception>
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -9,72 +8,74 @@
 
 #include "ffilesystem.h"
 
-void test_as_posix(){
+[[noreturn]] void err(std::string_view m){
+    std::cerr << "ERROR: " << m << "\n";
+    std::exit(EXIT_FAILURE);
+}
 
+void test_as_posix(){
 
   std::string p;
 
   if(!Ffs::as_posix(p).empty())
-    throw std::runtime_error("ERROR:test_as_posix: " + p);
+    err("test_as_posix: " + p);
 
   if(fs_is_windows()){
     p = "a\\b";
     if(Ffs::as_posix(p) != "a/b")
-      throw std::runtime_error("ERROR:test_as_posix: " + Ffs::as_posix(p) + " != a/b");
+      err("test_as_posix: " + Ffs::as_posix(p) + " != a/b");
 
     p = "C:\\my\\path";
     if(Ffs::as_posix(p) != "C:/my/path")
-      throw std::runtime_error("ERROR:test_as_posix: " + p);
+      err("test_as_posix: " + p);
   }
 
   std::cout << "OK: as_posix\n";
-
-
 }
 
 void test_filename()
 {
 
 if(Ffs::file_name("") != "")
-  throw std::runtime_error("filename empty: " + Ffs::file_name(""));
+  err("filename empty: " + Ffs::file_name(""));
 
 std::cout << "PASS:filename:empty\n";
 
 if (Ffs::file_name("a/b/c") != "c")
-  throw std::runtime_error("file_name failed: " + Ffs::file_name("a/b/c"));
+  err("file_name failed: " + Ffs::file_name("a/b/c"));
 
 if (Ffs::file_name("a") != "a")
- throw std::runtime_error("file_name idempotent failed: " + Ffs::file_name("a"));
+  err("file_name idempotent failed: " + Ffs::file_name("a"));
 
 if(Ffs::file_name("file_name") != "file_name")
-  throw std::runtime_error("file_name plain filename: " + Ffs::file_name("file_name"));
+  err("file_name plain filename: " + Ffs::file_name("file_name"));
 
 std::string nr = Ffs::file_name(Ffs::root(Ffs::get_cwd()));
 if(!nr.empty())
-  throw std::runtime_error("file_name root: " + nr);
+  err("file_name root: " + nr);
 
 if(Ffs::file_name(".file_name") != ".file_name")
-  throw std::runtime_error("file_name leading dot filename: " + Ffs::file_name(".file_name"));
+  err("file_name leading dot filename: " + Ffs::file_name(".file_name"));
 
 if(Ffs::file_name("./file_name") != "file_name")
-  throw std::runtime_error("file_name leading dot filename cwd: " + Ffs::file_name("./file_name"));
+  err("file_name leading dot filename cwd: " + Ffs::file_name("./file_name"));
 
 if(Ffs::file_name("file_name.txt") != "file_name.txt")
-  throw std::runtime_error("file_name leading dot filename w/ext");
+  err("file_name leading dot filename w/ext");
 
 if(Ffs::file_name("./file_name.txt") != "file_name.txt")
-  throw std::runtime_error("file_name leading dot filename w/ext and cwd");
+  err("file_name leading dot filename w/ext and cwd");
 
 if(Ffs::file_name("../file_name.txt") != "file_name.txt")
-  throw std::runtime_error("file_name leading dot filename w/ext up " + Ffs::file_name("../file_name.txt"));
+  err("file_name leading dot filename w/ext up " + Ffs::file_name("../file_name.txt"));
 
 if(fs_is_windows() && Ffs::file_name("c:\\my\\path") != "path")
-  throw std::runtime_error("file_name windows: " + Ffs::file_name("c:\\my\\path"));
+  err("file_name windows: " + Ffs::file_name("c:\\my\\path"));
 
 if(fs_is_windows() && fs_pathsep() != ';')
-  throw std::runtime_error("pathsep windows");
+  err("pathsep windows");
 if(!fs_is_windows() && fs_pathsep() != ':')
-  throw std::runtime_error("pathsep unix");
+  err("pathsep unix");
 
 }
 

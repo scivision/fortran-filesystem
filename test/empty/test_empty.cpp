@@ -3,13 +3,18 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <exception>
+#include <filesystem>
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #endif
 
 #include "ffilesystem.h"
+
+[[noreturn]] void err(std::string_view m){
+    std::cerr << "ERROR: " << m << "\n";
+    std::exit(EXIT_FAILURE);
+}
 
 
 int main(int argc, char *argv[]){
@@ -35,34 +40,34 @@ int main(int argc, char *argv[]){
     std::cout << "PASS: as_posix(char*)\n";
 
     if(!Ffs::normal("").empty())
-      throw std::runtime_error("Ffs::normal");
+      err("Ffs::normal");
 
     if(!Ffs::file_name("").empty())
-      throw std::runtime_error("Ffs::file_name");
+      err("Ffs::file_name");
 
     if(!Ffs::stem("").empty())
-      throw std::runtime_error("Ffs::stem");
+      err("Ffs::stem");
 
     if(!Ffs::join("", "").empty())
-      throw std::runtime_error("Ffs::join");
+      err("Ffs::join");
 
     if(!Ffs::parent("").empty())
-      throw std::runtime_error("Ffs::parent");
+      err("Ffs::parent");
 
     if(!Ffs::suffix("").empty())
-      throw std::runtime_error("Ffs::suffix");
+      err("Ffs::suffix");
 
     if(!Ffs::with_suffix("", "").empty())
-      throw std::runtime_error("Ffs::with_suffix");
+      err("Ffs::with_suffix");
 
     if(Ffs::is_char_device(""))
-      throw std::runtime_error("Ffs::is_char_device");
+      err("Ffs::is_char_device");
 
     if(Ffs::is_reserved(""))
-      throw std::runtime_error("Ffs::is_reserved");
+      err("Ffs::is_reserved");
 
     if(Ffs::is_symlink(""))
-      throw std::runtime_error("Ffs::is_symlink");
+      err("Ffs::is_symlink");
 
     try{
       Ffs::create_symlink("", "");
@@ -71,37 +76,37 @@ int main(int argc, char *argv[]){
     }
 
     if(Ffs::mkdir(""))
-      throw std::runtime_error("Ffs::mkdir");
+      err("Ffs::mkdir");
 
     if(!Ffs::root("").empty())
-      throw std::runtime_error("Ffs::root");
+      err("Ffs::root");
 
     if(Ffs::exists(""))
-      throw std::runtime_error("Ffs::exists");
+      err("Ffs::exists");
 
     if(Ffs::is_absolute(""))
-      throw std::runtime_error("Ffs::is_absolute");
+      err("Ffs::is_absolute");
 
     if(Ffs::is_dir(""))
-      throw std::runtime_error("Ffs::is_dir");
+      err("Ffs::is_dir");
 
     if(Ffs::is_exe(""))
-      throw std::runtime_error("Ffs::is_exe");
+      err("Ffs::is_exe");
 
     if(Ffs::is_file(""))
-      throw std::runtime_error("Ffs::is_file");
+      err("Ffs::is_file");
 
     if(Ffs::remove(""))
-      throw std::runtime_error("Ffs::remove");
+      err("Ffs::remove");
 
     if(!Ffs::canonical("", false).empty())
-      throw std::runtime_error("Ffs::canonical");
+      err("Ffs::canonical");
 
     if(Ffs::equivalent("", ""))
-      throw std::runtime_error("Ffs::equivalent");
+      err("Ffs::equivalent");
 
     if(!Ffs::expanduser("").empty())
-      throw std::runtime_error("Ffs::expanduser");
+      err("Ffs::expanduser");
 
     try{
       Ffs::copy_file("", "", false);
@@ -110,7 +115,7 @@ int main(int argc, char *argv[]){
     }
 
     if(!Ffs::relative_to("", "").empty())
-      throw std::runtime_error("Ffs::relative_to");
+      err("Ffs::relative_to");
 
     try{
       Ffs::touch("");
@@ -120,7 +125,7 @@ int main(int argc, char *argv[]){
 
     try{
       if(Ffs::file_size("") != 0)
-        throw std::runtime_error("Ffs::file_size");
+        err("Ffs::file_size");
     } catch (std::filesystem::filesystem_error& e){
       std::cerr << e.what() << "\n";
     }
@@ -129,27 +134,27 @@ int main(int argc, char *argv[]){
     if(!fs_is_windows()) {
       try{
         if(Ffs::space_available("") != 0)
-          throw std::runtime_error("Ffs::space_available");
+          err("Ffs::space_available");
       } catch (std::filesystem::filesystem_error& e){
         std::cerr << e.what() << "\n";
       }
     }
 
     if(Ffs::get_cwd().empty())
-      throw std::runtime_error("get_cwd");
+      err("get_cwd");
 
     if(Ffs::get_homedir().empty())
-      throw std::runtime_error("get_homedir");
+      err("get_homedir");
 
     if(fs_cpp()){
       if(!fs_is_bsd() && Ffs::exe_dir().empty())
-        throw std::runtime_error("Ffs::exe_dir");
+        err("Ffs::exe_dir");
 
       bool le = Ffs::lib_dir().empty();
       if(shared){
-        if (le) throw std::runtime_error("Ffs::lib_dir");
+        if (le) err("Ffs::lib_dir");
       } else {
-        if (!le) throw std::runtime_error("Ffs::lib_dir");
+        if (!le) err("Ffs::lib_dir");
       }
     }
 

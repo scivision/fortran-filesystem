@@ -8,6 +8,11 @@
 
 #include "ffilesystem.h"
 
+[[noreturn]] void err(std::string_view m){
+    std::cerr << "ERROR: " << m << "\n";
+    std::exit(EXIT_FAILURE);
+}
+
 int main(void){
 
 #ifdef _MSC_VER
@@ -24,29 +29,29 @@ int main(void){
   r = Ffs::expanduser("");
 
   if(!r.empty())
-    throw std::runtime_error("expanduser('') != ''  " + r);
+    err("expanduser('') != ''  " + r);
 
   r = Ffs::expanduser(".");
   if (r != ".")
-    throw std::runtime_error("expanduser('.') != '.'");
+    err("expanduser('.') != '.'");
 
   r = Ffs::expanduser("~");
   h = Ffs::get_homedir();
   if(r != h)
-    throw std::runtime_error("expanduser('~') != homedir  => " + r + " != " + h);
+    err("expanduser('~') != homedir  => " + r + " != " + h);
 
   std::cout << "~: " << h << "\n";
 
   r = Ffs::expanduser("~/");
   h = Ffs::get_homedir();
   if (r != h)
-    throw std::runtime_error("expanduser('~/') != homedir + '/'  =>  " + r + " != " + h);
+    err("expanduser('~/') != homedir + '/'  =>  " + r + " != " + h);
 
   std::cout << "~/: " << h << "\n";
 
   r = Ffs::expanduser("~//");
   if (r != h)
-    throw std::runtime_error("expanduser('~//') != homedir");
+    err("expanduser('~//') != homedir");
 
   std::cout << "OK: Cpp expanduser\n";
 

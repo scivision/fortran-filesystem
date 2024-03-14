@@ -1,13 +1,20 @@
 // no need to duplicate this in test/cpp
-#include <exception>
 #include <cstdlib>
 #include <iostream>
+#include <string>
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #endif
 
 #include "ffilesystem.h"
+
+
+[[noreturn]] void err(std::string_view m){
+    std::cerr << "ERROR: " << m << "\n";
+    std::exit(EXIT_FAILURE);
+}
+
 
 int main(int argc, char *argv[]){
 
@@ -28,11 +35,11 @@ int main(int argc, char *argv[]){
   std::string drive(argv[0]);
 
   if(Ffs::file_size(drive) == 0)
-    throw std::runtime_error("failed to get own file size");
+    err("failed to get own file size");
 
   uintmax_t avail = Ffs::space_available(drive);
   if(avail == 0)
-    throw std::runtime_error("failed to get space available of own drive " + drive);
+    err("failed to get space available of own drive " + drive);
 
   float avail_GB = (float) avail / 1073741824;
   std::cout << "OK space available on drive of " << drive <<  " (GB) " <<  avail_GB << "\n";
