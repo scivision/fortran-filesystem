@@ -556,6 +556,7 @@ bool fs_equivalent(const char* path1, const char* path2)
 
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 {
+  // The path is also normalized by defintion
   if(path[0] != '~' || (strlen(path) > 1 && !(path[0] == '~' && path[1] == '/')))
     return fs_normal(path, result, buffer_size);
 

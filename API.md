@@ -471,7 +471,7 @@ root("/a/b/c") !< "/" on Unix, "" on Windows
 root ("c:/a/b/c") !< "c:" on Windows, "" on Unix
 ```
 
-Expand user home directory:
+Expand user home directory. The path is also normalized by defintion.
 
 ```fortran
 expanduser("~/my/path")   !< "/home/user/my/path" on Unix, "<root>/Users/user/my/path" on Windows

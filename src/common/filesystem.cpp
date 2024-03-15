@@ -147,8 +147,9 @@ static size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
     return 0;
   }
 
-  std::strncpy(result, s.data(), buffer_size);
-  return std::strlen(result);
+  s.copy(result, buffer_size);
+  result[s.length()] = '\0';
+  return s.length();
 }
 
 size_t fs_compiler(char* name, size_t buffer_size)
@@ -1034,6 +1035,8 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 
 std::string Ffs::expanduser(std::string_view path)
 {
+  // The path is also normalized by defintion
+
   if(path.empty())
     return {};
   // cannot call .front() on empty string_view() (MSVC)
@@ -1072,6 +1075,7 @@ std::string Ffs::expanduser(std::string_view path)
   if (p.length() < 3)
     return h;
 
+  // The path is also normalized by defintion
   return Ffs::normal((fs::path(h) / p.substr(2)).generic_string());
 }
 
