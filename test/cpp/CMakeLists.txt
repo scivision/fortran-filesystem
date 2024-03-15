@@ -13,7 +13,7 @@ COMMAND ${CMAKE_COMMAND}
 
 endif()
 
-foreach(t IN ITEMS canonical expanduser file utf8)
+foreach(t IN ITEMS canonical file utf8)
   add_executable(test_cpp_${t} test_${t}.cpp)
   target_link_libraries(test_cpp_${t} PRIVATE ffilesystem)
 

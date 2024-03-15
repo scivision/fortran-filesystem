@@ -4,7 +4,8 @@ set(${PROJECT_NAME}_fortran_test_flags
   "$<$<AND:$<Fortran_COMPILER_ID:GNU>,$<VERSION_LESS:$<Fortran_COMPILER_VERSION>,13>>:-Wno-maybe-uninitialized>"
 )
 
-foreach(t IN ITEMS cpp fortran core empty environment executable exepath fileops libpath mkdtemp overflow permissions reserved symlink windows)
+foreach(t IN ITEMS cpp fortran core empty environment executable exepath
+  expanduser fileops libpath mkdtemp overflow permissions reserved symlink windows)
 
 add_subdirectory(${t})
 
