@@ -1040,8 +1040,6 @@ std::string Ffs::expanduser(std::string_view path)
 
   std::set <char> filesep = {'/', fs::path::preferred_separator};
 
-  if(FS_TRACE) std::cout << "TRACE:expanduser: filesep set.size" << filesep.size() << "\n";
-
   if(path.front() != '~' || (path.length() > 1 &&
 #if __cplusplus >= 202002L
   !filesep.contains(path[1])
@@ -1074,7 +1072,7 @@ std::string Ffs::expanduser(std::string_view path)
   if (p.length() < 3)
     return h;
 
-  return Ffs::normal((fs::path(h) / path.substr(2)).generic_string());
+  return Ffs::normal((fs::path(h) / p.substr(2)).generic_string());
 }
 
 
