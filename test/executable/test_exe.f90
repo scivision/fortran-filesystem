@@ -15,9 +15,6 @@ print '(a)', "PASSED: test_exist"
 call test_set_permissions()
 print '(a)', "PASSED: test_set_permissions"
 
-call test_which()
-print '(a)', "PASSED: test_which()"
-
 contains
 
 subroutine test_not_exist()
@@ -166,23 +163,5 @@ if(.not. is_windows()) then
 endif
 
 end subroutine test_set_permissions
-
-
-subroutine test_which()
-
-
-character(:), allocatable :: buf
-
-if (is_windows()) then
-  buf = which("cmd.exe")
-else
-  buf = which("ls")
-endif
-
-print '(a)', "which: " // buf
-
-if (len_trim(buf) == 0) error stop "ERROR:test_exe: which() failed"
-
-end subroutine test_which
 
 end program

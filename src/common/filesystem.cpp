@@ -811,12 +811,6 @@ std::string Ffs::which(std::string_view name)
   if (Ffs::is_absolute(n))
     return Ffs::is_exe(n) ? Ffs::normal(n) : std::string();
 
-  std::string path = std::getenv("PATH");
-  if (path.empty()){
-    std::cerr << "ERROR:ffilesystem:which: Path environment variable not set\n";
-    return {};
-  }
-
   std::string p;
 
   // Windows gives priority to cwd, so check that first
@@ -827,6 +821,13 @@ std::string Ffs::which(std::string_view name)
   }
 
   const char pathsep = fs_pathsep();
+
+  std::string path;
+  if (auto ep = std::getenv("PATH"); !ep || std::strlen(ep) == 0){
+    std::cerr << "ERROR:ffilesystem:which: Path environment variable not set\n";
+    return {};
+  } else
+    path = ep;
 
   std::string::size_type start = 0;
   std::string::size_type end = path.find_first_of(pathsep, start);
@@ -996,7 +997,7 @@ size_t fs_get_homedir(char* path, size_t buffer_size)
 std::string Ffs::get_homedir()
 {
 
-  // r && std::strlen(r) > 0 is in case getenv returns nullptr
+  // "r &&"" is in case getenv returns nullptr
   if(auto r = std::getenv(fs_is_windows() ? "USERPROFILE" : "HOME"); r && std::strlen(r) > 0)
     return Ffs::normal(r);
 
