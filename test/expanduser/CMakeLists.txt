@@ -13,6 +13,8 @@ if(HAVE_Fortran_FILESYSTEM)
 
 add_executable(test_expanduser_fortran test_expanduser.f90)
 target_link_libraries(test_expanduser_fortran PRIVATE ffilesystem)
+target_compile_options(test_expanduser_fortran PRIVATE ${${PROJECT_NAME}_fortran_test_flags})
+set_property(TARGET test_expanduser_fortran PROPERTY LINKER_LANGUAGE Fortran)
 
 add_test(NAME test_expanduser_fortran COMMAND test_expanduser_fortran)
 set_property(TEST test_expanduser_fortran PROPERTY LABELS "Fortran")
