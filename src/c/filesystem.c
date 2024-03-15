@@ -575,11 +575,7 @@ size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
     return L;
   }
 
-  strcat(buf, "/");
-
-  strcat(buf, path+2);
-  L = fs_normal(buf, result, buffer_size);
-
+  L = fs_join(buf, path+2, result, buffer_size);
   free(buf);
 
   return L;
