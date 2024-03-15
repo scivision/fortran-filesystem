@@ -7,8 +7,6 @@ set_property(TARGET test_fortran_core PROPERTY LINKER_LANGUAGE Fortran)
 
 add_test(NAME Fortran_core COMMAND test_fortran_core)
 
-set_property(TEST Fortran_core PROPERTY FIXTURES_SETUP core_fxt)
-
 endif()
 
 
@@ -19,7 +17,5 @@ add_executable(test_cpp_core test_core.cpp)
 target_link_libraries(test_cpp_core PRIVATE ffilesystem)
 
 add_test(NAME Cpp_core COMMAND test_cpp_core)
-
-set_property(TEST Cpp_core PROPERTY FIXTURES_SETUP core_fxt)
 
 endif()

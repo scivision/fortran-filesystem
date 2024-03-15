@@ -82,7 +82,7 @@ if(resolve("") /= get_cwd()) then
   error stop
 end if
 
-print *, 'OK: canon_file = ', file%path()
+print *, 'OK: resolved = ', file%path()
 
 end subroutine
 

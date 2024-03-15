@@ -13,16 +13,10 @@ COMMAND ${CMAKE_COMMAND}
 
 endif()
 
-foreach(t IN ITEMS canonical file utf8)
+foreach(t IN ITEMS file utf8)
   add_executable(test_cpp_${t} test_${t}.cpp)
   target_link_libraries(test_cpp_${t} PRIVATE ffilesystem)
 
   add_test(NAME Cpp_${t} COMMAND test_cpp_${t})
   set_property(TEST Cpp_${t} PROPERTY LABELS "Cpp")
 endforeach()
-
-# --- props
-
-get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
-set_property(TEST ${test_names} PROPERTY RUN_SERIAL true)
-# tests run much faster in serial, especially on Windows

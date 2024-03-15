@@ -59,9 +59,6 @@ endif
 print *, 'OK: canon_dir = ', par%path()
 
 ! -- relative, non-existing file
-if(is_cygwin()) then
-  print '(a)', 'skip relative file not-exist as Cygwin does not support it'
-else
 file = path_t('~/../' // dummy)
 file = file%canonical()
 if(file%length() == 0) error stop "ERROR: relative file did not canonicalize: " // file%path()

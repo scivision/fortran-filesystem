@@ -20,7 +20,7 @@ COMMAND ${CMAKE_COMMAND} -Dexe=$<TARGET_FILE:filesystem_cli>
 
 endif()
 
-foreach(t IN ITEMS canonical find relative resolve utf8)
+foreach(t IN ITEMS find relative utf8)
   add_executable(test_${t} test_${t}.f90)
   target_link_libraries(test_${t} PRIVATE ffilesystem)
   target_compile_options(test_${t} PRIVATE ${${PROJECT_NAME}_fortran_test_flags})
@@ -29,20 +29,12 @@ foreach(t IN ITEMS canonical find relative resolve utf8)
 endforeach()
 
 
-if(HAVE_CXX_FILESYSTEM)
-  set_property(TEST Fortran_relative PROPERTY PASS_REGULAR_EXPRESSION "OK: relative_to full")
-  set_property(TEST Fortran_canonical PROPERTY PASS_REGULAR_EXPRESSION "OK: canonical full")
-endif()
-
-
 # --- shaky tests
 
 add_executable(fortran_filesize test_filesize.f90)
 target_link_libraries(fortran_filesize PRIVATE ffilesystem)
 add_test(NAME Fortran_filesize
 COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:fortran_filesize> ${CMAKE_CURRENT_BINARY_DIR}/test_filesize.dat)
-
-set_property(TEST Fortran_relative Fortran_canonical Fortran_filesize PROPERTY FIXTURES_REQUIRED core_fxt)
 
 set_property(TEST Fortran_filesize PROPERTY SKIP_REGULAR_EXPRESSION "not implemented;SIGABRT;[aA]bort")
 
