@@ -20,14 +20,14 @@ endif
 
 print '(a)', "PROGRAMFILES: " // trim(buf)
 
-buf2 = long2short(buf)
+buf2 = shortname(buf)
 print '(a)', trim(buf) // " => " // trim(buf2)
 if(len_trim(buf2) == 0) then
     write(stderr, '(a)') "Error converting long path to short path: " // trim(buf2)
     error stop
 endif
 
-buf3 = short2long(buf2)
+buf3 = longname(buf2)
 print '(a)', trim(buf2) // " => " // trim(buf3)
 if(len_trim(buf3) == 0) then
     write(stderr, '(a)') "Error converting short path to long path: " // trim(buf3)
@@ -35,7 +35,7 @@ if(len_trim(buf3) == 0) then
 endif
 
 if(buf /= buf3) then
-    write(stderr, '(a)') "Error: long2short(short2long(x)) != x"
+    write(stderr, '(a)') "Error: shortname(longname(x)) != x"
     error stop
 endif
 

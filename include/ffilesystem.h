@@ -89,6 +89,9 @@ public:
   static std::string shortname(std::string_view);
   static std::string longname(std::string_view);
 
+  static std::string get_env(std::string_view);
+  static void set_env(std::string_view, std::string_view);
+
   static bool mkdir(std::string_view);
   static void chdir(std::string_view);
 
@@ -207,8 +210,11 @@ bool fs_win32_is_symlink(const char*);
 
 size_t fs_make_tempdir(char*, size_t);
 
-size_t fs_short2long(const char*, char*, size_t);
-size_t fs_long2short(const char*, char*, size_t);
+size_t fs_shortname(const char*, char*, size_t);
+size_t fs_longname(const char*, char*, size_t);
+
+size_t fs_getenv(const char*, char*, size_t);
+bool fs_setenv(const char*, const char*);
 
 #ifdef __cplusplus
 }

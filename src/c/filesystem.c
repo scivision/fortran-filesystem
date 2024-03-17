@@ -12,7 +12,7 @@
 #include <windows.h>
 #include <fileapi.h>
 #include <io.h>
-#include <direct.h> /* _mkdir */
+#include <direct.h> /* _mkdir, getcwd */
 #include <sys/utime.h>
 #else
 #include <pwd.h>  /* getpwuid */
@@ -978,42 +978,22 @@ size_t fs_make_tempdir(char* result, size_t buffer_size)
 }
 
 
-size_t fs_long2short(const char* in, char* out, size_t buffer_size){
-#ifdef _WIN32
+size_t fs_longname(const char* in, char* out, size_t buffer_size){
   (void) in; (void) out; (void) buffer_size;
-  fprintf(stderr, "ERROR:ffilesystem:fs_long2short: not implemented for non-C++\n");
+  fprintf(stderr, "ERROR:ffilesystem:fs_longname: not implemented for non-C++\n");
   return 0;
-#else
-  fprintf(stderr, "ERROR:ffilesystem:fs_long2short: windows-only\n");
-  if(strlen(in) >= buffer_size){
-    fprintf(stderr, "ERROR:ffilesystem:fs_long2short: buffer_size %zu too small\n", buffer_size);
-    return 0;
-  }
-  strncpy(out, in, buffer_size);
-  return strlen(out);
-#endif
 }
 
-size_t fs_short2long(const char* in, char* out, size_t buffer_size){
-#ifdef _WIN32
+size_t fs_shortname(const char* in, char* out, size_t buffer_size){
   (void) in; (void) out; (void) buffer_size;
-  fprintf(stderr, "ERROR:ffilesystem:fs_short2long: not implemented for non-C++\n");
+  fprintf(stderr, "ERROR:ffilesystem:fs_shortname: not implemented for non-C++\n");
   return 0;
-#else
-  fprintf(stderr, "ERROR:ffilesystem:fs_short2long: windows-only\n");
-  if(strlen(in) >= buffer_size){
-    fprintf(stderr, "ERROR:ffilesystem:fs_short2long: buffer_size %zu too small\n", buffer_size);
-    return 0;
-  }
-  strncpy(out, in, buffer_size);
-  return strlen(out);
-#endif
 }
 
 /* environment variable functions */
 
 
-static size_t fs_getenv(const char* name, char* path, size_t buffer_size)
+size_t fs_getenv(const char* name, char* path, size_t buffer_size)
 {
   // <stdlib.h>
   char* buf = getenv(name);
@@ -1028,16 +1008,29 @@ static size_t fs_getenv(const char* name, char* path, size_t buffer_size)
 }
 
 
-size_t fs_get_cwd(char* path, size_t buffer_size)
+bool fs_setenv(const char* name, const char* value)
 {
+  if(strlen(name) == 0)
+    return false;
+
 #ifdef _WIN32
-// <direct.h> https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd
-  if(!_getcwd(path, buffer_size)){
+  fprintf(stderr, "ERROR:ffilesystem:fs_setenv: not implemented for non-C++\n");
 #else
-// <unistd.h> https://www.man7.org/linux/man-pages/man3/getcwd.3.html
-  if(!getcwd(path, buffer_size)){
+  if(!setenv(name, value, 1))
+    return true;
+
+  fprintf(stderr, "ERROR:ffilesystem:fs_setenv: %s => %s\n", name, strerror(errno));
 #endif
 
+  return false;
+}
+
+
+size_t fs_get_cwd(char* path, size_t buffer_size)
+{
+// <direct.h> https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd
+// <unistd.h> https://www.man7.org/linux/man-pages/man3/getcwd.3.html
+  if(!getcwd(path, buffer_size)){
     fprintf(stderr, "ERROR:ffilesystem:fs_get_cwd: %s\n", strerror(errno));
     return 0;
   }
@@ -1047,9 +1040,11 @@ size_t fs_get_cwd(char* path, size_t buffer_size)
 
 size_t fs_get_homedir(char* path, size_t buffer_size)
 {
+  // homedir is normalized by definition
   size_t L = fs_getenv(fs_is_windows() ?  "USERPROFILE" : "HOME", path, buffer_size);
-  if (L)
-    return L;
+  if (!L) return 0;
+
+  return fs_normal(path, path, buffer_size);
 
 #ifdef _WIN32
   return 0;

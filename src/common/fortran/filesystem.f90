@@ -23,7 +23,7 @@ chmod_exe, set_permissions, get_permissions, &
 fs_cpp, fs_lang, pathsep, &
 is_admin, is_bsd, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
 get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler, &
-short2long, long2short
+longname, shortname, getenv, setenv
 
 
 type :: path_t
@@ -71,8 +71,8 @@ procedure, public :: file_size=>f_file_size
 procedure, public :: space_available=>f_space_available
 procedure, public :: set_permissions=>f_set_permissions
 procedure, public :: get_permissions=>f_get_permissions
-procedure, public :: long2short=>f_long2short
-procedure, public :: short2long=>f_short2long
+procedure, public :: shortname=>f_shortname
+procedure, public :: longname=>f_longname
 
 final :: destructor
 
@@ -432,17 +432,28 @@ module function make_tempdir() result (r)
 character(:), allocatable :: r
 end function
 
-module function long2short(path) result(r)
+module function shortname(path) result(r)
 !! convert long path to short
 character(*), intent(in) :: path
 character(:), allocatable :: r
 end function
 
-module function short2long(path) result (r)
+module function longname(path) result (r)
 !! convert short path to long
 character(*), intent(in) :: path
 character(:), allocatable :: r
 end function
+
+module function getenv(name) result(r)
+!! get environment variable
+character(*), intent(in) :: name
+character(:), allocatable :: r
+end function
+
+module subroutine setenv(name, val, ok)
+character(*), intent(in) :: name, val
+logical, intent(out), optional :: ok
+end subroutine
 
 end interface
 
@@ -609,16 +620,16 @@ type(path_t) :: r
 r%path_str = canonical(self%path_str, strict)
 end function
 
-function f_long2short(self) result(r)
+function f_shortname(self) result(r)
 class(path_t), intent(in) :: self
 type(path_t) :: r
-r%path_str = long2short(self%path_str)
+r%path_str = shortname(self%path_str)
 end function
 
-function f_short2long(self) result(r)
+function f_longname(self) result(r)
 class(path_t), intent(in) :: self
 type(path_t) :: r
-r%path_str = short2long(self%path_str)
+r%path_str = longname(self%path_str)
 end function
 
 logical function f_same_file(self, other) result(r)

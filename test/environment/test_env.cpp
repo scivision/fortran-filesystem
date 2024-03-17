@@ -53,6 +53,14 @@ int main()
   if (!Ffs::exists(t))
     err("Fortran: temp dir " + t + " does not exist");
 
+// --- setenv
+  std::string k = "FORTtest";
+  std::string v = "FORTvalue";
+  Ffs::set_env(k, v);
+  std::string e = Ffs::get_env(k);
+  if (e != v)
+    err("Fortran: getenv " + k + " != " + v);
+
   std::cout << "OK: C++ environment\n";
 
   return EXIT_SUCCESS;

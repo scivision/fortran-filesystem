@@ -166,9 +166,11 @@ main : do
   case ("chdir")
     print '(l1)', set_cwd(expanduser(arg1))
   case ("longname")
-    print '(A)', short2long(arg1)
+    print '(A)', longname(arg1)
   case ("shortname")
-    print '(A)', long2short(arg1)
+    print '(A)', shortname(arg1)
+  case ("getenv")
+    print '(A)', getenv(arg1)
   case default
     done = .false.
   end select

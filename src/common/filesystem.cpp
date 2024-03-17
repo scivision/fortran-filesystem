@@ -795,6 +795,51 @@ std::string Ffs::relative_to(std::string_view to, std::string_view from)
 }
 
 
+size_t fs_getenv(const char* name, char* result, size_t buffer_size)
+{
+  return fs_str2char(Ffs::get_env(std::string_view(name)), result, buffer_size);
+}
+
+std::string Ffs::get_env(std::string_view name)
+{
+  if(auto r = std::getenv(name.data()); r && std::strlen(r) > 0)
+    return r;
+
+  return {};
+}
+
+bool fs_setenv(const char* name, const char* value)
+{
+  try{
+    Ffs::set_env(std::string_view(name), std::string_view(value));
+    return true;
+  } catch(std::runtime_error& e){
+    std::cerr << "ERROR:ffilesystem:setenv: " << e.what() << "\n";
+    return false;
+  }
+}
+
+
+void Ffs::set_env(std::string_view name, std::string_view value)
+{
+  if(name.empty()){
+    std::cerr << "WARNING:ffilesystem:setenv: name must be non-empty\n";
+    return;
+  }
+
+#ifdef _WIN32
+  std::string v = std::string(name) + "=" + std::string(value);
+  if(putenv(v.data()))
+#else
+  if(setenv(name.data(), value.data(), 1))
+#endif
+    throw std::runtime_error("Ffs:set_env: could not set environment variable " + std::string(name));
+
+}
+
+
+
+
 size_t fs_which(const char* name, char* result, size_t buffer_size)
 {
   return fs_str2char(Ffs::which(std::string_view(name)), result, buffer_size);
@@ -822,12 +867,11 @@ std::string Ffs::which(std::string_view name)
 
   const char pathsep = fs_pathsep();
 
-  std::string path;
-  if (auto ep = std::getenv("PATH"); !ep || std::strlen(ep) == 0){
+  std::string path = Ffs::get_env("PATH");
+  if (path.empty()){
     std::cerr << "ERROR:ffilesystem:which: Path environment variable not set\n";
     return {};
-  } else
-    path = ep;
+  }
 
   std::string::size_type start = 0;
   std::string::size_type end = path.find_first_of(pathsep, start);
@@ -996,12 +1040,11 @@ size_t fs_get_homedir(char* path, size_t buffer_size)
 
 std::string Ffs::get_homedir()
 {
+  // homedir is normalized by definition
+  std::string homedir = Ffs::get_env(fs_is_windows() ? "USERPROFILE" : "HOME");
+  if(!homedir.empty())
+    return Ffs::normal(homedir);
 
-  // "r &&"" is in case getenv returns nullptr
-  if(auto r = std::getenv(fs_is_windows() ? "USERPROFILE" : "HOME"); r && std::strlen(r) > 0)
-    return Ffs::normal(r);
-
-  std::string homedir;
 #ifdef _WIN32
   // works on MSYS2, MSVC, oneAPI.
   auto L = static_cast<DWORD>(fs_get_max_path());
@@ -1018,15 +1061,15 @@ std::string Ffs::get_homedir()
   if (!ok)
     return {};
 
-  homedir = Ffs::normal(std::string_view(buf.get()));
+  homedir = std::string(buf.get());
 #else
   const char *h = getpwuid(geteuid())->pw_dir;
   if (!h)
     return {};
-  homedir = Ffs::normal(std::string_view(h));
+  homedir = std::string(h);
 #endif
 
-  return homedir;
+  return Ffs::normal(homedir);
 }
 
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
@@ -1076,7 +1119,7 @@ std::string Ffs::expanduser(std::string_view path)
   if (p.length() < 3)
     return h;
 
-  // The path is also normalized by defintion
+  // The path is also normalized by definition
   return Ffs::normal((fs::path(h) / p.substr(2)).generic_string());
 }
 
@@ -1300,8 +1343,6 @@ std::string Ffs::make_absolute(std::string_view path, std::string_view base)
 // --- mkdtemp
 
 size_t fs_make_tempdir(char* result, size_t buffer_size){
-  // Fortran / C / C++ interface function
-
   try{
     return fs_str2char(Ffs::mkdtemp("tmp."), result, buffer_size);
   } catch(fs::filesystem_error& e) {
@@ -1360,7 +1401,7 @@ static std::string fs_generate_random_alphanumeric_string(std::size_t len)
 }
 // --- end mkdtemp
 
-size_t fs_long2short(const char* in, char* out, size_t buffer_size){
+size_t fs_shortname(const char* in, char* out, size_t buffer_size){
   return fs_str2char(Ffs::shortname(std::string_view(in)), out, buffer_size);
 }
 
@@ -1394,7 +1435,7 @@ std::string Ffs::shortname(std::string_view in){
 }
 
 
-size_t fs_short2long(const char* in, char* out, size_t buffer_size){
+size_t fs_longname(const char* in, char* out, size_t buffer_size){
   return fs_str2char(Ffs::longname(std::string_view(in)), out, buffer_size);
 }
 

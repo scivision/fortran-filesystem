@@ -109,7 +109,8 @@ static void one_arg(std::string_view fun, std::string_view a1){
     {"make_preferred", Ffs::make_preferred},
     {"mkdtemp", Ffs::mkdtemp},
     {"shortname", Ffs::shortname},
-    {"longname", Ffs::longname}
+    {"longname", Ffs::longname},
+    {"getenv", Ffs::get_env}
   };
 
   std::map<std::string_view, std::function<std::string(std::string_view, bool)>> mstrb =
@@ -179,7 +180,8 @@ static void two_arg(std::string_view fun, std::string_view a1, std::string_view 
 
   std::map<std::string_view, std::function<void(std::string_view, std::string_view)>> mvoid =
   {
-    {"create_symlink", Ffs::create_symlink}
+    {"create_symlink", Ffs::create_symlink},
+    {"setenv", Ffs::set_env}
   };
 
   std::map<std::string_view, std::function<void(std::string_view, std::string_view, bool)>> mvoidb =

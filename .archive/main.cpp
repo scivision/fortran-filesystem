@@ -116,9 +116,9 @@ int main(int argc, char* argv[]){
     std::cout << Ffs::is_exe(arg2) << "\n";
   else if (arg1 == "which")
     std::cout << Ffs::which(arg2) << "\n";
-  else if (arg1 == "long2short")
+  else if (arg1 == "shortname")
     std::cout << Ffs::shortname(arg2) << "\n";
-  else if (arg1 == "short2long")
+  else if (arg1 == "longname")
     std::cout << Ffs::longname(arg2) << "\n";
   else if (arg1 == "is_char")
     std::cout << Ffs::is_char_device(arg2) << "\n";

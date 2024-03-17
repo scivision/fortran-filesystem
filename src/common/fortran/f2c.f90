@@ -280,14 +280,14 @@ character(kind=C_CHAR), intent(out) :: result(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function fs_long2short(in, out, buffer_size) bind(C)
+integer(C_SIZE_T) function fs_shortname(in, out, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: in(*)
 character(kind=C_CHAR), intent(out) :: out(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function fs_short2long(in, out, buffer_size) bind(C)
+integer(C_SIZE_T) function fs_longname(in, out, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: in(*)
 character(kind=C_CHAR), intent(out) :: out(*)
@@ -304,6 +304,18 @@ integer(C_SIZE_T) function fs_exe_path(path, buffer_size) bind(C)
 import
 character(kind=C_CHAR), intent(out) :: path(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
+integer(C_SIZE_T) function fs_getenv(name, result, buffer_size) bind(C)
+import
+character(kind=c_char), intent(in) :: name(*)
+character(kind=c_char), intent(out) :: result(*)
+integer(C_SIZE_T), intent(in), value :: buffer_size
+end function
+
+logical(C_BOOL) function fs_setenv(name, val) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: name(*), val(*)
 end function
 
 end interface
@@ -685,22 +697,44 @@ r = cbuf(:N)
 end procedure
 
 
-module procedure long2short
+module procedure shortname
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = fs_long2short(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_shortname(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: r)
 r = cbuf(:N)
 end procedure
 
-module procedure short2long
+module procedure longname
 character(kind=c_char, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
-N = fs_short2long(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+N = fs_longname(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: r)
 r = cbuf(:N)
+end procedure
+
+
+module procedure getenv
+character(kind=c_char, len=:), allocatable :: cbuf
+integer(C_SIZE_T) :: N
+allocate(character(8000) :: cbuf)
+N = fs_getenv(trim(name) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
+allocate(character(N) :: r)
+r = cbuf(:N)
+end procedure
+
+module procedure setenv
+logical(C_BOOL) :: s
+
+s = fs_setenv(trim(name) // C_NULL_CHAR, trim(val) // C_NULL_CHAR)
+if(present(ok)) then
+  ok = s
+elseif (.not. s) then
+  write(stderr,'(a,1x,i0)') "ERROR:Ffilesystem:setenv: " // trim(name)
+  error stop
+endif
 end procedure
 
 module procedure exe_path

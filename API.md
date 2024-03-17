@@ -491,13 +491,13 @@ resolve("../b")
 Windows: long to short path
 
 ```fortran
-long2short("C:/Program Files")  !< "C:/PROGRA~1"
+shortname("C:/Program Files")  !< "C:/PROGRA~1"
 ```
 
 Windows: short to long path
 
 ```fortran
-short2long("C:/PROGRA~1")  !< "C:/Program Files"
+longname("C:/PROGRA~1")  !< "C:/Program Files"
 ```
 
 Get path relative to other path.
@@ -518,7 +518,7 @@ Is Ffilesystem using C or C++ filesystem backend:
 logical :: as_cpp()
 ```
 
-Get home directory, or empty string if not found
+Get home directory (normalized), or empty string if not found
 
 ```fortran
 character(:), allocatable :: get_homedir()

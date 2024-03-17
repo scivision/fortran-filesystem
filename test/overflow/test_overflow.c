@@ -64,14 +64,14 @@ int main(void){
     i++;
   }
 
-  if(fs_short2long("abcdef", buf, N) != 0){
-    fprintf(stderr, "ERROR: fs_short2long(abcdef) did not handle overflow properly\n");
+  if(fs_longname("abcdef", buf, N) != 0){
+    fprintf(stderr, "ERROR: fs_longname(abcdef) did not handle overflow properly\n");
     fprintf(stderr, "       buf = %s\n", buf);
     i++;
   }
 
-  if(fs_long2short("abcdef", buf, N) != 0){
-    fprintf(stderr, "ERROR: fs_long2short(abcdef) did not handle overflow properly\n");
+  if(fs_shortname("abcdef", buf, N) != 0){
+    fprintf(stderr, "ERROR: fs_shortname(abcdef) did not handle overflow properly\n");
     fprintf(stderr, "       buf = %s\n", buf);
     i++;
   }

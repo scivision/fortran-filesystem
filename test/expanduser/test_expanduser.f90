@@ -36,8 +36,12 @@ endif
 !> idempotent
 p3 = path_t(p2%path())
 p3 = p3%expanduser()
+s2 = expanduser(s1)
+if (s1 /= s2) then
+  write(stderr, '(a)') "expanduser() idempotent failed: " // s1 // " /= " // s2
+  error stop
+endif
 if (p3%path() /= p2%path()) error stop "%expanduser() idempotent failed"
-if (s1 /= expanduser(s1)) error stop "expanduser() idempotent failed"
 
 !> separator
 s2 = expanduser("~/")
