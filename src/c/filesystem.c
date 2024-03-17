@@ -802,10 +802,14 @@ bool fs_set_permissions(const char* path, int readable, int writable, int execut
 
 #ifdef _MSC_VER
   int m = s.st_mode;
-  int r = _S_IREAD, w = _S_IWRITE, x = _S_IEXEC;
+  const int r = _S_IREAD;
+  const int w = _S_IWRITE
+  const int x = _S_IEXEC;
 #else
   mode_t m = s.st_mode;
-  mode_t r = S_IRUSR, w = S_IWUSR, x = S_IXUSR;
+  const mode_t r = S_IRUSR;
+  const mode_t w = S_IWUSR;
+  const mode_t x = S_IXUSR;
 #endif
 
 if(readable > 0)

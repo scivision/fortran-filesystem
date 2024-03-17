@@ -94,14 +94,12 @@ bool fs_is_admin(){
 	DWORD dwSize;
 
 	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)){
-    if (hToken)
-		  CloseHandle(hToken);
+    if (hToken) CloseHandle(hToken);
 	  return adm;
   }
 
 	if (!GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize)){
-    if (hToken)
-		  CloseHandle(hToken);
+    if (hToken) CloseHandle(hToken);
 	  return adm;
   }
 
@@ -735,7 +733,7 @@ void Ffs::copy_file(std::string_view source, std::string_view dest, bool overwri
 #endif
 
   if(dest.empty())
-    throw fs::filesystem_error("ffilesystem:copy_file: destination path must not be empty", source, dest,
+    throw fs::filesystem_error("Ffs::copy_file: destination path must not be empty", source, dest,
       std::make_error_code(no_such_file_or_directory));
   // for clarity of UX
 
@@ -746,23 +744,21 @@ void Ffs::copy_file(std::string_view source, std::string_view dest, bool overwri
 // opt |= fs::copy_options::overwrite_existing;
 // WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
 
-  if(fs::exists(d)){
-    if(fs::is_regular_file(d)){
+  if(auto ds = fs::status(s); fs::exists(ds)){
+    if(fs::is_regular_file(ds)){
       if(overwrite){
         if(!fs::remove(d))
-          throw fs::filesystem_error("ffilesystem:copy_file: could not remove existing destination file:", d, std::make_error_code(no_such_file_or_directory));
+          throw fs::filesystem_error("Ffs::copy_file: could not remove existing destination file:", d, std::make_error_code(no_such_file_or_directory));
       } else {
-        throw fs::filesystem_error("ffilesystem:copy_file: destination file exists but overwrite=false:", d, std::make_error_code(file_exists));
+        throw fs::filesystem_error("Ffs::copy_file: destination file exists but overwrite=false:", d, std::make_error_code(file_exists));
       }
     } else {
-        throw fs::filesystem_error("ffilesystem:copy_file: destination path exists:", d, std::make_error_code(file_exists));
+        throw fs::filesystem_error("Ffs::copy_file: destination path exists:", d, std::make_error_code(file_exists));
     }
   }
 
-  if(fs::copy_file(s, d))
-    return;
-
-  throw fs::filesystem_error("ffilesystem:copy_file: could not copy file:", s, d, std::make_error_code(no_such_file_or_directory));
+  if(!fs::copy_file(s, d))
+    throw fs::filesystem_error("Ffs::copy_file: could not copy file:", s, d, std::make_error_code(no_such_file_or_directory));
 }
 
 
@@ -1156,9 +1152,7 @@ void Ffs::set_permissions(std::string_view path, int readable, int writable, int
 {
 
   fs::path pth(path);
-  auto s = fs::status(pth);
-
-  if(!fs::is_regular_file(s))
+  if(!fs::is_regular_file(pth))
     throw fs::filesystem_error("Ffilesystem:set_permissions: not a regular file", pth, std::make_error_code(std::errc::not_supported));
 
 #if defined(__cpp_using_enum)
