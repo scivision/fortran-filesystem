@@ -1087,21 +1087,8 @@ bool fs_copy_file(const char* source, const char* dest, bool overwrite) {
     return false;
   }
 
-  if(fs_exists(dest)){
-    if(fs_is_file(dest)){
-      if(overwrite){
-        if(!fs_remove(dest))
-          fprintf(stderr, "ERROR:ffilesystem:copy_file: could not remove existing destination file %s\n", dest);
-      } else {
-        fprintf(stderr, "ERROR:ffilesystem:copy_file: destination file exists but overwrite=false %s\n", dest);
-        return false;
-      }
-    } else {
-      fprintf(stderr, "ERROR:ffilesystem:copy_file: destination path exists %s\n", dest);
-      return false;
-    }
-  }
-
+  if(overwrite && fs_is_file(dest) && !fs_remove(dest))
+    fprintf(stderr, "ERROR:ffilesystem:copy_file: could not remove existing destination file %s\n", dest);
 
 #if defined(_WIN32)
     if(!CopyFile(source, dest, true)){

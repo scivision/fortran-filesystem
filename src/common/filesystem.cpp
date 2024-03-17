@@ -714,51 +714,33 @@ bool Ffs::equivalent(std::string_view path1, std::string_view path2)
 bool fs_copy_file(const char* source, const char* dest, bool overwrite)
 {
   try{
-    Ffs::copy_file(std::string_view(source), std::string_view(dest), overwrite);
-    return true;
+    return Ffs::copy_file(std::string_view(source), std::string_view(dest), overwrite);
   } catch(fs::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:copy_file: " << e.what() << "\n";
     return false;
   }
 }
 
-void Ffs::copy_file(std::string_view source, std::string_view dest, bool overwrite)
+bool Ffs::copy_file(std::string_view source, std::string_view dest, bool overwrite)
 {
 
-#if defined(__cpp_using_enum)
-  using enum std::errc;
-#else
-  std::errc no_such_file_or_directory = std::errc::no_such_file_or_directory;
-  std::errc file_exists = std::errc::file_exists;
-#endif
-
-  if(dest.empty())
-    throw fs::filesystem_error("Ffs::copy_file: destination path must not be empty", source, dest,
-      std::make_error_code(no_such_file_or_directory));
-  // for clarity of UX
+  if(dest.empty()){
+    std::cerr <<"Ffs::copy_file: destination path must not be empty: " << source << " => " << dest << "\n";
+    return false;
+  }
 
   fs::path s(Ffs::canonical(source, true));
   fs::path d(Ffs::canonical(dest, false));
 
-//   auto opt = fs::copy_options::none;
-// opt |= fs::copy_options::overwrite_existing;
-// WORKAROUND: Windows MinGW GCC 11, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
+  // auto opt = fs::copy_options::none;
+  // if (overwrite)
+  //   opt = fs::copy_options::overwrite_existing;
+// WORKAROUND: Windows MinGW GCC 11..13, Intel oneAPI Linux: bug with overwrite_existing failing on overwrite
 
-  if(auto ds = fs::status(s); fs::exists(ds)){
-    if(fs::is_regular_file(ds)){
-      if(overwrite){
-        if(!fs::remove(d))
-          throw fs::filesystem_error("Ffs::copy_file: could not remove existing destination file:", d, std::make_error_code(no_such_file_or_directory));
-      } else {
-        throw fs::filesystem_error("Ffs::copy_file: destination file exists but overwrite=false:", d, std::make_error_code(file_exists));
-      }
-    } else {
-        throw fs::filesystem_error("Ffs::copy_file: destination path exists:", d, std::make_error_code(file_exists));
-    }
-  }
+  if(overwrite && fs::is_regular_file(d) && !fs::remove(d))
+    std::cerr << "ERROR:Ffs::copy_file: could not remove existing destination file: " << d << "\n";
 
-  if(!fs::copy_file(s, d))
-    throw fs::filesystem_error("Ffs::copy_file: could not copy file:", s, d, std::make_error_code(no_such_file_or_directory));
+  return fs::copy_file(s, d);
 }
 
 

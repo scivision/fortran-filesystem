@@ -184,7 +184,7 @@ static void two_arg(std::string_view fun, std::string_view a1, std::string_view 
     {"setenv", Ffs::set_env}
   };
 
-  std::map<std::string_view, std::function<void(std::string_view, std::string_view, bool)>> mvoidb =
+  std::map<std::string_view, std::function<bool(std::string_view, std::string_view, bool)>> mvoidb =
   {
     {"copy", Ffs::copy_file}
   };
