@@ -444,12 +444,6 @@ character(*), intent(in) :: path
 character(:), allocatable :: r
 end function
 
-module function getenv(name) result(r)
-!! get environment variable
-character(*), intent(in) :: name
-character(:), allocatable :: r
-end function
-
 module subroutine setenv(name, val, ok)
 character(*), intent(in) :: name, val
 logical, intent(out), optional :: ok
@@ -753,6 +747,25 @@ character(*), intent(in) :: path
 if (is_dir(path)) return
 error stop 'filesystem:assert_is_dir: directory does not exist ' // path
 end subroutine
+
+
+function getenv(name) result(r)
+!! get environment variable
+character(*), intent(in) :: name
+character(:), allocatable :: r
+integer :: i, L
+
+call get_environment_variable(name, length=L, status=i)
+if (i/=0) then
+  r = ""
+  return
+endif
+
+allocate(character(L) :: r)
+call get_environment_variable(name, value=r, status=i)
+if (i/=0) r = ""
+
+end function
 
 
 subroutine f_touch(self)

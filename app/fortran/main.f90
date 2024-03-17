@@ -196,6 +196,13 @@ main : do
   select case (cmd)
   case ("is_subdir")
     print '(L1)', is_subdir(arg1, arg2)
+  case ("setenv")
+    call setenv(arg1, arg2, ok)
+    if (ok) then
+      print '(a)', "set environment variable " // trim(arg1) // " = " // trim(arg2)
+    else
+      write(stderr, "(a)") "ERROR: failed to set environment variable " // trim(arg1) // " = " // trim(arg2)
+    endif
   case ("join")
     print '(A)', join(arg1, arg2)
   case ("relative_to")

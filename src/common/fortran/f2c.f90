@@ -306,13 +306,6 @@ character(kind=C_CHAR), intent(out) :: path(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function fs_getenv(name, result, buffer_size) bind(C)
-import
-character(kind=c_char), intent(in) :: name(*)
-character(kind=c_char), intent(out) :: result(*)
-integer(C_SIZE_T), intent(in), value :: buffer_size
-end function
-
 logical(C_BOOL) function fs_setenv(name, val) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: name(*), val(*)
@@ -715,15 +708,6 @@ allocate(character(N) :: r)
 r = cbuf(:N)
 end procedure
 
-
-module procedure getenv
-character(kind=c_char, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-allocate(character(8000) :: cbuf)
-N = fs_getenv(trim(name) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
-allocate(character(N) :: r)
-r = cbuf(:N)
-end procedure
 
 module procedure setenv
 logical(C_BOOL) :: s

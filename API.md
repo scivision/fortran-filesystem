@@ -565,6 +565,20 @@ logical :: ok
 ok = set_cwd("my/path")
 ```
 
+Get environment variable (allocatable character function vs. Fortran 2003 subroutine get_environment variable()):
+
+```fortran
+character(:), allocatable :: getenv(name)
+```
+
+Set environment variable:
+
+```fortran
+logical, optional :: ok
+
+call setenv(name, value, ok=ok)
+```
+
 Get system or user temporary directory:
 
 ```fortran
