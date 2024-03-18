@@ -6,6 +6,7 @@ COMMAND test_libpath_cpp
   $<AND:$<BOOL:${BUILD_SHARED_LIBS}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>,$<BOOL:${HAVE_DLADDR}>>>
   $<TARGET_FILE_NAME:ffilesystem>
 )
+set_property(TEST Cpp_libpath PROPERTY LABELS Cpp)
 endif()
 
 if(HAVE_Fortran_FILESYSTEM)
@@ -19,6 +20,7 @@ COMMAND test_libpath_fortran
   $<AND:$<BOOL:${BUILD_SHARED_LIBS}>,$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>,$<BOOL:${HAVE_DLADDR}>>>
   $<TARGET_FILE_NAME:ffilesystem>
 )
+set_property(TEST Fortran_libpath PROPERTY LABELS Fortran)
 endif()
 
 

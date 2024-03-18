@@ -6,6 +6,7 @@ target_compile_options(test_fortran_core PRIVATE ${${PROJECT_NAME}_fortran_test_
 set_property(TARGET test_fortran_core PROPERTY LINKER_LANGUAGE Fortran)
 
 add_test(NAME Fortran_core COMMAND test_fortran_core)
+set_property(TEST Fortran_core PROPERTY LABELS Fortran)
 
 endif()
 
@@ -17,5 +18,6 @@ add_executable(test_cpp_core test_core.cpp)
 target_link_libraries(test_cpp_core PRIVATE ffilesystem)
 
 add_test(NAME Cpp_core COMMAND test_cpp_core)
+set_property(TEST Cpp_core PROPERTY LABELS Cpp)
 
 endif()

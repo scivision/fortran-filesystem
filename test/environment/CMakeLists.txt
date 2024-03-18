@@ -12,6 +12,8 @@ add_test(NAME FortranHomedirNoEnv COMMAND test_env)
 
 list(APPEND _noenv FortranHomedirNoEnv)
 
+set_property(TEST FortranHomedirEnv FortranHomedirNoEnv PROPERTY LABELS Fortran)
+
 endif()
 
 
@@ -24,6 +26,8 @@ add_test(NAME CppHomedirEnv COMMAND cpp_env)
 add_test(NAME CppHomedirNoEnv COMMAND cpp_env)
 
 list(APPEND _noenv CppHomedirNoEnv)
+
+set_property(TEST CppHomedirEnv CppHomedirNoEnv PROPERTY LABELS Cpp)
 
 endif()
 

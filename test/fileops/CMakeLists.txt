@@ -32,5 +32,7 @@ set_property(TEST Fortran_same PROPERTY FIXTURES_REQUIRED mkdir_fxt)
 set_property(TEST Fortran_fileop Fortran_same PROPERTY
 SKIP_REGULAR_EXPRESSION "not implemented;not available;SIGABRT;[aA]bort")
 
+set_property(TEST Fortran_copyfile Fortran_fileop Fortran_mkdir Fortran_same PROPERTY LABELS "Fortran")
+
 # Intel needs linker_language Fortran else error "undefined reference to `main'"
 set_property(TARGET test_fileop test_copyfile test_mkdir fortran_same PROPERTY LINKER_LANGUAGE Fortran)

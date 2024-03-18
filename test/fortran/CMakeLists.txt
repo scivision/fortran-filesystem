@@ -2,7 +2,7 @@ if(NOT HAVE_Fortran_FILESYSTEM)
   return()
 endif()
 
-set_property(DIRECTORY PROPERTY LABELS "fortran")
+set_property(DIRECTORY PROPERTY LABELS "Fortran")
 
 if(ffilesystem_cli)
 

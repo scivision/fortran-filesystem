@@ -23,4 +23,5 @@ COMMAND ${CMAKE_COMMAND} -E env $<TARGET_FILE:fortran_symlink> ${test_symlink_fi
 set_tests_properties(Fortran_symlink PROPERTIES
 DISABLED $<AND:$<BOOL:${WIN32}>,$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>>
 SKIP_REGULAR_EXPRESSION "not implemented;SIGABRT;[aA]bort"
+LABELS Fortran
 )
