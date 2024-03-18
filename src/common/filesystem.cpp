@@ -123,6 +123,19 @@ static size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
 }
 
 
+static bool fs_is_safe_char(const char c)
+{
+  std::set<char, std::less<>> safe = {'_', '-', '.', '~', '@', '#', '$', '%', '^', '&', '(', ')', '[', ']', '{', '}', '+', '=', ',', '!'};
+
+  return std::isalnum(c) ||
+#if __cplusplus >= 202002L
+    safe.contains(c);
+#else
+    safe.find(c) != safe.end();
+#endif
+
+}
+
 bool fs_is_safe_name(const char* filename)
 {
   return Ffs::is_safe_name(std::string_view(filename));
@@ -143,18 +156,11 @@ bool Ffs::is_safe_name(std::string_view filename)
   if(fs_is_windows() && filename.back() == '.')
     return false;
 
-  std::set<char, std::less<>> safe = {'_', '-', '.', '~', '@', '#', '$', '%', '^', '&', '(', ')', '[', ']', '{', '}', '+', '=', ',', '!'};
-
-  for (char c : filename)
-    if (!std::isalnum(c) &&
-#if __cplusplus >= 202002L
-    !safe.contains(c))
+#ifdef __cpp_lib_ranges
+  return std::ranges::all_of(filename, fs_is_safe_char);
 #else
-    safe.find(c) == safe.end())
+  return std::all_of(filename.begin(), filename.end(), fs_is_safe_char);
 #endif
-      return false;
-
-  return true;
 }
 
 
