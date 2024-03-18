@@ -1072,9 +1072,8 @@ std::string Ffs::expanduser(std::string_view path)
     return {};
   // cannot call .front() on empty string_view() (MSVC)
 
-  std::set <char> filesep = {'/', fs::path::preferred_separator};
-
-  if(path.front() != '~' || (path.length() > 1 &&
+  if(std::set <char> filesep = {'/', fs::path::preferred_separator};
+     path.front() != '~' || (path.length() > 1 &&
 #if __cplusplus >= 202002L
   !filesep.contains(path[1])
 #else
