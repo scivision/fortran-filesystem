@@ -74,3 +74,26 @@ bool fs_is_mingw(){
 char fs_pathsep(){
   return fs_is_windows() ? ';' : ':';
 }
+
+
+bool fs_is_admin(){
+  // running as admin / root / superuser
+#ifdef _WIN32
+	HANDLE hToken = NULL;
+	TOKEN_ELEVATION elevation;
+	DWORD dwSize;
+
+	if(OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)){
+	  if(GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize)){
+      CloseHandle(hToken);
+      return elevation.TokenIsElevated;
+    }
+  }
+
+  if (hToken) CloseHandle(hToken);
+  return false;
+
+#else
+  return geteuid() == 0;
+#endif
+}

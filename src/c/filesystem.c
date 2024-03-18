@@ -71,15 +71,6 @@ static inline bool str_ends_with(const char *s, const char *suffix) {
 }
 #endif
 
-bool fs_is_admin(){
-  // running as admin / root / superuser
-#ifdef _WIN32
-  fprintf(stderr, "ERROR:ffilesystem:fs_is_admin: not implemented for non-C++\n");
-  return false;
-#else
-  return geteuid() == 0;
-#endif
-}
 
 int fs_is_wsl() {
 #ifdef HAVE_UTSNAME_H
