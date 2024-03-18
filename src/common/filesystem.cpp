@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <system_error>
+#include <cctype> // std::isalnum
 #include <filesystem>
 
 #if __has_include(<format>)
@@ -120,6 +121,42 @@ static size_t fs_str2char(std::string_view s, char* result, size_t buffer_size)
   result[s.length()] = '\0';
   return s.length();
 }
+
+
+bool fs_is_safe_name(const char* filename)
+{
+  return Ffs::is_safe_name(std::string_view(filename));
+}
+
+bool Ffs::is_safe_name(std::string_view filename)
+{
+  // check that only shell-safe characters are in filename using std::isalnum and a c++ set
+  // hasn't been fully tested yet across operating systems and file systems--let us know if character(s) should be unsafe
+  // does NOT check for reserved or device names
+  // => filenames only, not paths
+  // https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+  // we do not consider whitespaces, quotes, or ticks safe, as they can be confusing in shell scripts and command line usage
+
+  if(filename.empty())
+    return false;
+
+  if(fs_is_windows() && filename.back() == '.')
+    return false;
+
+  std::set<char, std::less<>> safe = {'_', '-', '.', '~', '@', '#', '$', '%', '^', '&', '(', ')', '[', ']', '{', '}', '+', '=', ',', '!'};
+
+  for (char c : filename)
+    if (!std::isalnum(c) &&
+#if __cplusplus >= 202002L
+    !safe.contains(c))
+#else
+    safe.find(c) == safe.end())
+#endif
+      return false;
+
+  return true;
+}
+
 
 size_t fs_compiler(char* name, size_t buffer_size)
 {
@@ -572,11 +609,12 @@ bool Ffs::is_reserved(std::string_view path)
       "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
       "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
 
-  std::string p(path);
+  std::string s = Ffs::stem(path);
 
-  std::ranges::transform(p.begin(), p.end(), p.begin(), ::toupper);
+  std::ranges::transform(s.begin(), s.end(), s.begin(), ::toupper);
 
-  return reserved.contains(p);
+  return reserved.contains(s);
+
 #else
   std::cout << "WARNING:ffilesystem:is_reserved: C++20 required for reserved names check\n";
   return false;

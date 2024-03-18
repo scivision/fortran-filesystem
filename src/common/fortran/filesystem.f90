@@ -20,7 +20,7 @@ assert_is_file, assert_is_dir, &
 touch, create_symlink, &
 remove, get_tempdir, &
 chmod_exe, set_permissions, get_permissions, &
-fs_cpp, fs_lang, pathsep, &
+fs_cpp, fs_lang, pathsep, is_safe_name, &
 is_admin, is_bsd, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
 get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler, &
 longname, shortname, getenv, setenv
@@ -47,6 +47,7 @@ procedure, public :: is_exe=>f_is_exe
 procedure, public :: is_readable=>f_is_readable
 procedure, public :: is_writable=>f_is_writable
 procedure, public :: is_dir=>f_is_dir
+procedure, public :: is_safe_name=>f_is_safe_name
 procedure, public :: is_subdir=>f_is_subdir
 procedure, public :: is_reserved=>f_is_reserved
 procedure, public :: is_absolute=>f_is_absolute
@@ -318,6 +319,11 @@ module logical function is_reserved(path)
 character(*), intent(in) :: path
 end function
 
+module logical function is_safe_name(filename)
+!! is filename a safe name for this filesystem
+character(*), intent(in) :: filename
+end function
+
 module integer(int64) function file_size(path)
 !! size of file (bytes)
 character(*), intent(in) :: path
@@ -537,6 +543,12 @@ function f_file_name(self) result (r)
 class(path_t), intent(in) :: self
 character(:), allocatable :: r
 r = file_name(self%path_str)
+end function
+
+logical function f_is_safe_name(self) result(r)
+!! is path a safe name for this filesystem
+class(path_t), intent(in) :: self
+r = is_safe_name(self%path_str)
 end function
 
 

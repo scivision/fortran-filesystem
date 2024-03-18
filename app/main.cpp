@@ -89,7 +89,8 @@ static void one_arg(std::string_view fun, std::string_view a1){
     {"exists", Ffs::exists},
     {"is_absolute", Ffs::is_absolute},
     {"is_char", Ffs::is_char_device},
-    {"mkdir", Ffs::mkdir}
+    {"mkdir", Ffs::mkdir},
+    {"is_safe", Ffs::is_safe_name}
   };
 
   std::map<std::string_view, std::function<std::string(std::string_view)>> mstring =

@@ -258,6 +258,14 @@ p%is_subdir(dir)
 is_subdir("my/dir", "my")
 ```
 
+Is filename "safe" (no path separators, no reserved names, no special characters, no white space):
+
+```fortran
+logical :: is_safe_name()
+
+is_safe_name("my_file.txt")
+```
+
 ---
 
 Is "path" a file or directory (or a symbolic link to existing file or directory).

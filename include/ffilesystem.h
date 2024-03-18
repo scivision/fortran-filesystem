@@ -106,6 +106,9 @@ public:
   static bool copy_file(std::string_view, std::string_view, bool);
 
   static void set_permissions(std::string_view, int, int, int);
+
+  static bool is_safe_name(std::string_view);
+
   // Disallow creating an instance of this object
   Ffs() = delete;
 };
@@ -140,6 +143,8 @@ bool fs_is_windows();
 int fs_is_wsl();
 bool fs_is_mingw();
 bool fs_is_cygwin();
+
+bool fs_is_safe_name(const char*);
 
 void fs_as_posix(char*);
 

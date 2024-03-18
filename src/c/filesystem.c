@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <ctype.h> // isalnum
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -87,6 +88,35 @@ int fs_is_wsl() {
 #endif
 
   return 0;
+}
+
+
+bool fs_is_safe_name(const char* filename)
+{
+
+size_t L = strlen(filename);
+
+if(L == 0)
+  return false;
+
+if(fs_is_windows() && filename[L-1] == '.')
+  return false;
+
+for (size_t i = 0; i < L; i++) {
+  if(isalnum(filename[i]))
+    continue;
+
+  switch (filename[i]) {
+    case '_': case '-': case '.': case '~': case '@': case '#': case '$': case '%': case '^': case '&':
+    case '(': case ')': case '[': case ']': case '{': case '}': case '+': case '=': case ',': case '!':
+      continue;
+    default:
+      return false;
+  }
+}
+
+return true;
+
 }
 
 

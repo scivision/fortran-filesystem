@@ -121,6 +121,11 @@ character(kind=C_CHAR), intent(out) :: filename(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
+logical(C_BOOL) function fs_is_safe_name(filename) bind(C)
+import
+character(kind=C_CHAR), intent(in) :: filename(*)
+end function
+
 integer(C_SIZE_T) function fs_file_size(path) bind(C)
 import
 character(kind=C_CHAR), intent(in) :: path(*)
@@ -483,6 +488,10 @@ allocate(character(max_path()) :: cbuf)
 N = fs_file_name(trim(path) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: file_name)
 file_name = cbuf(:N)
+end procedure
+
+module procedure is_safe_name
+is_safe_name = fs_is_safe_name(trim(filename) // C_NULL_CHAR)
 end procedure
 
 module procedure file_size
