@@ -83,11 +83,10 @@ bool fs_is_admin(){
 	TOKEN_ELEVATION elevation;
 	DWORD dwSize;
 
-	if(OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)){
-	  if(GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize)){
-      CloseHandle(hToken);
-      return elevation.TokenIsElevated;
-    }
+	if(OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken) &&
+     GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize)){
+    CloseHandle(hToken);
+    return elevation.TokenIsElevated;
   }
 
   if (hToken) CloseHandle(hToken);
