@@ -181,7 +181,6 @@ static void two_arg(std::string_view fun, std::string_view a1, std::string_view 
 
   std::map<std::string_view, std::function<void(std::string_view, std::string_view)>> mvoid =
   {
-    {"create_symlink", Ffs::create_symlink},
     {"setenv", Ffs::set_env}
   };
 
@@ -198,6 +197,8 @@ static void two_arg(std::string_view fun, std::string_view a1, std::string_view 
     mvoid[fun](a1, a2);
   else if (mvoidb.contains(fun))
     mvoidb[fun](a1, a2, false);
+  else if (fun == "create_symlink")
+    Ffs::create_symlink(a1, a2);
   else
     std::cerr << fun << " requires more arguments or is unknown function\n";
 

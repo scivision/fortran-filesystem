@@ -102,7 +102,7 @@ public:
   static std::string with_suffix(std::string_view, std::string_view);
   static std::string make_absolute(std::string_view, std::string_view);
 
-  static void create_symlink(std::string_view, std::string_view);
+  static bool create_symlink(std::string_view, std::string_view);
   static bool copy_file(std::string_view, std::string_view, bool);
 
   static void set_permissions(std::string_view, int, int, int);

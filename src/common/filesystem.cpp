@@ -349,32 +349,27 @@ std::string Ffs::read_symlink(std::string_view path)
 bool fs_create_symlink(const char* target, const char* link)
 {
   try{
-    Ffs::create_symlink(std::string_view(target), std::string_view(link));
-    return true;
+    return Ffs::create_symlink(std::string_view(target), std::string_view(link));
   } catch(fs::filesystem_error& e){
     std::cerr << "ERROR:ffilesystem:create_symlink: " << e.what() << "\n";
     return false;
   }
 }
 
-void Ffs::create_symlink(std::string_view target, std::string_view link)
+bool Ffs::create_symlink(std::string_view target, std::string_view link)
 {
-
-#if defined(__cpp_using_enum)
-  using enum std::errc;
-#else
-  std::errc no_such_file_or_directory = std::errc::no_such_file_or_directory;
-#endif
-
-  if(target.empty())
-    throw fs::filesystem_error("ffilesystem:create_symlink: target path must not be empty", link, target, std::make_error_code(no_such_file_or_directory));
+  if(target.empty()){
+    std::cerr << "ERROR: Ffs::create_symlink: target path must not be empty\n";
     // confusing program errors if target is "" -- we'd never make such a symlink in real use.
+    return false;
+  }
+  if(link.empty()){
+    std::cerr << "ERROR: Ffs::create_symlink: link path must not be empty\n";
+    // macOS needs empty check to avoid SIGABRT
+    return false;
+  }
 
   auto s = fs::status(target);
-
-  if(link.empty())
-    throw fs::filesystem_error("ffilesystem:create_symlink: link path must not be empty", link, target, std::make_error_code(no_such_file_or_directory));
-    // macOS needs empty check to avoid SIGABRT
 
 #ifdef WIN32_SYMLINK
   DWORD p = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
@@ -383,19 +378,21 @@ void Ffs::create_symlink(std::string_view target, std::string_view link)
     p |= SYMBOLIC_LINK_FLAG_DIRECTORY;
 
   if (CreateSymbolicLink(link.data(), target.data(), p))
-    return;
+    return true;
 
   DWORD err = GetLastError();
-  std::string msg = "filesystem:CreateSymbolicLink";
+  std::string msg = "ERROR:Ffs:CreateSymbolicLink";
   if(err == ERROR_PRIVILEGE_NOT_HELD)
     msg += "Enable Windows developer mode to use symbolic links: https://learn.microsoft.com/en-us/windows/apps/get-started/developer-mode-features-and-debugging";
 
-  throw fs::filesystem_error(msg, link, target, std::make_error_code(no_such_file_or_directory));
+  std::cerr << msg << ": " << link << " => " << target << "\n";
+  return false;
 #else
   fs::is_directory(s)
     ? fs::create_directory_symlink(target, link)
     : fs::create_symlink(target, link);
 #endif
+  return true;
 }
 
 bool fs_mkdir(const char* path)
