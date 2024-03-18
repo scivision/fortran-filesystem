@@ -1039,6 +1039,7 @@ bool fs_setenv(const char* name, const char* value)
     return false;
 
 #ifdef _WIN32
+  (void) value;
   fprintf(stderr, "ERROR:ffilesystem:fs_setenv: not implemented for non-C++\n");
 #else
   if(!setenv(name, value, 1))
@@ -1053,8 +1054,8 @@ bool fs_setenv(const char* name, const char* value)
 
 size_t fs_get_cwd(char* path, size_t buffer_size)
 {
-// <direct.h> https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd
-// <unistd.h> https://www.man7.org/linux/man-pages/man3/getcwd.3.html
+// direct.h https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd-wgetcwd
+// unistd.h https://www.man7.org/linux/man-pages/man3/getcwd.3.html
   if(!getcwd(path, buffer_size)){
     fprintf(stderr, "ERROR:ffilesystem:fs_get_cwd: %s\n", strerror(errno));
     return 0;

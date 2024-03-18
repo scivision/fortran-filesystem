@@ -256,7 +256,7 @@ while (true){
   const char delimiter = ' ';
   size_t pos = 0;
   std::vector<std::string> args;
-  // FIXME: loop getline() instead
+  // NOTE: loop getline() instead?
   while ((pos = inp.find(delimiter)) != std::string::npos) {
       args.push_back(inp.substr(0, pos));
       inp.erase(0, pos + 1);  // + 1 as delimiter is 1 char
@@ -282,6 +282,8 @@ while (true){
   case 5:
     four_arg(args.at(0), args.at(1), args.at(2), args.at(3), args.at(4));
     break;
+  default:
+    std::cerr << "too many arguments " << argc << "\n";
   }
 
 
