@@ -15,7 +15,7 @@ contains
 
 subroutine test_exe_path()
 
-character(:), allocatable :: binpath, bindir
+character(:), allocatable :: binpath
 integer :: i, L
 character(256) :: exe_name
 
@@ -24,10 +24,8 @@ if(i/=0) error stop "ERROR:test_binpath:test_exe_path: get_command_argument fail
 if(L<1) error stop "ERROR:test_binpath: expected exe_name as second argument"
 
 allocate(character(get_max_path()) :: binpath)
-allocate(character(get_max_path()) :: bindir)
 
 binpath = exe_path()
-bindir = exe_dir()
 
 i = index(binpath, trim(exe_name))
 if (i<1) then
@@ -35,16 +33,9 @@ if (i<1) then
   error stop
 endif
 
-if(.not. same_file(bindir, parent(binpath))) then
-  write(stderr, '(a)') "ERROR:test_binpath: exe_dir not found correctly: " // bindir // " " // parent(binpath)
-  error stop
-endif
-
 print *, "OK: exe_path: ", binpath
-print *, "OK: exe_dir: ", bindir
 
 deallocate(binpath)
-deallocate(bindir)
 
 end subroutine
 

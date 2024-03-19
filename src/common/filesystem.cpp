@@ -391,8 +391,9 @@ bool Ffs::create_symlink(std::string_view target, std::string_view link)
   fs::is_directory(s)
     ? fs::create_directory_symlink(target, link)
     : fs::create_symlink(target, link);
-#endif
+
   return true;
+#endif
 }
 
 bool fs_mkdir(const char* path)
@@ -1203,17 +1204,6 @@ std::string Ffs::exe_path()
 
   std::string s(buf.get());
   return Ffs::canonical(s, true);
-}
-
-size_t fs_exe_dir(char* path, size_t buffer_size)
-{
-  return fs_str2char(Ffs::exe_dir(), path, buffer_size);
-}
-
-
-std::string Ffs::exe_dir()
-{
-  return Ffs::parent(Ffs::exe_path());
 }
 
 

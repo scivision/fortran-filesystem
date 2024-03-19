@@ -22,7 +22,7 @@ remove, get_tempdir, &
 chmod_exe, set_permissions, get_permissions, &
 fs_cpp, fs_lang, pathsep, is_safe_name, &
 is_admin, is_bsd, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
-get_max_path, exe_path, exe_dir, lib_path, lib_dir, compiler, &
+get_max_path, exe_path, lib_path, lib_dir, compiler, &
 longname, shortname, getenv, setenv
 
 
@@ -385,11 +385,6 @@ end function
 module function exe_path()
 !! get full path of main executable
 character(:), allocatable :: exe_path
-end function
-
-module function exe_dir() result(r)
-!! get directory containing shared library. Empty if not shared library.
-character(:), allocatable :: r
 end function
 
 module function lib_path()

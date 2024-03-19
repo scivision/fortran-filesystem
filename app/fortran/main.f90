@@ -71,8 +71,6 @@ main : do
     print '(L1)', is_mingw()
   case ("is_cygwin")
     print '(L1)', is_cygwin()
-  case ("exe_dir")
-    print '(A)', exe_dir()
   case ("exe_path")
     print '(A)', exe_path()
   case("lib_dir")

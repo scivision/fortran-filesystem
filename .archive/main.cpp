@@ -80,8 +80,6 @@ int main(int argc, char* argv[]){
     std::cout << Ffs::lib_dir() << "\n";
   else if (arg1 == "exe_path")
     std::cout << Ffs::exe_path() << "\n";
-  else if (arg1 == "exe_dir")
-    std::cout << Ffs::exe_dir() << "\n";
   else if (arg1 == "is_admin")
     std::cout << fs_is_admin() << "\n";
   else if (arg1 == "is_bsd")

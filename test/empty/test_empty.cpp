@@ -147,9 +147,6 @@ int main(int argc, char *argv[]){
       err("get_homedir");
 
     if(fs_cpp()){
-      if(!fs_is_bsd() && Ffs::exe_dir().empty())
-        err("Ffs::exe_dir");
-
       bool le = Ffs::lib_dir().empty();
       if(shared){
         if (le) err("Ffs::lib_dir");

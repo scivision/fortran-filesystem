@@ -39,7 +39,6 @@ public:
   static std::string get_cwd();
 
   static std::string exe_path();
-  static std::string exe_dir();
   static std::string lib_path();
   static std::string lib_dir();
 
@@ -205,7 +204,6 @@ uintmax_t fs_file_size(const char*);
 uintmax_t fs_space_available(const char*);
 
 size_t fs_exe_path(char*, size_t);
-size_t fs_exe_dir(char*, size_t);
 size_t fs_lib_path(char*, size_t);
 size_t fs_lib_dir(char*, size_t);
 
