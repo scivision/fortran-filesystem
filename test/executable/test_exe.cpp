@@ -104,9 +104,8 @@ if (!Ffs::is_exe(exe)){
   }
 }
 
-if (!fs_is_windows()){
-  if(p[2] != 'x')
-    err("test_exe: expected POSIX perms for " + exe + " to be 'x' in index 2");
+if (!fs_is_windows() && p[2] != 'x'){
+  err("test_exe: expected POSIX perms for " + exe + " to be 'x' in index 2");
 }
 
 // chmod(false)

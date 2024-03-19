@@ -14,7 +14,7 @@
 }
 
 
-void test_lib_path(char* path, char* ref){
+void test_lib_path(const char* path, const char* ref){
 
   std::string binpath = Ffs::lib_path();
 
