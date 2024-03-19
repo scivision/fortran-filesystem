@@ -801,31 +801,27 @@ std::string Ffs::get_env(std::string_view name)
 
 bool fs_setenv(const char* name, const char* value)
 {
-  try{
-    Ffs::set_env(std::string_view(name), std::string_view(value));
-    return true;
-  } catch(std::runtime_error& e){
-    std::cerr << "ERROR:ffilesystem:setenv: " << e.what() << "\n";
-    return false;
-  }
+  return Ffs::set_env(std::string_view(name), std::string_view(value));
 }
 
 
-void Ffs::set_env(std::string_view name, std::string_view value)
+bool Ffs::set_env(std::string_view name, std::string_view value)
 {
   if(name.empty()){
     std::cerr << "WARNING:ffilesystem:setenv: name must be non-empty\n";
-    return;
+    return false;
   }
 
 #ifdef _WIN32
-  std::string v = std::string(name) + "=" + std::string(value);
-  if(putenv(v.data()))
+  if(std::string v = std::string(name) + "=" + std::string(value); putenv(v.data())){
 #else
-  if(setenv(name.data(), value.data(), 1))
+  if(setenv(name.data(), value.data(), 1)){
 #endif
-    throw std::runtime_error("Ffs:set_env: could not set environment variable " + std::string(name));
+    std::cerr << "Ffs:set_env: could not set environment variable " << name << "\n";
+    return false;
+  }
 
+  return true;
 }
 
 

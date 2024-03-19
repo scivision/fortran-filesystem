@@ -88,7 +88,7 @@ public:
   static std::string longname(std::string_view);
 
   static std::string get_env(std::string_view);
-  static void set_env(std::string_view, std::string_view);
+  static bool set_env(std::string_view, std::string_view);
 
   static bool mkdir(std::string_view);
   static void chdir(std::string_view);

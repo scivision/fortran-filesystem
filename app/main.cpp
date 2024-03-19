@@ -167,7 +167,8 @@ static void two_arg(std::string_view fun, std::string_view a1, std::string_view 
   std::map<std::string_view, std::function<bool(std::string_view, std::string_view)>> mbool =
   {
     {"is_subdir", Ffs::is_subdir},
-    {"same", Ffs::equivalent}
+    {"same", Ffs::equivalent},
+    {"setenv", Ffs::set_env}
   };
 
   std::map<std::string_view, std::function<std::string(std::string_view, std::string_view)>> mstring =
@@ -175,11 +176,6 @@ static void two_arg(std::string_view fun, std::string_view a1, std::string_view 
     {"join", Ffs::join},
     {"relative_to", Ffs::relative_to},
     {"with_suffix", Ffs::with_suffix}
-  };
-
-  std::map<std::string_view, std::function<void(std::string_view, std::string_view)>> mvoid =
-  {
-    {"setenv", Ffs::set_env}
   };
 
   std::map<std::string_view, std::function<bool(std::string_view, std::string_view, bool)>> mvoidb =
@@ -191,8 +187,6 @@ static void two_arg(std::string_view fun, std::string_view a1, std::string_view 
     std::cout << mbool[fun](a1, a2) << "\n";
   else if (mstring.contains(fun))
     std::cout << mstring[fun](a1, a2) << "\n";
-  else if (mvoid.contains(fun))
-    mvoid[fun](a1, a2);
   else if (mvoidb.contains(fun))
     mvoidb[fun](a1, a2, false);
   else if (fun == "create_symlink")
