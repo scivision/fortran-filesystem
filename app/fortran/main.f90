@@ -73,8 +73,6 @@ main : do
     print '(L1)', is_cygwin()
   case ("exe_path")
     print '(A)', exe_path()
-  case("lib_dir")
-    print '(A)', lib_dir()
   case("lib_path")
     print '(A)', lib_path()
   case default

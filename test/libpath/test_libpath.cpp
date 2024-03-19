@@ -25,20 +25,6 @@ void test_lib_path(char* path, char* ref){
     err("test_binpath: lib_path not found correctly: " + binpath + " does not contain " + ref);
 
   std::cout << "OK: lib_path: " << binpath << "\n";
-
-  std::string bindir = Ffs::lib_dir();
-
-  std::string p;
-  p = Ffs::parent(binpath);
-  std::cout << "parent(lib_path): " << p << "\n";
-
-  if(bindir.empty())
-    err("test_binpath: lib_dir should be non-empty: " + bindir);
-
-  if(!Ffs::equivalent(bindir, p))
-    err("test_binpath_c: lib_dir and parent(lib_path) should be equivalent: " + bindir + " != " + p);
-
-  std::cout << "OK: lib_dir: " << bindir << "\n";
 }
 
 int main(int argc, char* argv[])

@@ -178,6 +178,6 @@ include(FeatureSummary)
 
 add_feature_info(Fortran HAVE_Fortran_FILESYSTEM "Fortran bindings")
 add_feature_info(Cpp HAVE_CXX_FILESYSTEM "C++ stdlib filesystem")
-add_feature_info(shared BUILD_SHARED_LIBS "Build shared library: enables lib_path(), lib_dir()")
+add_feature_info(shared BUILD_SHARED_LIBS "Build shared library: enables lib_path()")
 
 feature_summary(WHAT ENABLED_FEATURES DESCRIPTION "${PROJECT_NAME} enabled features:")

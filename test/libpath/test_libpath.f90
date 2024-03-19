@@ -14,7 +14,7 @@ contains
 
 subroutine test_lib_path()
 
-character(:), allocatable :: binpath, bindir
+character(:), allocatable :: binpath
 character(256) :: name
 integer :: i, L
 character :: s
@@ -26,12 +26,10 @@ if(L/=1) error stop "ERROR:test_binpath: expected argument 0 for static or 1 for
 shared = s == '1'
 
 binpath = lib_path()
-bindir = lib_dir()
 
 if(.not. shared) then
   if (len_trim(binpath) /= 0) error stop "ERROR:test_binpath: lib_path should be empty for static library: " // trim(binpath)
-  if (len_trim(bindir) /= 0) error stop "ERROR:test_binpath: lib_dir should be empty for static library: " // trim(bindir)
-  write(stderr,'(a)') "SKIPPED: lib_path/lib_dir not available: static library"
+  write(stderr,'(a)') "SKIPPED: lib_path not available: static library"
   error stop 77
 endif
 
@@ -43,21 +41,6 @@ i = index(binpath, trim(name))
 if (i<1) error stop "ERROR:test_binpath: lib_path not found correctly: " // trim(binpath) // ' with name ' // trim(name)
 
 print *, "OK: lib_path: ", trim(binpath)
-
-if(len_trim(bindir)==0 .and. is_cygwin()) then
-  print *, "SKIPPED: lib_dir: cygwin does not support lib_dir"
-  return
-endif
-
-if(.not. same_file(parent(binpath), bindir)) then
-  write(stderr,*) "ERROR:test_binpath: lib_dir not found correctly: " // parent(binpath) // ' /= ' // bindir
-  error stop
-endif
-
-print *, "OK: lib_dir: ", bindir
-
-deallocate(binpath)
-deallocate(bindir)
 
 end subroutine
 

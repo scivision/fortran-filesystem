@@ -1289,17 +1289,6 @@ std::string Ffs::lib_path()
 }
 
 
-size_t fs_lib_dir(char* path, size_t buffer_size)
-{
-  return fs_str2char(Ffs::lib_dir(), path, buffer_size);
-}
-
-std::string Ffs::lib_dir()
-{
-  return Ffs::parent(Ffs::lib_path());
-}
-
-
 size_t fs_make_absolute(const char* path, const char* base, char* out, size_t buffer_size)
 {
   return fs_str2char(Ffs::make_absolute(std::string_view(path), std::string_view(base)), out, buffer_size);

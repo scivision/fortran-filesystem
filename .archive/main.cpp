@@ -76,8 +76,6 @@ int main(int argc, char* argv[]){
     std::cout << Ffs::get_tempdir() << "\n";
   else if (arg1 == "lib_path")
     std::cout << Ffs::lib_path() << "\n";
-  else if (arg1 == "lib_dir")
-    std::cout << Ffs::lib_dir() << "\n";
   else if (arg1 == "exe_path")
     std::cout << Ffs::exe_path() << "\n";
   else if (arg1 == "is_admin")

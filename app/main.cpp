@@ -39,8 +39,7 @@ static void no_arg(std::string_view fun){
     {"cwd", Ffs::get_cwd},
     {"tempdir", Ffs::get_tempdir},
     {"exe_path", Ffs::exe_path},
-    {"lib_path", Ffs::lib_path},
-    {"lib_dir", Ffs::lib_dir}
+    {"lib_path", Ffs::lib_path}
   };
 
   std::map<std::string_view, std::function<int()>> mint =

@@ -17,7 +17,7 @@
 }
 
 
-int main(int argc, char *argv[]){
+int main(){
 
 #ifdef _MSC_VER
     _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
@@ -27,10 +27,6 @@ int main(int argc, char *argv[]){
     _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #endif
-
-    bool shared = false;
-    if(argc > 1)
-      shared = atoi(argv[1]);
 
     char O[1];
 
@@ -145,15 +141,6 @@ int main(int argc, char *argv[]){
 
     if(Ffs::get_homedir().empty())
       err("get_homedir");
-
-    if(fs_cpp()){
-      bool le = Ffs::lib_dir().empty();
-      if(shared){
-        if (le) err("Ffs::lib_dir");
-      } else {
-        if (!le) err("Ffs::lib_dir");
-      }
-    }
 
     try{
       Ffs::set_permissions("", 0, 0, 0);

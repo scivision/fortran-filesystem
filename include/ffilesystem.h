@@ -40,7 +40,6 @@ public:
 
   static std::string exe_path();
   static std::string lib_path();
-  static std::string lib_dir();
 
   static std::string expanduser(std::string_view);
 
@@ -205,7 +204,6 @@ uintmax_t fs_space_available(const char*);
 
 size_t fs_exe_path(char*, size_t);
 size_t fs_lib_path(char*, size_t);
-size_t fs_lib_dir(char*, size_t);
 
 size_t fs_compiler(char*, size_t);
 

@@ -546,14 +546,6 @@ To use `lib_path()`, build Ffilesystem with `cmake -DBUILD_SHARED_LIBS=on`
 character(:), allocatable :: lib_path()
 ```
 
-Get directory of **SHARED LIBRARY**, regardless of current working directory.
-If static library, returns empty string.
-To use `lib_dir()`, build Ffilesystem with `cmake -DBUILD_SHARED_LIBS=on`
-
-```fortran
-character(:), allocatable :: lib_dir()
-```
-
 Get current working directory
 
 ```fortran

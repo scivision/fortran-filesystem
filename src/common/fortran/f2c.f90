@@ -68,12 +68,6 @@ character(kind=C_CHAR), intent(out) :: path(*)
 integer(C_SIZE_T), intent(in), value :: buffer_size
 end function
 
-integer(C_SIZE_T) function fs_lib_dir(path, buffer_size) bind(C)
-import
-character(kind=C_CHAR), intent(out) :: path(*)
-integer(C_SIZE_T), intent(in), value :: buffer_size
-end function
-
 integer(C_SIZE_T) function fs_read_symlink(path, result, buffer_size) bind(C)
 import
 character(kind=c_char), intent(in) :: path(*)
@@ -562,15 +556,6 @@ allocate(character(max_path()) :: cbuf)
 N = fs_join(trim(path) // C_NULL_CHAR, trim(other) // C_NULL_CHAR, cbuf, len(cbuf, kind=C_SIZE_T))
 allocate(character(N) :: join)
 join = cbuf(:N)
-end procedure
-
-module procedure lib_dir
-character(kind=C_CHAR, len=:), allocatable :: cbuf
-integer(C_SIZE_T) :: N
-allocate(character(max_path()) :: cbuf)
-N = fs_lib_dir(cbuf, len(cbuf, kind=C_SIZE_T))
-allocate(character(N) :: r)
-r = cbuf(:N)
 end procedure
 
 module procedure is_subdir

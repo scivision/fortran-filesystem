@@ -1250,14 +1250,6 @@ bool fs_mkdir(const char* path) {
 
 /* stubs for non-implemented functions */
 
-size_t fs_lib_dir(char* path, size_t buffer_size)
-{
-  fprintf(stderr, "ERROR:ffilesystem:fs_lib_dir: not implemented for non-C++\n");
-  (void) path; (void) buffer_size;
-  return 0;
-}
-
-
 size_t fs_exe_path(char* path, size_t buffer_size)
 {
   (void) path; (void) buffer_size;
