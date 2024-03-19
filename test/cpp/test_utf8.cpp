@@ -12,7 +12,9 @@
 int main()
 {
 
-std::string smiley = "😀", wink = "😉", hello = "你好";
+std::string smiley = "😀";
+std::string wink = "😉";
+std::string hello = "你好";
 
 std::string u1;
 
@@ -20,7 +22,7 @@ std::string u1;
 u1 = Ffs::canonical(".", true);
 std::cout << "canonical(.): " << u1 << "\n";
 
-for (auto u : {smiley, wink, hello}) {
+for ( const auto &u : {smiley, wink, hello} ) {
   u1 = Ffs::file_name("./" + u);
   if (u1 != u)
     err("Ffs::file_name(./" + smiley + ") != " + u1 + " " + u);

@@ -36,9 +36,7 @@ if(!Ffs::exists(fpath))
 
 std::string cpath = std::filesystem::current_path().string();
 
-std::string s = Ffs::normal(cpath);
-
-if (fpath != s)
+if (std::string s = Ffs::normal(cpath); fpath != s)
   err("C cwd " + s + " != Fortran cwd " + fpath);
 
 // --- homedir

@@ -30,10 +30,8 @@ std::string home = Ffs::get_homedir();
 if(home.empty())
   err("get_homedir() failed");
 
-std::string homex = Ffs::canonical("~", true);
-
-if (home != homex)
-  err("Ffs::canonical(~) != get_homedir()");
+if (std::string homex = Ffs::canonical("~", true); home != homex)
+  err("Ffs::canonical(~) " + homex + " != get_homedir() " + home);
 
 std::string homep = Ffs::parent(home);
 if(homep.empty())

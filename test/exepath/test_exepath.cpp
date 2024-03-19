@@ -14,11 +14,11 @@
 }
 
 
-void test_exe_path(char* argv[])
+void test_exe_path(const char* e)
 {
 
 std::string exepath = Ffs::exe_path();
-if (exepath.find(argv[1]) == std::string::npos)
+if (exepath.find(e) == std::string::npos)
   err("test_exepath: exe_path not found correctly: " + exepath);
 
 std::cout << "OK: exe_path: " << exepath << "\n";
@@ -38,10 +38,10 @@ int main(int argc, char* argv[])
 
   if (argc < 2) {
     std::cerr << "ERROR: test_exepath_c: not enough arguments\n";
-    return 1;
+    return EXIT_FAILURE;
   }
 
-  test_exe_path(argv);
+  test_exe_path(argv[1]);
 
   return EXIT_SUCCESS;
 }

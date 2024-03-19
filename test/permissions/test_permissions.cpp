@@ -31,7 +31,9 @@ std::string p = Ffs::get_permissions("");
 if(p.length() != 0)
     err("get_permissions('') should be empty, got: " + p);
 
-std::string read = "readable.txt", noread = "nonreadable.txt", nowrite = "nonwritable.txt";
+std::string read = "readable.txt";
+std::string noread = "nonreadable.txt";
+std::string nowrite = "nonwritable.txt";
 
 Ffs::touch(read);
 Ffs::set_permissions(read, 1, 0, 0);

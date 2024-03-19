@@ -24,7 +24,8 @@ int main(void){
   _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 #endif
 
-  std::string r, h;
+  std::string r;
+  std::string h;
 
   r = Ffs::expanduser("");
 
