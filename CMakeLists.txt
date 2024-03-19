@@ -99,7 +99,6 @@ $<$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>:${cwalk_SOURCE_DIR}/include>
 )
 
 target_compile_definitions(ffilesystem PRIVATE
-"$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<BOOL:${WIN32}>>:_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS>"
 "$<$<AND:$<COMPILE_LANGUAGE:C>,$<NOT:$<BOOL:${HAVE_CXX_FILESYSTEM}>>>:CWK_EXPORTS>"
 "$<$<AND:$<COMPILE_LANGUAGE:C>,$<BOOL:${HAVE_UTSNAME_H}>>:HAVE_UTSNAME_H>"
 "$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${${PROJECT_NAME}_WIN32_SYMLINK}>>:WIN32_SYMLINK>"
@@ -150,7 +149,6 @@ endif()
 if(ffilesystem_cli)
   if(HAVE_CXX_FILESYSTEM AND cpp20_ranges)
     add_executable(fs_cli app/main.cpp)
-    target_compile_definitions(fs_cli PRIVATE "$<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>")
     target_link_libraries(fs_cli PRIVATE ffilesystem)
 
     install(TARGETS fs_cli EXPORT ${PROJECT_NAME}-targets)

@@ -2,6 +2,16 @@
 
 // NOTE: this segfaults: std::filesystem::path p(nullptr);
 
+
+#ifdef MSC_VER
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+#ifndef _CRT_NONSTDC_NO_WARNINGS
+#define _CRT_NONSTDC_NO_WARNINGS
+#endif
+#endif
+
 #include <iostream>
 #include <algorithm>
 #include <array>
