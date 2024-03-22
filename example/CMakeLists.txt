@@ -47,7 +47,7 @@ get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
 
 # --- Windows shared DLLs
 if((CYGWIN OR WIN32) AND ffilesystem_shared)
-  set_property(TEST ${test_names} PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_append:${ffilesystem_DIR}/../bin")
+  set_property(TEST ${test_names} PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${ffilesystem_DIR}/../bin")
 endif()
 
 file(GENERATE OUTPUT .gitignore CONTENT "*")

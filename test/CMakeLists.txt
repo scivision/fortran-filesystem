@@ -19,7 +19,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
 
   if(BUILD_SHARED_LIBS AND (CYGWIN OR WIN32))
     set_property(TEST ${n} DIRECTORY ${t}
-    PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_append:$<TARGET_FILE_DIR:ffilesystem>"
+    PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:ffilesystem>"
     )
   endif()
 endif()
