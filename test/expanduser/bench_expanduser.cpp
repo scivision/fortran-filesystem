@@ -2,27 +2,28 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <functional>
 
 #include "ffilesystem.h"
 
 auto bench_c(
     int n,
     const char* path,
-    size_t (*f)(const char*, char*, size_t)
+    std::function<size_t(const char*, char*, size_t)> f
     )
 {
 size_t Lp = fs_get_max_path();
 // warmup
 auto t = std::chrono::duration<double>::max();
 auto buf = std::make_unique<char[]>(Lp);
-size_t L = f(path, buf.get(), Lp);
 std::cout << "WarmupC: " << buf.get() << "\n";
-if(L == 0) [[unlikely]]
+
+if(size_t L = f(path, buf.get(), Lp); L == 0) [[unlikely]]
   return t;
 
 for (int i = 0; i < n; ++i){
     auto t0 = std::chrono::steady_clock::now();
-    L = f(path, buf.get(), Lp);
+    f(path, buf.get(), Lp);
     auto t1 = std::chrono::steady_clock::now();
     t = std::min(t, std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0));
 }
