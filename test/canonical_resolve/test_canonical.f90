@@ -71,7 +71,6 @@ if (L3 - L2 /= L1) then
   write(stderr,*) 'ERROR relative file was not canonicalized: ' // file%path(), L2, par%path(), L3, len(dummy)
   error stop
 endif
-endif !< is_cygwin
 
 file = path_t('../' // dummy)
 file = file%canonical()

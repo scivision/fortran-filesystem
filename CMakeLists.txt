@@ -45,12 +45,11 @@ endif()
 set(_msg "${PROJECT_NAME} ${PROJECT_VERSION} CMake ${CMAKE_VERSION} ${CMAKE_SYSTEM_NAME} Toolchain ${CMAKE_TOOLCHAIN_FILE}")
 
 include(options.cmake)
-if(ffilesystem_cpp)
+
+if(ffilesystem_cpp OR ffilesystem_bench)
   enable_language(CXX)
-  string(APPEND _msg " CXX_STANDARD ${CMAKE_CXX_STANDARD}")
-else()
-  string(APPEND _msg " C_STANDARD ${CMAKE_C_STANDARD}")
 endif()
+
 if(ffilesystem_fortran)
   check_language(Fortran)
   if(CMAKE_Fortran_COMPILER)
@@ -61,7 +60,7 @@ if(ffilesystem_fortran)
   endif()
 endif()
 
-message(STATUS "${_msg}")
+message(STATUS "CXX_STANDARD ${CMAKE_CXX_STANDARD}  C_STANDARD ${CMAKE_C_STANDARD}")
 
 include(cmake/compilers.cmake)
 
@@ -105,10 +104,13 @@ target_compile_definitions(ffilesystem PRIVATE
 "$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<BOOL:${HAVE_DLADDR}>>:HAVE_DLADDR>"
 "$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<BOOL:${ffilesystem_trace}>>:FS_TRACE=1>"
 )
-set_property(TARGET ffilesystem PROPERTY PUBLIC_HEADER include/ffilesystem.h)
-set_property(TARGET ffilesystem PROPERTY EXPORT_NAME filesystem)
-set_property(TARGET ffilesystem PROPERTY Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
-set_property(TARGET ffilesystem PROPERTY VERSION ${PROJECT_VERSION})
+set_target_properties(ffilesystem PROPERTIES
+PUBLIC_HEADER include/ffilesystem.h
+EXPORT_NAME filesystem
+Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/include
+VERSION ${PROJECT_VERSION}
+WINDOWS_EXPORT_ALL_SYMBOLS ON
+)
 if(BUILD_SHARED_LIBS AND (WIN32 OR CYGWIN))
   target_compile_definitions(ffilesystem PRIVATE FS_DLL_NAME="$<TARGET_FILE_NAME:ffilesystem>")
 endif()

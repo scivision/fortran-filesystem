@@ -3,7 +3,7 @@
 // NOTE: this segfaults: std::filesystem::path p(nullptr);
 
 
-#ifdef MSC_VER
+#ifdef _MSC_VER
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #endif
@@ -833,8 +833,6 @@ bool Ffs::set_env(std::string_view name, std::string_view value)
 
   return true;
 }
-
-
 
 
 size_t fs_which(const char* name, char* result, size_t buffer_size)
