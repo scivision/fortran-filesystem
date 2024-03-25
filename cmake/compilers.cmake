@@ -82,6 +82,11 @@ if(CMAKE_C_COMPILER_ID STREQUAL "IntelLLVM")
   add_compile_options("$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<CONFIG:Debug>>:-Rno-debug-disables-optimization>")
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "10")
+  add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-Wno-attributes>")
+  # this is for UNLIKELY/LIKELY macros
+endif()
+
 # --- Fortran compile flags
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")
 
