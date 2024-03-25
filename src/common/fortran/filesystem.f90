@@ -1,7 +1,7 @@
 module filesystem
 
 use, intrinsic:: iso_c_binding, only: C_BOOL, C_CHAR, C_INT, C_LONG
-use, intrinsic:: iso_fortran_env, only: int64
+use, intrinsic:: iso_fortran_env, only: int64, compiler_version
 
 implicit none
 private
@@ -22,7 +22,7 @@ remove, get_tempdir, &
 chmod_exe, set_permissions, get_permissions, &
 fs_cpp, fs_lang, pathsep, is_safe_name, &
 is_admin, is_bsd, is_macos, is_windows, is_cygwin, is_wsl, is_mingw, is_linux, is_unix, &
-get_max_path, exe_path, lib_path, compiler, &
+get_max_path, exe_path, lib_path, compiler, compiler_c, &
 longname, shortname, getenv, setenv
 
 
@@ -377,8 +377,8 @@ character(*), intent(in) :: tgt, link
 logical, intent(out), optional :: ok
 end subroutine
 
-module function compiler() result(r)
-!! get compiler version from C preprocessor
+module function compiler_c() result(r)
+!! get C/C++ compiler name and version
 character(:), allocatable :: r
 end function
 
@@ -491,6 +491,11 @@ if (is_windows()) then
 else
   pathsep = ":"
 endif
+end function
+
+function compiler() result(r)
+character(:), allocatable :: r
+r = compiler_version()
 end function
 
 

@@ -47,6 +47,8 @@ main : do
     print '(A)', pathsep()
   case ("compiler")
     print '(A)', compiler()
+  case ("compiler_c")
+    print '(A)', compiler_c()
   case ("homedir")
     print '(A)', get_homedir()
   case ("cwd")

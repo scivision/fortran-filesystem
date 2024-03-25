@@ -33,6 +33,21 @@ m = get_max_path()
 
 ## System capabilities
 
+Character, allocatable: the Fortran compiler name and version
+
+```sh
+compiler()
+```
+
+Character, allocatable: the C/C++ compiler name and version.
+
+* C++ backend: output is non-empty if c++20 std::format is available
+* C backend: output is non-empty for known compilers
+
+```sh
+compiler_c()
+```
+
 
 Logical: ffilesystem is using C++ backend
 

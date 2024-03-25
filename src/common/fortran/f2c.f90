@@ -323,7 +323,7 @@ allocate(character(N) :: r)
 r = cbuf(:N)
 end procedure
 
-module procedure compiler
+module procedure compiler_c
 character(kind=C_CHAR, len=:), allocatable :: cbuf
 integer(C_SIZE_T) :: N
 allocate(character(max_path()) :: cbuf)
