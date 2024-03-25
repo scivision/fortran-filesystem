@@ -587,7 +587,9 @@ bool fs_equivalent(const char* path1, const char* path2)
 size_t fs_expanduser(const char* path, char* result, size_t buffer_size)
 {
   // The path is also normalized by defintion
-  if(path[0] != '~' || (strlen(path) > 1 && !(path[0] == '~' && path[1] == '/')))
+  if(path[0] != '~')
+    return fs_normal(path, result, buffer_size);
+  if(strlen(path) > 1 && path[1] != '/')
     return fs_normal(path, result, buffer_size);
 
   char* buf = (char*) malloc(buffer_size);
@@ -1076,7 +1078,7 @@ size_t fs_get_cwd(char* path, size_t buffer_size)
 size_t fs_get_homedir(char* path, size_t buffer_size)
 {
   // homedir is normalized by definition
-  size_t L = fs_getenv(fs_is_windows() ?  "USERPROFILE" : "HOME", path, buffer_size);
+  size_t L = fs_getenv(fs_is_windows() ? "USERPROFILE" : "HOME", path, buffer_size);
   if (L)
     return fs_normal(path, path, buffer_size);
 
