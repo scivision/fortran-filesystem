@@ -1036,6 +1036,7 @@ size_t fs_get_homedir(char* path, size_t buffer_size)
 std::string Ffs::get_homedir()
 {
   // homedir is normalized by definition
+  // must be std::string to avoid dangling pointer -- GCC doesn't detect this but Clang does.
   std::string homedir = Ffs::get_env(fs_is_windows() ? "USERPROFILE" : "HOME");
   if(!homedir.empty())
     return Ffs::normal(homedir);
@@ -1056,12 +1057,12 @@ std::string Ffs::get_homedir()
   if (!ok)
     return {};
 
-  homedir = std::string(buf.get());
+  homedir = std::string_view(buf.get());
 #else
   const char *h = getpwuid(geteuid())->pw_dir;
   if (!h)
     return {};
-  homedir = std::string(h);
+  homedir = std::string_view(h);
 #endif
 
   return Ffs::normal(homedir);
@@ -1080,38 +1081,35 @@ std::string Ffs::expanduser(std::string_view path)
     return {};
   // cannot call .front() on empty string_view() (MSVC)
 
-  if(std::set <char> filesep = {'/', fs::path::preferred_separator};
-     path.front() != '~' || (path.length() > 1 &&
+  if(path.front() != '~')
+    return Ffs::normal(path);
+
+  std::set <char> filesep = {'/', fs::path::preferred_separator};
+
+  if(path.length() > 1 &&
+     // second character is not a file separator
 #if __cplusplus >= 202002L
   !filesep.contains(path[1])
 #else
   filesep.find(path[1]) == filesep.end()
 #endif
-  )){
-
-    if (FS_TRACE) std::cout << "TRACE:expanduser: not leading tilde " << path << "\n";
-
+  )
     return Ffs::normal(path);
-  }
+
 
   std::string h = Ffs::get_homedir();
   if (h.empty()){
     std::cerr << "ERROR:ffilesystem:expanduser: could not get home directory\n";
     return {};
   }
-
-  if (FS_TRACE) std::cout << "TRACE:expanduser: path(home) " << h << "\n";
+  if (path.length() < 3)
+    return h;
 
 // drop duplicated separators
 // NOT .lexical_normal to handle "~/.."
   std::regex r("/{2,}");
   std::string p = Ffs::as_posix(path);
   p = std::regex_replace(p, r, "/");
-
-  if(FS_TRACE) std::cout << "TRACE:expanduser: path deduped " << p << "\n";
-
-  if (p.length() < 3)
-    return h;
 
   // The path is also normalized by definition
   return Ffs::normal((fs::path(h) / p.substr(2)).generic_string());
