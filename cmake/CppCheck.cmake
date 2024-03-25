@@ -2,14 +2,6 @@
 
 function(cpp_check)
 
-# https://en.cppreference.com/w/cpp/feature_test
-check_cxx_symbol_exists(__cpp_lib_filesystem "filesystem" HAVE_FS_FEATURE)
-
-if(NOT HAVE_FS_FEATURE)
-  message(WARNING "C++ filesystem feature is not available with ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-  return()
-endif()
-
 # some compilers e.g. Cray claim to have filesystem, but their libstdc++ doesn't have it.
 check_cxx_source_compiles([=[
 #include <cstdlib>
@@ -41,29 +33,30 @@ if(NOT cpp14_make_unique)
   return()
 endif()
 
-if(NOT DEFINED PROJECT_IS_TOP_LEVEL OR NOT PROJECT_IS_TOP_LEVEL)
-  # these checks are normally not significant for end users--save time on slow systems
-  # like HPC login nodes
-  return()
-endif()
-
 # e.g. AppleClang 15 doesn't yet have this, maybe not worth the bother
 # i.e. benchmarking may reveal miniscule benefit.
 # check_cxx_symbol_exists(__cpp_lib_smart_ptr_for_overwrite "memory" cpp20_smart_ptr_for_overwrite)
 
-# informational for dev users
-if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
-  check_cxx_symbol_exists(__cpp_lib_format "format" cpp20_format)
-endif()
-
-if(NOT cpp20_format)
-  message(VERBOSE "fs_compiler() will return empty as compiler doesn't have C++20 std::format")
-endif()
-
-if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
-  check_cxx_symbol_exists(__cpp_lib_starts_ends_with "string" cpp20_string_ends_with)
+if(${PROJECT_NAME}_cli)
   check_cxx_symbol_exists(__cpp_lib_ranges "algorithm" cpp20_ranges)
+endif()
+
+if(${PROJECT_NAME}_trace)
+  check_cxx_symbol_exists(__cpp_lib_starts_ends_with "string" cpp20_string_ends_with)
   check_cxx_symbol_exists(__cpp_using_enum "" cpp20_using_enum)
+endif()
+
+if(${PROJECT_NAME}_bench)
+  check_cxx_source_compiles("#if !__has_cpp_attribute(likely)
+  #error \"no likely attribute\"
+  #endif
+  int main(){ return 0; }"
+  cpp20_likely
+  )
+  if(NOT cpp20_likely)
+    message(FATAL_ERROR "Ffilesystem benchmarks require C++20 likely attribute.
+    Set 'cmake -Dffilesystem_bench=OFF' to disable.")
+  endif()
 endif()
 
 endfunction()
