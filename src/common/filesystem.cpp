@@ -33,7 +33,6 @@
 #include <cstring>
 #include <string>
 #include <fstream>
-#include <regex>
 #include <set>
 #include <cstdint>
 #include <cstdlib>
@@ -1135,14 +1134,19 @@ std::string Ffs::expanduser(std::string_view path)
   if (path.length() < 3)
     return h;
 
-// drop duplicated separators
-// NOT .lexical_normal to handle "~/.."
-  std::regex r("/{2,}");
-  std::string p = Ffs::as_posix(path);
-  p = std::regex_replace(p, r, "/");
+// handle initial duplicated file separators. NOT .lexical_normal to handle "~/.."
+  size_t i = 2;
+  while(i < path.length() &&
+#if __cplusplus >= 202002L
+  filesep.contains(path[i])
+#else
+  filesep.find(path[i]) != filesep.end()
+#endif
+  )
+    i++;
 
   // The path is also normalized by definition
-  return Ffs::normal((fs::path(h) / p.substr(2)).generic_string());
+  return Ffs::normal((fs::path(h) / path.substr(i)).generic_string());
 }
 
 
