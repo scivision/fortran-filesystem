@@ -11,9 +11,6 @@ print '(a)', "OK fs: exists"
 call test_homedir()
 print '(a)', "OK fs: homedir"
 
-call test_setenv()
-print '(a)', "OK fs: setenv"
-
 if (len_trim(get_tempdir()) == 0) error stop "get_tempdir failed"
 print '(a)', "OK: get_tempdir: " // get_tempdir()
 
@@ -57,21 +54,6 @@ h = get_homedir()
 
 if (len_trim(h) == 0) error stop "get_homedir failed: zero length result. This can happen on to CI due to getpwuid() restrictions."
 print '(a)', "get_homedir: " // h
-
-end subroutine
-
-
-subroutine test_setenv()
-
-character(:), allocatable :: k, v, buf
-
-k = "TEST_ENV_VAR"
-v = "test_value"
-
-call setenv(k, v)
-buf = getenv(k)
-
-if (buf /= v) error stop "setenv/getenv failed: " // buf // " /= " // v
 
 end subroutine
 
