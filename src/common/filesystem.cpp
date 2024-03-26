@@ -634,7 +634,7 @@ bool Ffs::is_reserved(std::string_view path)
   return false;
 #elif defined(__cpp_lib_ranges)
 
-  std::set<std::string, std::less<>> reserved {
+  std::set<std::string_view, std::less<>> reserved {
       "CON", "PRN", "AUX", "NUL",
       "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
       "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};

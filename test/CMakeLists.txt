@@ -4,6 +4,13 @@ set(${PROJECT_NAME}_fortran_test_flags
   "$<$<AND:$<Fortran_COMPILER_ID:GNU>,$<VERSION_LESS:$<Fortran_COMPILER_VERSION>,13>>:-Wno-maybe-uninitialized>"
 )
 
+if(ffilesystem_bench)
+  add_library(ffilesystem_bench OBJECT ffilesystem_bench.cpp)
+  target_include_directories(ffilesystem_bench PRIVATE ${PROJECT_SOURCE_DIR}/include
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+  target_compile_definitions(ffilesystem_bench PRIVATE HAVE_CXX_FILESYSTEM=$<BOOL:${HAVE_CXX_FILESYSTEM}>)
+endif()
+
 foreach(t IN ITEMS canonical_resolve cpp fortran core empty environment
   executable exepath
   expanduser fileops libpath mkdtemp overflow permissions reserved symlink windows)

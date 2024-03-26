@@ -1,3 +1,15 @@
+if(ffilesystem_bench)
+
+add_executable(bench_exe bench_exe.cpp)
+target_link_libraries(bench_exe PRIVATE ffilesystem_bench ffilesystem)
+
+add_test(NAME bench_exe COMMAND bench_exe)
+set_tests_properties(bench_exe PROPERTIES
+LABELS "bench"
+RUN_SERIAL TRUE
+)
+endif()
+
 if(HAVE_CXX_FILESYSTEM)
 
 add_executable(test_exe_cpp test_exe.cpp)

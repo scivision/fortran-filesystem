@@ -1,8 +1,7 @@
 if(ffilesystem_bench)
 
 add_executable(bench_canonical bench_canonical.cpp)
-target_link_libraries(bench_canonical PRIVATE ffilesystem)
-target_compile_definitions(bench_canonical PRIVATE HAVE_CXX_FILESYSTEM=$<BOOL:${HAVE_CXX_FILESYSTEM}>)
+target_link_libraries(bench_canonical PRIVATE ffilesystem_bench ffilesystem)
 
 add_test(NAME bench_canonical COMMAND bench_canonical)
 set_tests_properties(bench_canonical PROPERTIES
