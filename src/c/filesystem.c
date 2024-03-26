@@ -687,8 +687,9 @@ bool fs_is_file(const char* path)
 
 bool fs_is_reserved(const char* path)
 {
-  fprintf(stderr, "ERROR:ffilesystem:is_reserved: not implemented without C++\n");
   (void)path;
+  if(fs_is_windows())
+    fprintf(stderr, "ERROR:ffilesystem:is_reserved: not implemented without C++\n");
   return false;
 }
 
