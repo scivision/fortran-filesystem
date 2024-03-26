@@ -1,16 +1,3 @@
-if(ffilesystem_bench)
-
-add_executable(bench_env bench_env.cpp)
-target_link_libraries(bench_env PRIVATE ffilesystem_bench ffilesystem)
-
-add_test(NAME bench_env COMMAND bench_env)
-set_tests_properties(bench_env PROPERTIES
-LABELS "bench"
-RUN_SERIAL TRUE
-)
-
-endif()
-
 set(_noenv)
 
 if(HAVE_Fortran_FILESYSTEM)

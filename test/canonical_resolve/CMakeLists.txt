@@ -1,17 +1,3 @@
-if(ffilesystem_bench)
-
-add_executable(bench_canonical bench_canonical.cpp)
-target_link_libraries(bench_canonical PRIVATE ffilesystem_bench ffilesystem)
-
-add_test(NAME bench_canonical COMMAND bench_canonical)
-set_tests_properties(bench_canonical PROPERTIES
-LABELS "bench"
-RUN_SERIAL TRUE
-)
-
-endif()
-
-
 if(HAVE_CXX_FILESYSTEM)
 
 add_executable(test_canonical_cpp test_canonical.cpp)
@@ -33,6 +19,5 @@ foreach(t IN ITEMS canonical resolve)
   add_test(NAME Fortran_${t} COMMAND Fortran_${t})
   set_property(TEST Fortran_${t} PROPERTY PROPERTY LABELS "Fortran")
 endforeach()
-
 
 endif()

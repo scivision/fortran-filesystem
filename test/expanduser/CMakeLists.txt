@@ -1,16 +1,3 @@
-if(ffilesystem_bench)
-
-add_executable(bench_expanduser bench_expanduser.cpp)
-target_link_libraries(bench_expanduser PRIVATE ffilesystem_bench ffilesystem)
-
-add_test(NAME bench_expanduser COMMAND bench_expanduser)
-set_tests_properties(bench_expanduser PROPERTIES
-LABELS "bench"
-RUN_SERIAL TRUE
-)
-endif()
-
-
 if(HAVE_CXX_FILESYSTEM)
 
 add_executable(test_expanduser_cpp test_expanduser.cpp)
