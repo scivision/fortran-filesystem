@@ -441,8 +441,12 @@ size_t fs_which(const char* name, char* result, size_t buffer_size)
   if(strlen(name) == 0)
     return 0;
 
-  if(fs_is_absolute(name) && fs_is_exe(name))
-    return fs_normal(name, result, buffer_size);
+  if(fs_is_absolute(name)){
+    if(fs_is_exe(name))
+      return fs_normal(name, result, buffer_size);
+    else
+      return 0;
+  }
 
   char* path = getenv("PATH");
   if(!path){
