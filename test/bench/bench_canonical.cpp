@@ -23,7 +23,7 @@ for (std::set<std::string_view, std::less<>> funcs = {"canonical", "resolve"};
   auto t = bench_c(n, path, func);
   std::cout << "C: " << n << " x " << func << "(" << path << "): " << t << "\n";
 
-  if(fs_cpp())
+  if(!fs_cpp())
     continue;
 
   t = bench_cpp(n, path, func);
