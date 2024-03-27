@@ -15,7 +15,7 @@ can be used from C and C++ project code--see
 
 For C++ users, **C++17 standard** is required.
 For C users, **C99 standard** is required.
-FFortran uses **Fortran 2008 standard** and either the C or C++ Ffilesystem backend.
+Fortran uses **Fortran 2008 standard** and either the C or C++ Ffilesystem backend.
 
 For full features, Ffilesystem uses
 [C++ stdlib filesystem](https://en.cppreference.com/w/cpp/filesystem).
@@ -24,8 +24,10 @@ For the less common case that a compatible C++ isn't available on Unix-like syst
 and C runtime library.
 However, Windows systems *require* the C++ stdlib filesystem with a working C++ compiler.
 
-Inspired by
+Inspired by (and benchmarked against)
 [Python pathlib](https://docs.python.org/3/library/pathlib.html).
+
+Important Ffilesystem functions are [benchmarked](./test/bench/bench.md) to help improve performance.
 
 Fortran "filesystem" module contains Fortran type "path_t" that contains properties and methods.
 The "path_t" type uses getter and setter procedure to access the path as a string `character(:), allocatable`.

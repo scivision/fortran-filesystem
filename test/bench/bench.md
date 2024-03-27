@@ -1,3 +1,12 @@
+# Ffilesystem Benchmarks
+
+These were run ~ commit 8424937f using `CMAKE_BUILD_TYPE=Release`.
+
+* which(): wallclock time is proportional to the number of directories in PATH and which position in PATH the executable happens to be at.
+* homedir(): wallclock time is proportional to the number of environment variables.
+* expanduser(): wallclock time varies considerably depending if "~" or "~/" are the leading characters or not. Also calls homedir().
+* canonical(): wallclock time depends on if the path is already absolute and is proportional to the number of symlinks in the path, length of the path, and also calls expanduser().
+
 
 ## Linux
 
@@ -82,4 +91,26 @@ Cpp: 1000 x homedir() = C:/Users/xxx: 4.7 us
 Cpp: 1000 x normal(~/..) = .: 0.2 us
 Cpp: 1000 x resolve(~/..) = C:/Users: 40.3 us
 Cpp: 1000 x which(cmd.exe) = C:/WINDOWS/system32/cmd.exe: 272.7 us
+```
+
+### WSL (Ubuntu 22.04): GNU GCC 11.4.0
+
+```
+Cpp: 1000 x canonical(~/..) = /home: 2.116 us
+Cpp: 1000 x expanduser(~/..) = /home: 0.897 us
+Cpp: 1000 x homedir() = /home/xxx: 0.304 us
+Cpp: 1000 x normal(~/..) = .: 0.212 us
+Cpp: 1000 x resolve(~/..) = /home: 2.129 us
+Cpp: 1000 x which(sh) = /usr/bin/sh: 3.213 us
+```
+
+### Cygwin: GNU GCC 11.4.0
+
+```
+Cpp: 1000 x canonical(~/..) = /home: 105.9 us
+Cpp: 1000 x expanduser(~/..) = /home: 4.4 us
+Cpp: 1000 x homedir() = /home/xxx: 1.6 us
+Cpp: 1000 x normal(~/..) = .: 0.8 us
+Cpp: 1000 x resolve(~/..) = /home: 100.3 us
+Cpp: 1000 x which(sh) = /usr/bin/sh: 92.2 us
 ```
