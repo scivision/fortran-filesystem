@@ -83,6 +83,21 @@ return t;
 }
 
 
+void print_c(std::chrono::duration<double> t, int n, std::string_view path, std::string_view func)
+{
+  std::chrono::nanoseconds ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t);
+  double us = ns.count() / 1000.0;
+  std::cout << "C: " << n << " x " << func << "(" << path << "): " << us << " us\n";
+}
+
+void print_cpp(std::chrono::duration<double> t, int n, std::string_view path, std::string_view func)
+{
+  std::chrono::nanoseconds ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t);
+  double us = ns.count() / 1000.0;
+  std::cout << "Cpp: " << n << " x " << func << "(" << path << "): " << us << " us\n";
+}
+
+
 
 std::chrono::duration<double> bench_cpp(int n, std::string_view path, std::string_view fname)
 {
