@@ -204,6 +204,12 @@ if(argc > 1)
 
 std::string_view path;
 
+auto buf = std::make_unique<char[]>(1000);
+size_t L = fs_compiler(buf.get(), 1000);
+if(L)
+  std::cout << buf.get() << "\n";
+
+
 for (std::set<std::string_view, std::less<>> funcs = {"canonical", "resolve", "which", "expanduser", "normal", "homedir"};
       std::string_view func : funcs) {
 

@@ -129,38 +129,6 @@ return true;
 }
 
 
-size_t fs_compiler(char* name, size_t buffer_size)
-{
-int L=0;
-
-#if defined(__INTEL_LLVM_COMPILER)
-  L = snprintf(name, buffer_size, "Intel LLVM %d %s", __INTEL_LLVM_COMPILER,  __VERSION__);
-#elif defined(__NVCOMPILER_LLVM__)
-  L = snprintf(name, buffer_size, "NVIDIA nvc %d.%d.%d", __NVCOMPILER_MAJOR__, __NVCOMPILER_MINOR__, __NVCOMPILER_PATCHLEVEL__);
-#elif defined(__clang__)
-  #ifdef __VERSION__
-    L = snprintf(name, buffer_size, "Clang %s", __VERSION__);
-  #else
-    L = snprintf(name, buffer_size, "Clang %d.%d.%d", __clang_major__, __clang_minor__, __clang_patchlevel__);
-  #endif
-#elif defined(__GNUC__)
-  L = snprintf(name, buffer_size, "GNU GCC %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-#else
-  name[0] = '\0';
-#endif
-
-if (L < 0){ // cppcheck-suppress knownConditionTrueFalse
-  fprintf(stderr, "ERROR:ffilesystem:fs_compiler: snprintf failed\n");
-  L = 0;
-}
-if((size_t)L >= buffer_size){  // cppcheck-suppress unsignedLessThanZero
-  name[buffer_size-1] = '\0';
-  L = buffer_size-1;
-}
-
-  return L;
-}
-
 void fs_as_posix(char* path)
 {
 // force posix file seperator on Windows

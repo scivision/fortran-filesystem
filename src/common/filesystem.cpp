@@ -186,11 +186,6 @@ bool Ffs::is_safe_name(std::string_view filename)
 }
 
 
-size_t fs_compiler(char* name, size_t buffer_size)
-{
-  return fs_str2char(Ffs::compiler(), name, buffer_size);
-}
-
 std::string Ffs::compiler()
 {
 #ifdef __cpp_lib_format
