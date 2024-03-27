@@ -868,15 +868,6 @@ std::string Ffs::which(std::string_view name)
   if (Ffs::is_absolute(n))
     return Ffs::is_exe(n) ? Ffs::normal(n) : std::string();
 
-  std::string p;
-
-  // Windows gives priority to cwd, so check that first
-  if(fs_is_windows()){
-    p = Ffs::join(Ffs::get_cwd(), n);
-    if(Ffs::is_exe(p))
-      return p;
-  }
-
   const char pathsep = fs_pathsep();
 
   std::string path = Ffs::get_env("PATH");
@@ -886,22 +877,27 @@ std::string Ffs::which(std::string_view name)
     return {};
   }
 
+  // Windows gives priority to cwd, so check that first
+  if(fs_is_windows())
+    path = Ffs::get_cwd() + pathsep + path;
+
   std::string::size_type start = 0;
   std::string::size_type end = path.find_first_of(pathsep, start);
+  std::string p;
 
   while (end != std::string::npos) {
-    p = Ffs::join(std::string_view(path).substr(start, end - start), n);
+    p = path.substr(start, end - start) + "/" + n;
     if (FS_TRACE) std::cout << "TRACE:ffilesystem:which: " << p << "\n";
     if (Ffs::is_exe(p))
-      return p;
+      return Ffs::normal(p);
 
     start = end + 1;
     end = path.find_first_of(pathsep, start);
   }
 
-  p = Ffs::join(std::string_view(path).substr(start), n);
+  p = path.substr(start) + "/" + n;
   if(Ffs::is_exe(p))
-    return p;
+    return Ffs::normal(p);
 
   return {};
 }
