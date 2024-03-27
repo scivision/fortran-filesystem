@@ -4,12 +4,14 @@
 #include <iostream>
 #include <functional>
 #include <map>
+#include <set>
+#include <cstdlib>
 
 #include "ffilesystem.h"
 #include "ffilesystem_bench.h"
 
 
-std::chrono::duration<double> bench_c(int n, std::string_view path, std::string_view fname)
+std::chrono::duration<double> bench_c(int n, std::string_view path, std::string_view fname, bool verbose)
 {
 
 std::map<std::string_view, std::function<size_t(char*, size_t)>> s_ =
@@ -46,6 +48,7 @@ const bool strict = false;
 
 size_t Lp = fs_get_max_path();
 // warmup
+std::string_view w;
 auto t = std::chrono::duration<double>::max();
 size_t L=0;
 
@@ -61,9 +64,10 @@ else [[unlikely]]
     std::cerr << "Error: unknown function " << fname << "\n";
     return t;
   }
-std::cout << "WarmupC: " << buf.get() << "\n";
 if(L == 0) [[unlikely]]
-    return t;
+  return t;
+
+w = buf.get();
 
 for (int i = 0; i < n; ++i){
     auto t0 = std::chrono::steady_clock::now();
@@ -79,27 +83,30 @@ for (int i = 0; i < n; ++i){
     t = std::min(t, std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0));
 }
 
+if(verbose)
+  print_c(t, n, path, fname, w);
+
 return t;
 }
 
 
-void print_c(std::chrono::duration<double> t, int n, std::string_view path, std::string_view func)
+void print_c(std::chrono::duration<double> t, int n, std::string_view path, std::string_view func, std::string_view w)
 {
   std::chrono::nanoseconds ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t);
   double us = ns.count() / 1000.0;
-  std::cout << "C: " << n << " x " << func << "(" << path << "): " << us << " us\n";
+  std::cout << "C: " << n << " x " << func << "(" << path << ") = " << w << ": " << us << " us\n";
 }
 
-void print_cpp(std::chrono::duration<double> t, int n, std::string_view path, std::string_view func)
+void print_cpp(std::chrono::duration<double> t, int n, std::string_view path, std::string_view func, std::string_view w)
 {
   std::chrono::nanoseconds ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t);
   double us = ns.count() / 1000.0;
-  std::cout << "Cpp: " << n << " x " << func << "(" << path << "): " << us << " us\n";
+  std::cout << "Cpp: " << n << " x " << func << "(" << path << ") = " << w << ": " << us << " us\n";
 }
 
 
 
-std::chrono::duration<double> bench_cpp(int n, std::string_view path, std::string_view fname)
+std::chrono::duration<double> bench_cpp(int n, std::string_view path, std::string_view fname, bool verbose)
 {
 
 auto t = std::chrono::duration<double>::max();
@@ -160,7 +167,6 @@ else [[unlikely]]
     return t;
   }
 
-std::cout << "WarmupCpp: " << h << "\n";
 if(h.empty()) [[unlikely]]
 {
     std::cerr << "Error: empty\n";
@@ -181,7 +187,46 @@ for (int i = 0; i < n; ++i){
     t = std::min(t, std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0));
 }
 
+if(verbose)
+  print_cpp(t, n, path, fname, h);
+
 #endif
 
 return t;
+}
+
+
+int main(int argc, char** argv){
+
+int n = 1000;
+if(argc > 1)
+    n = std::stoi(argv[1]);
+
+std::string_view path;
+
+for (std::set<std::string_view, std::less<>> funcs = {"canonical", "resolve", "which", "expanduser", "normal", "homedir"};
+      std::string_view func : funcs) {
+
+  std::set <std::string_view, std::less<>> tildef = {"canonical", "resolve", "normal", "expanduser"};
+
+  if (argc > 2)
+    path = std::string_view(argv[2]);
+  else {
+    if (tildef.contains(func))
+      path = "~/..";
+    else if (func == "which")
+      path = (fs_is_windows()) ? "cmd.exe" : "sh";
+    else
+      path = "";
+  }
+
+ bench_c(n, path, func, true);
+
+  if(fs_cpp())
+    bench_cpp(n, path, func, true);
+}
+
+
+return EXIT_SUCCESS;
+
 }
